@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>INSPO - Brand Experience</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "surface": "#f9f9f9",
+                        "tertiary-container": "#1a1c1c",
+                        "secondary-container": "#dcdddd",
+                        "on-secondary-container": "#5f6161",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#848484",
+                        "inverse-surface": "#2f3131",
+                        "on-tertiary-container": "#838484",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#f0f1f1",
+                        "on-secondary-fixed-variant": "#454747",
+                        "surface-tint": "#5e5e5e",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1a1c1c",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1a1c1c",
+                        "on-tertiary-fixed-variant": "#454747",
+                        "outline-variant": "#cfc4c5",
+                        "surface-bright": "#f9f9f9",
+                        "on-primary-fixed-variant": "#474747",
+                        "on-primary-fixed": "#1b1b1b",
+                        "outline": "#7e7576",
+                        "tertiary-fixed": "#e2e2e2",
+                        "inverse-primary": "#c6c6c6",
+                        "secondary-fixed": "#e2e2e2",
+                        "surface-container-high": "#e8e8e8",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "primary-fixed": "#e2e2e2",
+                        "on-surface-variant": "#4c4546",
+                        "primary": "#000000",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#5d5f5f",
+                        "surface-dim": "#dadada",
+                        "background": "#f9f9f9",
+                        "surface-container-highest": "#e2e2e2",
+                        "tertiary": "#000000",
+                        "surface-container": "#eeeeee",
+                        "surface-container-low": "#f3f3f4",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "on-tertiary-fixed": "#1a1c1c",
+                        "primary-container": "#1b1b1b",
+                        "surface-variant": "#e2e2e2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "48px",
+                        "container-max": "1440px",
+                        "xl": "80px",
+                        "md": "24px",
+                        "gutter": "24px",
+                        "base": "4px",
+                        "xs": "8px",
+                        "sm": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Anton"],
+                        "display-lg": ["Anton"],
+                        "headline-lg": ["Anton"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Anton"],
+                        "label-caps": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "display-xl": ["Anton"],
+                        "button-text": ["Anton"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "120%", "fontWeight": "400" }],
+                        "display-lg": ["64px", { "lineHeight": "100%", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+                        "headline-lg": ["40px", { "lineHeight": "110%", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "150%", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "110%", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "100%", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "160%", "fontWeight": "400" }],
+                        "display-xl": ["96px", { "lineHeight": "100%", "letterSpacing": "-0.02em", "fontWeight": "400" }],
+                        "button-text": ["16px", { "lineHeight": "100%", "letterSpacing": "0.05em", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .masonry-grid {
+            column-count: 1;
+            column-gap: 24px;
+        }
+        @media (min-width: 768px) {
+            .masonry-grid {
+                column-count: 2;
+            }
+        }
+        @media (min-width: 1024px) {
+            .masonry-grid {
+                column-count: 3;
+            }
+        }
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 24px;
+        }
+        
+        .img-overlay-hover:hover .img-overlay-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .img-overlay-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased selection:bg-surface-variant selection:text-on-surface font-body-md text-body-md">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-surface border-b border-surface-variant">
+<div class="flex justify-between items-center w-full px-xl h-20 max-w-container-max mx-auto">
+<div class="flex items-center">
+<a class="font-display-lg text-display-lg text-primary tracking-tighter hidden md:block" href="#">APEX TENNIS</a>
+<a class="font-display-lg text-headline-lg-mobile text-primary tracking-tighter md:hidden" href="#">APEX</a>
+</div>
+<div class="hidden md:flex space-x-lg font-label-caps text-label-caps items-center">
+<a class="text-secondary hover:text-primary transition-colors hover:bg-surface-container transition-all duration-150 py-2 px-4 rounded-none" href="#">SHOP ALL</a>
+<a class="text-secondary hover:text-primary transition-colors hover:bg-surface-container transition-all duration-150 py-2 px-4 rounded-none" href="#">NEW ARRIVALS</a>
+<a class="text-primary border-b-2 border-primary pb-2 py-2 px-4 rounded-none" href="#">PERFORMANCE</a>
+<a class="text-secondary hover:text-primary transition-colors hover:bg-surface-container transition-all duration-150 py-2 px-4 rounded-none" href="#">LIFESTYLE</a>
+<a class="text-secondary hover:text-primary transition-colors hover:bg-surface-container transition-all duration-150 py-2 px-4 rounded-none" href="#">ACCESSORIES</a>
+</div>
+<div class="flex items-center space-x-md text-primary">
+<button aria-label="shopping_cart" class="hover:bg-surface-container transition-all duration-150 p-2 opacity-80 scale-95">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<button aria-label="person" class="hover:bg-surface-container transition-all duration-150 p-2 opacity-80 scale-95">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="relative w-full h-[819px] min-h-[600px] mt-20 flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 bg-surface z-0">
+<img class="w-full h-full object-cover opacity-80 mix-blend-multiply" data-alt="A dramatic shot of a tennis player preparing to serve on a grass court. The lighting highlights the intensity of the moment and the texture of the grass and racquet." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkM3HglH3BvpsJZINWzxnaX4v7C6vPhVoUokQyDwMzNfevtsjdPCeQxHEiUsI5SAdSpsHHsZYWVwJEzms62qbJXg7LIvZ_DBvlWgdVIDc7eidcex6xO0MM_rIj7d1sGF_xQZ72l5QblHjsqiW2Pb41VSAZoaMkSDEIQwTEQUnLobVEwO-_ZbInKRQNL93F64vKwqK2IZz1hQTLsTtKrnEHkRJaUG0UucU24KShaN3qae3UlmtsGbqV"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-white/20 opacity-100"></div>
+</div>
+<div class="relative z-10 text-center px-sm md:px-xl max-w-container-max mx-auto flex flex-col items-center">
+<h1 class="font-display-xl text-display-lg md:text-display-xl text-primary uppercase tracking-tighter mb-md">Science of the Swing</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-xl">Explore the raw energy, dedication, and technical precision behind APEX TENNIS. Witness performance engineered for the edge of the court.</p>
+<a class="inline-flex items-center justify-center bg-primary text-on-primary font-button-text text-button-text uppercase px-xl py-md rounded-none hover:bg-inverse-surface transition-colors duration-300" href="#gallery">
+            Explore Heritage &amp; Innovation
+        </a>
+</div>
+</header>
+<!-- Main Content -->
+<main class="w-full px-sm md:px-xl py-xl max-w-container-max mx-auto space-y-xl" id="gallery">
+<!-- Masonry Gallery -->
+<section>
+<div class="flex justify-between items-end mb-lg border-b border-surface-variant pb-md">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary uppercase">The Lab</h2>
+<div class="hidden md:flex space-x-sm">
+<button class="font-label-caps text-label-caps text-on-primary bg-primary border border-primary px-4 py-2 hover:bg-inverse-surface transition-colors">ALL</button>
+<button class="font-label-caps text-label-caps text-secondary border border-secondary hover:text-primary hover:border-primary px-4 py-2 transition-colors">TRAINING</button>
+<button class="font-label-caps text-label-caps text-secondary border border-secondary hover:text-primary hover:border-primary px-4 py-2 transition-colors">COMPETITION</button>
+</div>
+</div>
+<div class="masonry-grid">
+<!-- Item 1: Large Image -->
+<div class="masonry-item relative group img-overlay-hover overflow-hidden bg-surface">
+<img class="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Close up of a tennis racquet strings and frame." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9ATMlydqwJPHhCW87XXYSGr3q_A1kdRTsI1-5Ej7D3TUt-cCppi-QS2_jT_w0ZYlkwS5xlRkaJ-r8giz2_cdYlRUxn4e91P1NtN1_XZTvizeW2eyx8viBXtVbP_Vistkz4Ne79UEchZoF_2_yCPrgHnofenRygN0OQSmI_vqXz61r6KwSQH9Htq-YGJDWa6eG5Z6DC3GPfx3Q92y5PpnCGJhKilUXMek0DjdvuVJvtRNvwPwTK41t"/>
+<div class="absolute inset-0 bg-white/90 flex flex-col justify-end p-md img-overlay-content">
+<span class="font-label-caps text-label-caps text-secondary mb-xs">PRECISION SERIES</span>
+<h3 class="font-headline-md text-headline-md text-primary uppercase mb-sm">Carbon Tension</h3>
+<a class="inline-flex items-center font-label-caps text-label-caps text-primary hover:text-secondary transition-colors" href="#">
+                        VIEW COLLECTION <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Item 2: Quote -->
+<div class="masonry-item bg-surface-container p-xl flex flex-col justify-center min-h-[300px]">
+<span class="material-symbols-outlined text-4xl text-primary mb-md">format_quote</span>
+<blockquote class="font-headline-md text-headline-md text-primary uppercase mb-md">
+                    "Every point is a calculation. Every swing, a testament to physics."
+                </blockquote>
+<p class="font-label-caps text-label-caps text-secondary">— Elena R., Grand Slam Champion</p>
+</div>
+<!-- Item 3: Tall Image -->
+<div class="masonry-item relative group img-overlay-hover overflow-hidden bg-surface">
+<img class="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A tennis player in mid-air performing a powerful smash on a clay court. The image is dynamic and captures the extreme physical effort." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcE5iH3mVI7tZ_WudsAhzdY1HVTSN5miwfM5TDpoUSBEv9T4269_fKRb1Lh420oUlgw08UnV09_xdwcOuzh4JFnuxE33RUiyT7sxSVB5smv09njMPrIy2y9Wl_rLkIEDKIk-1ssZKj18LE3WRf4eXwm2kfr1IECSu5zAnpcV5mjxC2Qb-ATcTA_bSJtT-maCBEXVr7bIQP0onGyIlLaDJncXlYe95bMMh1BJUfNU-2qG614WQNWqME"/>
+<div class="absolute inset-0 bg-white/90 flex flex-col justify-end p-md img-overlay-content">
+<span class="font-label-caps text-label-caps text-secondary mb-xs">AERO DYNAMICS</span>
+<h3 class="font-headline-md text-headline-md text-primary uppercase mb-sm">Air Supremacy</h3>
+<a class="inline-flex items-center font-label-caps text-label-caps text-primary hover:text-secondary transition-colors" href="#">
+                        SHOP LIFESTYLE <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Item 4: Product Detail Grid -->
+<div class="masonry-item grid grid-cols-2 gap-base">
+<div class="bg-surface relative group img-overlay-hover overflow-hidden h-48">
+<img class="w-full h-full object-cover" data-alt="Macro texture of a tennis ball and court line." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCxt2db81VE-aevCXhLsMXyxZIC4N9itafxPouq08ISU4DFuaVmSPyLSdgXuOwypg28hdwHgthiwupIpHzLoGfRohIVivmFV9hzd4ekh7OluO59vBtWvxVlW2FMP3y7n5ulPiIpKWeR3WhA9vzXu2yJizXojuIFTGrfN-deKKE1u86CfIhCEN20j8cFL1iR5znQkTI-DTeAAxvR91aGsPWo-WiLgHLyiMQ4LwzNTmTJrE1yL1nY9oS"/>
+<div class="absolute inset-0 bg-white/90 flex items-center justify-center img-overlay-content">
+<a class="font-label-caps text-label-caps text-primary border border-primary px-4 py-2 hover:bg-primary hover:text-on-primary transition-colors" href="#">TECH SPECS</a>
+</div>
+</div>
+<div class="bg-surface relative group img-overlay-hover overflow-hidden h-48">
+<img class="w-full h-full object-cover" data-alt="A sleek, minimalist shot of a sweat-wicking tennis polo shirt folded neatly on a dark, matte surface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpZKbQFBEYs49fTbDJFr7W3pb3l5Qx_plJguL2CXinRCAp-SFO5lNX_xoi1drb_4PcqsB_A3NGzpCxH7miCGSDEgaCCBHw82LDnCZWRLmkf3FK6AI2OMciKMEGS4g50Dmc8jmMDBFLasISPMYWrxB39YI-mRRuNmOg4xgHFw3Vz0G1uDgSww1AF-1opu22I1cnird7E00RD3hTHDVFZWGd7-FnSsX1QcupDTykleDSlFx0wrunkIaR"/>
+<div class="absolute inset-0 bg-white/90 flex items-center justify-center img-overlay-content">
+<a class="font-label-caps text-label-caps text-primary border border-primary px-4 py-2 hover:bg-primary hover:text-on-primary transition-colors" href="#">FABRIC TECH</a>
+</div>
+</div>
+</div>
+<!-- Item 5: Wide Image -->
+<div class="masonry-item relative group img-overlay-hover overflow-hidden bg-surface">
+<img class="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A wide, panoramic shot of an empty, pristine grass tennis court early in the morning with long shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhy6kGmuRo7EFB6ZIjfjrU8Msvks5v5saemhdbtsMX8aSj3IV9VAhq9EoZPCK7oGugOnzScKxbanqZQhF4HcDKlVA0CwYxRCzyekvm6EBkjw-04TZdOaACA7V9f4UIqY_Qb4rt8qv0HeFRYEHxHvAfhAzb5b_5qoujtC1z1jzqtldSej8WNy92r78uQvm_Bmc9CzjFu7_kz1AUep0pXZpIQj2YRKs09g96FqS7w30oV50jfHuosSiW"/>
+<div class="absolute inset-0 bg-white/90 flex flex-col justify-end p-md img-overlay-content">
+<span class="font-label-caps text-label-caps text-secondary mb-xs">COURT EXCELLENCE</span>
+<h3 class="font-headline-md text-headline-md text-primary uppercase mb-sm">Master the Surface</h3>
+<a class="inline-flex items-center font-label-caps text-label-caps text-primary hover:text-secondary transition-colors" href="#">
+                        GEAR UP <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface border-t border-surface-variant w-full mt-xl">
+<div class="grid grid-cols-12 gap-gutter px-xl py-xl w-full max-w-container-max mx-auto">
+<div class="col-span-12 md:col-span-4 mb-lg md:mb-0">
+<div class="font-display-xl text-display-xl text-primary mb-md tracking-tighter">
+                APEX TENNIS
+            </div>
+<p class="font-body-md text-body-md text-secondary">
+                © 2024 APEX TENNIS. ENGINEERED FOR PRECISION.
+            </p>
+</div>
+<div class="col-span-12 md:col-span-8 flex flex-wrap gap-lg justify-start md:justify-end">
+<nav class="flex flex-col space-y-md">
+<a class="font-label-caps text-label-caps text-secondary hover:text-primary transition-colors focus:ring-1 focus:ring-primary outline-none" href="#">PRIVACY POLICY</a>
+<a class="font-label-caps text-label-caps text-secondary hover:text-primary transition-colors focus:ring-1 focus:ring-primary outline-none" href="#">TERMS OF SERVICE</a>
+<a class="font-label-caps text-label-caps text-secondary hover:text-primary transition-colors focus:ring-1 focus:ring-primary outline-none" href="#">SHIPPING &amp; RETURNS</a>
+</nav>
+<nav class="flex flex-col space-y-md">
+<a class="font-label-caps text-label-caps text-secondary hover:text-primary transition-colors focus:ring-1 focus:ring-primary outline-none" href="#">CONTACT</a>
+<a class="font-label-caps text-label-caps text-secondary hover:text-primary transition-colors focus:ring-1 focus:ring-primary outline-none" href="#">STORE LOCATOR</a>
+</nav>
+</div>
+</div>
+</footer>
+</body></html>

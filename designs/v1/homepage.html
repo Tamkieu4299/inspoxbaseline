@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>INSPO - ENGINEERED FOR THE COURT</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;800&amp;family=Hanken+Grotesk:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "forest-green": "#004225",
+                "error": "#ba1a1a",
+                "secondary-fixed-dim": "#c6c6c7",
+                "surface": "#f9f9f9",
+                "tertiary-container": "#1a1c1c",
+                "secondary-container": "#dcdddd",
+                "on-secondary-container": "#5f6161",
+                "on-primary": "#ffffff",
+                "on-primary-container": "#848484",
+                "inverse-surface": "#2f3131",
+                "on-tertiary-container": "#838484",
+                "error-container": "#ffdad6",
+                "inverse-on-surface": "#f0f1f1",
+                "on-secondary-fixed-variant": "#454747",
+                "surface-tint": "#5e5e5e",
+                "on-error-container": "#93000a",
+                "on-background": "#1a1c1c",
+                "surface-container-lowest": "#ffffff",
+                "on-secondary": "#ffffff",
+                "on-surface": "#1a1c1c",
+                "on-tertiary-fixed-variant": "#454747",
+                "outline-variant": "#cfc4c5",
+                "surface-bright": "#f9f9f9",
+                "on-primary-fixed-variant": "#474747",
+                "on-primary-fixed": "#1b1b1b",
+                "outline": "#7e7576",
+                "tertiary-fixed": "#e2e2e2",
+                "inverse-primary": "#c6c6c6",
+                "secondary-fixed": "#e2e2e2",
+                "surface-container-high": "#e8e8e8",
+                "tertiary-fixed-dim": "#c6c6c6",
+                "primary-fixed": "#e2e2e2",
+                "on-surface-variant": "#4c4546",
+                "primary": "#000000",
+                "on-secondary-fixed": "#1a1c1c",
+                "on-tertiary": "#ffffff",
+                "secondary": "#5d5f5f",
+                "surface-dim": "#dadada",
+                "background": "#f9f9f9",
+                "surface-container-highest": "#e2e2e2",
+                "tertiary": "#000000",
+                "surface-container": "#eeeeee",
+                "surface-container-low": "#f3f3f4",
+                "on-error": "#ffffff",
+                "primary-fixed-dim": "#c6c6c6",
+                "on-tertiary-fixed": "#1a1c1c",
+                "primary-container": "#1b1b1b",
+                "surface-variant": "#e2e2e2"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "stack-lg": "2rem",
+                "stack-md": "1rem",
+                "margin-desktop": "5rem",
+                "stack-sm": "0.5rem",
+                "gutter": "1.5rem",
+                "margin-mobile": "1rem",
+                "stack-xs": "0.25rem",
+                "stack-xxl": "8rem",
+                "stack-xl": "4rem"
+        },
+        "fontFamily": {
+                "display-lg": [
+                        "Chivo"
+                ],
+                "headline-lg": [
+                        "Chivo"
+                ],
+                "headline-lg-mobile": [
+                        "Chivo"
+                ],
+                "headline-md": [
+                        "Chivo"
+                ],
+                "label-caps": [
+                        "Hanken Grotesk"
+                ],
+                "body-md": [
+                        "Hanken Grotesk"
+                ],
+                "body-lg": [
+                        "Hanken Grotesk"
+                ],
+                "display-lg-mobile": [
+                        "Chivo"
+                ]
+        },
+        "fontSize": {
+                "display-lg": [
+                        "72px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.04em",
+                                "fontWeight": "800"
+                        }
+                ],
+                "headline-lg": [
+                        "40px",
+                        {
+                                "lineHeight": "1.2",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "1.3",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-caps": [
+                        "12px",
+                        {
+                                "lineHeight": "1.0",
+                                "letterSpacing": "0.1em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "display-lg-mobile": [
+                        "48px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "800"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for horizontal scrolling areas if needed */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #ffffff;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e2e2e2;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c6c6c7;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body-md antialiased overflow-x-hidden selection:bg-forest-green selection:text-white">
+<!-- TopNavBar -->
+<header class="bg-surface-container-lowest fixed top-0 w-full z-50 border-b border-outline-variant">
+<div class="flex justify-between items-center w-full px-8 h-20 max-w-[1440px] mx-auto">
+<!-- Brand Logo -->
+<a class="font-display-lg text-display-lg text-primary tracking-tighter hover:text-forest-green transition-colors" href="#">INSPO</a>
+<!-- Navigation Links (Desktop) -->
+<nav class="hidden md:flex space-x-6 items-center">
+<a class="font-label-caps text-label-caps text-secondary hover:text-forest-green transition-colors hover:bg-surface-container-low transition-all duration-150 px-3 py-2" href="#">SHOP ALL</a>
+<a class="font-label-caps text-label-caps text-secondary hover:text-forest-green transition-colors hover:bg-surface-container-low transition-all duration-150 px-3 py-2" href="#">NEW ARRIVALS</a>
+<a class="font-label-caps text-label-caps text-secondary hover:text-forest-green transition-colors hover:bg-surface-container-low transition-all duration-150 px-3 py-2" href="#">PERFORMANCE</a>
+<a class="font-label-caps text-label-caps text-secondary hover:text-forest-green transition-colors hover:bg-surface-container-low transition-all duration-150 px-3 py-2" href="#">LIFESTYLE</a>
+<a class="font-label-caps text-label-caps text-secondary hover:text-forest-green transition-colors hover:bg-surface-container-low transition-all duration-150 px-3 py-2" href="#">ACCESSORIES</a>
+</nav>
+<!-- Trailing Icons -->
+<div class="flex items-center space-x-6 text-primary">
+<!-- Search (Implicit from search_bar: "on_right") -->
+<button aria-label="Search" class="hover:bg-surface-container-low hover:text-forest-green transition-all duration-150 p-2 rounded-none focus:outline-none focus:ring-1 focus:ring-forest-green active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button aria-label="Shopping Cart" class="hover:bg-surface-container-low hover:text-forest-green transition-all duration-150 p-2 rounded-none focus:outline-none focus:ring-1 focus:ring-forest-green active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+<button aria-label="User Profile" class="hover:bg-surface-container-low hover:text-forest-green transition-all duration-150 p-2 rounded-none focus:outline-none focus:ring-1 focus:ring-forest-green active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-20"> <!-- Offset for fixed header -->
+<!-- Hero Banner -->
+<section class="relative w-full h-[870px] min-h-[600px] flex items-end pb-16 px-8 max-w-[1440px] mx-auto overflow-hidden">
+<!-- Background Image -->
+<div class="absolute inset-0 z-0 bg-surface-container-low">
+<div class="w-full h-full bg-cover bg-center opacity-90 mix-blend-luminosity hover:mix-blend-normal transition-all duration-1000" data-alt="A high-end shot of a pristine grass tennis court, capturing the elegance and tradition of the sport." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDVZ4o8ccG3OPMo1jjKgFcBx-pbZQh0gDXgBVuslu52oPiskREGWNaE8YKOMfstZI9XVlbNMzAqFN6mVlr__2IZeDk_IJ31VVG9fNg3UDqD-pFjujiNWmhngHtecsV8gqoyOh1khZIuLX3r-Ywb9oxwTNS_rGnPQ3nqM9Ta4dm2Qz56ZT4IbRGWV9pl-BzZqI63L0qKVeUrndJ71DaIBf8RsrVo5hoxiC6DvTadIdF3VVeDVDr8qlCi')"></div>
+<!-- Gradient Overlay -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/70 to-transparent"></div>
+</div>
+<!-- Content -->
+<div class="relative z-10 w-full max-w-3xl flex flex-col items-start gap-4">
+<div class="bg-forest-green px-3 py-1 inline-block">
+<span class="font-label-caps text-label-caps text-white uppercase tracking-widest font-bold">THE GRASS SEASON</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-primary uppercase leading-none tracking-tighter">OWN THE COURT</h1>
+<p class="font-body-lg text-body-lg text-secondary max-w-xl">ENGINEERED FOR ELITE PERFORMANCE ON THE GRASS. PRECISION, ELEGANCE, AND UNYIELDING POWER.</p>
+<div class="mt-4 flex gap-4">
+<a class="inline-flex items-center justify-center px-8 py-4 bg-primary text-on-primary font-label-caps text-label-caps uppercase rounded-none hover:bg-forest-green transition-colors focus:ring-1 focus:ring-forest-green focus:outline-none" href="#">
+                        SHOP COLLECTION
+                    </a>
+<a class="inline-flex items-center justify-center px-8 py-4 bg-transparent border border-primary text-primary font-label-caps text-label-caps uppercase rounded-none hover:bg-surface-container-low hover:text-forest-green hover:border-forest-green transition-colors focus:ring-1 focus:ring-forest-green focus:outline-none" href="#">
+                        EXPLORE TECH
+                    </a>
+</div>
+</div>
+</section>
+<!-- Trending Collections (Bento Grid) -->
+<section class="py-16 px-4 md:px-8 max-w-[1440px] mx-auto">
+<div class="flex justify-between items-end mb-12 border-b border-surface-container-high pb-4">
+<h2 class="font-headline-lg text-headline-lg text-primary uppercase">COURT ESSENTIALS</h2>
+<a class="font-label-caps text-label-caps text-secondary hover:text-forest-green transition-colors flex items-center gap-2" href="#">
+                    VIEW ALL <span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[400px]">
+<!-- Large Item -->
+<div class="md:col-span-8 relative group overflow-hidden bg-surface-container-low cursor-pointer">
+<div class="absolute inset-0 bg-cover bg-center transition-all duration-700 scale-100 group-hover:scale-105 origin-center" data-alt="Close-up of premium white tennis shoes designed for grass courts." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBG3d6P4w33kwQlY-o2hCTiiREO121XJpRC06o2eHYG-QlPEbtW1er7a7t1Hrg7s0BWsKkOq3o-HtwU7Z7XWgkwPWsBeBAazUS1piRzusSzL1lFj8ZO0JiokQAfUq3WRPwpseiRBmDaEBZs__LxohMd-JQVQuoFpgpqRFnWsciXmBimpr2yiZHSdfJ8ds7vztCwTC_7rPCZwEuCp9ESlYIgLW1KPJxqiROyJfxniH4b03aBQfRKZsG4')"></div>
+<div class="absolute inset-0 bg-white/20 group-hover:bg-transparent transition-all duration-500"></div>
+<div class="absolute bottom-0 left-0 p-8 w-full bg-gradient-to-t from-surface-container-lowest to-transparent">
+<h3 class="font-headline-md text-headline-md text-primary mb-2">PRO-COURT SERIES</h3>
+<p class="font-label-caps text-label-caps text-secondary">FOOTWEAR // GRASS SPECIFIC</p>
+</div>
+</div>
+<!-- Small Item 1 -->
+<div class="md:col-span-4 relative group overflow-hidden bg-surface-container-low cursor-pointer">
+<div class="absolute inset-0 bg-cover bg-center transition-all duration-700 scale-100 group-hover:scale-105 origin-center" data-alt="A sleek, high-end tennis racket bag." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBh9W6aHiD4yLzUngC5P_XLTlLeSgmbD4petf6WjKH9lMlZ6iOJ9eaMYNMO0spun3mYzOpUiU1ebngaT5bcXHIixD8NW-R5wgzQBbbgQ7Bh8sN7TXMm4ngtiL085qz8WbCrnA1VQ05nf9ZMfV3Hjy5EuvSmWrmBmjrLDTTDoch3RXOzzwBW0RnHBcZRVP5XBwZG_YCYH5awlr96Mbwx5Odk-H5GLE3oswXcDPjpBbmIIx2oZf7du50y')"></div>
+<div class="absolute inset-0 bg-white/20 group-hover:bg-transparent transition-all duration-500"></div>
+<div class="absolute bottom-0 left-0 p-6 w-full bg-gradient-to-t from-surface-container-lowest to-transparent">
+<h3 class="font-headline-md text-headline-md text-primary mb-2">TOUR RACKET BAGS</h3>
+<p class="font-label-caps text-label-caps text-secondary">ACCESSORIES</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Products -->
+<section class="py-16 px-4 md:px-8 max-w-[1440px] mx-auto">
+<h2 class="font-headline-lg text-headline-lg text-primary uppercase mb-12">LATEST DROPS</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Product 1 -->
+<div class="group cursor-pointer">
+<div class="bg-surface-container-low aspect-[3/4] relative overflow-hidden mb-4 border border-transparent group-hover:border-forest-green transition-colors">
+<div class="absolute top-4 left-4 z-10 bg-forest-green px-2 py-1">
+<span class="font-label-caps text-label-caps text-white font-bold">NEW</span>
+</div>
+<div class="absolute inset-0 bg-cover bg-center transition-all duration-500" data-alt="A crisp white performance tennis polo shirt." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCsnLA88Uq-LjrXD3rxaFsu2q7pTXZgiLhmaGm73c79smzN1s5pcgXo1l9hJPpZjdKfXYvbcEngnGh9C-FIG6Ev1qiig4UFy3DmOfzpsDUB4dpVgBP0htM49FFFxQQHF30-fp5hugO65qKleiG7EjhZBdg_lY3tnq6WKfHnIQi-N2TWUEmgu8m8kPTgt4X9hiEen9KS1w_oHd7A77uBX5GM8OCrRUqT2veXFvABuODiYdKZrsqKVsGD')"></div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-body-md text-body-md text-primary uppercase font-bold group-hover:text-forest-green transition-colors">CLUB PERFORMANCE POLO</h4>
+<p class="font-label-caps text-label-caps text-secondary mt-1">TOPS</p>
+</div>
+<span class="font-label-caps text-label-caps text-primary border border-outline-variant px-2 py-1">$110</span>
+</div>
+</div>
+<!-- Product 2 -->
+<div class="group cursor-pointer">
+<div class="bg-surface-container-low aspect-[3/4] relative overflow-hidden mb-4 border border-transparent group-hover:border-forest-green transition-colors">
+<div class="absolute inset-0 bg-cover bg-center transition-all duration-500" data-alt="A classic pleated white tennis skirt." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCA2ZUxHPVjTLnp7mkOlY-XgoGdFQq0_Fg6FT_W5F9PwTUllGQz_DYQM9FgQ95J-AR0R6Vt8dGopQKgCDliFelGgbL_rpeYf3_a6LGYnkICMGr1PMSC4-DQrQERKhy7u8QHUB9SN-2KnKiGvoB8mAeFEY1t0P8om79XDT9GPuGWIBZS7I8_ZIoun1hp1VWXVWaQq5W9XtWXVJOzFLZ1Y7FvqARTYSHxs45JL1IN6z3VgfG0UCizhiD9')"></div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-body-md text-body-md text-primary uppercase font-bold group-hover:text-forest-green transition-colors">HERITAGE PLEATED SKIRT</h4>
+<p class="font-label-caps text-label-caps text-secondary mt-1">BOTTOMS</p>
+</div>
+<span class="font-label-caps text-label-caps text-primary border border-outline-variant px-2 py-1">$95</span>
+</div>
+</div>
+<!-- Product 3 -->
+<div class="group cursor-pointer">
+<div class="bg-surface-container-low aspect-[3/4] relative overflow-hidden mb-4 border border-transparent group-hover:border-forest-green transition-colors">
+<div class="absolute top-4 left-4 z-10 bg-forest-green px-2 py-1">
+<span class="font-label-caps text-label-caps text-white font-bold">LIMITED</span>
+</div>
+<div class="absolute inset-0 bg-cover bg-center transition-all duration-500" data-alt="A white tour warm-up jacket." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBySVMCRBoW9l9q3aF-KbcaJ642c7zmNBEGVPc5V0RC5iQaXYcJgXGqO4zQSpJ4InllqExqLV2Wt4k6dO4trtZF_BCoENIXAbEEtVNNKT4OCz9RgvYgklbnNtHa1XY1JAMaGxp2_Mh6F5oU4fBrdLYuHtwmWKx42E1ZVI-UBess5U9HcIwtTJFkOiyHM-2clF8PTCAdWiUb5tHnkNvnyhn7IHU0dblGuqUhNy3X8T_sb6dpdKKu0KCS')"></div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-body-md text-body-md text-primary uppercase font-bold group-hover:text-forest-green transition-colors">TOUR WARM-UP JACKET</h4>
+<p class="font-label-caps text-label-caps text-secondary mt-1">OUTERWEAR</p>
+</div>
+<span class="font-label-caps text-label-caps text-primary border border-outline-variant px-2 py-1">$185</span>
+</div>
+</div>
+<!-- Product 4 -->
+<div class="group cursor-pointer">
+<div class="bg-surface-container-low aspect-[3/4] relative overflow-hidden mb-4 border border-transparent group-hover:border-forest-green transition-colors">
+<div class="absolute inset-0 bg-cover bg-center transition-all duration-500" data-alt="A classic white tennis visor." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDOJ4qRAD5lc_Drl45brEovGYRid1_N0zRSh-tF7Wno9JfU4n0CIWKCBf_MlNk3sy9QvOi_RwY4Ee8StLrpfxXXeWAhSj_LGeYCsu_znqkPnMWsCoeNGVghYMAZie8P18jhZ-Xq6_7jB5-mA7ZpVC-7W1HjU-Qwy4y7IqpEvPmK6nL1wk_ye-nNp3Evee_XbxGEw5vLl-lQY46zVZMcFMOf6qT7VRc4dtNP3LOihPY4yF4xone2Pycg')"></div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-body-md text-body-md text-primary uppercase font-bold group-hover:text-forest-green transition-colors">PRO TENNIS VISOR</h4>
+<p class="font-label-caps text-label-caps text-secondary mt-1">ACCESSORIES</p>
+</div>
+<span class="font-label-caps text-label-caps text-primary border border-outline-variant px-2 py-1">$35</span>
+</div>
+</div>
+</div>
+<div class="mt-12 flex justify-center">
+<button class="px-8 py-4 bg-transparent border border-primary text-primary font-label-caps text-label-caps uppercase rounded-none hover:bg-forest-green hover:border-forest-green hover:text-white transition-colors focus:ring-1 focus:ring-forest-green focus:outline-none">
+                    VIEW ALL PRODUCTS
+                </button>
+</div>
+</section>
+<!-- Lifestyle / Immersive Section -->
+<section class="py-16">
+<div class="grid grid-cols-1 md:grid-cols-2 h-auto md:h-[716px] min-h-[500px]">
+<!-- Text / Graphic Panel -->
+<div class="bg-surface-container-low p-12 flex flex-col justify-center border-b md:border-b-0 md:border-r border-outline-variant">
+<h2 class="font-display-lg text-display-lg text-primary uppercase leading-none mb-6">MASTER<br/>THE GAME</h2>
+<p class="font-body-lg text-body-lg text-secondary mb-8 max-w-md">Our latest collection bridges the gap between classic club elegance and modern athletic performance. Built for the modern player who respects tradition.</p>
+<div class="space-y-4">
+<div class="flex items-center gap-4 border-b border-outline-variant pb-4">
+<span class="font-label-caps text-label-caps text-forest-green">01</span>
+<span class="font-label-caps text-label-caps text-primary">LIGHTWEIGHT BREATHABILITY</span>
+</div>
+<div class="flex items-center gap-4 border-b border-outline-variant pb-4">
+<span class="font-label-caps text-label-caps text-forest-green">02</span>
+<span class="font-label-caps text-label-caps text-primary">PRECISION TAILORING</span>
+</div>
+<div class="flex items-center gap-4 border-b border-outline-variant pb-4">
+<span class="font-label-caps text-label-caps text-forest-green">03</span>
+<span class="font-label-caps text-label-caps text-primary">FOUR-WAY STRETCH</span>
+</div>
+</div>
+</div>
+<!-- Media Panel -->
+<div class="relative bg-surface-container-low h-full min-h-[400px] overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="An action shot of a tennis player hitting a powerful forehand on a sunlit court." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAlFzIjdTNAxLwnoPmBxiCyYpGrdA2eW3rUftmtNzTt9r5nMYZTv7zomZmh-zhWtUJB6zQmr1DJmTYed4OdvFGxqzd6vzDrZdu0v2YI0JfBQRpodEp87h5RlPZ87htNH4-kWNb7f3fu8_SKkGTW4SxfjTefgnHE9-MivAvWnfvzkeoBu__JCz6QicMyDVIKub9bDXoaBM7DwPlO6h16K2_htsZqDaURSvsibupQxhBV7uP3Kc0BxM_A')"></div>
+<div class="absolute inset-0 bg-white/10"></div>
+<!-- Play Button Overlay -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="w-20 h-20 border-2 border-forest-green rounded-full flex items-center justify-center backdrop-blur-sm bg-white/50 text-forest-green">
+<span class="material-symbols-outlined text-[32px]" data-icon="play_arrow" data-weight="fill">play_arrow</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest w-full border-t border-outline-variant mt-16">
+<div class="grid grid-cols-12 gap-6 px-8 py-16 w-full max-w-[1440px] mx-auto">
+<!-- Brand & Copyright Col -->
+<div class="col-span-12 md:col-span-6 flex flex-col justify-between mb-8 md:mb-0">
+<div class="font-display-lg text-display-lg text-primary mb-6 tracking-tighter hover:text-forest-green transition-colors cursor-pointer">
+                    INSPO
+                </div>
+<div class="font-body-md text-body-md text-secondary mt-auto">
+                    © 2024 INSPO. ENGINEERED FOR THE COURT.
+                </div>
+</div>
+<!-- Links Col -->
+<div class="col-span-12 md:col-span-6 grid grid-cols-2 gap-6">
+<div class="flex flex-col gap-4">
+<a class="font-body-md text-body-md text-secondary hover:text-forest-green transition-colors focus:ring-1 focus:ring-forest-green focus:outline-none w-fit" href="#">PRIVACY POLICY</a>
+<a class="font-body-md text-body-md text-secondary hover:text-forest-green transition-colors focus:ring-1 focus:ring-forest-green focus:outline-none w-fit" href="#">TERMS OF SERVICE</a>
+<a class="font-body-md text-body-md text-secondary hover:text-forest-green transition-colors focus:ring-1 focus:ring-forest-green focus:outline-none w-fit" href="#">SHIPPING &amp; RETURNS</a>
+</div>
+<div class="flex flex-col gap-4">
+<a class="font-body-md text-body-md text-secondary hover:text-forest-green transition-colors focus:ring-1 focus:ring-forest-green focus:outline-none w-fit" href="#">CONTACT</a>
+<a class="font-body-md text-body-md text-secondary hover:text-forest-green transition-colors focus:ring-1 focus:ring-forest-green focus:outline-none w-fit" href="#">STORE LOCATOR</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>INSPO - The Court Collection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;800&amp;family=Hanken+Grotesk:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "inverse-primary": "#c6c6c6",
+                "primary-fixed": "#e2e2e2",
+                "outline": "#7e7576",
+                "on-secondary-container": "#5f6161",
+                "inverse-surface": "#2f3131",
+                "on-error": "#ffffff",
+                "on-primary-fixed": "#1b1b1b",
+                "surface-variant": "#e2e2e2",
+                "on-tertiary-container": "#838484",
+                "surface-container-low": "#f3f3f4",
+                "on-tertiary-fixed-variant": "#454747",
+                "on-tertiary-fixed": "#1a1c1c",
+                "primary-container": "#1b1b1b",
+                "inverse-on-surface": "#f0f1f1",
+                "error-container": "#ffdad6",
+                "surface-container-lowest": "#ffffff",
+                "on-secondary-fixed": "#1a1c1c",
+                "tertiary-fixed": "#e2e2e2",
+                "tertiary-fixed-dim": "#c6c6c6",
+                "secondary": "#5d5f5f",
+                "on-surface-variant": "#4c4546",
+                "tertiary": "#000000",
+                "surface-container-highest": "#e2e2e2",
+                "surface-tint": "#5e5e5e",
+                "on-background": "#1a1c1c",
+                "on-primary-container": "#848484",
+                "on-secondary": "#ffffff",
+                "primary": "#000000",
+                "on-error-container": "#93000a",
+                "on-surface": "#1a1c1c",
+                "secondary-fixed": "#e2e2e2",
+                "background": "#f9f9f9",
+                "on-secondary-fixed-variant": "#454747",
+                "on-tertiary": "#ffffff",
+                "surface-container-high": "#e8e8e8",
+                "secondary-container": "#dcdddd",
+                "surface": "#f9f9f9",
+                "error": "#ba1a1a",
+                "surface-container": "#eeeeee",
+                "on-primary-fixed-variant": "#474747",
+                "surface-dim": "#dadada",
+                "primary-fixed-dim": "#c6c6c6",
+                "on-primary": "#ffffff",
+                "outline-variant": "#cfc4c5",
+                "tertiary-container": "#1a1c1c",
+                "secondary-fixed-dim": "#c6c6c7",
+                "surface-bright": "#f9f9f9",
+                "forest-green": "#2C5530"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "stack-xs": "0.25rem",
+                "stack-xl": "4rem",
+                "margin-mobile": "1rem",
+                "stack-lg": "2rem",
+                "stack-md": "1rem",
+                "margin-desktop": "5rem",
+                "stack-xxl": "8rem",
+                "stack-sm": "0.5rem",
+                "gutter": "1.5rem"
+        },
+        "fontFamily": {
+                "body-lg": [
+                        "Hanken Grotesk"
+                ],
+                "body-md": [
+                        "Hanken Grotesk"
+                ],
+                "headline-lg-mobile": [
+                        "Chivo"
+                ],
+                "display-lg-mobile": [
+                        "Chivo"
+                ],
+                "headline-lg": [
+                        "Chivo"
+                ],
+                "display-lg": [
+                        "Chivo"
+                ],
+                "headline-md": [
+                        "Chivo"
+                ],
+                "label-caps": [
+                        "Hanken Grotesk"
+                ]
+        },
+        "fontSize": {
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "display-lg-mobile": [
+                        "48px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "800"
+                        }
+                ],
+                "headline-lg": [
+                        "40px",
+                        {
+                                "lineHeight": "1.2",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "display-lg": [
+                        "72px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.04em",
+                                "fontWeight": "800"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "1.3",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-caps": [
+                        "12px",
+                        {
+                                "lineHeight": "1.0",
+                                "letterSpacing": "0.1em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Override rounded corners to 0px globally for this design system per instructions */
+        * { border-radius: 0px !important; }
+        
+        /* Custom scrollbar for a technical feel */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f9f9f9; }
+        ::-webkit-scrollbar-thumb { background: #e2e2e2; }
+        ::-webkit-scrollbar-thumb:hover { background: #1a1c1c; }
+      </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md text-body-md">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-background border-b border-surface-container-high flat no shadows flex justify-between items-center px-margin-desktop h-20 max-w-[1920px] mx-auto">
+<div class="flex items-center gap-stack-xl">
+<!-- Brand Logo -->
+<a class="font-display-lg text-[32px] text-primary tracking-tighter uppercase" href="#">INSPO</a>
+<!-- Navigation Links (Desktop) -->
+<div class="hidden md:flex items-center gap-gutter pt-2">
+<!-- Active Item -->
+<a class="font-label-caps text-label-caps text-forest-green border-b-2 border-forest-green pb-2 uppercase hover:bg-surface-container-low transition-all duration-150" href="#">THE COURT COLLECTION</a>
+<a class="font-label-caps text-label-caps text-secondary hover:text-primary transition-colors pb-2 border-b-2 border-transparent uppercase hover:bg-surface-container-low duration-150" href="#">NEW ARRIVALS</a>
+<a class="font-label-caps text-label-caps text-secondary hover:text-primary transition-colors pb-2 border-b-2 border-transparent uppercase hover:bg-surface-container-low duration-150" href="#">PERFORMANCE</a>
+<a class="font-label-caps text-label-caps text-secondary hover:text-primary transition-colors pb-2 border-b-2 border-transparent uppercase hover:bg-surface-container-low duration-150" href="#">LIFESTYLE</a>
+<a class="font-label-caps text-label-caps text-secondary hover:text-primary transition-colors pb-2 border-b-2 border-transparent uppercase hover:bg-surface-container-low duration-150" href="#">ACCESSORIES</a>
+</div>
+</div>
+<div class="flex items-center gap-stack-md">
+<button aria-label="Search" class="text-primary hover:text-on-surface-variant transition-colors p-2 hover:bg-surface-container-low duration-150">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button aria-label="shopping_cart" class="text-primary hover:text-on-surface-variant transition-colors p-2 hover:bg-surface-container-low duration-150 opacity-80 scale-95">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+<button aria-label="person" class="text-primary hover:text-on-surface-variant transition-colors p-2 hover:bg-surface-container-low duration-150">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow pt-24 px-margin-desktop w-full max-w-[1920px] mx-auto pb-stack-xl">
+<!-- Page Header -->
+<header class="mb-stack-lg flex flex-col md:flex-row md:items-end justify-between border-b border-surface-container-high pb-stack-md">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-primary uppercase">THE COURT COLLECTION</h1>
+<p class="font-label-caps text-label-caps text-secondary mt-stack-xs">42 ITEMS FOUND</p>
+</div>
+<div class="mt-stack-md md:mt-0 flex items-center gap-stack-sm">
+<span class="font-label-caps text-label-caps text-secondary">SORT BY:</span>
+<select class="bg-background text-primary border border-surface-container-highest font-label-caps text-label-caps py-stack-xs px-stack-sm focus:border-primary focus:ring-0 outline-none cursor-pointer">
+<option>NEWEST</option>
+<option>PRICE (LOW TO HIGH)</option>
+<option>PRICE (HIGH TO LOW)</option>
+<option>PERFORMANCE RATING</option>
+</select>
+</div>
+</header>
+<!-- Layout Grid: Sidebar + Products -->
+<div class="grid grid-cols-12 gap-gutter relative">
+<!-- Sidebar (Filters) -->
+<aside class="hidden lg:block col-span-2">
+<div class="sticky top-32 flex flex-col gap-stack-lg">
+<!-- Filter Group: Category -->
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-stack-sm uppercase border-b border-surface-container-high pb-stack-xs">CATEGORY</h3>
+<ul class="flex flex-col gap-stack-xs font-label-caps text-label-caps text-secondary">
+<li>
+<label class="flex items-center gap-stack-xs cursor-pointer hover:text-forest-green transition-colors">
+<input checked="" class="form-checkbox bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4" type="checkbox"/>
+<span class="text-forest-green font-bold">ALL COLLECTION</span>
+</label>
+</li>
+<li>
+<label class="flex items-center gap-stack-xs cursor-pointer hover:text-forest-green transition-colors">
+<input class="form-checkbox bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4" type="checkbox"/>
+<span>TENNIS POLOS</span>
+</label>
+</li>
+<li>
+<label class="flex items-center gap-stack-xs cursor-pointer hover:text-forest-green transition-colors">
+<input class="form-checkbox bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4" type="checkbox"/>
+<span>PLEATED SKIRTS</span>
+</label>
+</li>
+<li>
+<label class="flex items-center gap-stack-xs cursor-pointer hover:text-forest-green transition-colors">
+<input class="form-checkbox bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4" type="checkbox"/>
+<span>COURT SHORTS</span>
+</label>
+</li>
+<li>
+<label class="flex items-center gap-stack-xs cursor-pointer hover:text-forest-green transition-colors">
+<input class="form-checkbox bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4" type="checkbox"/>
+<span>RACQUET BAGS</span>
+</label>
+</li>
+</ul>
+</div>
+<!-- Filter Group: Size -->
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-stack-sm uppercase border-b border-surface-container-high pb-stack-xs">SIZE</h3>
+<div class="grid grid-cols-3 gap-2 font-label-caps text-label-caps">
+<button class="border border-surface-container-highest text-secondary py-1 hover:border-forest-green hover:text-forest-green transition-colors">XS</button>
+<button class="border border-forest-green text-white bg-forest-green py-1 transition-colors">S</button>
+<button class="border border-surface-container-highest text-secondary py-1 hover:border-forest-green hover:text-forest-green transition-colors">M</button>
+<button class="border border-surface-container-highest text-secondary py-1 hover:border-forest-green hover:text-forest-green transition-colors">L</button>
+<button class="border border-surface-container-highest text-secondary py-1 hover:border-forest-green hover:text-forest-green transition-colors">XL</button>
+<button class="border border-surface-container-highest text-secondary py-1 hover:border-forest-green hover:text-forest-green transition-colors">XXL</button>
+</div>
+</div>
+<!-- Filter Group: Color -->
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-stack-sm uppercase border-b border-surface-container-high pb-stack-xs">COLOR</h3>
+<div class="flex flex-wrap gap-stack-xs">
+<button aria-label="White" class="w-8 h-8 bg-[#ffffff] border border-surface-container-highest hover:border-forest-green transition-colors"></button>
+<button aria-label="Forest Green" class="w-8 h-8 bg-[#2C5530] border border-forest-green transition-colors ring-2 ring-forest-green ring-offset-2 ring-offset-background"></button>
+<button aria-label="Navy" class="w-8 h-8 bg-[#1B263B] border border-surface-container-highest hover:border-forest-green transition-colors"></button>
+</div>
+</div>
+<!-- Action -->
+<button class="w-full bg-forest-green border border-forest-green text-white font-label-caps text-label-caps py-stack-sm uppercase hover:bg-inverse-surface hover:border-inverse-surface transition-colors mt-stack-md">
+                        APPLY FILTERS
+                    </button>
+</div>
+</aside>
+<!-- Product Grid -->
+<div class="col-span-12 lg:col-span-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
+<!-- Product Card 1 -->
+<div class="group cursor-pointer flex flex-col h-full bg-background border border-transparent hover:border-surface-container-high p-2 transition-all">
+<div class="relative w-full aspect-[3/4] overflow-hidden bg-surface-container-low">
+<div class="absolute top-stack-sm left-stack-sm bg-forest-green text-white font-label-caps text-label-caps px-2 py-1 z-10 uppercase tracking-widest font-bold border border-forest-green">
+                            NEW
+                        </div>
+<img class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-out" data-alt="A male athlete on a clay tennis court wearing a crisp white high-performance tennis polo and navy shorts, mid-swing. High-contrast, bright sunlight." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDz0DYbpl5gzhgSfdulihRwmglR_N0lAmuLo32LVntWRNXsJowlSgeCMkHioz_T3_FhF9SLFq5I-ccA-dvPSYEp7s5k06BWIxEslvLbfLWQ7lKgwtSHOLJVIznBDqU8eaazQYiD-uE6sh2b13hNsn4BJU7rsgUPR97cpT29UqpoFYrE58B5IyzzbDtot4HffdtA48_5JdKWyyHpLrTy6E_QyKi99ZK4Vt1JSqJrSkT8dPiula5eO8KP"/>
+</div>
+<div class="py-stack-sm flex flex-col flex-grow">
+<div class="flex justify-between items-start gap-stack-xs mt-stack-xs">
+<h2 class="font-headline-md text-headline-md text-primary uppercase leading-none">GRAND SLAM POLO</h2>
+<span class="font-label-caps text-label-caps text-primary">$110</span>
+</div>
+<p class="font-label-caps text-label-caps text-secondary mt-stack-xs">TENNIS POLOS / OPTIC WHITE</p>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group cursor-pointer flex flex-col h-full bg-background border border-transparent hover:border-surface-container-high p-2 transition-all">
+<div class="relative w-full aspect-[3/4] overflow-hidden bg-surface-container-low">
+<img class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-out" data-alt="Close up of a premium pleated tennis skirt in classic white with subtle forest green trim. Studio lighting against a solid light background, emphasizing the precise pleats and lightweight fabric." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxQD4aHd-h2TSlpcw-tTR7_Z0LYEOW9QdRew3IqwY5Cl2fE6RTMtDlVY0z7_6x_LXhChjsJPLRbY2tDT2gUS-CJilovhMUNU6jkUxq7CmTtyjsbAfl-1khERYOqZeHqv5kLEMr5oDna28w0pevdPQd0lFrIJb61E--yo8RRv4Ud3M3h3UugCuGCys3j9Zo3kQ3Pn0oT0GX9Y9BdtCRLA9RtQsxd_NDSddb5QkYH-9lbmIZ0sq1kZIi"/>
+</div>
+<div class="py-stack-sm flex flex-col flex-grow">
+<div class="flex justify-between items-start gap-stack-xs mt-stack-xs">
+<h2 class="font-headline-md text-headline-md text-primary uppercase leading-none">HERITAGE PLEATED SKIRT</h2>
+<span class="font-label-caps text-label-caps text-primary">$95</span>
+</div>
+<p class="font-label-caps text-label-caps text-secondary mt-stack-xs">PLEATED SKIRTS / WHITE &amp; GREEN</p>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group cursor-pointer flex flex-col h-full bg-background border border-transparent hover:border-surface-container-high p-2 transition-all">
+<div class="relative w-full aspect-[3/4] overflow-hidden bg-surface-container-low border border-surface-container-high">
+<div class="absolute top-stack-sm left-stack-sm bg-surface text-primary font-label-caps text-label-caps px-2 py-1 z-10 uppercase tracking-widest font-bold border border-surface-container-high">
+                            BESTSELLER
+                        </div>
+<img class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-out" data-alt="A pair of crisp, tailored white tennis court shorts laying flat on a clean surface. Minimalist styling, showing off deep pockets designed for tennis balls." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjqdAqqh_7ZVup_YwjR4bl7C5Fp2JlSOnCi4CchKJ414o64djKBI7uQgNHDu4IevH_BHsgxRHK5ZN-swk8bT9DS3lY2xqvJAvBhTFe5IBieMMaNcuY7z2c22K2c0WQSTmkLAiRhlCTrkp_L88Fqt9RY2llY9E3_rBuwIU_mVzKsq3dV-EOlDx9gv7zgz1jrnas3w90pcTA2BHMSuanLC-Hf2EFMJPzHOAqqEt7nT9MNGwRWMAFAOp5"/>
+</div>
+<div class="py-stack-sm flex flex-col flex-grow">
+<div class="flex justify-between items-start gap-stack-xs mt-stack-xs">
+<h2 class="font-headline-md text-headline-md text-primary uppercase leading-none">ADVANTAGE COURT SHORT</h2>
+<span class="font-label-caps text-label-caps text-primary">$85</span>
+</div>
+<p class="font-label-caps text-label-caps text-secondary mt-stack-xs">COURT SHORTS / OPTIC WHITE</p>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="group cursor-pointer flex flex-col h-full bg-background border border-transparent hover:border-surface-container-high p-2 transition-all">
+<div class="relative w-full aspect-[3/4] overflow-hidden bg-surface-container-low">
+<img class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-out" data-alt="A sleek, modern tennis racquet bag in deep forest green and white, resting against a tennis net on a hard court. The bag looks premium, structured, and professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQZd3d15J9YgEJuExHV-f17JGM3vJaSVX2w4CmMTtBl0O6tkdJuvILO83teVivkrDXs4v8JLNNP8Qv6bMqpwaATulzV8_JSKAMPwmLAih42qaDImSvLT-Nan3ADLRfVNyX5xCMk5gj541dc1yIt4OA4yzln3UnqVaez7q3y7PQv509x9KlU6dc-ppkcwo9dpXQ_qkx7ZbdaK8rgox698CcMglmOVNCVEAoFK5COg8uwNY8hbd4EA32"/>
+</div>
+<div class="py-stack-sm flex flex-col flex-grow">
+<div class="flex justify-between items-start gap-stack-xs mt-stack-xs">
+<h2 class="font-headline-md text-headline-md text-primary uppercase leading-none">PRO TOUR RACQUET BAG</h2>
+<span class="font-label-caps text-label-caps text-primary">$180</span>
+</div>
+<p class="font-label-caps text-label-caps text-secondary mt-stack-xs">RACQUET BAGS / FOREST GREEN</p>
+</div>
+</div>
+<!-- Product Card 5 -->
+<div class="group cursor-pointer flex flex-col h-full bg-background border border-transparent hover:border-surface-container-high p-2 transition-all">
+<div class="relative w-full aspect-[3/4] overflow-hidden bg-surface-container-low">
+<img class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-out" data-alt="Female tennis player wearing a navy blue high-performance tennis dress, preparing to serve on a grass court. The aesthetic is elite, focused, and elegant." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAvvK-9iOHlYXwTnX-1ds1I9hpDlRvlcqI_4WhqtlgUJUf41LClvgybFZ8QFo3H0W2pUdaySv_gJve8Ye0vOUjorE_N27j1GJmI_AkJ6qzDYpSrOgPOJlTOT9AR_e241NdKhc6177VwEvuIMN7RbGPm37L45dA-M4XsSj62MwVeVVhulA6fBI8jnE6wK910TeszLdu47ALGaC9FebTrOn4mwmi75ORhTTeDXeOCi6Fz7n9tuYSmcPT"/>
+</div>
+<div class="py-stack-sm flex flex-col flex-grow">
+<div class="flex justify-between items-start gap-stack-xs mt-stack-xs">
+<h2 class="font-headline-md text-headline-md text-primary uppercase leading-none">AERO PERFORMANCE DRESS</h2>
+<span class="font-label-caps text-label-caps text-primary">$135</span>
+</div>
+<p class="font-label-caps text-label-caps text-secondary mt-stack-xs">THE COURT COLLECTION / NAVY</p>
+</div>
+</div>
+<!-- Load More Section spanning all columns -->
+<div class="col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-4 flex justify-center mt-stack-xl border-t border-surface-container-high pt-stack-lg">
+<button class="bg-forest-green text-white font-label-caps text-label-caps py-stack-md px-stack-xl uppercase tracking-widest hover:bg-inverse-surface transition-colors border border-transparent hover:border-forest-green">
+                        LOAD MORE COLLECTION
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full bg-surface-container-lowest border-t border-surface-container-high flat no shadows mt-auto">
+<div class="grid grid-cols-12 gap-gutter px-margin-desktop py-stack-xl w-full max-w-[1920px] mx-auto">
+<!-- Brand & Copyright -->
+<div class="col-span-12 md:col-span-6 flex flex-col justify-between">
+<div>
+<h2 class="font-display-lg text-display-lg text-primary mb-stack-md uppercase tracking-tighter leading-none">INSPO</h2>
+</div>
+<p class="font-label-caps text-label-caps text-secondary mt-stack-xl">© 2024 INSPO. ELITE COURT PERFORMANCE.</p>
+</div>
+<!-- Links -->
+<div class="col-span-12 md:col-span-6 flex flex-col md:items-end justify-end mt-stack-lg md:mt-0">
+<nav class="flex flex-col gap-stack-sm md:text-right font-label-caps text-label-caps">
+<a class="text-secondary hover:text-forest-green transition-colors uppercase" href="#">PRIVACY POLICY</a>
+<a class="text-secondary hover:text-forest-green transition-colors uppercase" href="#">TERMS OF SERVICE</a>
+<a class="text-secondary hover:text-forest-green transition-colors uppercase" href="#">SHIPPING &amp; RETURNS</a>
+<a class="text-secondary hover:text-forest-green transition-colors uppercase" href="#">CONTACT</a>
+<a class="text-secondary hover:text-forest-green transition-colors uppercase" href="#">STORE LOCATOR</a>
+</nav>
+</div>
+</div>
+</footer>
+</body></html>

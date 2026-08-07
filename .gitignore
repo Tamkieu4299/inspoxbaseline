@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+data/
+backend/data/
+*.db
+.env
+
+# TypeScript incremental build artifacts
+*.tsbuildinfo
+
+# Local seed source images (real media lives in MinIO)
+SampleImages/
