@@ -47,7 +47,7 @@ def ensure_bucket() -> str:
     return bucket
 
 
-def save_file(db: Session, content: bytes, filename: str, content_type: str) -> Media:
+def save_file(db: Session, content: bytes, filename: str, content_type: str, tenant_id: int | None = None) -> Media:
     bucket = ensure_bucket()
     ext = Path(filename).suffix.lower() or ".bin"
     object_key = f"media/{uuid.uuid4().hex}{ext}"
@@ -61,6 +61,7 @@ def save_file(db: Session, content: bytes, filename: str, content_type: str) -> 
     )
     url = f"{settings.public_base_url}/{bucket}/{object_key}"
     media = Media(
+        tenant_id=tenant_id,
         filename=filename,
         object_key=object_key,
         url=url,

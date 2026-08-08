@@ -77,13 +77,21 @@ def _apply_product(db: Session, product: Product | None, payload: ProductIn, ten
 # ---------------- Media ----------------
 @router.get("/media", response_model=list[MediaOut])
 def list_media(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
-    return db.execute(select(Media).order_by(Media.created_at.desc())).scalars().all()
+    return (
+        db.execute(
+            select(Media)
+            .where(Media.tenant_id == tenant.id)
+            .order_by(Media.created_at.desc())
+        )
+        .scalars()
+        .all()
+    )
 
 
 @router.delete("/media/{media_id}")
 def delete_media(media_id: int, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
     media = db.get(Media, media_id)
-    if media is None:
+    if media is None or media.tenant_id != tenant.id:
         raise HTTPException(status_code=404, detail="Media not found")
     referenced = (
         db.scalar(select(ProductImage.id).where(ProductImage.media_id == media_id))

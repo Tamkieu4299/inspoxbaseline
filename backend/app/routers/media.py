@@ -18,7 +18,7 @@ def upload_file(
     tenant: Tenant = AdminDep,
 ):
     content = file.file.read()
-    media = save_file(db, content, file.filename or "file", file.content_type or "application/octet-stream")
+    media = save_file(db, content, file.filename or "file", file.content_type or "application/octet-stream", tenant_id=tenant.id)
     return media
 
 
@@ -31,6 +31,8 @@ def replace_media_file(
 ):
     media = db.get(Media, media_id)
     if media is None:
+        raise HTTPException(status_code=404, detail="Media not found")
+    if media.tenant_id != tenant.id:
         raise HTTPException(status_code=404, detail="Media not found")
     content = file.file.read()
     return replace_file(db, media, content, file.content_type or media.content_type)

@@ -85,12 +85,16 @@ NAVY = {"name": "NAVY", "hex": "#1B263B"}
 STEALTH = {"name": "STEALTH / WHITE", "hex": "#121212"}
 CLAY = {"name": "CLAY", "hex": "#c05a3b"}
 
+SEED_TENANT_ID: int | None = None
+
 
 def _media(db, key: str) -> Media:
     url = IMG[key]
     media = db.execute(select(Media).where(Media.url == url)).scalar_one_or_none()
     if media is None:
         media = Media(filename=key, object_key=f"seed/{key}", url=url, content_type="image/jpeg", size=0)
+        if SEED_TENANT_ID is not None:
+            media.tenant_id = SEED_TENANT_ID
         db.add(media)
         db.flush()
     return media
@@ -218,7 +222,71 @@ def _migrate_existing(db, tenant_id: int):
     _add_column_if_missing(db, "pages", "hero_text_color", "VARCHAR(20) DEFAULT '#1c1917'")
     _add_column_if_missing(db, "blog_posts", "gradient", "BOOLEAN DEFAULT 1")
     _add_column_if_missing(db, "blog_posts", "hero_text_color", "VARCHAR(20) DEFAULT '#1c1917'")
+    _backfill_media_tenant(db, tenant_id)
     _rebuild_slug_tables(db)
+
+
+def _backfill_media_tenant(db, tenant_id: int):
+    _add_column_if_missing(db, "media", "tenant_id", "INTEGER")
+    db.execute(
+        text(
+            "UPDATE media SET tenant_id = (SELECT p.tenant_id FROM product_images pi "
+            "JOIN products p ON p.id = pi.product_id WHERE pi.media_id = media.id) "
+            "WHERE tenant_id IS NULL AND EXISTS (SELECT 1 FROM product_images pi "
+            "JOIN products p ON p.id = pi.product_id WHERE pi.media_id = media.id)"
+        )
+    )
+    db.execute(
+        text(
+            "UPDATE media SET tenant_id = (SELECT c.tenant_id FROM collections c "
+            "WHERE c.hero_image_id = media.id) "
+            "WHERE tenant_id IS NULL AND EXISTS (SELECT 1 FROM collections c "
+            "WHERE c.hero_image_id = media.id)"
+        )
+    )
+    db.execute(
+        text(
+            "UPDATE media SET tenant_id = (SELECT e.tenant_id FROM editorial_items e "
+            "WHERE e.media_id = media.id) "
+            "WHERE tenant_id IS NULL AND EXISTS (SELECT 1 FROM editorial_items e "
+            "WHERE e.media_id = media.id)"
+        )
+    )
+    db.execute(
+        text(
+            "UPDATE media SET tenant_id = (SELECT h.tenant_id FROM home_content h "
+            "WHERE h.hero_image_id = media.id OR h.master_media_id = media.id) "
+            "WHERE tenant_id IS NULL AND EXISTS (SELECT 1 FROM home_content h "
+            "WHERE h.hero_image_id = media.id OR h.master_media_id = media.id)"
+        )
+    )
+    db.execute(
+        text(
+            "UPDATE media SET tenant_id = (SELECT pg.tenant_id FROM pages pg "
+            "WHERE pg.hero_image_id = media.id) "
+            "WHERE tenant_id IS NULL AND EXISTS (SELECT 1 FROM pages pg "
+            "WHERE pg.hero_image_id = media.id)"
+        )
+    )
+    db.execute(
+        text(
+            "UPDATE media SET tenant_id = (SELECT b.tenant_id FROM blog_posts b "
+            "WHERE b.cover_image_id = media.id) "
+            "WHERE tenant_id IS NULL AND EXISTS (SELECT 1 FROM blog_posts b "
+            "WHERE b.cover_image_id = media.id)"
+        )
+    )
+    db.execute(
+        text(
+            "UPDATE media SET tenant_id = (SELECT s.tenant_id FROM site_settings s "
+            "WHERE s.logo_media_id = media.id OR s.favicon_media_id = media.id) "
+            "WHERE tenant_id IS NULL AND EXISTS (SELECT 1 FROM site_settings s "
+            "WHERE s.logo_media_id = media.id OR s.favicon_media_id = media.id)"
+        )
+    )
+    db.execute(text("UPDATE media SET tenant_id = :tid WHERE tenant_id IS NULL"), {"tid": tenant_id})
+    db.commit()
+    print(f"Migration: media tenant_ids assigned (fallback tenant {tenant_id})")
 
 
 def _ensure_admin_user(db, tenant_id: int):
@@ -234,6 +302,7 @@ def _ensure_admin_user(db, tenant_id: int):
 
 
 def run():
+    global SEED_TENANT_ID
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
 
@@ -241,6 +310,7 @@ def run():
     _migrate_existing(db, tenant.id)
     _ensure_admin_user(db, tenant.id)
     TENANT_ID = tenant.id
+    SEED_TENANT_ID = tenant.id
 
     if db.scalar(select(Product.id).where(Product.tenant_id == TENANT_ID).limit(1)) is not None:
         db.close()

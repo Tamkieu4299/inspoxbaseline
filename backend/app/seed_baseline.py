@@ -73,13 +73,16 @@ CLAY = {"name": "CLAY", "hex": "#c05a3b"}
 SIZES = ["XS", "S", "M", "L", "XL", "XXL"]
 
 
-def _upload_bytes(db, relpath: str) -> Media:
+def _upload_bytes(db, relpath: str, tenant_id: int) -> Media:
     path = IMAGES_DIR / relpath
     existing = db.scalar(select(Media).where(Media.filename == path.name))
     if existing is not None:
+        if existing.tenant_id is None:
+            existing.tenant_id = tenant_id
+            db.commit()
         return existing
     content_type = "image/png" if path.suffix.lower() == ".png" else "image/jpeg"
-    return save_file(db, path.read_bytes(), path.name, content_type)
+    return save_file(db, path.read_bytes(), path.name, content_type, tenant_id=tenant_id)
 
 
 def run():
@@ -106,8 +109,8 @@ def run():
         )
         db.add(admin)
 
-    logo = _upload_bytes(db, LOGO)
-    shirts = [_upload_bytes(db, p) for p in TSHIRT_IMAGES]
+    logo = _upload_bytes(db, LOGO, tenant.id)
+    shirts = [_upload_bytes(db, p, tenant.id) for p in TSHIRT_IMAGES]
 
     site = SiteSettings(
         tenant_id=tenant.id,

@@ -468,8 +468,13 @@ def _load_editorial(db: Session, item: EditorialItem, lang: str = "en") -> Edito
 
 
 @router.get("/media", response_model=list[MediaOut])
-def list_media(db: Session = Depends(get_db)):
-    return [MediaOut.model_validate(m) for m in db.execute(select(Media)).scalars().all()]
+def list_media(db: Session = Depends(get_db), tenant: Tenant = Depends(get_tenant)):
+    return [
+        MediaOut.model_validate(m)
+        for m in db.execute(
+            select(Media).where(Media.tenant_id == tenant.id)
+        ).scalars().all()
+    ]
 
 
 @router.get("/pages", response_model=list[PageNavOut])

@@ -51,6 +51,7 @@ class Media(Base, TimestampMixin):
     __tablename__ = "media"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int | None] = mapped_column(ForeignKey("tenants.id"), nullable=True, index=True)
     filename: Mapped[str] = mapped_column(String(255))
     object_key: Mapped[str] = mapped_column(String(500), unique=True)
     url: Mapped[str] = mapped_column(String(1000))
