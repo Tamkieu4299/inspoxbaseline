@@ -8,6 +8,9 @@ data/
 backend/data/
 *.db
 .env
+.env.*
+!.env.example
+!deploy/.env.prod.example
 
 # TypeScript incremental build artifacts
 *.tsbuildinfo

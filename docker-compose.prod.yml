@@ -1,0 +1,59 @@
+# Production override — TLS + reverse proxy (Caddy), stop publishing backend/MinIO ports,
+# enforce strong secrets and host allowlists (see deploy/.env.prod.example).
+#
+# Usage:
+#   cp deploy/.env.prod.example .env
+#   # fill in real domains + secrets, then:
+#   docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# NOTE: the DB on the VPS still has the pre-deploy admin passwords (e.g. admin/admin123).
+# After first boot, log in and reset each tenant admin password (Admin -> Tenants).
+
+services:
+  minio:
+    # S3 API + console only on the internal network; media is served via Caddy (media.<domain>)
+    ports: !reset []
+
+  backend:
+    environment:
+      ENVIRONMENT: production
+      MINIO_PUBLIC_URL: https://${MEDIA_DOMAIN:?MEDIA_DOMAIN must be set in .env}
+      CORS_ORIGINS: ${CORS_ORIGINS:?CORS_ORIGINS must be set in .env}
+      CORS_ORIGIN_REGEX: ""
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS:?TRUSTED_HOSTS must be set in .env}
+    ports: !reset []
+
+  frontend:
+    ports: !reset []
+
+  frontend-baseline:
+    ports: !reset []
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: inspo-caddy
+    restart: unless-stopped
+    depends_on:
+      frontend:
+        condition: service_started
+      frontend-baseline:
+        condition: service_started
+      minio:
+        condition: service_healthy
+    environment:
+      SHOP1_DOMAIN: ${SHOP1_DOMAIN:?SHOP1_DOMAIN must be set in .env}
+      BASELINE_DOMAIN: ${BASELINE_DOMAIN:?BASELINE_DOMAIN must be set in .env}
+      MEDIA_DOMAIN: ${MEDIA_DOMAIN:?MEDIA_DOMAIN must be set in .env}
+      ACME_EMAIL: ${CERT_EMAIL:?CERT_EMAIL must be set in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-data:
+  caddy-config:

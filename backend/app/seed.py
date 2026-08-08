@@ -223,6 +223,7 @@ def _migrate_existing(db, tenant_id: int):
     _add_column_if_missing(db, "blog_posts", "gradient", "BOOLEAN DEFAULT 1")
     _add_column_if_missing(db, "blog_posts", "hero_text_color", "VARCHAR(20) DEFAULT '#1c1917'")
     _backfill_media_tenant(db, tenant_id)
+    _rewrite_media_urls(db)
     _rebuild_slug_tables(db)
 
 
@@ -287,6 +288,26 @@ def _backfill_media_tenant(db, tenant_id: int):
     db.execute(text("UPDATE media SET tenant_id = :tid WHERE tenant_id IS NULL"), {"tid": tenant_id})
     db.commit()
     print(f"Migration: media tenant_ids assigned (fallback tenant {tenant_id})")
+
+
+def _rewrite_media_urls(db):
+    """Rewrite stored media URLs to the current public base URL (e.g. after changing domains)."""
+    base = settings.public_base_url.rstrip("/")
+    bucket = settings.MINIO_BUCKET
+    rows = db.execute(
+        text("SELECT id, object_key, url FROM media WHERE object_key IS NOT NULL")
+    ).fetchall()
+    changed = 0
+    for media_id, object_key, url in rows:
+        if not url or not url.startswith(base):
+            db.execute(
+                text("UPDATE media SET url = :url WHERE id = :id"),
+                {"url": f"{base}/{bucket}/{object_key}", "id": media_id},
+            )
+            changed += 1
+    if changed:
+        db.commit()
+        print(f"Migration: rewrote {changed} media URL(s) to {base}")
 
 
 def _ensure_admin_user(db, tenant_id: int):

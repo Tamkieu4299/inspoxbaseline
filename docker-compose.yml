@@ -4,8 +4,8 @@ services:
     container_name: inspo-minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
     ports:
       - "9000:9000" # S3 API
       - "9001:9001" # Web console
@@ -21,19 +21,22 @@ services:
     build: ./backend
     container_name: inspo-backend
     environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
       DATABASE_URL: sqlite:////data/inspo.db
       MINIO_ENDPOINT: minio:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-      MINIO_BUCKET: inspo-media
-      # Browser-accessible URL for media (host port mapping)
-      MINIO_PUBLIC_URL: http://localhost:9000
-      ADMIN_API_KEY: inspo-admin-secret
-      JWT_SECRET: inspo-jwt-secret-change-me-in-production
-      JWT_EXPIRES_MINUTES: 1440
-      ADMIN_DEFAULT_PASSWORD: admin123
-      DEFAULT_TENANT_SLUG: shop1
-      CORS_ORIGINS: http://localhost:3000,http://localhost:5173,http://localhost:8080,http://shop1.localhost:3000,http://shop2.localhost:3000,http://shop1.localhost:5173,http://shop2.localhost:5173
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-inspo-media}
+      MINIO_SECURE: ${MINIO_SECURE:-false}
+      # Browser-accessible URL for media (host port mapping / reverse proxy)
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://localhost:9000}
+      JWT_SECRET: ${JWT_SECRET:-inspo-dev-jwt-secret-change-me-in-development-only}
+      JWT_EXPIRES_MINUTES: ${JWT_EXPIRES_MINUTES:-1440}
+      ADMIN_DEFAULT_PASSWORD: ${ADMIN_DEFAULT_PASSWORD:-admin123}
+      DEFAULT_TENANT_SLUG: ${DEFAULT_TENANT_SLUG:-shop1}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:5173,http://localhost:8080,http://shop1.localhost:3000,http://shop2.localhost:3000,http://shop1.localhost:5173,http://shop2.localhost:5173}
+      CORS_ORIGIN_REGEX: ${CORS_ORIGIN_REGEX:-^https?://(?:[a-z0-9-]+\.)*localhost(?::\d+)?$}
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS:-*}
     ports:
       - "8000:8000"
     volumes:

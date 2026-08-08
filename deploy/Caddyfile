@@ -1,0 +1,15 @@
+# Caddy configuration — automatic HTTPS via Let's Encrypt.
+# Domains and email come from the container environment (see docker-compose.prod.yml).
+
+{$SHOP1_DOMAIN} {
+	reverse_proxy frontend:80
+}
+
+{$BASELINE_DOMAIN} {
+	reverse_proxy frontend-baseline:80
+}
+
+{$MEDIA_DOMAIN} {
+	# Serve the public MinIO bucket read-only: https://media.<domain>/<bucket>/<key>
+	reverse_proxy minio:9000
+}

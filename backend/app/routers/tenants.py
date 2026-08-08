@@ -109,8 +109,16 @@ def reset_password(
     db: Session = Depends(get_db),
     _user: User = Depends(get_current_user),
 ):
-    if len(payload.password) < 6:
-        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    password = payload.password
+    if (
+        len(password) < 10
+        or not any(c.isdigit() for c in password)
+        or not any(c.isupper() for c in password)
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Password must be at least 10 characters and include a number and an uppercase letter",
+        )
     tenant = db.get(Tenant, tenant_id)
     if tenant is None:
         raise HTTPException(status_code=404, detail="Tenant not found")
@@ -120,6 +128,6 @@ def reset_password(
     if admin is None:
         admin = User(tenant_id=tenant.id, username="admin", password_hash="")
         db.add(admin)
-    admin.password_hash = hash_password(payload.password)
+    admin.password_hash = hash_password(password)
     db.commit()
     return {"ok": True}
