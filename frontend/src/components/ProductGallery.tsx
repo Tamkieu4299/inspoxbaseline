@@ -23,9 +23,10 @@ interface Props {
   name: string;
   layout?: string | null;
   onImageClick?: (index: number) => void;
+  activeIndex?: number;
 }
 
-export default function ProductGallery({ images, name, layout, onImageClick }: Props) {
+export default function ProductGallery({ images, name, layout, onImageClick, activeIndex }: Props) {
   const mode = isGalleryLayout(layout) ? layout : "collage";
   const visible = images.filter((i) => i.enabled !== false);
 
@@ -35,13 +36,13 @@ export default function ProductGallery({ images, name, layout, onImageClick }: P
 
   switch (mode) {
     case "grid":
-      return <Grid images={visible} name={name} onImageClick={onImageClick} />;
+      return <Grid images={visible} name={name} onImageClick={onImageClick} activeIndex={activeIndex} />;
     case "masonry":
-      return <Masonry images={visible} name={name} onImageClick={onImageClick} />;
+      return <Masonry images={visible} name={name} onImageClick={onImageClick} activeIndex={activeIndex} />;
     case "slideshow":
-      return <Slideshow images={visible} name={name} onImageClick={onImageClick} />;
+      return <Slideshow images={visible} name={name} onImageClick={onImageClick} activeIndex={activeIndex} />;
     default:
-      return <Collage images={visible} name={name} onImageClick={onImageClick} />;
+      return <Collage images={visible} name={name} onImageClick={onImageClick} activeIndex={activeIndex} />;
   }
 }
 
@@ -54,27 +55,32 @@ function Img({
   name,
   index,
   onImageClick,
+  active,
   className = "",
 }: {
   img: GalleryImage;
   name: string;
   index: number;
   onImageClick?: (index: number) => void;
+  active?: boolean;
   className?: string;
 }) {
+  const ring = active
+    ? " ring-2 ring-forest-green ring-offset-2 ring-offset-white z-10"
+    : "";
   if (onImageClick) {
     return (
       <button
         type="button"
         onClick={() => onImageClick(index)}
-        className={`block w-full h-full bg-surface-container-low overflow-hidden cursor-pointer p-0 border-0 ${className}`}
+        className={`block w-full h-full bg-surface-container-low overflow-hidden cursor-pointer p-0 border-0 ${className}${ring}`}
       >
         <img src={img.url} alt={img.alt || name} className="w-full h-full object-cover" />
       </button>
     );
   }
   return (
-    <div className={`bg-surface-container-low overflow-hidden ${className}`}>
+    <div className={`bg-surface-container-low overflow-hidden ${className}${ring}`}>
       <img src={img.url} alt={img.alt || name} className="w-full h-full object-cover" />
     </div>
   );
@@ -84,16 +90,18 @@ function Collage({
   images,
   name,
   onImageClick,
+  activeIndex,
 }: {
   images: GalleryImage[];
   name: string;
   onImageClick?: (index: number) => void;
+  activeIndex?: number;
 }) {
   const n = images.length;
 
   if (n === 1) {
     return (
-      <Img img={images[0]} name={name} index={0} onImageClick={onImageClick} className="w-full aspect-[4/5]" />
+      <Img img={images[0]} name={name} index={0} onImageClick={onImageClick} active={activeIndex === 0} className="w-full aspect-[4/5]" />
     );
   }
 
@@ -101,7 +109,7 @@ function Collage({
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {images.map((img, i) => (
-          <Img key={keyOf(img, i)} img={img} name={name} index={i} onImageClick={onImageClick} className="w-full aspect-[4/5]" />
+          <Img key={keyOf(img, i)} img={img} name={name} index={i} onImageClick={onImageClick} active={activeIndex === i} className="w-full aspect-[4/5]" />
         ))}
       </div>
     );
@@ -111,10 +119,10 @@ function Collage({
     return (
       <div className="grid grid-cols-2 grid-rows-2 auto-rows-fr gap-3 h-[520px] md:h-[620px]">
         <div className="row-span-2">
-          <Img img={images[0]} name={name} index={0} onImageClick={onImageClick} className="w-full h-full" />
+          <Img img={images[0]} name={name} index={0} onImageClick={onImageClick} active={activeIndex === 0} className="w-full h-full" />
         </div>
         {images.slice(1).map((img, i) => (
-          <Img key={keyOf(img, i + 1)} img={img} name={name} index={i + 1} onImageClick={onImageClick} className="w-full h-full" />
+          <Img key={keyOf(img, i + 1)} img={img} name={name} index={i + 1} onImageClick={onImageClick} active={activeIndex === i + 1} className="w-full h-full" />
         ))}
       </div>
     );
@@ -124,7 +132,7 @@ function Collage({
     return (
       <div className="grid grid-cols-2 gap-3">
         {images.map((img, i) => (
-          <Img key={keyOf(img, i)} img={img} name={name} index={i} onImageClick={onImageClick} className="w-full aspect-[4/5]" />
+          <Img key={keyOf(img, i)} img={img} name={name} index={i} onImageClick={onImageClick} active={activeIndex === i} className="w-full aspect-[4/5]" />
         ))}
       </div>
     );
@@ -133,7 +141,7 @@ function Collage({
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
       {images.map((img, i) => (
-        <Img key={keyOf(img, i)} img={img} name={name} index={i} onImageClick={onImageClick} className="w-full aspect-[4/5]" />
+        <Img key={keyOf(img, i)} img={img} name={name} index={i} onImageClick={onImageClick} active={activeIndex === i} className="w-full aspect-[4/5]" />
       ))}
     </div>
   );
@@ -143,15 +151,17 @@ function Grid({
   images,
   name,
   onImageClick,
+  activeIndex,
 }: {
   images: GalleryImage[];
   name: string;
   onImageClick?: (index: number) => void;
+  activeIndex?: number;
 }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
       {images.map((img, i) => (
-        <Img key={keyOf(img, i)} img={img} name={name} index={i} onImageClick={onImageClick} className="w-full aspect-[4/5]" />
+        <Img key={keyOf(img, i)} img={img} name={name} index={i} onImageClick={onImageClick} active={activeIndex === i} className="w-full aspect-[4/5]" />
       ))}
     </div>
   );
@@ -161,11 +171,15 @@ function Masonry({
   images,
   name,
   onImageClick,
+  activeIndex,
 }: {
   images: GalleryImage[];
   name: string;
   onImageClick?: (index: number) => void;
+  activeIndex?: number;
 }) {
+  const active = (i: number) =>
+    activeIndex === i ? " ring-2 ring-forest-green ring-offset-2 ring-offset-white z-10" : "";
   return (
     <div className="columns-2 md:columns-3 gap-3">
       {images.map((img, i) => (
@@ -174,12 +188,12 @@ function Masonry({
             <button
               type="button"
               onClick={() => onImageClick(i)}
-              className="block w-full bg-surface-container-low overflow-hidden cursor-pointer p-0 border-0"
+              className={`block w-full bg-surface-container-low overflow-hidden cursor-pointer p-0 border-0${active(i)}`}
             >
               <img src={img.url} alt={img.alt || name} className="w-full h-auto object-cover" />
             </button>
           ) : (
-            <div className="bg-surface-container-low overflow-hidden">
+            <div className={`bg-surface-container-low overflow-hidden${active(i)}`}>
               <img src={img.url} alt={img.alt || name} className="w-full h-auto object-cover" />
             </div>
           )}
@@ -193,10 +207,12 @@ function Slideshow({
   images,
   name,
   onImageClick,
+  activeIndex,
 }: {
   images: GalleryImage[];
   name: string;
   onImageClick?: (index: number) => void;
+  activeIndex?: number;
 }) {
   const [active, setActive] = useState(0);
 
@@ -269,7 +285,7 @@ function Slideshow({
             onClick={() => setActive(i)}
             className={`aspect-square bg-surface-container-low overflow-hidden border-2 transition-colors ${
               i === active ? "border-forest-green" : "border-transparent hover:border-outline-variant"
-            }`}
+            }${activeIndex === i ? " ring-2 ring-forest-green ring-offset-2 ring-offset-white z-10" : ""}`}
           >
             <img src={img.url} alt={img.alt || name} className="w-full h-full object-cover" />
           </button>

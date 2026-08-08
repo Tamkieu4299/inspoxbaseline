@@ -98,7 +98,7 @@ export default function Home() {
         </div>
         <div className="mt-12 flex justify-center">
           <Link
-            to="/collections"
+            to="/products"
             className="px-8 py-4 bg-transparent border border-primary text-primary font-label text-label-caps uppercase rounded-none hover:bg-forest-green hover:border-forest-green hover:text-white transition-colors"
           >
             {t("viewAllProducts")}

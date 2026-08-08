@@ -116,6 +116,7 @@ export default function ProductsTab() {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [pickImageFor, setPickImageFor] = useState<number | null>(null);
   const [cropTarget, setCropTarget] = useState<number | null>(null);
+  const [selectedCell, setSelectedCell] = useState<number | null>(null);
 
   const uploadMutation = useMutation({
     mutationFn: (file: File | Blob) => adminApi.uploadMedia(file),
@@ -150,6 +151,17 @@ export default function ProductsTab() {
 
   function set<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((d) => (d ? { ...d, [key]: value } : d));
+  }
+
+  function moveImage(index: number, dir: -1 | 1) {
+    setDraft((d) => {
+      if (!d) return d;
+      const images = [...d.images];
+      const target = index + dir;
+      if (target < 0 || target >= images.length) return d;
+      [images[index], images[target]] = [images[target], images[index]];
+      return { ...d, images: images.map((im, i) => ({ ...im, position: i })) };
+    });
   }
 
   const mediaById = new Map((media || []).map((m) => [m.id, m]));
@@ -278,13 +290,132 @@ export default function ProductsTab() {
             {/* Layout preview */}
             <div>
               <h4 className="font-headline text-headline-md text-primary uppercase mb-2">{t("admin.layoutPreview")}</h4>
+              <p className="font-label text-label-caps text-secondary mb-2">{t("admin.layoutPreviewHint")}</p>
               <div className="border border-surface-container-highest bg-white p-4">
                 {draft.images.some((i) => i.enabled) ? (
-                  <ProductGallery
-                    images={draft.images}
-                    name={draft.name || "PRODUCT"}
-                    layout={draft.gallery_layout}
-                  />
+                  (() => {
+                    const visibleIndices = draft.images
+                      .map((im, i) => (im.enabled ? i : -1))
+                      .filter((i) => i >= 0);
+                    return (
+                      <>
+                        <ProductGallery
+                          images={draft.images}
+                          name={draft.name || "PRODUCT"}
+                          layout={draft.gallery_layout}
+                          activeIndex={
+                            selectedCell != null ? visibleIndices.indexOf(selectedCell) : undefined
+                          }
+                          onImageClick={(vIdx) => {
+                            const draftIdx = visibleIndices[vIdx];
+                            if (draftIdx !== undefined) setSelectedCell(draftIdx);
+                          }}
+                        />
+                        {selectedCell !== null && draft.images[selectedCell] && (
+                          <div className="fixed top-20 right-4 z-50 w-80 border border-forest-green bg-white shadow-2xl p-4 flex flex-col gap-3">
+                            <div className="flex items-center justify-between">
+                              <p className="font-headline text-headline-md text-primary uppercase">
+                                {t("admin.imageEditor")}
+                              </p>
+                              <button
+                                onClick={() => setSelectedCell(null)}
+                                aria-label={t("admin.done")}
+                                className="text-primary hover:text-forest-green text-xl leading-none"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={draft.images[selectedCell].url}
+                                alt=""
+                                className="w-14 h-[72px] object-cover bg-surface-container-low"
+                              />
+                              <div>
+                                <p className="font-label text-label-caps text-secondary uppercase">
+                                  {t("admin.imageN")} {selectedCell + 1} / {draft.images.length}
+                                </p>
+                                <p className="font-body text-body-md text-on-background">
+                                  {draft.images[selectedCell].enabled
+                                    ? t("admin.navEnabled")
+                                    : t("admin.hidden")}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <PrimaryButton onClick={() => setCropTarget(selectedCell)}>
+                                {t("admin.crop")}
+                              </PrimaryButton>
+                              <SecondaryButton onClick={() => setPickImageFor(selectedCell)}>
+                                {t("admin.change")}
+                              </SecondaryButton>
+                              <SecondaryButton
+                                onClick={() => {
+                                  const idx = selectedCell;
+                                  if (idx === 0) return;
+                                  moveImage(idx, -1);
+                                  setSelectedCell(idx - 1);
+                                }}
+                                disabled={selectedCell === 0}
+                              >
+                                ↑ {t("admin.navUp")}
+                              </SecondaryButton>
+                              <SecondaryButton
+                                onClick={() => {
+                                  const idx = selectedCell;
+                                  if (idx === draft.images.length - 1) return;
+                                  moveImage(idx, 1);
+                                  setSelectedCell(idx + 1);
+                                }}
+                                disabled={selectedCell === draft.images.length - 1}
+                              >
+                                ↓ {t("admin.navDown")}
+                              </SecondaryButton>
+                              {draft.images[selectedCell].enabled &&
+                                selectedCell !== draft.images.findIndex((i) => i.enabled) && (
+                                  <SecondaryButton
+                                    onClick={() => {
+                                      const images = [...draft.images];
+                                      const [image] = images.splice(selectedCell, 1);
+                                      images.unshift(image);
+                                      set("images", images.map((im, i) => ({ ...im, position: i })));
+                                      setSelectedCell(0);
+                                    }}
+                                    className="col-span-2"
+                                  >
+                                    {t("admin.setAsMain")}
+                                  </SecondaryButton>
+                                )}
+                              <SecondaryButton
+                                onClick={() => {
+                                  set(
+                                    "images",
+                                    draft.images.map((im, i) =>
+                                      i === selectedCell ? { ...im, enabled: !im.enabled } : im
+                                    )
+                                  );
+                                  setSelectedCell(null);
+                                }}
+                              >
+                                {draft.images[selectedCell].enabled ? t("admin.hide") : t("admin.show")}
+                              </SecondaryButton>
+                              <DangerButton
+                                onClick={() => {
+                                  set("images", draft.images.filter((_, i) => i !== selectedCell));
+                                  setSelectedCell(null);
+                                }}
+                              >
+                                {t("admin.remove")}
+                              </DangerButton>
+                            </div>
+                            <PrimaryButton onClick={() => setSelectedCell(null)}>
+                              {t("admin.done")}
+                            </PrimaryButton>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()
                 ) : (
                   <p className="font-body text-body-md text-secondary">
                     {t("admin.noVisibleImages")}
@@ -344,6 +475,30 @@ export default function ProductsTab() {
                       </button>
                       <div className="flex flex-col gap-1 mt-2">
                         <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => moveImage(index, -1)}
+                              disabled={index === 0}
+                              className={`font-label text-label-caps uppercase ${
+                                index === 0
+                                  ? "text-outline cursor-not-allowed"
+                                  : "text-primary hover:text-forest-green hover:underline"
+                              }`}
+                            >
+                              {t("admin.navUp")}
+                            </button>
+                            <button
+                              onClick={() => moveImage(index, 1)}
+                              disabled={index === draft.images.length - 1}
+                              className={`font-label text-label-caps uppercase ${
+                                index === draft.images.length - 1
+                                  ? "text-outline cursor-not-allowed"
+                                  : "text-primary hover:text-forest-green hover:underline"
+                              }`}
+                            >
+                              {t("admin.navDown")}
+                            </button>
+                          </div>
                           {index !== mainIndex && img.enabled && (
                             <button
                               onClick={() => {
@@ -357,21 +512,6 @@ export default function ProductsTab() {
                               {t("admin.setAsMain")}
                             </button>
                           )}
-                          <button
-                            onClick={() =>
-                              set(
-                                "images",
-                                draft.images.map((im, i) =>
-                                  i === index ? { ...im, enabled: !im.enabled } : im
-                                )
-                              )
-                            }
-                            className={`font-label text-label-caps hover:underline uppercase ${
-                              img.enabled ? "text-error" : "text-forest-green"
-                            }`}
-                          >
-                            {img.enabled ? t("admin.hide") : t("admin.show")}
-                          </button>
                         </div>
                         <div className="flex items-center justify-between">
                           <button

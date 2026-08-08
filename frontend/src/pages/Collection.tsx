@@ -47,6 +47,7 @@ export default function Collection() {
   });
 
   const currentCollection = collections?.find((c) => c.slug === activeCollection);
+  const currentCategory = categories?.find((c) => c.slug === category);
 
   const allSizes = useMemo(() => {
     const set = new Set<string>();
@@ -72,7 +73,11 @@ export default function Collection() {
       <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between border-b border-surface-container-high pb-4">
         <div>
           <h1 className="font-headline text-headline-lg text-primary uppercase">
-            {activeCollection ? currentCollection?.name || activeCollection.replace(/-/g, " ").toUpperCase() : t("collection.shopAll")}
+            {category
+              ? currentCategory?.name || category.replace(/-/g, " ").toUpperCase()
+              : activeCollection
+                ? currentCollection?.name || activeCollection.replace(/-/g, " ").toUpperCase()
+                : t("collection.shopAll")}
           </h1>
           <p className="font-label text-label-caps text-secondary mt-1">
             {itemCount} {itemCount === 1 ? t("collection.itemFound") : t("collection.itemsFound")}

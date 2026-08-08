@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import Icon from "./Icon";
@@ -10,6 +10,13 @@ interface BuiltLink {
   label: string;
   to: string;
   children?: { label: string; to: string }[];
+}
+
+function isCategoryView(pathname: string, search: string): boolean {
+  return (
+    pathname === "/products" &&
+    Boolean(new URLSearchParams(search).get("category"))
+  );
 }
 
 export default function Navbar() {
@@ -49,7 +56,7 @@ export default function Navbar() {
           to: "/collections",
           children: (categories || []).map((c) => ({
             label: c.name,
-            to: `/collections?category=${c.slug}`,
+            to: `/products?category=${c.slug}`,
           })),
         };
       case "page": {
@@ -91,6 +98,11 @@ export default function Navbar() {
         : "text-secondary hover:text-forest-green hover:bg-surface-container-low"
     }`;
 
+  const location = useLocation();
+
+  const collectionsActive = location.pathname === "/collections";
+  const categoriesActive = isCategoryView(location.pathname, location.search);
+
   return (
     <header className="bg-surface-container-lowest fixed top-0 w-full z-50 border-b border-outline-variant">
       <div className="flex justify-between items-center w-full px-8 h-20 max-w-[1440px] mx-auto">
@@ -110,7 +122,10 @@ export default function Navbar() {
           {links.map((link) =>
             link.children && link.children.length > 0 ? (
               <div key={link.key} className="relative group">
-                <NavLink to={link.to} className={(p) => `${linkClass(p)} flex items-center gap-1`}>
+                <NavLink
+                  to={link.to}
+                  className={() => `${linkClass({ isActive: categoriesActive })} flex items-center gap-1`}
+                >
                   {link.label} <Icon name="expand_more" className="text-[16px] leading-none" />
                 </NavLink>
                 <div className="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
@@ -128,7 +143,15 @@ export default function Navbar() {
                 </div>
               </div>
             ) : (
-              <NavLink key={link.key} to={link.to} className={(p) => `${linkClass(p)} inline-block`}>
+              <NavLink
+                key={link.key}
+                to={link.to}
+                className={() =>
+                  `${linkClass({
+                    isActive: link.to === "/collections" ? collectionsActive : location.pathname === link.to,
+                  })} inline-block`
+                }
+              >
                 {link.label}
               </NavLink>
             )
@@ -149,13 +172,6 @@ export default function Navbar() {
           >
             {lang === "en" ? "VI" : "EN"}
           </button>
-          <Link
-            to="/admin"
-            aria-label={t("nav.admin")}
-            className="hover:bg-surface-container-low hover:text-forest-green transition-all duration-150 p-2 focus:outline-none focus:ring-1 focus:ring-forest-green"
-          >
-            <Icon name="person" />
-          </Link>
         </div>
       </div>
     </header>
