@@ -3,8 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
 import type { HomeContentAdmin, Media } from "../types";
-import { ImageField } from "./MediaLibrary";
-import { DangerButton, Field, PrimaryButton, SecondaryButton, TextArea, TextInput, ViArea, ViInput } from "./ui";
+import { ImageField, MediaPicker } from "./MediaLibrary";
+import { Checkbox, ColorField, DangerButton, Field, PrimaryButton, SecondaryButton, TextArea, TextInput, ViArea, ViInput } from "./ui";
 
 export default function HomeTab() {
   const queryClient = useQueryClient();
@@ -14,6 +14,7 @@ export default function HomeTab() {
 
   const [draft, setDraft] = useState<HomeContentAdmin | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [carouselOpen, setCarouselOpen] = useState(false);
 
   const saveMutation = useMutation({
     mutationFn: adminApi.updateHome,
@@ -35,6 +36,13 @@ export default function HomeTab() {
   function set<K extends keyof HomeContentAdmin>(key: K, value: HomeContentAdmin[K]) {
     setDraft((d) => ({ ...(d ?? home!), [key]: value }));
     setDirty(true);
+  }
+
+  function setColor(key: string, value: string | undefined) {
+    const next = { ...(draftValue.hero_colors || {}) };
+    if (value) next[key] = value;
+    else delete next[key];
+    set("hero_colors", next);
   }
 
   return (
@@ -66,6 +74,47 @@ export default function HomeTab() {
             value={draftValue.hero_image_id ? (mediaById.get(draftValue.hero_image_id) as Media) || null : null}
             onChange={(m) => set("hero_image_id", m ? m.id : null)}
           />
+          <label className="flex flex-col gap-2">
+            <span className="font-label text-label-caps text-secondary uppercase">{t("admin.heroGradient")}</span>
+            <Checkbox
+              checked={draftValue.hero_gradient !== false}
+              onChange={(e) => set("hero_gradient", e.target.checked)}
+            />
+          </label>
+          <Field label={t("admin.heroTextColor")}>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={draftValue.hero_text_color || "#1c1917"}
+                onChange={(e) => set("hero_text_color", e.target.value)}
+                className="h-10 w-14 cursor-pointer border border-surface-container-highest bg-white p-1"
+              />
+              <TextInput
+                value={draftValue.hero_text_color || ""}
+                onChange={(e) => set("hero_text_color", e.target.value)}
+                className="flex-1"
+              />
+            </div>
+          </Field>
+          <label className="flex flex-col gap-2">
+            <span className="font-label text-label-caps text-secondary uppercase">{t("admin.heroCarousel")}</span>
+            <Checkbox
+              checked={draftValue.hero_carousel ?? false}
+              onChange={(e) => set("hero_carousel", e.target.checked)}
+            />
+          </label>
+          <Field label={t("admin.heroCarouselInterval")}>
+            <div className="flex items-center gap-2">
+              <TextInput
+                type="number"
+                min={1}
+                value={draftValue.hero_carousel_interval ?? 5}
+                onChange={(e) => set("hero_carousel_interval", Math.max(1, Number(e.target.value) || 5))}
+                className="w-24"
+              />
+              <span className="font-body text-body-md text-secondary">{t("admin.seconds")}</span>
+            </div>
+          </Field>
           <Field label={t("admin.subtitle")} className="md:col-span-1">
             <TextArea rows={2} value={draftValue.hero_subtitle} onChange={(e) => set("hero_subtitle", e.target.value)} />
           </Field>
@@ -84,6 +133,55 @@ export default function HomeTab() {
           <ViArea label={t("admin.subtitle")} rows={2} value={draftValue.hero_subtitle_vi || ""} onChange={(e) => set("hero_subtitle_vi", e.target.value)} placeholder="Phụ đề tiếng Việt" />
           <ViInput label={t("admin.primaryCtaText")} value={draftValue.hero_primary_cta_vi || ""} onChange={(e) => set("hero_primary_cta_vi", e.target.value)} placeholder="Nút CTA chính tiếng Việt" />
           <ViInput label={t("admin.secondaryCtaText")} value={draftValue.hero_secondary_cta_vi || ""} onChange={(e) => set("hero_secondary_cta_vi", e.target.value)} placeholder="Nút CTA phụ tiếng Việt" />
+        </div>
+        <div className="flex flex-col gap-2 border-t border-surface-container-high pt-4">
+          <div className="flex items-center justify-between">
+            <span className="font-label text-label-caps text-secondary uppercase">{t("admin.heroCarouselImages")}</span>
+            <SecondaryButton onClick={() => setCarouselOpen(true)}>{t("admin.addImage")}</SecondaryButton>
+          </div>
+          <p className="font-body text-body-md text-secondary">{t("admin.heroCarouselHint")}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {(draftValue.hero_image_ids || []).map((id) => {
+              const m = mediaById.get(id);
+              if (!m) return null;
+              return (
+                <div key={id} className="relative border border-surface-container-highest bg-white p-2">
+                  <img src={m.url} alt={m.filename} className="w-full h-24 object-cover" />
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="font-body text-body-md text-on-background text-xs truncate max-w-[140px]">
+                      {m.filename}
+                    </span>
+                    <button
+                      onClick={() => set("hero_image_ids", (draftValue.hero_image_ids || []).filter((x) => x !== id))}
+                      className="font-label text-label-caps text-error hover:underline uppercase"
+                    >
+                      {t("admin.remove")}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {(draftValue.hero_image_ids || []).length === 0 && (
+            <p className="font-body text-body-md text-secondary">{t("admin.none")}</p>
+          )}
+        </div>
+        <div className="flex flex-col gap-3 border-t border-surface-container-high pt-4">
+          <div className="flex items-center justify-between">
+            <span className="font-label text-label-caps text-secondary uppercase">{t("admin.heroColors")}</span>
+            <SecondaryButton onClick={() => set("hero_colors", {})}>{t("admin.reset")}</SecondaryButton>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ColorField label={t("admin.colorKickerBg")} value={draftValue.hero_colors?.kickerBg} onChange={(v) => setColor("kickerBg", v)} clearLabel={t("admin.clear")} />
+            <ColorField label={t("admin.colorKickerText")} value={draftValue.hero_colors?.kickerText} onChange={(v) => setColor("kickerText", v)} clearLabel={t("admin.clear")} />
+            <ColorField label={t("admin.colorTitle")} value={draftValue.hero_colors?.title} onChange={(v) => setColor("title", v)} clearLabel={t("admin.clear")} />
+            <ColorField label={t("admin.colorSubtitle")} value={draftValue.hero_colors?.subtitle} onChange={(v) => setColor("subtitle", v)} clearLabel={t("admin.clear")} />
+            <ColorField label={t("admin.colorPrimaryBg")} value={draftValue.hero_colors?.primaryBg} onChange={(v) => setColor("primaryBg", v)} clearLabel={t("admin.clear")} />
+            <ColorField label={t("admin.colorPrimaryText")} value={draftValue.hero_colors?.primaryText} onChange={(v) => setColor("primaryText", v)} clearLabel={t("admin.clear")} />
+            <ColorField label={t("admin.colorSecondaryBg")} value={draftValue.hero_colors?.secondaryBg} onChange={(v) => setColor("secondaryBg", v)} clearLabel={t("admin.clear")} />
+            <ColorField label={t("admin.colorSecondaryBorder")} value={draftValue.hero_colors?.secondaryBorder} onChange={(v) => setColor("secondaryBorder", v)} clearLabel={t("admin.clear")} />
+            <ColorField label={t("admin.colorSecondaryText")} value={draftValue.hero_colors?.secondaryText} onChange={(v) => setColor("secondaryText", v)} clearLabel={t("admin.clear")} />
+          </div>
         </div>
       </section>
 
@@ -175,6 +273,15 @@ export default function HomeTab() {
 
       {saveMutation.isError && <p className="text-error text-sm">{String(saveMutation.error)}</p>}
       {saveMutation.isSuccess && !dirty && <p className="text-forest-green text-sm">{t("admin.homepageSaved")}</p>}
+      {carouselOpen && (
+        <MediaPicker
+          onSelect={(m) => {
+            const current = draftValue.hero_image_ids || [];
+            if (!current.includes(m.id)) set("hero_image_ids", [...current, m.id]);
+          }}
+          onClose={() => setCarouselOpen(false)}
+        />
+      )}
     </div>
   );
 }

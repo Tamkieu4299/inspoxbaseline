@@ -9,6 +9,10 @@ class Settings:
     MINIO_BUCKET: str = os.getenv("MINIO_BUCKET", "inspo-media")
     MINIO_SECURE: bool = os.getenv("MINIO_SECURE", "false").lower() == "true"
     ADMIN_API_KEY: str = os.getenv("ADMIN_API_KEY", "inspo-admin-secret")
+    JWT_SECRET: str = os.getenv("JWT_SECRET", "inspo-jwt-secret-change-me")
+    JWT_EXPIRES_MINUTES: int = int(os.getenv("JWT_EXPIRES_MINUTES", "1440"))
+    ADMIN_DEFAULT_PASSWORD: str = os.getenv("ADMIN_DEFAULT_PASSWORD", "admin123")
+    DEFAULT_TENANT_SLUG: str = os.getenv("DEFAULT_TENANT_SLUG", "shop1")
     CORS_ORIGINS: str = os.getenv(
         "CORS_ORIGINS", "http://localhost:3000,http://localhost:5173,http://localhost:8080"
     )

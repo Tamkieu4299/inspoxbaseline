@@ -9,6 +9,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -20,6 +21,30 @@ class TimestampMixin:
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
+
+
+class Tenant(Base, TimestampMixin):
+    __tablename__ = "tenants"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    slug: Mapped[str] = mapped_column(String(100), unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(200))
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    users: Mapped[list["User"]] = relationship(back_populates="tenant", cascade="all, delete-orphan")
+
+
+class User(Base, TimestampMixin):
+    __tablename__ = "users"
+    __table_args__ = (UniqueConstraint("tenant_id", "username", name="uq_user_tenant_username"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True)
+    username: Mapped[str] = mapped_column(String(100))
+    password_hash: Mapped[str] = mapped_column(String(300))
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    tenant: Mapped["Tenant"] = relationship(back_populates="users")
 
 
 class Media(Base, TimestampMixin):
@@ -35,9 +60,11 @@ class Media(Base, TimestampMixin):
 
 class Category(Base, TimestampMixin):
     __tablename__ = "categories"
+    __table_args__ = (UniqueConstraint("tenant_id", "slug", name="uq_category_tenant_slug"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    slug: Mapped[str] = mapped_column(String(100), unique=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True)
+    slug: Mapped[str] = mapped_column(String(100))
     name: Mapped[str] = mapped_column(String(100))
     name_vi: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
@@ -46,9 +73,11 @@ class Category(Base, TimestampMixin):
 
 class Collection(Base, TimestampMixin):
     __tablename__ = "collections"
+    __table_args__ = (UniqueConstraint("tenant_id", "slug", name="uq_collection_tenant_slug"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    slug: Mapped[str] = mapped_column(String(100), unique=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True)
+    slug: Mapped[str] = mapped_column(String(100))
     name: Mapped[str] = mapped_column(String(200))
     name_vi: Mapped[str | None] = mapped_column(String(200), nullable=True)
     tagline: Mapped[str | None] = mapped_column(String(300), nullable=True)
@@ -69,9 +98,11 @@ class Collection(Base, TimestampMixin):
 
 class Product(Base, TimestampMixin):
     __tablename__ = "products"
+    __table_args__ = (UniqueConstraint("tenant_id", "slug", name="uq_product_tenant_slug"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    slug: Mapped[str] = mapped_column(String(200), unique=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True)
+    slug: Mapped[str] = mapped_column(String(200))
     name: Mapped[str] = mapped_column(String(300))
     name_vi: Mapped[str | None] = mapped_column(String(300), nullable=True)
     subtitle: Mapped[str | None] = mapped_column(String(300), nullable=True)
@@ -125,6 +156,7 @@ class HomeContent(Base, TimestampMixin):
     __tablename__ = "home_content"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), unique=True, index=True)
     hero_kicker: Mapped[str] = mapped_column(String(200), default="EDEN COLLECTION")
     hero_kicker_vi: Mapped[str | None] = mapped_column(String(200), nullable=True)
     hero_title: Mapped[str] = mapped_column(String(300), default="THE EDEN DRESS")
@@ -136,6 +168,12 @@ class HomeContent(Base, TimestampMixin):
     hero_subtitle_vi: Mapped[str | None] = mapped_column(Text, nullable=True)
     hero_image_id: Mapped[int | None] = mapped_column(ForeignKey("media.id"), nullable=True)
     hero_media: Mapped["Media | None"] = relationship("Media", foreign_keys=[hero_image_id])
+    hero_gradient: Mapped[bool] = mapped_column(Boolean, default=True)
+    hero_text_color: Mapped[str] = mapped_column(String(20), default="#1c1917")
+    hero_carousel: Mapped[bool] = mapped_column(Boolean, default=False)
+    hero_image_ids: Mapped[list] = mapped_column(JSON, default=list)
+    hero_carousel_interval: Mapped[int] = mapped_column(Integer, default=5)
+    hero_colors: Mapped[dict] = mapped_column(JSON, default=dict)
     hero_primary_cta: Mapped[str] = mapped_column(String(200), default="SHOP THE DRESS")
     hero_primary_cta_vi: Mapped[str | None] = mapped_column(String(200), nullable=True)
     hero_primary_url: Mapped[str] = mapped_column(String(500), default="/collections/eden-collection")
@@ -165,6 +203,7 @@ class EditorialItem(Base, TimestampMixin):
     __tablename__ = "editorial_items"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True)
     kind: Mapped[str] = mapped_column(String(20), default="image")  # image | quote | product_grid
     title: Mapped[str | None] = mapped_column(String(300), nullable=True)
     title_vi: Mapped[str | None] = mapped_column(String(300), nullable=True)
@@ -188,15 +227,19 @@ class EditorialItem(Base, TimestampMixin):
 
 class Page(Base, TimestampMixin):
     __tablename__ = "pages"
+    __table_args__ = (UniqueConstraint("tenant_id", "slug", name="uq_page_tenant_slug"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    slug: Mapped[str] = mapped_column(String(100), unique=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True)
+    slug: Mapped[str] = mapped_column(String(100))
     title: Mapped[str] = mapped_column(String(300))
     title_vi: Mapped[str | None] = mapped_column(String(300), nullable=True)
     subtitle: Mapped[str | None] = mapped_column(Text, nullable=True)
     subtitle_vi: Mapped[str | None] = mapped_column(Text, nullable=True)
     hero_image_id: Mapped[int | None] = mapped_column(ForeignKey("media.id"), nullable=True)
     hero_media: Mapped["Media | None"] = relationship("Media", foreign_keys=[hero_image_id])
+    hero_text_color: Mapped[str] = mapped_column(String(20), default="#1c1917")
+    gradient: Mapped[bool] = mapped_column(Boolean, default=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     show_in_nav: Mapped[bool] = mapped_column(Boolean, default=True)
     nav_label: Mapped[str | None] = mapped_column(String(100), nullable=True)
@@ -224,15 +267,19 @@ class PageBlock(Base):
 
 class BlogPost(Base, TimestampMixin):
     __tablename__ = "blog_posts"
+    __table_args__ = (UniqueConstraint("tenant_id", "slug", name="uq_blogpost_tenant_slug"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    slug: Mapped[str] = mapped_column(String(200), unique=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True)
+    slug: Mapped[str] = mapped_column(String(200))
     title: Mapped[str] = mapped_column(String(300))
     title_vi: Mapped[str | None] = mapped_column(String(300), nullable=True)
     excerpt: Mapped[str | None] = mapped_column(Text, nullable=True)
     excerpt_vi: Mapped[str | None] = mapped_column(Text, nullable=True)
     cover_image_id: Mapped[int | None] = mapped_column(ForeignKey("media.id"), nullable=True)
     cover_media: Mapped["Media | None"] = relationship("Media", foreign_keys=[cover_image_id])
+    hero_text_color: Mapped[str] = mapped_column(String(20), default="#1c1917")
+    gradient: Mapped[bool] = mapped_column(Boolean, default=True)
     content: Mapped[list] = mapped_column(JSON, default=list)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     published_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
@@ -241,7 +288,8 @@ class BlogPost(Base, TimestampMixin):
 class SiteSettings(Base, TimestampMixin):
     __tablename__ = "site_settings"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), unique=True, index=True)
     site_name: Mapped[str] = mapped_column(String(200), default="INSPO")
     logo_media_id: Mapped[int | None] = mapped_column(ForeignKey("media.id"), nullable=True)
     logo_media: Mapped["Media | None"] = relationship("Media", foreign_keys=[logo_media_id])

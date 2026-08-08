@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..minio_client import replace_file, save_file
-from ..models import Media
+from ..models import Media, Tenant
 from ..schemas import MediaOut
-from .admin import AdminDep
+from ..security import AdminDep
 
 router = APIRouter(prefix="/api/admin/media", tags=["media"])
 
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/api/admin/media", tags=["media"])
 def upload_file(
     file: UploadFile = File(...),
     db=Depends(get_db),
-    _: bool = AdminDep,
+    tenant: Tenant = AdminDep,
 ):
     content = file.file.read()
     media = save_file(db, content, file.filename or "file", file.content_type or "application/octet-stream")
@@ -27,7 +27,7 @@ def replace_media_file(
     media_id: int,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    _: bool = AdminDep,
+    tenant: Tenant = AdminDep,
 ):
     media = db.get(Media, media_id)
     if media is None:

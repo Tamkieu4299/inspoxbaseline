@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from ..config import settings
 from ..database import get_db
 from ..models import (
     BlogPost,
@@ -16,6 +15,7 @@ from ..models import (
     Product,
     ProductImage,
     SiteSettings,
+    Tenant,
 )
 from ..schemas import (
     BlogPostIn,
@@ -36,17 +36,9 @@ from ..schemas import (
     SiteSettingsIn,
     SiteSettingsOut,
 )
+from ..security import AdminDep
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
-
-
-def require_key(x_admin_key: str = Header(..., alias="X-Admin-Key")):
-    if x_admin_key != settings.ADMIN_API_KEY:
-        raise HTTPException(status_code=401, detail="Invalid admin key")
-    return True
-
-
-AdminDep = Depends(require_key)
 
 
 def _apply_collection(collection: Collection, payload: CollectionIn):
@@ -54,10 +46,10 @@ def _apply_collection(collection: Collection, payload: CollectionIn):
         setattr(collection, field, value)
 
 
-def _apply_product(db: Session, product: Product | None, payload: ProductIn):
+def _apply_product(db: Session, product: Product | None, payload: ProductIn, tenant_id: int):
     data = payload.model_dump(exclude={"images"})
     if product is None:
-        product = Product(**data)
+        product = Product(**data, tenant_id=tenant_id)
         db.add(product)
         db.flush()
     else:
@@ -84,12 +76,12 @@ def _apply_product(db: Session, product: Product | None, payload: ProductIn):
 
 # ---------------- Media ----------------
 @router.get("/media", response_model=list[MediaOut])
-def list_media(db: Session = Depends(get_db), _: bool = AdminDep):
+def list_media(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
     return db.execute(select(Media).order_by(Media.created_at.desc())).scalars().all()
 
 
 @router.delete("/media/{media_id}")
-def delete_media(media_id: int, db: Session = Depends(get_db), _: bool = AdminDep):
+def delete_media(media_id: int, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
     media = db.get(Media, media_id)
     if media is None:
         raise HTTPException(status_code=404, detail="Media not found")
@@ -128,13 +120,17 @@ def delete_media(media_id: int, db: Session = Depends(get_db), _: bool = AdminDe
 
 # ---------------- Categories ----------------
 @router.get("/categories", response_model=list[CategoryOut])
-def list_categories(db: Session = Depends(get_db), _: bool = AdminDep):
-    return db.execute(select(Category).order_by(Category.name)).scalars().all()
+def list_categories(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    return (
+        db.execute(select(Category).where(Category.tenant_id == tenant.id).order_by(Category.name))
+        .scalars()
+        .all()
+    )
 
 
 @router.post("/categories", response_model=CategoryOut)
-def create_category(payload: CategoryIn, db: Session = Depends(get_db), _: bool = AdminDep):
-    category = Category(**payload.model_dump())
+def create_category(payload: CategoryIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    category = Category(**payload.model_dump(), tenant_id=tenant.id)
     db.add(category)
     db.commit()
     db.refresh(category)
@@ -143,9 +139,11 @@ def create_category(payload: CategoryIn, db: Session = Depends(get_db), _: bool 
 
 @router.put("/categories/{category_id}", response_model=CategoryOut)
 def update_category(
-    category_id: int, payload: CategoryIn, db: Session = Depends(get_db), _: bool = AdminDep
+    category_id: int, payload: CategoryIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep
 ):
-    category = db.get(Category, category_id)
+    category = db.scalar(
+        select(Category).where(Category.id == category_id, Category.tenant_id == tenant.id)
+    )
     if category is None:
         raise HTTPException(status_code=404, detail="Category not found")
     for field, value in payload.model_dump().items():
@@ -156,8 +154,10 @@ def update_category(
 
 
 @router.delete("/categories/{category_id}")
-def delete_category(category_id: int, db: Session = Depends(get_db), _: bool = AdminDep):
-    category = db.get(Category, category_id)
+def delete_category(category_id: int, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    category = db.scalar(
+        select(Category).where(Category.id == category_id, Category.tenant_id == tenant.id)
+    )
     if category is None:
         raise HTTPException(status_code=404, detail="Category not found")
     db.delete(category)
@@ -167,20 +167,26 @@ def delete_category(category_id: int, db: Session = Depends(get_db), _: bool = A
 
 # ---------------- Collections ----------------
 @router.get("/collections", response_model=list[CollectionOut])
-def list_collections(db: Session = Depends(get_db), _: bool = AdminDep):
+def list_collections(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
     return [
         CollectionOut.model_validate(
             {**{k: v for k, v in c.__dict__.items() if not k.startswith("_")}, "products": []}
         )
-        for c in db.execute(select(Collection).order_by(Collection.display_order)).scalars().all()
+        for c in db.execute(
+            select(Collection)
+            .where(Collection.tenant_id == tenant.id)
+            .order_by(Collection.display_order)
+        )
+        .scalars()
+        .all()
     ]
 
 
 @router.post("/collections", response_model=CollectionOut)
 def create_collection(
-    payload: CollectionIn, db: Session = Depends(get_db), _: bool = AdminDep
+    payload: CollectionIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep
 ):
-    collection = Collection(**payload.model_dump())
+    collection = Collection(**payload.model_dump(), tenant_id=tenant.id)
     db.add(collection)
     db.commit()
     db.refresh(collection)
@@ -191,9 +197,11 @@ def create_collection(
 
 @router.put("/collections/{collection_id}", response_model=CollectionOut)
 def update_collection(
-    collection_id: int, payload: CollectionIn, db: Session = Depends(get_db), _: bool = AdminDep
+    collection_id: int, payload: CollectionIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep
 ):
-    collection = db.get(Collection, collection_id)
+    collection = db.scalar(
+        select(Collection).where(Collection.id == collection_id, Collection.tenant_id == tenant.id)
+    )
     if collection is None:
         raise HTTPException(status_code=404, detail="Collection not found")
     _apply_collection(collection, payload)
@@ -205,8 +213,10 @@ def update_collection(
 
 
 @router.delete("/collections/{collection_id}")
-def delete_collection(collection_id: int, db: Session = Depends(get_db), _: bool = AdminDep):
-    collection = db.get(Collection, collection_id)
+def delete_collection(collection_id: int, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    collection = db.scalar(
+        select(Collection).where(Collection.id == collection_id, Collection.tenant_id == tenant.id)
+    )
     if collection is None:
         raise HTTPException(status_code=404, detail="Collection not found")
     db.delete(collection)
@@ -216,11 +226,14 @@ def delete_collection(collection_id: int, db: Session = Depends(get_db), _: bool
 
 # ---------------- Products ----------------
 @router.get("/products", response_model=list[ProductOut])
-def list_products(db: Session = Depends(get_db), _: bool = AdminDep):
+def list_products(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
     return [
         ProductOut.model_validate(p)
         for p in db.execute(
-            select(Product).options(selectinload(Product.images)).order_by(Product.created_at.desc())
+            select(Product)
+            .options(selectinload(Product.images))
+            .where(Product.tenant_id == tenant.id)
+            .order_by(Product.created_at.desc())
         )
         .scalars()
         .all()
@@ -228,9 +241,13 @@ def list_products(db: Session = Depends(get_db), _: bool = AdminDep):
 
 
 @router.get("/products/{product_id}", response_model=ProductOut)
-def get_product(product_id: int, db: Session = Depends(get_db), _: bool = AdminDep):
+def get_product(product_id: int, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
     product = (
-        db.execute(select(Product).where(Product.id == product_id))
+        db.execute(
+            select(Product)
+            .options(selectinload(Product.images))
+            .where(Product.id == product_id, Product.tenant_id == tenant.id)
+        )
         .scalars()
         .one_or_none()
     )
@@ -240,8 +257,8 @@ def get_product(product_id: int, db: Session = Depends(get_db), _: bool = AdminD
 
 
 @router.post("/products", response_model=ProductOut)
-def create_product(payload: ProductIn, db: Session = Depends(get_db), _: bool = AdminDep):
-    product = _apply_product(db, None, payload)
+def create_product(payload: ProductIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    product = _apply_product(db, None, payload, tenant.id)
     db.commit()
     db.refresh(product)
     return ProductOut.model_validate(product)
@@ -249,22 +266,26 @@ def create_product(payload: ProductIn, db: Session = Depends(get_db), _: bool = 
 
 @router.put("/products/{product_id}", response_model=ProductOut)
 def update_product(
-    product_id: int, payload: ProductIn, db: Session = Depends(get_db), _: bool = AdminDep
+    product_id: int, payload: ProductIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep
 ):
-    product = db.get(Product, product_id)
+    product = db.scalar(
+        select(Product).where(Product.id == product_id, Product.tenant_id == tenant.id)
+    )
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
     for img in list(product.images):
         db.delete(img)
-    _apply_product(db, product, payload)
+    _apply_product(db, product, payload, tenant.id)
     db.commit()
     db.refresh(product)
     return ProductOut.model_validate(product)
 
 
 @router.delete("/products/{product_id}")
-def delete_product(product_id: int, db: Session = Depends(get_db), _: bool = AdminDep):
-    product = db.get(Product, product_id)
+def delete_product(product_id: int, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    product = db.scalar(
+        select(Product).where(Product.id == product_id, Product.tenant_id == tenant.id)
+    )
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
     db.delete(product)
@@ -274,10 +295,10 @@ def delete_product(product_id: int, db: Session = Depends(get_db), _: bool = Adm
 
 # ---------------- Home Content ----------------
 @router.get("/home", response_model=HomeContentOut)
-def get_home(db: Session = Depends(get_db), _: bool = AdminDep):
-    home = db.execute(select(HomeContent).limit(1)).scalar_one_or_none()
+def get_home(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    home = db.scalar(select(HomeContent).where(HomeContent.tenant_id == tenant.id))
     if home is None:
-        home = HomeContent()
+        home = HomeContent(tenant_id=tenant.id)
         db.add(home)
         db.commit()
         db.refresh(home)
@@ -285,10 +306,10 @@ def get_home(db: Session = Depends(get_db), _: bool = AdminDep):
 
 
 @router.put("/home", response_model=HomeContentOut)
-def update_home(payload: HomeContentIn, db: Session = Depends(get_db), _: bool = AdminDep):
-    home = db.execute(select(HomeContent).limit(1)).scalar_one_or_none()
+def update_home(payload: HomeContentIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    home = db.scalar(select(HomeContent).where(HomeContent.tenant_id == tenant.id))
     if home is None:
-        home = HomeContent()
+        home = HomeContent(tenant_id=tenant.id)
         db.add(home)
     for field, value in payload.model_dump().items():
         setattr(home, field, value)
@@ -299,17 +320,21 @@ def update_home(payload: HomeContentIn, db: Session = Depends(get_db), _: bool =
 
 # ---------------- Editorial / Brand ----------------
 @router.get("/editorial", response_model=list[EditorialItemOut])
-def list_editorial(db: Session = Depends(get_db), _: bool = AdminDep):
+def list_editorial(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
     return (
-        db.execute(select(EditorialItem).order_by(EditorialItem.position, EditorialItem.id))
+        db.execute(
+            select(EditorialItem)
+            .where(EditorialItem.tenant_id == tenant.id)
+            .order_by(EditorialItem.position, EditorialItem.id)
+        )
         .scalars()
         .all()
     )
 
 
 @router.post("/editorial", response_model=EditorialItemOut)
-def create_editorial(payload: EditorialItemIn, db: Session = Depends(get_db), _: bool = AdminDep):
-    item = EditorialItem(**payload.model_dump())
+def create_editorial(payload: EditorialItemIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    item = EditorialItem(**payload.model_dump(), tenant_id=tenant.id)
     db.add(item)
     db.commit()
     db.refresh(item)
@@ -318,9 +343,11 @@ def create_editorial(payload: EditorialItemIn, db: Session = Depends(get_db), _:
 
 @router.put("/editorial/{item_id}", response_model=EditorialItemOut)
 def update_editorial(
-    item_id: int, payload: EditorialItemIn, db: Session = Depends(get_db), _: bool = AdminDep
+    item_id: int, payload: EditorialItemIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep
 ):
-    item = db.get(EditorialItem, item_id)
+    item = db.scalar(
+        select(EditorialItem).where(EditorialItem.id == item_id, EditorialItem.tenant_id == tenant.id)
+    )
     if item is None:
         raise HTTPException(status_code=404, detail="Editorial item not found")
     for field, value in payload.model_dump().items():
@@ -331,8 +358,10 @@ def update_editorial(
 
 
 @router.delete("/editorial/{item_id}")
-def delete_editorial(item_id: int, db: Session = Depends(get_db), _: bool = AdminDep):
-    item = db.get(EditorialItem, item_id)
+def delete_editorial(item_id: int, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    item = db.scalar(
+        select(EditorialItem).where(EditorialItem.id == item_id, EditorialItem.tenant_id == tenant.id)
+    )
     if item is None:
         raise HTTPException(status_code=404, detail="Editorial item not found")
     db.delete(item)
@@ -341,10 +370,10 @@ def delete_editorial(item_id: int, db: Session = Depends(get_db), _: bool = Admi
 
 
 # ---------------- Pages ----------------
-def _apply_page(db: Session, page: Page | None, payload: PageIn):
+def _apply_page(db: Session, page: Page | None, payload: PageIn, tenant_id: int):
     data = payload.model_dump(exclude={"blocks"})
     if page is None:
-        page = Page(**data)
+        page = Page(**data, tenant_id=tenant_id)
         db.add(page)
         db.flush()
     else:
@@ -363,11 +392,12 @@ def _apply_page(db: Session, page: Page | None, payload: PageIn):
 
 
 @router.get("/pages", response_model=list[PageOut])
-def list_pages(db: Session = Depends(get_db), _: bool = AdminDep):
+def list_pages(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
     return (
         db.execute(
             select(Page)
             .options(selectinload(Page.hero_media), selectinload(Page.blocks))
+            .where(Page.tenant_id == tenant.id)
             .order_by(Page.position, Page.id)
         )
         .scalars()
@@ -376,8 +406,8 @@ def list_pages(db: Session = Depends(get_db), _: bool = AdminDep):
 
 
 @router.post("/pages", response_model=PageOut)
-def create_page(payload: PageIn, db: Session = Depends(get_db), _: bool = AdminDep):
-    page = _apply_page(db, None, payload)
+def create_page(payload: PageIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    page = _apply_page(db, None, payload, tenant.id)
     db.commit()
     db.refresh(page)
     return PageOut.model_validate(page)
@@ -385,22 +415,26 @@ def create_page(payload: PageIn, db: Session = Depends(get_db), _: bool = AdminD
 
 @router.put("/pages/{page_id}", response_model=PageOut)
 def update_page(
-    page_id: int, payload: PageIn, db: Session = Depends(get_db), _: bool = AdminDep
+    page_id: int, payload: PageIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep
 ):
-    page = db.get(Page, page_id)
+    page = db.scalar(
+        select(Page).where(Page.id == page_id, Page.tenant_id == tenant.id)
+    )
     if page is None:
         raise HTTPException(status_code=404, detail="Page not found")
     for block in list(page.blocks):
         db.delete(block)
-    _apply_page(db, page, payload)
+    _apply_page(db, page, payload, tenant.id)
     db.commit()
     db.refresh(page)
     return PageOut.model_validate(page)
 
 
 @router.delete("/pages/{page_id}")
-def delete_page(page_id: int, db: Session = Depends(get_db), _: bool = AdminDep):
-    page = db.get(Page, page_id)
+def delete_page(page_id: int, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    page = db.scalar(
+        select(Page).where(Page.id == page_id, Page.tenant_id == tenant.id)
+    )
     if page is None:
         raise HTTPException(status_code=404, detail="Page not found")
     db.delete(page)
@@ -410,11 +444,12 @@ def delete_page(page_id: int, db: Session = Depends(get_db), _: bool = AdminDep)
 
 # ---------------- Blog Posts ----------------
 @router.get("/blog-posts", response_model=list[BlogPostOut])
-def list_blog_posts(db: Session = Depends(get_db), _: bool = AdminDep):
+def list_blog_posts(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
     return (
         db.execute(
             select(BlogPost)
             .options(selectinload(BlogPost.cover_media))
+            .where(BlogPost.tenant_id == tenant.id)
             .order_by(BlogPost.published_at.desc().nulls_last(), BlogPost.created_at.desc())
         )
         .scalars()
@@ -423,8 +458,8 @@ def list_blog_posts(db: Session = Depends(get_db), _: bool = AdminDep):
 
 
 @router.post("/blog-posts", response_model=BlogPostOut)
-def create_blog_post(payload: BlogPostIn, db: Session = Depends(get_db), _: bool = AdminDep):
-    post = BlogPost(**payload.model_dump())
+def create_blog_post(payload: BlogPostIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    post = BlogPost(**payload.model_dump(), tenant_id=tenant.id)
     db.add(post)
     db.commit()
     db.refresh(post)
@@ -433,9 +468,11 @@ def create_blog_post(payload: BlogPostIn, db: Session = Depends(get_db), _: bool
 
 @router.put("/blog-posts/{post_id}", response_model=BlogPostOut)
 def update_blog_post(
-    post_id: int, payload: BlogPostIn, db: Session = Depends(get_db), _: bool = AdminDep
+    post_id: int, payload: BlogPostIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep
 ):
-    post = db.get(BlogPost, post_id)
+    post = db.scalar(
+        select(BlogPost).where(BlogPost.id == post_id, BlogPost.tenant_id == tenant.id)
+    )
     if post is None:
         raise HTTPException(status_code=404, detail="Blog post not found")
     for field, value in payload.model_dump().items():
@@ -446,8 +483,10 @@ def update_blog_post(
 
 
 @router.delete("/blog-posts/{post_id}")
-def delete_blog_post(post_id: int, db: Session = Depends(get_db), _: bool = AdminDep):
-    post = db.get(BlogPost, post_id)
+def delete_blog_post(post_id: int, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    post = db.scalar(
+        select(BlogPost).where(BlogPost.id == post_id, BlogPost.tenant_id == tenant.id)
+    )
     if post is None:
         raise HTTPException(status_code=404, detail="Blog post not found")
     db.delete(post)
@@ -456,10 +495,10 @@ def delete_blog_post(post_id: int, db: Session = Depends(get_db), _: bool = Admi
 
 
 # ---------------- Site Settings / Branding ----------------
-def _get_or_create_site(db: Session) -> SiteSettings:
-    site = db.execute(select(SiteSettings).limit(1)).scalar_one_or_none()
+def _get_or_create_site(db: Session, tenant_id: int) -> SiteSettings:
+    site = db.scalar(select(SiteSettings).where(SiteSettings.tenant_id == tenant_id))
     if site is None:
-        site = SiteSettings()
+        site = SiteSettings(tenant_id=tenant_id)
         db.add(site)
         db.commit()
         db.refresh(site)
@@ -467,16 +506,16 @@ def _get_or_create_site(db: Session) -> SiteSettings:
 
 
 @router.get("/site", response_model=SiteSettingsOut)
-def get_site_settings(db: Session = Depends(get_db), _: bool = AdminDep):
-    site = _get_or_create_site(db)
+def get_site_settings(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    site = _get_or_create_site(db, tenant.id)
     return SiteSettingsOut.model_validate(site)
 
 
 @router.put("/site", response_model=SiteSettingsOut)
 def update_site_settings(
-    payload: SiteSettingsIn, db: Session = Depends(get_db), _: bool = AdminDep
+    payload: SiteSettingsIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep
 ):
-    site = _get_or_create_site(db)
+    site = _get_or_create_site(db, tenant.id)
     for field, value in payload.model_dump().items():
         setattr(site, field, value)
     db.commit()

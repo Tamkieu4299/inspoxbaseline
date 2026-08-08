@@ -76,6 +76,12 @@ export interface HomeData {
     title: string;
     subtitle: string;
     image: string | null;
+    gradient?: boolean;
+    text_color?: string | null;
+    carousel?: boolean;
+    images?: (string | null)[];
+    interval?: number;
+    colors?: Record<string, string>;
     primary_cta: string;
     primary_url: string;
     secondary_cta: string;
@@ -130,6 +136,8 @@ export interface BrandData {
   hero_subtitle: string;
   hero_cta: string;
   hero_image?: string | null;
+  hero_gradient?: boolean;
+  hero_text_color?: string | null;
   items: EditorialItem[];
 }
 
@@ -142,6 +150,12 @@ export interface HomeContentAdmin {
   hero_subtitle: string;
   hero_subtitle_vi?: string | null;
   hero_image_id?: number | null;
+  hero_gradient?: boolean;
+  hero_text_color?: string;
+  hero_carousel?: boolean;
+  hero_image_ids?: number[];
+  hero_carousel_interval?: number;
+  hero_colors?: Record<string, string>;
   hero_primary_cta: string;
   hero_primary_cta_vi?: string | null;
   hero_primary_url: string;
@@ -179,6 +193,8 @@ export interface Page {
   subtitle_vi?: string | null;
   hero_image_id?: number | null;
   hero_media?: Media | null;
+  hero_text_color?: string | null;
+  gradient?: boolean;
   is_active: boolean;
   show_in_nav: boolean;
   nav_label?: string | null;
@@ -206,6 +222,8 @@ export interface BlogPost {
   excerpt_vi?: string | null;
   cover_image_id?: number | null;
   cover_media?: Media | null;
+  hero_text_color?: string | null;
+  gradient?: boolean;
   content: { type: string; data: Record<string, any> }[];
   is_active: boolean;
   published_at?: string | null;
@@ -233,4 +251,13 @@ export interface SiteSettings {
   favicon_media_id?: number | null;
   favicon_media?: Media | null;
   nav_items: NavItem[];
+}
+
+export interface TenantAdmin {
+  id: number;
+  slug: string;
+  name: string;
+  is_active: boolean;
+  created_at: string;
+  admin_username?: string | null;
 }

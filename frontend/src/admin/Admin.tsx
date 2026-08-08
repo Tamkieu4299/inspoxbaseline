@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { MediaLibrary } from "./MediaLibrary";
@@ -11,24 +11,49 @@ import BrandTab from "./BrandTab";
 import PagesTab from "./PagesTab";
 import SiteTab from "./SiteTab";
 import NavTab from "./NavTab";
+import TenantPicker from "./TenantPicker";
 import { useLanguage } from "../i18n";
 
 type Tab = "products" | "collections" | "media" | "home" | "brand" | "pages" | "categories" | "nav" | "site";
 
 export default function Admin() {
   const { t } = useLanguage();
-  const [key, setKey] = useState(adminApi.getKey());
+  const queryClient = useQueryClient();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState<boolean | null>(null);
+  const [tenant, setTenant] = useState<string | null>(adminApi.getTenant());
   const [tab, setTab] = useState<Tab>("home");
 
-  const test = useMutation({
-    mutationFn: adminApi.testKey,
+  const loginMutation = useMutation({
+    mutationFn: async () => {
+      const res = await adminApi.login(username, password);
+      adminApi.setToken(res.access_token);
+      return res;
+    },
     onSuccess: () => {
-      adminApi.setKey(key);
+      adminApi.clearTenant();
+      setTenant(null);
       setAuthed(true);
+      setPassword("");
     },
     onError: () => setAuthed(false),
   });
+
+  function selectTenant(slug: string) {
+    adminApi.setTenant(slug);
+    setTenant(slug);
+    queryClient.clear();
+    setTab("home");
+  }
+
+  function logout() {
+    adminApi.clearToken();
+    adminApi.clearTenant();
+    setAuthed(false);
+    setTenant(null);
+    queryClient.clear();
+  }
 
   if (!authed) {
     return (
@@ -38,17 +63,30 @@ export default function Admin() {
             {t("admin.panelTitle")}
           </h1>
           <label className="flex flex-col gap-1 mb-4">
-            <span className="font-label text-label-caps text-secondary uppercase">{t("admin.key")}</span>
+            <span className="font-label text-label-caps text-secondary uppercase">{t("admin.username")}</span>
             <TextInput
-              type="password"
-              value={key}
-              onChange={(e) => setKey(e.target.value)}
-              placeholder="ADMIN_API_KEY env value"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="admin"
+              autoComplete="username"
             />
           </label>
-          {authed === false && <p className="text-error text-sm mb-3">{t("admin.invalidKey")}</p>}
+          <label className="flex flex-col gap-1 mb-4">
+            <span className="font-label text-label-caps text-secondary uppercase">{t("admin.password")}</span>
+            <TextInput
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              autoComplete="current-password"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && username && password) loginMutation.mutate();
+              }}
+            />
+          </label>
+          {authed === false && <p className="text-error text-sm mb-3">{t("admin.invalidCredentials")}</p>}
           <div className="flex gap-2">
-            <PrimaryButton onClick={() => test.mutate(key)} disabled={!key}>
+            <PrimaryButton onClick={() => loginMutation.mutate()} disabled={!username || !password}>
               {t("admin.login")}
             </PrimaryButton>
             <Link to="/">
@@ -56,12 +94,16 @@ export default function Admin() {
             </Link>
           </div>
           <p className="text-secondary text-sm mt-6">
-            {t("admin.keyHint")} <code className="bg-surface-container p-1">inspo-admin-secret</code>.{" "}
+            {t("admin.keyHint")} <code className="bg-surface-container p-1">admin / admin123</code>.{" "}
             {t("admin.keyHint2")}
           </p>
         </div>
       </div>
     );
+  }
+
+  if (!tenant) {
+    return <TenantPicker onSelect={selectTenant} />;
   }
 
   return (
@@ -71,13 +113,23 @@ export default function Admin() {
           <div className="flex items-center gap-6">
             <Link to="/" className="font-display text-2xl tracking-tighter uppercase">INSPO</Link>
             <span className="font-label text-label-caps opacity-70">{t("admin.contentAdmin")}</span>
+            <span className="font-label text-label-caps uppercase bg-on-primary/10 px-2 py-0.5">
+              {tenant}
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => {
-                sessionStorage.removeItem("inspo_admin_key");
-                setAuthed(false);
+                adminApi.clearTenant();
+                setTenant(null);
+                queryClient.clear();
               }}
+              className="font-label text-label-caps opacity-80 hover:opacity-100 uppercase"
+            >
+              {t("admin.switchStore")}
+            </button>
+            <button
+              onClick={logout}
               className="font-label text-label-caps opacity-80 hover:opacity-100 uppercase"
             >
               {t("admin.logout")}

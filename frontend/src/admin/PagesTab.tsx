@@ -17,6 +17,8 @@ function pagePayload(draft: Partial<Page>): unknown {
     subtitle: draft.subtitle || null,
     subtitle_vi: draft.subtitle_vi || null,
     hero_image_id: draft.hero_image_id ?? null,
+    hero_text_color: draft.hero_text_color || "#1c1917",
+    gradient: draft.gradient ?? true,
     is_active: draft.is_active ?? true,
     show_in_nav: draft.show_in_nav ?? true,
     nav_label: draft.nav_label || null,
@@ -38,6 +40,8 @@ function postPayload(draft: Partial<BlogPost> & { blocks?: PageBlock[] }): unkno
     excerpt: draft.excerpt || null,
     excerpt_vi: draft.excerpt_vi || null,
     cover_image_id: draft.cover_image_id ?? null,
+    hero_text_color: draft.hero_text_color || "#1c1917",
+    gradient: draft.gradient ?? true,
     is_active: draft.is_active ?? true,
     published_at: draft.published_at || null,
     content: (draft.blocks || []).map((b: PageBlock) => ({ type: b.block_type, data: b.data })),
@@ -195,7 +199,26 @@ function PagesEditor({ mediaById }: { mediaById: Map<number, Media> }) {
                   <Checkbox checked={draft.show_in_nav ?? true} onChange={(e) => set("show_in_nav", e.target.checked)} />
                   {t("admin.showInNav")}
                 </label>
+                <label className="flex items-center gap-2">
+                  <Checkbox checked={draft.gradient ?? true} onChange={(e) => set("gradient", e.target.checked)} />
+                  {t("admin.heroGradient")}
+                </label>
               </div>
+              <Field label={t("admin.heroTextColor")}>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={draft.hero_text_color || "#1c1917"}
+                    onChange={(e) => set("hero_text_color", e.target.value)}
+                    className="h-10 w-14 cursor-pointer border border-surface-container-highest bg-white p-1"
+                  />
+                  <TextInput
+                    value={draft.hero_text_color || ""}
+                    onChange={(e) => set("hero_text_color", e.target.value)}
+                    className="flex-1"
+                  />
+                </div>
+              </Field>
               <Field label={t("admin.subtitle")}>
                 <TextArea rows={2} value={draft.subtitle || ""} onChange={(e) => set("subtitle", e.target.value)} />
               </Field>
@@ -317,6 +340,25 @@ function PostsEditor({ mediaById }: { mediaById: Map<number, Media> }) {
                 <Checkbox checked={draft.is_active ?? true} onChange={(e) => set("is_active", e.target.checked)} />{" "}
                 {t("admin.postActive")}
               </label>
+              <label className="flex items-end gap-2 font-body text-body-md text-on-background pb-2">
+                <Checkbox checked={draft.gradient ?? true} onChange={(e) => set("gradient", e.target.checked)} />{" "}
+                {t("admin.heroGradient")}
+              </label>
+              <Field label={t("admin.heroTextColor")}>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={draft.hero_text_color || "#1c1917"}
+                    onChange={(e) => set("hero_text_color", e.target.value)}
+                    className="h-10 w-14 cursor-pointer border border-surface-container-highest bg-white p-1"
+                  />
+                  <TextInput
+                    value={draft.hero_text_color || ""}
+                    onChange={(e) => set("hero_text_color", e.target.value)}
+                    className="flex-1"
+                  />
+                </div>
+              </Field>
               <ImageField
                 label={t("admin.coverImage")}
                 value={draft.cover_image_id ? mediaById.get(draft.cover_image_id) || null : null}

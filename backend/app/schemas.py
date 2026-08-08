@@ -8,6 +8,58 @@ class ORMModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class TenantOut(ORMModel):
+    id: int
+    slug: str
+    name: str
+
+
+class UserOut(ORMModel):
+    id: int
+    username: str
+    tenant_id: int
+
+
+class LoginIn(BaseModel):
+    username: str
+    password: str
+
+
+class TokenOut(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    tenant: TenantOut
+
+
+class MeOut(BaseModel):
+    user: UserOut
+    tenant: TenantOut
+
+
+class TenantAdminOut(ORMModel):
+    id: int
+    slug: str
+    name: str
+    is_active: bool
+    created_at: datetime
+    admin_username: str | None = None
+
+
+class TenantCreateIn(BaseModel):
+    slug: str
+    name: str
+    admin_password: str | None = None
+
+
+class TenantUpdateIn(BaseModel):
+    name: str | None = None
+    is_active: bool | None = None
+
+
+class ResetPasswordIn(BaseModel):
+    password: str
+
+
 class MediaOut(ORMModel):
     id: int
     filename: str
@@ -121,6 +173,12 @@ class HomeContentIn(BaseModel):
     hero_subtitle: str = ""
     hero_subtitle_vi: str | None = None
     hero_image_id: int | None = None
+    hero_gradient: bool = True
+    hero_text_color: str = "#1c1917"
+    hero_carousel: bool = False
+    hero_image_ids: list[int] = Field(default_factory=list)
+    hero_carousel_interval: int = 5
+    hero_colors: dict[str, str] = Field(default_factory=dict)
     hero_primary_cta: str = "SHOP THE DRESS"
     hero_primary_cta_vi: str | None = None
     hero_primary_url: str = "/collections/eden-collection"
@@ -186,6 +244,8 @@ class EditorialOut(BaseModel):
     hero_subtitle: str
     hero_cta: str
     hero_image: str | None = None
+    hero_gradient: bool = True
+    hero_text_color: str = "#1c1917"
     items: list[EditorialItemOut]
 
 
@@ -209,6 +269,8 @@ class PageBase(BaseModel):
     subtitle: str | None = None
     subtitle_vi: str | None = None
     hero_image_id: int | None = None
+    hero_text_color: str = "#1c1917"
+    gradient: bool = True
     is_active: bool = True
     show_in_nav: bool = True
     nav_label: str | None = None
@@ -243,6 +305,8 @@ class BlogPostBase(BaseModel):
     excerpt: str | None = None
     excerpt_vi: str | None = None
     cover_image_id: int | None = None
+    hero_text_color: str = "#1c1917"
+    gradient: bool = True
     content: list[Any] = Field(default_factory=list)
     is_active: bool = True
     published_at: datetime | None = None

@@ -15,8 +15,8 @@ export default function Footer() {
               <img src={site.logo_url} alt={site.site_name} className="h-full w-auto object-contain" />
             </Link>
           ) : (
-            <Link to="/" className="font-display text-display-lg text-primary mb-6 tracking-tighter hover:text-forest-green transition-colors w-fit">
-              INSPO
+            <Link to="/" className="font-display text-3xl font-extrabold text-primary mb-6 tracking-tighter hover:text-forest-green transition-colors w-fit">
+              {site?.site_name || "INSPO"}
             </Link>
           )}
           <div className="font-body text-body-md text-secondary mt-auto">

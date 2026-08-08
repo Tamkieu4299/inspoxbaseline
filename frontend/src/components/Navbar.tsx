@@ -113,9 +113,9 @@ export default function Navbar() {
         ) : (
           <Link
             to="/"
-            className="font-display text-display-lg text-primary tracking-tighter hover:text-forest-green transition-colors"
+            className="font-display text-2xl font-extrabold text-primary tracking-tighter hover:text-forest-green transition-colors"
           >
-            INSPO
+            {site?.site_name || "INSPO"}
           </Link>
         )}
         <nav className="hidden md:flex space-x-6 items-center">

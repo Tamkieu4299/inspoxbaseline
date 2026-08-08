@@ -13,6 +13,7 @@ from ..models import (
     Page,
     Product,
     SiteSettings,
+    Tenant,
 )
 from ..schemas import (
     BlogPostOut,
@@ -29,6 +30,7 @@ from ..schemas import (
     ProductOut,
     SitePublic,
 )
+from ..security import get_tenant
 
 router = APIRouter(prefix="/api", tags=["public"])
 
@@ -130,10 +132,14 @@ def _load_product(db: Session, product: Product, lang: str = "en") -> ProductOut
 
 
 @router.get("/home", response_model=HomeOut)
-def get_home(lang: str = "en", db: Session = Depends(get_db)):
-    home = db.execute(select(HomeContent).limit(1)).scalar_one_or_none()
+def get_home(
+    lang: str = "en",
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
+    home = db.scalar(select(HomeContent).where(HomeContent.tenant_id == tenant.id))
     if home is None:
-        home = HomeContent()
+        home = HomeContent(tenant_id=tenant.id)
         db.add(home)
         db.commit()
         db.refresh(home)
@@ -145,7 +151,11 @@ def get_home(lang: str = "en", db: Session = Depends(get_db)):
         db.execute(
             select(Collection)
             .options(selectinload(Collection.hero_media))
-            .where(Collection.is_featured.is_(True), Collection.is_active.is_(True))
+            .where(
+                Collection.tenant_id == tenant.id,
+                Collection.is_featured.is_(True),
+                Collection.is_active.is_(True),
+            )
             .order_by(Collection.display_order, Collection.name)
         )
         .scalars()
@@ -155,7 +165,7 @@ def get_home(lang: str = "en", db: Session = Depends(get_db)):
         db.execute(
             select(Product)
             .options(selectinload(Product.images), selectinload(Product.category))
-            .where(Product.is_active.is_(True))
+            .where(Product.tenant_id == tenant.id, Product.is_active.is_(True))
             .order_by(Product.created_at.desc())
             .limit(8)
         )
@@ -166,11 +176,27 @@ def get_home(lang: str = "en", db: Session = Depends(get_db)):
     hero_image = home.hero_media.url if home.hero_media else None
     master_image = home.master_media.url if home.master_media else None
 
+    carousel_images = []
+    if home.hero_image_ids:
+        media_list = db.execute(
+            select(Media).where(Media.id.in_(home.hero_image_ids))
+        ).scalars().all()
+        by_id = {m.id: m for m in media_list}
+        carousel_images = [
+            by_id[i].url for i in home.hero_image_ids if i in by_id
+        ]
+
     hero = {
         "kicker": loc(home.hero_kicker, home.hero_kicker_vi),
         "title": loc(home.hero_title, home.hero_title_vi),
         "subtitle": loc(home.hero_subtitle, home.hero_subtitle_vi),
         "image": hero_image,
+        "gradient": home.hero_gradient,
+        "text_color": home.hero_text_color,
+        "carousel": home.hero_carousel,
+        "images": carousel_images,
+        "interval": home.hero_carousel_interval,
+        "colors": home.hero_colors or {},
         "primary_cta": loc(home.hero_primary_cta, home.hero_primary_cta_vi),
         "primary_url": home.hero_primary_url,
         "secondary_cta": loc(home.hero_secondary_cta, home.hero_secondary_cta_vi),
@@ -198,8 +224,20 @@ def get_home(lang: str = "en", db: Session = Depends(get_db)):
 
 
 @router.get("/categories", response_model=list[CategoryOut])
-def list_categories(lang: str = "en", db: Session = Depends(get_db)):
-    categories = db.execute(select(Category).order_by(Category.name)).scalars().all()
+def list_categories(
+    lang: str = "en",
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
+    categories = (
+        db.execute(
+            select(Category)
+            .where(Category.tenant_id == tenant.id)
+            .order_by(Category.name)
+        )
+        .scalars()
+        .all()
+    )
     if lang != "vi":
         return categories
     out = []
@@ -211,12 +249,19 @@ def list_categories(lang: str = "en", db: Session = Depends(get_db)):
 
 
 @router.get("/collections", response_model=list[CollectionOut])
-def list_collections(lang: str = "en", db: Session = Depends(get_db)):
+def list_collections(
+    lang: str = "en",
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
     collections = (
         db.execute(
             select(Collection)
             .options(selectinload(Collection.hero_media))
-            .where(Collection.is_active.is_(True))
+            .where(
+                Collection.tenant_id == tenant.id,
+                Collection.is_active.is_(True),
+            )
             .order_by(Collection.display_order, Collection.name)
         )
         .scalars()
@@ -226,12 +271,21 @@ def list_collections(lang: str = "en", db: Session = Depends(get_db)):
 
 
 @router.get("/collections/{slug}", response_model=CollectionOut)
-def get_collection(slug: str, lang: str = "en", db: Session = Depends(get_db)):
+def get_collection(
+    slug: str,
+    lang: str = "en",
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
     collection = (
         db.execute(
             select(Collection)
             .options(selectinload(Collection.hero_media))
-            .where(Collection.slug == slug, Collection.is_active.is_(True))
+            .where(
+                Collection.tenant_id == tenant.id,
+                Collection.slug == slug,
+                Collection.is_active.is_(True),
+            )
         )
         .scalar_one_or_none()
     )
@@ -250,21 +304,28 @@ def list_products(
     q: str | None = None,
     lang: str = "en",
     db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
 ):
     stmt = (
         select(Product)
         .options(selectinload(Product.images), selectinload(Product.category))
-        .where(Product.is_active.is_(True))
+        .where(Product.tenant_id == tenant.id, Product.is_active.is_(True))
     )
     if collection:
         col = db.execute(
-            select(Collection).where(Collection.slug == collection)
+            select(Collection).where(
+                Collection.tenant_id == tenant.id, Collection.slug == collection
+            )
         ).scalar_one_or_none()
         if col is None:
             raise HTTPException(status_code=404, detail="Collection not found")
         stmt = stmt.where(Product.collection_id == col.id)
     if category:
-        cat = db.execute(select(Category).where(Category.slug == category)).scalar_one_or_none()
+        cat = db.execute(
+            select(Category).where(
+                Category.tenant_id == tenant.id, Category.slug == category
+            )
+        ).scalar_one_or_none()
         if cat is None:
             raise HTTPException(status_code=404, detail="Category not found")
         stmt = stmt.where(Product.category_id == cat.id)
@@ -293,7 +354,12 @@ def list_products(
 
 
 @router.get("/products/{slug}", response_model=ProductOut)
-def get_product(slug: str, lang: str = "en", db: Session = Depends(get_db)):
+def get_product(
+    slug: str,
+    lang: str = "en",
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
     product = (
         db.execute(
             select(Product)
@@ -302,7 +368,11 @@ def get_product(slug: str, lang: str = "en", db: Session = Depends(get_db)):
                 selectinload(Product.category),
                 selectinload(Product.collection),
             )
-            .where(Product.slug == slug, Product.is_active.is_(True))
+            .where(
+                Product.tenant_id == tenant.id,
+                Product.slug == slug,
+                Product.is_active.is_(True),
+            )
         )
         .scalar_one_or_none()
     )
@@ -312,12 +382,19 @@ def get_product(slug: str, lang: str = "en", db: Session = Depends(get_db)):
 
 
 @router.get("/brand", response_model=EditorialOut)
-def get_brand_experience(lang: str = "en", db: Session = Depends(get_db)):
+def get_brand_experience(
+    lang: str = "en",
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
     items = (
         db.execute(
             select(EditorialItem)
             .options(selectinload(EditorialItem.media))
-            .where(EditorialItem.is_active.is_(True))
+            .where(
+                EditorialItem.tenant_id == tenant.id,
+                EditorialItem.is_active.is_(True),
+            )
             .order_by(EditorialItem.position, EditorialItem.id)
         )
         .scalars()
@@ -331,7 +408,11 @@ def get_brand_experience(lang: str = "en", db: Session = Depends(get_db)):
             db.execute(
                 select(EditorialItem)
                 .options(selectinload(EditorialItem.media))
-                .where(EditorialItem.kind == "image", EditorialItem.is_active.is_(True))
+                .where(
+                    EditorialItem.tenant_id == tenant.id,
+                    EditorialItem.kind == "image",
+                    EditorialItem.is_active.is_(True),
+                )
                 .order_by(EditorialItem.position, EditorialItem.id)
             )
             .scalars()
@@ -340,14 +421,36 @@ def get_brand_experience(lang: str = "en", db: Session = Depends(get_db)):
         if first_image is not None:
             hero_media = first_image.media
 
+    hero_title = EDITORIAL_HERO["title"]
+    hero_title_vi = EDITORIAL_HERO["title_vi"]
+    hero_subtitle = EDITORIAL_HERO["subtitle"]
+    hero_subtitle_vi = EDITORIAL_HERO["subtitle_vi"]
+    hero_cta = EDITORIAL_HERO["cta"]
+    hero_cta_vi = EDITORIAL_HERO["cta_vi"]
+
+    home = db.scalar(select(HomeContent).where(HomeContent.tenant_id == tenant.id))
+    if home is not None and (home.hero_title or home.hero_title_vi):
+        hero_title = home.hero_title or hero_title
+        hero_title_vi = home.hero_title_vi or hero_title_vi
+        hero_subtitle = home.hero_subtitle or hero_subtitle
+        hero_subtitle_vi = home.hero_subtitle_vi or hero_subtitle_vi
+        hero_cta = home.hero_secondary_cta or hero_cta
+        hero_cta_vi = home.hero_secondary_cta_vi or hero_cta_vi
+        if home.hero_image_id:
+            home_media = db.get(Media, home.hero_image_id)
+            if home_media is not None:
+                hero_media = home_media
+
     def loc(en, vi):
         return (vi or en) if lang == "vi" else en
 
     return EditorialOut(
-        hero_title=loc(EDITORIAL_HERO["title"], EDITORIAL_HERO["title_vi"]),
-        hero_subtitle=loc(EDITORIAL_HERO["subtitle"], EDITORIAL_HERO["subtitle_vi"]),
-        hero_cta=loc(EDITORIAL_HERO["cta"], EDITORIAL_HERO["cta_vi"]),
+        hero_title=loc(hero_title, hero_title_vi),
+        hero_subtitle=loc(hero_subtitle, hero_subtitle_vi),
+        hero_cta=loc(hero_cta, hero_cta_vi),
         hero_image=hero_media.url if hero_media else None,
+        hero_gradient=home.hero_gradient if home is not None else True,
+        hero_text_color=home.hero_text_color if home is not None else "#1c1917",
         items=[_load_editorial(db, i, lang) for i in items],
     )
 
@@ -370,11 +473,19 @@ def list_media(db: Session = Depends(get_db)):
 
 
 @router.get("/pages", response_model=list[PageNavOut])
-def list_pages(lang: str = "en", db: Session = Depends(get_db)):
+def list_pages(
+    lang: str = "en",
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
     pages = (
         db.execute(
             select(Page)
-            .where(Page.is_active.is_(True), Page.show_in_nav.is_(True))
+            .where(
+                Page.tenant_id == tenant.id,
+                Page.is_active.is_(True),
+                Page.show_in_nav.is_(True),
+            )
             .order_by(Page.position, Page.id)
         )
         .scalars()
@@ -393,12 +504,21 @@ def list_pages(lang: str = "en", db: Session = Depends(get_db)):
 
 
 @router.get("/pages/{slug}", response_model=PageOut)
-def get_page(slug: str, lang: str = "en", db: Session = Depends(get_db)):
+def get_page(
+    slug: str,
+    lang: str = "en",
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
     page = (
         db.execute(
             select(Page)
             .options(selectinload(Page.hero_media), selectinload(Page.blocks))
-            .where(Page.slug == slug, Page.is_active.is_(True))
+            .where(
+                Page.tenant_id == tenant.id,
+                Page.slug == slug,
+                Page.is_active.is_(True),
+            )
         )
         .scalar_one_or_none()
     )
@@ -418,12 +538,16 @@ def get_page(slug: str, lang: str = "en", db: Session = Depends(get_db)):
 
 
 @router.get("/blog-posts", response_model=list[BlogPostSummaryOut])
-def list_blog_posts(lang: str = "en", db: Session = Depends(get_db)):
+def list_blog_posts(
+    lang: str = "en",
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
     posts = (
         db.execute(
             select(BlogPost)
             .options(selectinload(BlogPost.cover_media))
-            .where(BlogPost.is_active.is_(True))
+            .where(BlogPost.tenant_id == tenant.id, BlogPost.is_active.is_(True))
             .order_by(BlogPost.published_at.desc().nulls_last(), BlogPost.created_at.desc())
         )
         .scalars()
@@ -442,12 +566,21 @@ def list_blog_posts(lang: str = "en", db: Session = Depends(get_db)):
 
 
 @router.get("/blog-posts/{slug}", response_model=BlogPostOut)
-def get_blog_post(slug: str, lang: str = "en", db: Session = Depends(get_db)):
+def get_blog_post(
+    slug: str,
+    lang: str = "en",
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
     post = (
         db.execute(
             select(BlogPost)
             .options(selectinload(BlogPost.cover_media))
-            .where(BlogPost.slug == slug, BlogPost.is_active.is_(True))
+            .where(
+                BlogPost.tenant_id == tenant.id,
+                BlogPost.slug == slug,
+                BlogPost.is_active.is_(True),
+            )
         )
         .scalar_one_or_none()
     )
@@ -468,10 +601,10 @@ def get_blog_post(slug: str, lang: str = "en", db: Session = Depends(get_db)):
 
 
 @router.get("/site", response_model=SitePublic)
-def get_site(db: Session = Depends(get_db)):
-    site = db.execute(select(SiteSettings).limit(1)).scalar_one_or_none()
+def get_site(db: Session = Depends(get_db), tenant: Tenant = Depends(get_tenant)):
+    site = db.scalar(select(SiteSettings).where(SiteSettings.tenant_id == tenant.id))
     if site is None:
-        site = SiteSettings()
+        site = SiteSettings(tenant_id=tenant.id)
         db.add(site)
         db.commit()
         db.refresh(site)

@@ -6,9 +6,10 @@ through the admin API / MinIO to replace them.
 
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import MetaData, select, text
 from sqlalchemy.orm import selectinload
 
+from .config import settings
 from .database import Base, SessionLocal, engine
 from .models import (
     BlogPost,
@@ -22,7 +23,21 @@ from .models import (
     Product,
     ProductImage,
     SiteSettings,
+    Tenant,
+    User,
 )
+from .security import hash_password
+
+TENANTED_TABLES = [
+    "categories",
+    "collections",
+    "products",
+    "home_content",
+    "editorial_items",
+    "pages",
+    "blog_posts",
+    "site_settings",
+]
 
 IMG = {
     "hero_grass": "https://lh3.googleusercontent.com/aida-public/AB6AXuDVZ4o8ccG3OPMo1jjKgFcBx-pbZQh0gDXgBVuslu52oPiskREGWNaE8YKOMfstZI9XVlbNMzAqFN6mVlr__2IZeDk_IJ31VVG9fNg3UDqD-pFjujiNWmhngHtecsV8gqoyOh1khZIuLX3r-Ywb9oxwTNS_rGnPQ3nqM9Ta4dm2Qz56ZT4IbRGWV9pl-BzZqI63L0qKVeUrndJ71DaIBf8RsrVo5hoxiC6DvTadIdF3VVeDVDr8qlCi",
@@ -83,6 +98,7 @@ def _media(db, key: str) -> Media:
 
 def _product(
     db,
+    tenant_id: int,
     slug: str,
     name: str,
     price: float,
@@ -98,9 +114,12 @@ def _product(
     features=None,
     is_featured: bool = False,
 ):
-    cat = db.execute(select(Category).where(Category.name == category)).scalar_one()
+    cat = db.execute(
+        select(Category).where(Category.name == category, Category.tenant_id == tenant_id)
+    ).scalar_one()
     media = _media(db, image_key)
     product = Product(
+        tenant_id=tenant_id,
         slug=slug,
         name=name,
         subtitle=subtitle,
@@ -124,16 +143,114 @@ def _product(
     return product
 
 
+def _ensure_tenant(db) -> Tenant:
+    slug = settings.DEFAULT_TENANT_SLUG or "shop1"
+    tenant = db.scalar(select(Tenant).where(Tenant.slug == slug))
+    if tenant is None:
+        tenant = Tenant(slug=slug, name=slug.replace("-", " ").title())
+        db.add(tenant)
+        db.commit()
+        db.refresh(tenant)
+    return tenant
+
+
+SLUG_UNIQUE_MODELS = [Category, Collection, Product, Page, BlogPost]
+
+
+def _rebuild_slug_tables(db):
+    """Drop legacy table-level UNIQUE(slug) constraints so slugs are unique per-tenant.
+
+    The pre-multi-tenant schema enforced globally-unique slugs. The tenant migration
+    added a tenant_id column but never removed that constraint, which blocks reuse
+    of slugs (e.g. "about-us", "tops") across tenants. Rebuilds affected tables with
+    the current model schema (per-tenant UniqueConstraint(tenant_id, slug)).
+    """
+    for model in SLUG_UNIQUE_MODELS:
+        table = model.__table__
+        name = table.name
+        ddl = db.execute(
+            text(f"SELECT sql FROM sqlite_master WHERE type='table' AND name='{name}'")
+        ).scalar() or ""
+        if "UNIQUE (slug)".upper() not in ddl.upper():
+            continue
+        meta = MetaData()
+        for ref in [Tenant, Media, Category, Collection, Product, Page, BlogPost]:
+            ref.__table__.to_metadata(meta)
+        tmp_name = f"_mig_{name}"
+        tmp = table.to_metadata(meta, name=tmp_name)
+        tmp.create(bind=db.get_bind())
+        cols = ", ".join(c.name for c in table.columns)
+        db.execute(text(f"INSERT INTO {tmp_name} ({cols}) SELECT {cols} FROM {name}"))
+        db.execute(text(f"DROP TABLE {name}"))
+        db.execute(text(f"ALTER TABLE {tmp_name} RENAME TO {name}"))
+        db.commit()
+        print(f"Migration: removed legacy UNIQUE(slug) from {name}")
+
+
+def _add_column_if_missing(db, table: str, column: str, ddl: str):
+    cols = {
+        r[1] for r in db.execute(text(f"PRAGMA table_info({table})")).fetchall()
+    }
+    if column not in cols:
+        db.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {ddl}"))
+        db.commit()
+        print(f"Migration: added {table}.{column}")
+
+
+def _migrate_existing(db, tenant_id: int):
+    for table in TENANTED_TABLES:
+        try:
+            db.execute(text(f"ALTER TABLE {table} ADD COLUMN tenant_id INTEGER"))
+        except Exception:
+            pass
+        db.execute(text(f"UPDATE {table} SET tenant_id = :tid WHERE tenant_id IS NULL"), {"tid": tenant_id})
+    db.commit()
+    _add_column_if_missing(db, "home_content", "hero_gradient", "BOOLEAN DEFAULT 1")
+    _add_column_if_missing(db, "home_content", "hero_text_color", "VARCHAR(20) DEFAULT '#1c1917'")
+    _add_column_if_missing(db, "home_content", "hero_carousel", "BOOLEAN DEFAULT 0")
+    _add_column_if_missing(db, "home_content", "hero_image_ids", "JSON")
+    _add_column_if_missing(db, "home_content", "hero_carousel_interval", "INTEGER DEFAULT 5")
+    _add_column_if_missing(db, "home_content", "hero_colors", "JSON")
+    db.execute(text("UPDATE home_content SET hero_colors='{}' WHERE hero_colors IS NULL"))
+    db.execute(text("UPDATE home_content SET hero_image_ids='[]' WHERE hero_image_ids IS NULL"))
+    db.commit()
+    _add_column_if_missing(db, "pages", "gradient", "BOOLEAN DEFAULT 1")
+    _add_column_if_missing(db, "pages", "hero_text_color", "VARCHAR(20) DEFAULT '#1c1917'")
+    _add_column_if_missing(db, "blog_posts", "gradient", "BOOLEAN DEFAULT 1")
+    _add_column_if_missing(db, "blog_posts", "hero_text_color", "VARCHAR(20) DEFAULT '#1c1917'")
+    _rebuild_slug_tables(db)
+
+
+def _ensure_admin_user(db, tenant_id: int):
+    user = db.scalar(select(User).where(User.tenant_id == tenant_id, User.username == "admin"))
+    if user is None:
+        user = User(
+            tenant_id=tenant_id,
+            username="admin",
+            password_hash=hash_password(settings.ADMIN_DEFAULT_PASSWORD),
+        )
+        db.add(user)
+        db.commit()
+
+
 def run():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
 
-    if db.execute(select(Product).limit(1)).scalars().first() is not None:
+    tenant = _ensure_tenant(db)
+    _migrate_existing(db, tenant.id)
+    _ensure_admin_user(db, tenant.id)
+    TENANT_ID = tenant.id
+
+    if db.scalar(select(Product.id).where(Product.tenant_id == TENANT_ID).limit(1)) is not None:
         db.close()
         print("Seed skipped: data already present.")
         return
 
-    categories = {slug: Category(slug=slug, name=name) for slug, name in CATEGORIES}
+    categories = {
+        slug: Category(slug=slug, name=name, tenant_id=TENANT_ID)
+        for slug, name in CATEGORIES
+    }
     db.add_all(categories.values())
     db.flush()
 
@@ -141,6 +258,7 @@ def run():
         return next(c for c in categories.values() if c.name == name)
 
     court = Collection(
+        tenant_id=TENANT_ID,
         slug="the-court-collection",
         name="THE COURT COLLECTION",
         tagline="ENGINEERED FOR THE GRASS SEASON",
@@ -152,6 +270,7 @@ def run():
         display_order=1,
     )
     new_arrivals = Collection(
+        tenant_id=TENANT_ID,
         slug="new-arrivals",
         name="NEW ARRIVALS",
         tagline="THE LATEST DROPS",
@@ -162,6 +281,7 @@ def run():
         display_order=2,
     )
     performance = Collection(
+        tenant_id=TENANT_ID,
         slug="performance",
         name="PERFORMANCE",
         tagline="TECHNICAL PRECISION",
@@ -172,6 +292,7 @@ def run():
         display_order=3,
     )
     lifestyle = Collection(
+        tenant_id=TENANT_ID,
         slug="lifestyle",
         name="LIFESTYLE",
         tagline="CLUB HERITAGE",
@@ -182,6 +303,7 @@ def run():
         display_order=4,
     )
     accessories = Collection(
+        tenant_id=TENANT_ID,
         slug="accessories",
         name="ACCESSORIES",
         tagline="THE FINISHING TOUCHES",
@@ -192,6 +314,7 @@ def run():
         display_order=5,
     )
     pro_court = Collection(
+        tenant_id=TENANT_ID,
         slug="pro-court-series",
         name="PRO-COURT SERIES",
         tagline="FOOTWEAR // GRASS SPECIFIC",
@@ -202,6 +325,7 @@ def run():
         display_order=6,
     )
     tour_bags = Collection(
+        tenant_id=TENANT_ID,
         slug="tour-racket-bags",
         name="TOUR RACKET BAGS",
         tagline="ACCESSORIES",
@@ -215,21 +339,22 @@ def run():
     db.flush()
 
     products = [
-        _product(db, "club-performance-polo", "CLUB PERFORMANCE POLO", 110.0, "TOPS", new_arrivals, "polo", "NEW", "TOPS", "A crisp white performance tennis polo.", colors=[WHITE], is_featured=True),
-        _product(db, "heritage-pleated-skirt", "HERITAGE PLEATED SKIRT", 95.0, "PLEATED SKIRTS", court, "skirt_collection", None, "WHITE & GREEN", "Classic pleated white tennis skirt with forest green trim.", colors=[WHITE, GREEN]),
-        _product(db, "tour-warm-up-jacket", "TOUR WARM-UP JACKET", 185.0, "OUTERWEAR", new_arrivals, "jacket", "LIMITED", "OUTERWEAR", "White tour warm-up jacket.", colors=[WHITE]),
-        _product(db, "pro-tennis-visor", "PRO TENNIS VISOR", 35.0, "ACCESSORIES", accessories, "visor", None, "ACCESSORIES", "Classic white tennis visor.", colors=[WHITE]),
-        _product(db, "grand-slam-polo", "GRAND SLAM POLO", 110.0, "TENNIS POLOS", court, "grand_slam_polo", "NEW", "OPTIC WHITE", "A crisp, high-performance tennis polo built for match day.", colors=[WHITE, GREEN], is_featured=True),
-        _product(db, "advantage-court-short", "ADVANTAGE COURT SHORT", 85.0, "COURT SHORTS", court, "court_short", "BESTSELLER", "OPTIC WHITE", "Tailored white court shorts with deep ball pockets.", colors=[WHITE]),
-        _product(db, "pro-tour-racquet-bag", "PRO TOUR RACQUET BAG", 180.0, "RACQUET BAGS", tour_bags, "pro_tour_bag", None, "FOREST GREEN", "A sleek, structured racquet bag in forest green and white.", colors=[GREEN, WHITE]),
-        _product(db, "aero-performance-dress", "AERO PERFORMANCE DRESS", 135.0, "DRESSES", court, "aero_dress", None, "NAVY", "Navy high-performance tennis dress.", colors=[NAVY]),
-        _product(db, "tour-racket-bag", "TOUR RACKET BAG", 165.0, "RACQUET BAGS", tour_bags, "tour_bag", "BESTSELLER", "RACQUET BAGS", "A sleek, high-end tennis racket bag.", colors=[GREEN]),
+        _product(db, TENANT_ID, "club-performance-polo", "CLUB PERFORMANCE POLO", 110.0, "TOPS", new_arrivals, "polo", "NEW", "TOPS", "A crisp white performance tennis polo.", colors=[WHITE], is_featured=True),
+        _product(db, TENANT_ID, "heritage-pleated-skirt", "HERITAGE PLEATED SKIRT", 95.0, "PLEATED SKIRTS", court, "skirt_collection", None, "WHITE & GREEN", "Classic pleated white tennis skirt with forest green trim.", colors=[WHITE, GREEN]),
+        _product(db, TENANT_ID, "tour-warm-up-jacket", "TOUR WARM-UP JACKET", 185.0, "OUTERWEAR", new_arrivals, "jacket", "LIMITED", "OUTERWEAR", "White tour warm-up jacket.", colors=[WHITE]),
+        _product(db, TENANT_ID, "pro-tennis-visor", "PRO TENNIS VISOR", 35.0, "ACCESSORIES", accessories, "visor", None, "ACCESSORIES", "Classic white tennis visor.", colors=[WHITE]),
+        _product(db, TENANT_ID, "grand-slam-polo", "GRAND SLAM POLO", 110.0, "TENNIS POLOS", court, "grand_slam_polo", "NEW", "OPTIC WHITE", "A crisp, high-performance tennis polo built for match day.", colors=[WHITE, GREEN], is_featured=True),
+        _product(db, TENANT_ID, "advantage-court-short", "ADVANTAGE COURT SHORT", 85.0, "COURT SHORTS", court, "court_short", "BESTSELLER", "OPTIC WHITE", "Tailored white court shorts with deep ball pockets.", colors=[WHITE]),
+        _product(db, TENANT_ID, "pro-tour-racquet-bag", "PRO TOUR RACQUET BAG", 180.0, "RACQUET BAGS", tour_bags, "pro_tour_bag", None, "FOREST GREEN", "A sleek, structured racquet bag in forest green and white.", colors=[GREEN, WHITE]),
+        _product(db, TENANT_ID, "aero-performance-dress", "AERO PERFORMANCE DRESS", 135.0, "DRESSES", court, "aero_dress", None, "NAVY", "Navy high-performance tennis dress.", colors=[NAVY]),
+        _product(db, TENANT_ID, "tour-racket-bag", "TOUR RACKET BAG", 165.0, "RACQUET BAGS", tour_bags, "tour_bag", "BESTSELLER", "RACQUET BAGS", "A sleek, high-end tennis racket bag.", colors=[GREEN]),
         _product(
-            db, "grassmaster-prime", "GRASSMASTER PRIME", 260.0, "FOOTWEAR", pro_court, "shoe_detail", "LIMITED", "GRASS SPECIFIC", "A grass-specific court shoe with a herringbone tread engineered for explosive lateral movement.", colors=[WHITE, GREEN], sizes=SHOE_SIZES, is_featured=True,
+            db, TENANT_ID, "grassmaster-prime", "GRASSMASTER PRIME", 260.0, "FOOTWEAR", pro_court, "shoe_detail", "LIMITED", "GRASS SPECIFIC", "A grass-specific court shoe with a herringbone tread engineered for explosive lateral movement.", colors=[WHITE, GREEN], sizes=SHOE_SIZES, is_featured=True,
         ),
-        _product(db, "heritage-club-crew", "HERITAGE CLUB CREW", 145.0, "OUTERWEAR", lifestyle, "serve_grass", None, "CLUB HERITAGE", "An elegant off-court crew sweater cut for club heritage.", colors=[WHITE, NAVY]),
+        _product(db, TENANT_ID, "heritage-club-crew", "HERITAGE CLUB CREW", 145.0, "OUTERWEAR", lifestyle, "serve_grass", None, "CLUB HERITAGE", "An elegant off-court crew sweater cut for club heritage.", colors=[WHITE, NAVY]),
         _product(
             db,
+            TENANT_ID,
             "apex-court-v1-prime",
             "APEX COURT-V1 PRIME",
             240.0,
@@ -257,7 +382,11 @@ def run():
     db.add_all(products)
     db.flush()
 
-    apex = db.execute(select(Product).where(Product.slug == "apex-court-v1-prime")).scalar_one()
+    apex = db.execute(
+        select(Product).where(
+            Product.slug == "apex-court-v1-prime", Product.tenant_id == TENANT_ID
+        )
+    ).scalar_one()
     db.add_all(
         [
             ProductImage(product_id=apex.id, media_id=_media(db, "shoe_detail").id, url=IMG["shoe_detail"], alt="Detail mesh", position=1),
@@ -266,6 +395,7 @@ def run():
     )
 
     home = HomeContent(
+        tenant_id=TENANT_ID,
         hero_kicker="THE GRASS SEASON",
         hero_title="OWN THE COURT",
         hero_subtitle="ENGINEERED FOR ELITE PERFORMANCE ON THE GRASS. PRECISION, ELEGANCE, AND UNYIELDING POWER.",
@@ -287,10 +417,11 @@ def run():
     db.flush()
 
     editorial = [
-        EditorialItem(kind="image", title="Carbon Tension", subtitle="PRECISION SERIES", media_id=_media(db, "strings").id, link_text="VIEW COLLECTION", link_url="/collections/performance", position=1),
-        EditorialItem(kind="quote", quote='"Every point is a calculation. Every swing, a testament to physics."', author="— Elena R., Grand Slam Champion", position=2),
-        EditorialItem(kind="image", title="Air Supremacy", subtitle="AERO DYNAMICS", media_id=_media(db, "smash").id, link_text="SHOP LIFESTYLE", link_url="/collections/lifestyle", position=3),
+        EditorialItem(tenant_id=TENANT_ID, kind="image", title="Carbon Tension", subtitle="PRECISION SERIES", media_id=_media(db, "strings").id, link_text="VIEW COLLECTION", link_url="/collections/performance", position=1),
+        EditorialItem(tenant_id=TENANT_ID, kind="quote", quote='"Every point is a calculation. Every swing, a testament to physics."', author="— Elena R., Grand Slam Champion", position=2),
+        EditorialItem(tenant_id=TENANT_ID, kind="image", title="Air Supremacy", subtitle="AERO DYNAMICS", media_id=_media(db, "smash").id, link_text="SHOP LIFESTYLE", link_url="/collections/lifestyle", position=3),
         EditorialItem(
+            tenant_id=TENANT_ID,
             kind="product_grid",
             position=4,
             content=[
@@ -298,7 +429,7 @@ def run():
                 {"url": IMG["polo_folded"], "alt": "Folded tennis polo", "link_text": "FABRIC TECH", "link_url": "/products/club-performance-polo"},
             ],
         ),
-        EditorialItem(kind="image", title="Master the Surface", subtitle="COURT EXCELLENCE", media_id=_media(db, "panoramic_court").id, link_text="GEAR UP", link_url="/collections", position=5),
+        EditorialItem(tenant_id=TENANT_ID, kind="image", title="Master the Surface", subtitle="COURT EXCELLENCE", media_id=_media(db, "panoramic_court").id, link_text="GEAR UP", link_url="/collections", position=5),
     ]
     db.add_all(editorial)
     db.flush()
@@ -308,6 +439,7 @@ def run():
 
     pages = [
         Page(
+            tenant_id=TENANT_ID,
             slug="about-us",
             title="ABOUT US",
             subtitle="The story, craft, and people behind the Eden Dress.",
@@ -331,6 +463,7 @@ def run():
             ],
         ),
         Page(
+            tenant_id=TENANT_ID,
             slug="blogs",
             title="JOURNAL",
             subtitle="Stories, notes, and behind-the-seams from the studio.",
@@ -347,6 +480,7 @@ def run():
 
     blog_posts = [
         BlogPost(
+            tenant_id=TENANT_ID,
             slug="the-making-of-eden",
             title="The Making of the Eden Dress",
             excerpt="How recycled crepe, precision seams, and three colorways became a single silhouette.",
@@ -360,6 +494,7 @@ def run():
             ],
         ),
         BlogPost(
+            tenant_id=TENANT_ID,
             slug="a-midi-for-everywhere",
             title="A Midi for Everywhere",
             excerpt="From the court to the city — why the midi length is the new uniform.",
@@ -375,7 +510,7 @@ def run():
     db.add_all(blog_posts)
     db.flush()
 
-    db.add(SiteSettings(site_name="INSPO"))
+    db.add(SiteSettings(tenant_id=TENANT_ID, site_name="INSPO"))
 
     db.commit()
     db.close()

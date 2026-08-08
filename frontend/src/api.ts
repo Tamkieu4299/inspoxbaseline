@@ -12,14 +12,29 @@ import type {
   Product,
   SitePublic,
   SiteSettings,
+  TenantAdmin,
 } from "./types";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
 const langQ = (lang?: string) => (lang ? `lang=${encodeURIComponent(lang)}` : "");
 
+export const tenantSlug = (): string => {
+  const explicit = (import.meta.env.VITE_TENANT_SLUG || "").trim();
+  if (explicit) return explicit;
+  const first = (window.location.hostname || "").split(".")[0] || "";
+  if (/^[a-z0-9][a-z0-9-]*$/.test(first) && !["www", "localhost"].includes(first)) {
+    return first;
+  }
+  return "shop1";
+};
+
+const tenantHeader = (): Record<string, string> => ({ "X-Tenant": tenantSlug() });
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, init);
+  const headers = new Headers(init?.headers);
+  if (!headers.has("X-Tenant")) headers.set("X-Tenant", tenantSlug());
+  const res = await fetch(`${API_BASE}${path}`, { ...init, headers });
   if (!res.ok) {
     const text = await res.text();
     throw new Error(text || `${res.status} ${res.statusText}`);
@@ -50,22 +65,60 @@ export const api = {
   getSite: () => request<SitePublic>("/api/site"),
 };
 
-const adminKey = () => sessionStorage.getItem("inspo_admin_key") || "";
+const adminToken = () => sessionStorage.getItem("inspo_admin_token") || "";
 
-function adminHeaders(key?: string): Record<string, string> {
+const adminTenantSlug = () => sessionStorage.getItem("inspo_admin_tenant") || tenantSlug();
+
+function adminHeaders(token?: string): Record<string, string> {
+  const t = token || adminToken();
   return {
     "Content-Type": "application/json",
-    "X-Admin-Key": key || adminKey(),
+    "X-Tenant": adminTenantSlug(),
+    ...(t ? { Authorization: `Bearer ${t}` } : {}),
   };
 }
 
+function adminFormHeaders(): Record<string, string> {
+  const t = adminToken();
+  return { "X-Tenant": adminTenantSlug(), ...(t ? { Authorization: `Bearer ${t}` } : {}) };
+}
+
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  tenant: { id: number; slug: string; name: string };
+}
+
+export interface MeResponse {
+  user: { id: number; username: string; tenant_id: number };
+  tenant: { id: number; slug: string; name: string };
+}
+
 export const adminApi = {
-  setKey(key: string) {
-    sessionStorage.setItem("inspo_admin_key", key);
+  setToken(token: string) {
+    sessionStorage.setItem("inspo_admin_token", token);
   },
-  getKey: adminKey,
-  testKey: (key: string) =>
-    request<Collection[]>(`/api/admin/collections`, { headers: adminHeaders(key) }),
+  getToken: adminToken,
+  clearToken() {
+    sessionStorage.removeItem("inspo_admin_token");
+  },
+  setTenant(slug: string) {
+    sessionStorage.setItem("inspo_admin_tenant", slug);
+  },
+  getTenant: adminTenantSlug,
+  clearTenant() {
+    sessionStorage.removeItem("inspo_admin_tenant");
+  },
+  login: async (username: string, password: string): Promise<LoginResponse> => {
+    const res = await fetch(`${API_BASE}/api/admin/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Tenant": tenantSlug() },
+      body: JSON.stringify({ username, password }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  },
+  testAuth: () => request<MeResponse>("/api/admin/auth/me", { headers: adminHeaders() }),
 
   getCollections: () => request<Collection[]>(`/api/admin/collections`, { headers: adminHeaders() }),
   createCollection: (body: unknown) =>
@@ -117,7 +170,7 @@ export const adminApi = {
     form.append("file", uploadFile);
     const res = await fetch(`${API_BASE}/api/admin/media/upload`, {
       method: "POST",
-      headers: { "X-Admin-Key": adminKey() },
+      headers: adminFormHeaders(),
       body: form,
     });
     if (!res.ok) throw new Error(await res.text());
@@ -130,7 +183,7 @@ export const adminApi = {
     form.append("file", uploadFile);
     const res = await fetch(`${API_BASE}/api/admin/media/${id}`, {
       method: "PUT",
-      headers: { "X-Admin-Key": adminKey() },
+      headers: adminFormHeaders(),
       body: form,
     });
     if (!res.ok) throw new Error(await res.text());
@@ -201,5 +254,25 @@ export const adminApi = {
       method: "PUT",
       headers: adminHeaders(),
       body: JSON.stringify(body),
+    }),
+
+  getTenants: () => request<TenantAdmin[]>(`/api/admin/tenants`, { headers: adminHeaders() }),
+  createTenant: (body: unknown) =>
+    request<TenantAdmin>(`/api/admin/tenants`, {
+      method: "POST",
+      headers: adminHeaders(),
+      body: JSON.stringify(body),
+    }),
+  updateTenant: (id: number, body: unknown) =>
+    request<TenantAdmin>(`/api/admin/tenants/${id}`, {
+      method: "PUT",
+      headers: adminHeaders(),
+      body: JSON.stringify(body),
+    }),
+  resetTenantPassword: (id: number, password: string) =>
+    request(`/api/admin/tenants/${id}/reset-password`, {
+      method: "POST",
+      headers: adminHeaders(),
+      body: JSON.stringify({ password }),
     }),
 };

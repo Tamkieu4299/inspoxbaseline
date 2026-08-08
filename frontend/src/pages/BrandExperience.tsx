@@ -32,13 +32,23 @@ export default function BrandExperience() {
               className="w-full h-full object-cover opacity-80 mix-blend-multiply"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-background to-white/20 opacity-100" />
+          {data.hero_gradient !== false && (
+            <div className="absolute inset-0 bg-gradient-to-t from-background to-white/20 opacity-100" />
+          )}
         </div>
         <div className="relative z-10 text-center px-4 md:px-16 max-w-[1440px] mx-auto flex flex-col items-center">
-          <h1 className="font-brand-display text-[64px] md:text-[96px] text-primary uppercase tracking-tighter mb-4 leading-none">
+          <h1
+            className="font-brand-display text-[64px] md:text-[96px] text-primary uppercase tracking-tighter mb-4 leading-none"
+            style={data.hero_text_color ? { color: data.hero_text_color } : undefined}
+          >
             {data.hero_title}
           </h1>
-          <p className="text-body-lg text-on-surface-variant max-w-2xl mb-8">{data.hero_subtitle}</p>
+          <p
+            className="text-body-lg text-on-surface-variant max-w-2xl mb-8"
+            style={data.hero_text_color ? { color: data.hero_text_color } : undefined}
+          >
+            {data.hero_subtitle}
+          </p>
           <a
             href="#gallery"
             className="inline-flex items-center justify-center bg-primary text-on-primary font-brand-display text-base uppercase px-12 py-4 rounded-none hover:bg-inverse-surface transition-colors duration-300"

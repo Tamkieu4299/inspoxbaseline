@@ -29,7 +29,11 @@ services:
       # Browser-accessible URL for media (host port mapping)
       MINIO_PUBLIC_URL: http://localhost:9000
       ADMIN_API_KEY: inspo-admin-secret
-      CORS_ORIGINS: http://localhost:3000,http://localhost:5173,http://localhost:8080
+      JWT_SECRET: inspo-jwt-secret-change-me-in-production
+      JWT_EXPIRES_MINUTES: 1440
+      ADMIN_DEFAULT_PASSWORD: admin123
+      DEFAULT_TENANT_SLUG: shop1
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173,http://localhost:8080,http://shop1.localhost:3000,http://shop2.localhost:3000,http://shop1.localhost:5173,http://shop2.localhost:5173
     ports:
       - "8000:8000"
     volumes:
@@ -39,10 +43,24 @@ services:
         condition: service_healthy
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_TENANT_SLUG: "${VITE_TENANT_SLUG:-shop1}"
     container_name: inspo-frontend
     ports:
       - "3000:80"
+    depends_on:
+      - backend
+
+  frontend-baseline:
+    build:
+      context: ./frontend
+      args:
+        VITE_TENANT_SLUG: "baseline"
+    container_name: inspo-frontend-baseline
+    ports:
+      - "3001:80"
     depends_on:
       - backend
 

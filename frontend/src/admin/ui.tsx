@@ -34,6 +34,44 @@ export function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
   );
 }
 
+export function ColorField({
+  label,
+  value,
+  onChange,
+  clearLabel = "CLEAR",
+}: {
+  label: string;
+  value?: string;
+  onChange: (v: string | undefined) => void;
+  clearLabel?: string;
+}) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="font-label text-label-caps text-secondary uppercase">{label}</span>
+      <div className="flex items-center gap-2">
+        <input
+          type="color"
+          value={value || "#ffffff"}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-10 w-12 cursor-pointer border border-surface-container-highest bg-white p-1"
+        />
+        <TextInput
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value || undefined)}
+          className="flex-1"
+        />
+        <button
+          type="button"
+          onClick={() => onChange(undefined)}
+          className="font-label text-label-caps text-error hover:underline uppercase"
+        >
+          {clearLabel}
+        </button>
+      </div>
+    </label>
+  );
+}
+
 export function ViInput({
   label,
   ...props

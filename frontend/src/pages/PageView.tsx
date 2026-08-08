@@ -35,13 +35,23 @@ export default function PageView() {
             style={{ backgroundImage: `url('${page.hero_media.url}')` }}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/60 to-transparent" />
+        {page.gradient !== false && (
+          <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/60 to-transparent" />
+        )}
         <div className="relative z-10 max-w-3xl flex flex-col items-start gap-3">
-          <h1 className="font-display text-display-lg-mobile md:text-display-lg text-primary uppercase leading-none tracking-tighter">
+          <h1
+            className="font-display text-display-lg-mobile md:text-display-lg text-primary uppercase leading-none tracking-tighter"
+            style={page.hero_text_color ? { color: page.hero_text_color } : undefined}
+          >
             {page.title}
           </h1>
           {page.subtitle && (
-            <p className="font-body text-body-lg text-secondary max-w-xl">{page.subtitle}</p>
+            <p
+              className="font-body text-body-lg text-secondary max-w-xl"
+              style={page.hero_text_color ? { color: page.hero_text_color } : undefined}
+            >
+              {page.subtitle}
+            </p>
           )}
         </div>
       </section>
