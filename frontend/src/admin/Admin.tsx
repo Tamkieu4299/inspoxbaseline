@@ -10,9 +10,10 @@ import HomeTab from "./HomeTab";
 import BrandTab from "./BrandTab";
 import PagesTab from "./PagesTab";
 import SiteTab from "./SiteTab";
+import NavTab from "./NavTab";
 import { useLanguage } from "../i18n";
 
-type Tab = "products" | "collections" | "media" | "home" | "brand" | "pages" | "categories" | "site";
+type Tab = "products" | "collections" | "media" | "home" | "brand" | "pages" | "categories" | "nav" | "site";
 
 export default function Admin() {
   const { t } = useLanguage();
@@ -97,8 +98,9 @@ export default function Admin() {
               ["media", t("admin.tab.media")],
               ["brand", t("admin.tab.brand")],
               ["pages", t("admin.tab.pages")],
-              ["site", t("admin.tab.site")],
               ["categories", t("admin.tab.categories")],
+              ["nav", t("admin.tab.nav")],
+              ["site", t("admin.tab.site")],
             ] as [Tab, string][]
           ).map(([value, label]) => (
             <button
@@ -124,6 +126,7 @@ export default function Admin() {
         {tab === "pages" && <PagesTab />}
         {tab === "site" && <SiteTab />}
         {tab === "categories" && <CategoriesTab />}
+        {tab === "nav" && <NavTab />}
       </main>
     </div>
   );

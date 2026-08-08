@@ -479,4 +479,5 @@ def get_site(db: Session = Depends(get_db)):
         site_name=site.site_name,
         logo_url=site.logo_media.url if site.logo_media else None,
         favicon_url=site.favicon_media.url if site.favicon_media else None,
+        nav_items=site.nav_items or [],
     )

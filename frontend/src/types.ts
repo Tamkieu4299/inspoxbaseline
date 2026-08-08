@@ -212,10 +212,17 @@ export interface BlogPost {
   created_at: string;
 }
 
+export interface NavItem {
+  type: "home" | "collections" | "new_arrivals" | "brand" | "categories" | "page";
+  ref?: string | null;
+  enabled: boolean;
+}
+
 export interface SitePublic {
   site_name: string;
   logo_url?: string | null;
   favicon_url?: string | null;
+  nav_items: NavItem[];
 }
 
 export interface SiteSettings {
@@ -225,4 +232,5 @@ export interface SiteSettings {
   logo_media?: Media | null;
   favicon_media_id?: number | null;
   favicon_media?: Media | null;
+  nav_items: NavItem[];
 }

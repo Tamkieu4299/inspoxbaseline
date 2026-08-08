@@ -266,6 +266,7 @@ class SiteSettingsBase(BaseModel):
     site_name: str = "INSPO"
     logo_media_id: int | None = None
     favicon_media_id: int | None = None
+    nav_items: list[Any] = Field(default_factory=list)
 
 
 class SiteSettingsIn(SiteSettingsBase):
@@ -282,6 +283,7 @@ class SitePublic(BaseModel):
     site_name: str
     logo_url: str | None = None
     favicon_url: str | None = None
+    nav_items: list[Any] = Field(default_factory=list)
 
 
 from pydantic import model_validator

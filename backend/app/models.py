@@ -247,3 +247,4 @@ class SiteSettings(Base, TimestampMixin):
     logo_media: Mapped["Media | None"] = relationship("Media", foreign_keys=[logo_media_id])
     favicon_media_id: Mapped[int | None] = mapped_column(ForeignKey("media.id"), nullable=True)
     favicon_media: Mapped["Media | None"] = relationship("Media", foreign_keys=[favicon_media_id])
+    nav_items: Mapped[list] = mapped_column(JSON, default=list)
