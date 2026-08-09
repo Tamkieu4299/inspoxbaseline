@@ -42,32 +42,48 @@ The `docker-compose.prod.yml` override puts **Caddy** in front with automatic HT
 (Let's Encrypt), stops publishing the backend/MinIO ports to the host, and enforces
 strong secrets.
 
+### 1. On your dev machine — package the app + your data
+
 ```bash
-# 1. Point DNS for your storefront domains at the VPS, e.g.:
-#    shop1.example.com, baseline.example.com, media.example.com
-
-# 2. Prepare the production env file
-cp deploy/.env.prod.example .env
-#    fill in real domains, CERT_EMAIL, and secrets (openssl rand -hex 32)
-
-# 3. Build & start
-docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml up -d --build
-
-# 4. Reset each tenant's admin password (the copied DB still has the pre-deploy one):
-#    log in at https://shop1.example.com/admin, then Admin -> Tenants -> reset password.
+bash deploy/package.sh          # exports DB + MinIO media, then builds inspo-deploy.zip
+# upload inspo-deploy.zip to the VPS (scp / rsync / panel upload)
 ```
 
-Notes:
-- **Secrets** — `JWT_SECRET`, `MINIO_ROOT_PASSWORD`, `ADMIN_DEFAULT_PASSWORD` are read
-  from `.env`; the backend fails fast in production if they are weak or missing.
+### 2. On the VPS — one-time setup
+
+```bash
+unzip inspo-deploy.zip
+cd inspo-deploy                      # (or whatever folder name you unzipped into)
+
+bash deploy/setup.sh                 # prompts for your 2 storefront domains + media hostname + email,
+                                     # generates strong secrets, writes .env
+
+docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+bash deploy/import-data.sh           # restores your DB + uploaded media, restarts backend
+```
+
+Then log in at `https://<shop1>/admin` and **reset each tenant admin password** (the
+copied DB still has the pre-deploy password).
+
+### Requirements
+
+- **DNS:** A-records for `shop1.<domain>`, `baseline.<domain>` and `media.<domain>` → VPS IP.
+  Caddy provisions TLS certificates automatically.
+- **VPS:** Docker Engine + Docker Compose **v2** (the override uses compose `!reset`),
+  ports `80`/`443` reachable.
+
+### Security notes
+
+- **Secrets** — `JWT_SECRET`, `MINIO_ROOT_PASSWORD`, `ADMIN_DEFAULT_PASSWORD` are generated
+  by `setup.sh` into `.env`; the backend **fails fast** in production with weak/placeholder values.
 - **Ports** — only `80`/`443` are published. Backend, MinIO S3 and the MinIO console are
-  internal-only (use an SSH tunnel for the console if needed).
+  internal-only (SSH tunnel the console if needed).
 - **Media URLs** — stored URLs are rewritten to `MINIO_PUBLIC_URL` (`https://media.<domain>`)
   automatically on backend boot.
-- **CORS** — storefronts are served same-origin through nginx, so cross-origin calls are not
-  needed. `CORS_ORIGINS` should be a tight list of your real domains.
-- **Login protection** — the admin login endpoint is rate-limited (10 attempts / 5 min per
-  IP+username).
+- **CORS** — storefronts are same-origin through nginx, so cross-origin calls aren't needed;
+  `CORS_ORIGINS` stays a tight list of your real domains.
+- **Login** — admin login is rate-limited (10 attempts / 5 min per IP+username).
 
 ## Local development (hot reload)
 

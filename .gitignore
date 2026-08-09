@@ -17,3 +17,7 @@ backend/data/
 
 # Local seed source images (real media lives in MinIO)
 SampleImages/
+
+# VPS deployment artifacts (contain real DB/media — never commit)
+deploy/backup/
+inspo-deploy.zip

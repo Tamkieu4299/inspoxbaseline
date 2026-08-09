@@ -13,6 +13,7 @@ services:
   minio:
     # S3 API + console only on the internal network; media is served via Caddy (media.<domain>)
     ports: !reset []
+    restart: unless-stopped
 
   backend:
     environment:
@@ -22,12 +23,15 @@ services:
       CORS_ORIGIN_REGEX: ""
       TRUSTED_HOSTS: ${TRUSTED_HOSTS:?TRUSTED_HOSTS must be set in .env}
     ports: !reset []
+    restart: unless-stopped
 
   frontend:
     ports: !reset []
+    restart: unless-stopped
 
   frontend-baseline:
     ports: !reset []
+    restart: unless-stopped
 
   caddy:
     image: caddy:2-alpine

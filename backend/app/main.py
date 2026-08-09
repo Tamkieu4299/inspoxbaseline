@@ -5,7 +5,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from .config import settings
 from .routers import admin, auth, media, public, tenants
 
-app = FastAPI(title="INSPO Storefront API", version="1.0.0")
+app = FastAPI(title="Storefront API", version="1.0.0")
 
 # Middleware stack: first add_middleware call = outermost.
 app.add_middleware(
