@@ -331,6 +331,7 @@ class SiteSettingsBase(BaseModel):
     logo_media_id: int | None = None
     favicon_media_id: int | None = None
     nav_items: list[Any] = Field(default_factory=list)
+    currency_code: str = "USD"
 
 
 class SiteSettingsIn(SiteSettingsBase):
@@ -348,6 +349,7 @@ class SitePublic(BaseModel):
     logo_url: str | None = None
     favicon_url: str | None = None
     nav_items: list[Any] = Field(default_factory=list)
+    currency_code: str = "USD"
 
 
 from pydantic import model_validator

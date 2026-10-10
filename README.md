@@ -38,6 +38,10 @@ stored in MinIO.
 
 ## Deployment (VPS)
 
+**Fast path (after first setup):** push to GitHub, then on the server `cd ~/inspo && bash deploy/update.sh`. See [deploy/README.md](deploy/README.md) §5 Option A.
+
+## Deployment (VPS) — first time
+
 The `docker-compose.prod.yml` override puts **Caddy** in front with automatic HTTPS
 (Let's Encrypt), stops publishing the backend/MinIO ports to the host, and enforces
 strong secrets.
@@ -50,6 +54,18 @@ bash deploy/package.sh          # exports DB + MinIO media, then builds inspo-de
 ```
 
 ### 2. On the VPS — one-time setup
+
+**Git (good for ongoing updates):**
+
+```bash
+git clone https://github.com/Tamkieu4299/inspoxbaseline.git ~/inspo
+cd ~/inspo
+bash deploy/setup.sh                 # domains + secrets → .env
+bash deploy/update.sh                # build + start
+bash deploy/import-data.sh           # if you have deploy/backup/ from package.sh
+```
+
+**Or zip upload:**
 
 ```bash
 unzip inspo-deploy.zip

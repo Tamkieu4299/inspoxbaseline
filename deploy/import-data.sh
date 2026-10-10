@@ -37,6 +37,9 @@ docker run --rm \
 echo "Restoring database..."
 docker cp "$BACKUP/inspo.db" inspo-backend:/data/inspo.db
 
+echo "Applying MinIO public read policy on inspo-media bucket..."
+docker exec inspo-backend python -c "from app.minio_client import ensure_bucket; ensure_bucket()"
+
 echo "Restarting backend so seed migrations run against the restored DB"
 echo "(media URLs are rewritten to MINIO_PUBLIC_URL automatically)..."
 docker restart inspo-backend

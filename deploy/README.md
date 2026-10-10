@@ -158,6 +158,52 @@ check Caddy: `docker logs inspo-caddy`.
 
 ## 5. Updating / redeploying
 
+### Option A — Git pull on the VPS (recommended day-to-day)
+
+Keep the app as a **git clone** on the server. Code updates are one command; **`.env` and Docker volumes stay on the VPS** and are not touched by `git pull`.
+
+**One-time setup**
+
+```bash
+# On the VPS (Docker + Compose v2 installed)
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/Tamkieu4299/inspoxbaseline/main/deploy/clone-on-vps.sh)"
+# or clone manually:
+git clone https://github.com/Tamkieu4299/inspoxbaseline.git ~/inspo
+cd ~/inspo
+bash deploy/setup.sh              # or copy .env from an earlier zip deploy
+bash deploy/update.sh
+bash deploy/import-data.sh        # only if volumes are empty / first import from Mac backup
+```
+
+**Private repo:** add a **read-only deploy key** on GitHub (Settings → Deploy keys), then clone with SSH:
+
+```bash
+GIT_REPO=git@github.com:Tamkieu4299/inspoxbaseline.git INSTALL_DIR=~/inspo bash deploy/clone-on-vps.sh
+```
+
+**Every code deploy**
+
+```bash
+cd ~/inspo
+bash deploy/update.sh
+```
+
+That runs `git pull --ff-only`, then `docker compose up -d --build`. It picks **prod** compose when `.env` has real `SHOP1_DOMAIN=…` hostnames; otherwise it uses the **dev-style** stack (ports `3000` / `3001` / `8000` — useful for IP-only until DNS is ready).
+
+Optional:
+
+```bash
+BACKUP_BEFORE=1 bash deploy/update.sh   # snapshot DB + MinIO to deploy/backup/ first
+DEPLOY_BRANCH=main bash deploy/update.sh
+COMPOSE_MODE=prod bash deploy/update.sh # force Caddy prod stack
+```
+
+**Workflow on your Mac:** push to GitHub → SSH to VPS → `bash deploy/update.sh`. No zip/scp needed for code-only changes.
+
+Content-only changes (DB/media from local admin) still use **Option B** below, or run `export-data.sh` on Mac and `import-data.sh` on the VPS.
+
+### Option B — Zip package (full snapshot: code + DB + media)
+
 ```bash
 # On your Mac — re-export data + rebuild package
 bash deploy/package.sh
