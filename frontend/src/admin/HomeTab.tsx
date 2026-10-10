@@ -4,6 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
 import type { HomeContentAdmin, Media, Product } from "../types";
+import {
+  normalizeHomeSections,
+  sectionLabelKey,
+  type HomeSectionConfig,
+  type HomeSectionId,
+} from "../homeSections";
 import { ImageField, MediaPicker } from "./MediaLibrary";
 import { ColorField, PrimaryButton, SecondaryButton } from "./ui";
 
@@ -116,6 +122,23 @@ export default function HomeTab() {
     undefined;
   const colors = d.hero_colors || {};
   const slideCount = Math.max(1, (d.hero_image_ids || []).length || (d.hero_image_id ? 1 : 0));
+  const layoutSections = normalizeHomeSections(d.sections);
+
+  function setSections(next: HomeSectionConfig[]) {
+    set("sections", next);
+  }
+
+  function moveSection(index: number, dir: -1 | 1) {
+    const next = [...layoutSections];
+    const j = index + dir;
+    if (j < 0 || j >= next.length) return;
+    [next[index], next[j]] = [next[j], next[index]];
+    setSections(next);
+  }
+
+  function patchSection(id: HomeSectionId, patch: Partial<HomeSectionConfig>) {
+    setSections(layoutSections.map((s) => (s.id === id ? { ...s, ...patch } : s)));
+  }
 
   return (
     <div className="flex flex-col w-full bg-surface">
@@ -183,6 +206,95 @@ export default function HomeTab() {
       <div className="px-6 lg:px-8 py-8 max-w-[1600px] mx-auto w-full grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_min(420px,38%)] gap-8 xl:gap-10 items-start">
         {/* Left editor */}
         <div className="flex flex-col gap-10 min-w-0 relative z-[2]">
+          {/* Page layout */}
+          <section className="bg-white p-6 lg:p-8 rounded-xl shadow-sm flex flex-col gap-6 min-w-0 border border-surface-container-high">
+            <div className="flex items-center gap-3">
+              <ModuleBadge n="↕" />
+              <div>
+                <h2 className="font-headline text-xl uppercase tracking-tight text-primary">{t("admin.homeStudio.layoutTitle")}</h2>
+                <p className="font-label text-label-caps uppercase text-secondary text-xs tracking-wider">{t("admin.homeStudio.layoutSub")}</p>
+              </div>
+            </div>
+            <ul className="flex flex-col gap-3">
+              {layoutSections.map((sec, index) => (
+                <li
+                  key={sec.id}
+                  className={`flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-lg border ${
+                    sec.enabled ? "border-surface-container-high bg-surface-container-lowest" : "border-dashed border-surface-container-high opacity-70"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      disabled={index === 0}
+                      onClick={() => moveSection(index, -1)}
+                      className="p-1.5 rounded hover:bg-surface-container disabled:opacity-30"
+                      aria-label={t("admin.homeStudio.moveUp")}
+                    >
+                      <span className="material-symbols-outlined text-[20px]">arrow_upward</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={index === layoutSections.length - 1}
+                      onClick={() => moveSection(index, 1)}
+                      className="p-1.5 rounded hover:bg-surface-container disabled:opacity-30"
+                      aria-label={t("admin.homeStudio.moveDown")}
+                    >
+                      <span className="material-symbols-outlined text-[20px]">arrow_downward</span>
+                    </button>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer min-w-[140px]">
+                    <input
+                      type="checkbox"
+                      checked={sec.enabled}
+                      onChange={(e) => patchSection(sec.id, { enabled: e.target.checked })}
+                      className="w-4 h-4 accent-primary"
+                    />
+                    <span className="font-label text-label-caps uppercase text-primary text-sm">{t(sectionLabelKey(sec.id))}</span>
+                  </label>
+                  <p className="font-body text-body-sm text-secondary flex-1 hidden md:block">{t(`admin.homeSectionHint.${sec.id}`)}</p>
+                  {sec.id === "trending" && sec.enabled && (
+                    <label className="flex items-center gap-2 font-label text-xs uppercase text-secondary">
+                      {t("admin.homeStudio.collectionCount")}
+                      <input
+                        type="number"
+                        min={1}
+                        max={4}
+                        className={`${studioInputClass} w-16 py-1.5`}
+                        value={sec.limit ?? 2}
+                        onChange={(e) => patchSection("trending", { limit: Number(e.target.value) })}
+                      />
+                    </label>
+                  )}
+                  {sec.id === "latest_drops" && sec.enabled && (
+                    <div className="flex flex-wrap items-center gap-4">
+                      <label className="flex items-center gap-2 font-label text-xs uppercase text-secondary">
+                        {t("admin.homeStudio.productCount")}
+                        <input
+                          type="number"
+                          min={1}
+                          max={12}
+                          className={`${studioInputClass} w-16 py-1.5`}
+                          value={sec.limit ?? 8}
+                          onChange={(e) => patchSection("latest_drops", { limit: Number(e.target.value) })}
+                        />
+                      </label>
+                      <label className="flex items-center gap-2 font-label text-xs uppercase text-secondary cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={sec.show_view_all !== false}
+                          onChange={(e) => patchSection("latest_drops", { show_view_all: e.target.checked })}
+                          className="w-4 h-4 accent-primary"
+                        />
+                        {t("admin.homeStudio.showViewAll")}
+                      </label>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+
           {/* M1 Hero */}
           <section className="bg-white p-6 lg:p-8 rounded-xl shadow-sm flex flex-col gap-8 min-w-0">
             <div className="flex items-center justify-between pb-2 flex-wrap gap-3">

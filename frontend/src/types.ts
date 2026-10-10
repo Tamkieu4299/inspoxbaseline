@@ -1,3 +1,5 @@
+import type { HomeSectionConfig } from "./homeSections";
+
 export interface Media {
   id: number;
   filename: string;
@@ -89,6 +91,7 @@ export interface HomeData {
   };
   trending: Collection[];
   latest_drops: Product[];
+  sections?: HomeSectionConfig[];
   master: {
     title: string;
     description: string;
@@ -175,6 +178,7 @@ export interface HomeContentAdmin {
   master_description_vi?: string | null;
   master_media_id?: number | null;
   features: { index?: string; title?: string; title_vi?: string }[];
+  sections?: HomeSectionConfig[];
 }
 
 export interface PageBlock {

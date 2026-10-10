@@ -2,6 +2,16 @@
 export const STORE_CURRENCIES = ["USD", "VND", "EUR", "GBP", "JPY", "AUD"] as const;
 export type StoreCurrency = (typeof STORE_CURRENCIES)[number];
 
+export function usesWholeCurrencyUnits(currencyCode: string): boolean {
+  const code = (currencyCode || "USD").toUpperCase();
+  return code === "VND" || code === "JPY";
+}
+
+/** HTML number input step for product price fields. */
+export function priceInputStep(currencyCode: string): string {
+  return usesWholeCurrencyUnits(currencyCode) ? "1" : "0.01";
+}
+
 export function formatMoney(amount: number, currencyCode: string, locale?: string): string {
   const code = (currencyCode || "USD").toUpperCase();
   const noCents = code === "VND" || code === "JPY";

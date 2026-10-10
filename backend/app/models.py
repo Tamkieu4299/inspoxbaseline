@@ -198,6 +198,7 @@ class HomeContent(Base, TimestampMixin):
     master_media_id: Mapped[int | None] = mapped_column(ForeignKey("media.id"), nullable=True)
     master_media: Mapped["Media | None"] = relationship("Media", foreign_keys=[master_media_id])
     features: Mapped[list] = mapped_column(JSON, default=list)
+    sections: Mapped[list] = mapped_column(JSON, default=list)
 
 
 class EditorialItem(Base, TimestampMixin):

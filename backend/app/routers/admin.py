@@ -319,9 +319,13 @@ def update_home(payload: HomeContentIn, db: Session = Depends(get_db), tenant: T
     if home is None:
         home = HomeContent(tenant_id=tenant.id)
         db.add(home)
+    from ..home_sections import normalize_home_sections
+
     data = payload.model_dump()
     if data.get("hero_image_ids") and not data.get("hero_carousel"):
         data["hero_carousel"] = True
+    if "sections" in data:
+        data["sections"] = normalize_home_sections(data.get("sections"))
     for field, value in data.items():
         setattr(home, field, value)
     db.commit()

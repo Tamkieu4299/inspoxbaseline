@@ -11,8 +11,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="$ROOT/.env"
 
-if ! docker compose version 2>/dev/null | grep -q "Docker Compose version v2"; then
-  echo "ERROR: Docker Compose v2 is required (uses compose '!reset' override syntax)."
+if ! docker compose version >/dev/null 2>&1; then
+  echo "ERROR: Docker Compose plugin is required (docker compose version)."
   exit 1
 fi
 

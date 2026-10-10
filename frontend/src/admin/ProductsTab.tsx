@@ -318,6 +318,9 @@ export default function ProductsTab() {
             <h1 className="font-headline text-headline-lg uppercase tracking-tight text-primary">
               {t("admin.catalog.title")}
             </h1>
+            <p className="font-body text-body-sm text-secondary mt-1">
+              {t("admin.catalog.pricesInCurrency", { currency: storeCurrency })}
+            </p>
           </div>
           <div className="flex items-center gap-3 shrink-0 flex-wrap">
             <button

@@ -97,6 +97,8 @@ def _migrate_existing(db, tenant_id: int):
     _add_column_if_missing(db, "home_content", "hero_carousel_interval", "INTEGER DEFAULT 5")
     _add_column_if_missing(db, "home_content", "hero_colors", "JSON")
     db.execute(text("UPDATE home_content SET hero_colors='{}' WHERE hero_colors IS NULL"))
+    _add_column_if_missing(db, "home_content", "sections", "JSON")
+    db.execute(text("UPDATE home_content SET sections='[]' WHERE sections IS NULL"))
     db.execute(text("UPDATE home_content SET hero_image_ids='[]' WHERE hero_image_ids IS NULL"))
     db.commit()
     _add_column_if_missing(db, "pages", "gradient", "BOOLEAN DEFAULT 1")

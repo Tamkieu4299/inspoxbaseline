@@ -198,6 +198,7 @@ class HomeContentIn(BaseModel):
     master_description_vi: str | None = None
     master_media_id: int | None = None
     features: list[Any] = Field(default_factory=list)
+    sections: list[Any] = Field(default_factory=list)
 
 
 class HomeContentOut(HomeContentIn, ORMModel):
@@ -237,6 +238,7 @@ class HomeOut(BaseModel):
     trending: list[CollectionOut]
     latest_drops: list[ProductOut]
     master: dict[str, Any]
+    sections: list[Any] = Field(default_factory=list)
 
 
 class EditorialOut(BaseModel):

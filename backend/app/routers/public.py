@@ -30,6 +30,7 @@ from ..schemas import (
     ProductOut,
     SitePublic,
 )
+from ..home_sections import latest_drops_fetch_limit, normalize_home_sections
 from ..security import get_tenant
 
 router = APIRouter(prefix="/api", tags=["public"])
@@ -147,6 +148,9 @@ def get_home(
     def loc(en, vi):
         return (vi or en) if lang == "vi" else en
 
+    sections = normalize_home_sections(home.sections)
+    latest_limit = latest_drops_fetch_limit(sections)
+
     trending = (
         db.execute(
             select(Collection)
@@ -167,7 +171,7 @@ def get_home(
             .options(selectinload(Product.images), selectinload(Product.category))
             .where(Product.tenant_id == tenant.id, Product.is_active.is_(True))
             .order_by(Product.created_at.desc())
-            .limit(8)
+            .limit(latest_limit)
         )
         .scalars()
         .all()
@@ -220,6 +224,7 @@ def get_home(
         trending=[_load_collection(db, c, lang) for c in trending],
         latest_drops=[_load_product(db, p, lang) for p in latest],
         master=master,
+        sections=sections,
     )
 
 

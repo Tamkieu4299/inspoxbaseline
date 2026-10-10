@@ -17,6 +17,7 @@ import {
   ViInput,
 } from "./ui";
 import { useLanguage } from "../i18n";
+import { formatMoney, priceInputStep, usesWholeCurrencyUnits } from "../money";
 import { PRODUCT_BADGES, type ProductDraft } from "./productDraft";
 
 export function ProductEditorForm({
@@ -52,9 +53,11 @@ export function ProductEditorForm({
   onDelete?: () => void;
   compactHeader?: boolean;
 }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { data: siteSettings } = useQuery({ queryKey: ["admin-site"], queryFn: adminApi.getSite });
   const currency = (siteSettings?.currency_code || "USD").toUpperCase();
+  const locale = lang === "vi" ? "vi-VN" : "en-US";
+  const wholeUnits = usesWholeCurrencyUnits(currency);
 
   return (
     <div className="flex flex-col gap-4">
@@ -67,7 +70,23 @@ export function ProductEditorForm({
                 <TextInput value={draft.slug} onChange={(e) => set("slug", e.target.value)} placeholder="club-performance-polo" />
               </Field>
               <Field label={t("admin.priceInCurrency", { currency })}>
-                <TextInput type="number" value={draft.price} onChange={(e) => set("price", Number(e.target.value))} />
+                <TextInput
+                  type="number"
+                  min={0}
+                  step={priceInputStep(currency)}
+                  value={draft.price}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    const n = raw === "" ? 0 : Number(raw);
+                    set("price", wholeUnits ? Math.round(n) : n);
+                  }}
+                />
+                <p className="text-secondary text-xs mt-1 font-body">
+                  {t("admin.priceStorefrontPreview", {
+                    price: formatMoney(Number(draft.price) || 0, currency, locale),
+                  })}
+                </p>
+                <p className="text-secondary text-xs mt-0.5 font-body">{t("admin.priceCurrencyHint")}</p>
               </Field>
               <Field label="Category">
                 <Select
