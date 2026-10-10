@@ -639,19 +639,22 @@ export default function ProductsTab() {
         </div>
       </div>
 
-      {/* Drawer */}
+      {/* Product editor modal */}
       <div
-        className={`fixed inset-0 bg-primary/40 backdrop-blur-sm z-[60] transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[70] bg-primary/45 backdrop-blur-sm flex items-center justify-center p-4 md:p-8 transition-opacity duration-300 ${
           drawerOpen && draft ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden={!drawerOpen}
+        onClick={() => drawerOpen && closeDrawer()}
       >
-        <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
-          <div
-            className={`w-screen max-w-xl bg-surface-container-lowest shadow-2xl flex flex-col transform transition-transform duration-300 ease-out ${
-              drawerOpen && draft ? "translate-x-0" : "translate-x-full"
-            }`}
-          >
+        <div
+          className={`w-full max-w-6xl max-h-[min(92vh,960px)] bg-surface-container-lowest shadow-2xl rounded-xl border border-surface-container-high flex flex-col transform transition-all duration-300 ease-out ${
+            drawerOpen && draft ? "scale-100 opacity-100" : "scale-[0.98] opacity-0"
+          }`}
+          onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+        >
             {draft && (
               <>
                 <div className="p-6 bg-surface-container-low flex items-center justify-between shrink-0">
@@ -669,9 +672,9 @@ export default function ProductsTab() {
                     <span className="material-symbols-outlined text-[24px]">close</span>
                   </button>
                 </div>
-                <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+                <div className="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col gap-6 min-h-0">
                   {draft.images.find((i) => i.enabled)?.url && (
-                    <div className="w-full h-48 bg-surface-container rounded overflow-hidden relative">
+                    <div className="w-full h-56 md:h-64 bg-surface-container rounded-lg overflow-hidden relative">
                       <img
                         src={draft.images.find((i) => i.enabled)?.url || draft.images[0]?.url}
                         alt=""
@@ -745,7 +748,6 @@ export default function ProductsTab() {
                 </div>
               </>
             )}
-          </div>
         </div>
       </div>
 

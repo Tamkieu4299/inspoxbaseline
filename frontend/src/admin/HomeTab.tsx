@@ -101,10 +101,18 @@ export default function HomeTab() {
     setDirty(false);
   }
 
+  function setHeroCarouselIds(ids: number[]) {
+    set("hero_image_ids", ids);
+    set("hero_carousel", ids.length > 0);
+  }
+
   const loc = countViFields(d);
+  const carouselSlideUrls = (d.hero_image_ids || [])
+    .map((id) => mediaById.get(id)?.url)
+    .filter((u): u is string => Boolean(u));
   const heroBg =
+    carouselSlideUrls[0] ||
     (d.hero_image_id && mediaById.get(d.hero_image_id)?.url) ||
-    (d.hero_image_ids?.[0] && mediaById.get(d.hero_image_ids[0])?.url) ||
     undefined;
   const colors = d.hero_colors || {};
   const slideCount = Math.max(1, (d.hero_image_ids || []).length || (d.hero_image_id ? 1 : 0));
@@ -363,7 +371,9 @@ export default function HomeTab() {
                         <button
                           type="button"
                           className="p-1 text-secondary hover:text-error"
-                          onClick={() => set("hero_image_ids", (d.hero_image_ids || []).filter((x) => x !== id))}
+                          onClick={() =>
+                            setHeroCarouselIds((d.hero_image_ids || []).filter((x) => x !== id))
+                          }
                         >
                           <span className="material-symbols-outlined text-[18px]">delete</span>
                         </button>
@@ -597,7 +607,7 @@ export default function HomeTab() {
                     {d.hero_secondary_cta}
                   </span>
                 </div>
-                {d.hero_carousel ? (
+                {(d.hero_image_ids || []).length > 1 ? (
                   <div className="flex items-center gap-1.5 mt-4 self-center">
                     {Array.from({ length: Math.min(slideCount, 5) }).map((_, i) => (
                       <div key={i} className={`h-1 rounded-full ${i === 0 ? "w-6 bg-white" : "w-2 bg-white/40"}`} />
@@ -643,7 +653,7 @@ export default function HomeTab() {
         <MediaPicker
           onSelect={(m) => {
             const current = d.hero_image_ids || [];
-            if (!current.includes(m.id)) set("hero_image_ids", [...current, m.id]);
+            if (!current.includes(m.id)) setHeroCarouselIds([...current, m.id]);
             setCarouselOpen(false);
           }}
           onClose={() => setCarouselOpen(false)}

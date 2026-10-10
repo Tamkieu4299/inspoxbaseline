@@ -135,7 +135,7 @@ export function ProductEditorForm({
             <div>
               <h4 className="font-headline text-headline-md text-primary uppercase mb-2">{t("admin.layoutPreview")}</h4>
               <p className="font-label text-label-caps text-secondary mb-2">{t("admin.layoutPreviewHint")}</p>
-              <div className="border border-surface-container-highest bg-white p-4">
+              <div className="border border-surface-container-highest bg-white p-4 md:p-6 relative">
                 {draft.images.some((i) => i.enabled) ? (
                   (() => {
                     const visibleIndices = draft.images
@@ -156,7 +156,7 @@ export function ProductEditorForm({
                           }}
                         />
                         {selectedCell !== null && draft.images[selectedCell] && (
-                          <div className="fixed top-20 right-4 z-50 w-80 border border-forest-green bg-white shadow-2xl p-4 flex flex-col gap-3">
+                          <div className="mt-4 w-full max-w-md border border-forest-green bg-surface-container-lowest shadow-lg rounded-lg p-4 flex flex-col gap-3">
                             <div className="flex items-center justify-between">
                               <p className="font-headline text-headline-md text-primary uppercase">
                                 {t("admin.imageEditor")}

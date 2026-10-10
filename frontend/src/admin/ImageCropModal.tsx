@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { createPortal } from "react-dom";
 import Cropper, { type Area } from "react-easy-crop";
 import "react-easy-crop/react-easy-crop.css";
 import { useLanguage } from "../i18n";
@@ -135,9 +136,9 @@ export default function ImageCropModal({
     }
   }
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-      <div className="bg-background w-full max-w-2xl flex flex-col">
+  return createPortal(
+    <div className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 md:p-8">
+      <div className="bg-background w-full max-w-3xl max-h-[92vh] rounded-xl shadow-2xl flex flex-col overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b border-surface-container-high">
           <h3 className="font-headline text-headline-md text-primary uppercase">{title}</h3>
           <div className="flex items-center gap-4">
@@ -235,6 +236,7 @@ export default function ImageCropModal({
         </div>
         {error && <p className="px-4 pb-4 text-error text-sm">{error}</p>}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

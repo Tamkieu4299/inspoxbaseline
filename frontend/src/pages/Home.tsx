@@ -14,18 +14,22 @@ export default function Home() {
     queryFn: () => api.getHome(lang),
   });
 
+  const slideUrls = (data?.hero.images || []).filter((u): u is string => Boolean(u));
   const heroImages: string[] =
-    data && data.hero.carousel && data.hero.images
-      ? data.hero.images.filter((u): u is string => Boolean(u))
-      : [];
+    slideUrls.length > 0 ? slideUrls : data?.hero.image ? [data.hero.image] : [];
+  const autoCarousel = Boolean(data?.hero.carousel) && heroImages.length > 1;
   const [slide, setSlide] = useState(0);
   const intervalMs = Math.max(1000, (data?.hero.interval ?? 5) * 1000);
 
   useEffect(() => {
-    if (heroImages.length < 2) return;
+    setSlide(0);
+  }, [slideUrls.join("|")]);
+
+  useEffect(() => {
+    if (!autoCarousel) return;
     const id = setInterval(() => setSlide((s) => (s + 1) % heroImages.length), intervalMs);
     return () => clearInterval(id);
-  }, [heroImages.length, intervalMs]);
+  }, [autoCarousel, heroImages.length, intervalMs]);
 
   if (isLoading || !data) {
     return (

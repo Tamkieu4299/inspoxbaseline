@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, type MouseEvent } from "react";
+import { createPortal } from "react-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
@@ -602,21 +603,35 @@ export function MediaPicker({
   onClose: () => void;
 }) {
   const { t } = useLanguage();
-  return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-background w-full max-w-3xl max-h-[85vh] overflow-auto p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-headline text-headline-md text-primary uppercase">{t("admin.selectMedia")}</h3>
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 md:p-8"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="media-picker-title"
+      onClick={onClose}
+    >
+      <div
+        className="bg-surface-container-lowest w-full max-w-6xl max-h-[min(92vh,960px)] rounded-xl shadow-2xl flex flex-col overflow-hidden border border-surface-container-high"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-surface-container-high shrink-0">
+          <h3 id="media-picker-title" className="font-headline text-headline-md text-primary uppercase">
+            {t("admin.selectMedia")}
+          </h3>
           <SecondaryButton onClick={onClose}>{t("admin.close")}</SecondaryButton>
         </div>
-        <MediaLibrary
-          onSelect={(m) => {
-            onSelect(m);
-            onClose();
-          }}
-        />
+        <div className="flex-1 overflow-y-auto p-6 min-h-0">
+          <MediaLibrary
+            onSelect={(m) => {
+              onSelect(m);
+              onClose();
+            }}
+          />
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

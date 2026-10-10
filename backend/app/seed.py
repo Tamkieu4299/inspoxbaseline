@@ -211,9 +211,14 @@ def run():
     _ensure_admin_user(db, tenant.id)
     db.close()
 
+    from .seed_baseline_club import run as run_baseline_club
     from .seed_inspo import run as run_inspo_catalog
 
     run_inspo_catalog()
+    try:
+        run_baseline_club()
+    except (SystemExit, FileNotFoundError) as exc:
+        print(f"Baseline Club seed skipped: {exc}")
     print("Bootstrap complete (migrations + optional INSPO catalog).")
 
 
