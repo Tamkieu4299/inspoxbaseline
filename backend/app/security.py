@@ -9,6 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .admin_access import user_can_access_tenant, user_tenant_ids
 from .config import settings
 from .database import get_db
 from .models import Tenant, User
@@ -37,6 +38,7 @@ def create_access_token(user: User) -> str:
     payload = {
         "sub": str(user.id),
         "tenant_id": user.tenant_id,
+        "is_super_admin": bool(user.is_super_admin),
         "exp": datetime.now(timezone.utc) + timedelta(minutes=settings.JWT_EXPIRES_MINUTES),
     }
     return jwt.encode(payload, settings.JWT_SECRET, algorithm="HS256")
@@ -58,6 +60,12 @@ def get_current_user(
     user = db.get(User, int(payload.get("sub", 0)))
     if user is None or not user.is_active:
         raise HTTPException(status_code=401, detail="Invalid token")
+    return user
+
+
+def require_super_admin(user: User = Depends(get_current_user)) -> User:
+    if not user.is_super_admin:
+        raise HTTPException(status_code=403, detail="Super admin required")
     return user
 
 
@@ -94,11 +102,14 @@ def get_tenant(
     return tenant
 
 
-def require_admin(
+def require_tenant_admin(
     user: User = Depends(get_current_user),
     tenant: Tenant = Depends(get_tenant),
+    db: Session = Depends(get_db),
 ) -> Tenant:
+    if not user_can_access_tenant(db, user, tenant.id):
+        raise HTTPException(status_code=403, detail="No access to this tenant")
     return tenant
 
 
-AdminDep = Depends(require_admin)
+AdminDep = Depends(require_tenant_admin)

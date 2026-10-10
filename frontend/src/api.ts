@@ -13,6 +13,7 @@ import type {
   SitePublic,
   SiteSettings,
   TenantAdmin,
+  AdminUserRecord,
 } from "./types";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
@@ -83,15 +84,40 @@ function adminFormHeaders(): Record<string, string> {
   return { "X-Tenant": adminTenantSlug(), ...(t ? { Authorization: `Bearer ${t}` } : {}) };
 }
 
+export interface AdminUserProfile {
+  id: number;
+  username: string;
+  tenant_id: number;
+  is_super_admin: boolean;
+}
+
 export interface LoginResponse {
   access_token: string;
   token_type: string;
   tenant: { id: number; slug: string; name: string };
+  user: AdminUserProfile;
+  accessible_tenants: { id: number; slug: string; name: string }[];
 }
 
 export interface MeResponse {
-  user: { id: number; username: string; tenant_id: number };
+  user: AdminUserProfile;
   tenant: { id: number; slug: string; name: string };
+  accessible_tenants: { id: number; slug: string; name: string }[];
+}
+
+const ADMIN_PROFILE_KEY = "inspo_admin_profile";
+
+function saveAdminProfile(user: AdminUserProfile) {
+  sessionStorage.setItem(ADMIN_PROFILE_KEY, JSON.stringify(user));
+}
+
+export function getAdminProfile(): AdminUserProfile | null {
+  try {
+    const raw = sessionStorage.getItem(ADMIN_PROFILE_KEY);
+    return raw ? (JSON.parse(raw) as AdminUserProfile) : null;
+  } catch {
+    return null;
+  }
 }
 
 export const adminApi = {
@@ -101,6 +127,7 @@ export const adminApi = {
   getToken: adminToken,
   clearToken() {
     sessionStorage.removeItem("inspo_admin_token");
+    sessionStorage.removeItem(ADMIN_PROFILE_KEY);
   },
   setTenant(slug: string) {
     sessionStorage.setItem("inspo_admin_tenant", slug);
@@ -112,11 +139,13 @@ export const adminApi = {
   login: async (username: string, password: string): Promise<LoginResponse> => {
     const res = await fetch(`${API_BASE}/api/admin/auth/login`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Tenant": tenantSlug() },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     });
     if (!res.ok) throw new Error(await res.text());
-    return res.json();
+    const data = (await res.json()) as LoginResponse;
+    saveAdminProfile(data.user);
+    return data;
   },
   testAuth: () => request<MeResponse>("/api/admin/auth/me", { headers: adminHeaders() }),
 
@@ -274,5 +303,24 @@ export const adminApi = {
       method: "POST",
       headers: adminHeaders(),
       body: JSON.stringify({ password }),
+    }),
+
+  getAdminUsers: () => request<AdminUserRecord[]>(`/api/admin/users`, { headers: adminHeaders() }),
+  createAdminUser: (body: { username: string; is_super_admin?: boolean; tenant_ids?: number[] }) =>
+    request<{ user: AdminUserRecord; generated_password: string }>(`/api/admin/users`, {
+      method: "POST",
+      headers: adminHeaders(),
+      body: JSON.stringify(body),
+    }),
+  updateAdminUser: (id: number, body: { is_active?: boolean; is_super_admin?: boolean; tenant_ids?: number[] }) =>
+    request<AdminUserRecord>(`/api/admin/users/${id}`, {
+      method: "PUT",
+      headers: adminHeaders(),
+      body: JSON.stringify(body),
+    }),
+  resetAdminUserPassword: (id: number) =>
+    request<{ user: AdminUserRecord; generated_password: string }>(`/api/admin/users/${id}/reset-password`, {
+      method: "POST",
+      headers: adminHeaders(),
     }),
 };

@@ -11,6 +11,8 @@ import BrandTab from "./BrandTab";
 import PagesTab from "./PagesTab";
 import JournalTab from "./JournalTab";
 import SiteTab from "./SiteTab";
+import UsersTab from "./UsersTab";
+import { getAdminProfile } from "../api";
 import NavTab from "./NavTab";
 import TenantPicker from "./TenantPicker";
 import AdminShell, { AdminAuthFrame, type AdminTab } from "./AdminShell";
@@ -134,11 +136,15 @@ export default function Admin() {
     return <TenantPicker onSelect={selectTenant} />;
   }
 
+  const profile = getAdminProfile();
+  const isSuperAdmin = profile?.is_super_admin ?? false;
+
   return (
     <AdminShell
       tenant={tenant}
       tab={tab}
       onTabChange={setTab}
+      isSuperAdmin={isSuperAdmin}
       onSwitchStore={() => {
         adminApi.clearTenant();
         setTenant(null);
@@ -154,6 +160,7 @@ export default function Admin() {
       {tab === "brand" && <BrandTab />}
       {tab === "pages" && <PagesTab />}
       {tab === "site" && <SiteTab />}
+      {tab === "users" && isSuperAdmin && <UsersTab />}
       {tab === "categories" && <CategoriesTab />}
       {tab === "nav" && <NavTab />}
     </AdminShell>

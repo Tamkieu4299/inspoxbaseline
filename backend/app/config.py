@@ -18,6 +18,7 @@ class Settings:
     JWT_SECRET: str = os.getenv("JWT_SECRET", "inspo-jwt-secret-change-me")
     JWT_EXPIRES_MINUTES: int = int(os.getenv("JWT_EXPIRES_MINUTES", "1440"))
     ADMIN_DEFAULT_PASSWORD: str = os.getenv("ADMIN_DEFAULT_PASSWORD", "admin123")
+    SUPER_ADMIN_USERNAME: str = os.getenv("SUPER_ADMIN_USERNAME", "superadmin")
     DEFAULT_TENANT_SLUG: str = os.getenv("DEFAULT_TENANT_SLUG", "shop1")
     # Comma-separated browser origins allowed to call the API directly (same-origin
     # storefronts proxied through nginx do NOT need to be listed).

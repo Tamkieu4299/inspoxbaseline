@@ -36,15 +36,30 @@ class Tenant(Base, TimestampMixin):
 
 class User(Base, TimestampMixin):
     __tablename__ = "users"
-    __table_args__ = (UniqueConstraint("tenant_id", "username", name="uq_user_tenant_username"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True)
-    username: Mapped[str] = mapped_column(String(100))
+    username: Mapped[str] = mapped_column(String(100), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(300))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_super_admin: Mapped[bool] = mapped_column(Boolean, default=False)
 
     tenant: Mapped["Tenant"] = relationship(back_populates="users")
+    tenant_memberships: Mapped[list["UserTenantMembership"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+
+
+class UserTenantMembership(Base, TimestampMixin):
+    __tablename__ = "user_tenant_memberships"
+    __table_args__ = (UniqueConstraint("user_id", "tenant_id", name="uq_user_tenant_membership"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id", ondelete="CASCADE"), index=True)
+
+    user: Mapped["User"] = relationship(back_populates="tenant_memberships")
+    tenant: Mapped["Tenant"] = relationship()
 
 
 class Media(Base, TimestampMixin):

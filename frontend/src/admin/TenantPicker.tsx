@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminApi } from "../api";
+import { adminApi, getAdminProfile } from "../api";
 import { useLanguage } from "../i18n";
 import type { TenantAdmin } from "../types";
 import { AdminAuthFrame } from "./AdminShell";
@@ -9,6 +9,7 @@ import { PrimaryButton, TextInput } from "./ui";
 export default function TenantPicker({ onSelect }: { onSelect: (slug: string) => void }) {
   const { t } = useLanguage();
   const queryClient = useQueryClient();
+  const isSuperAdmin = getAdminProfile()?.is_super_admin ?? false;
   const { data: tenants, isLoading } = useQuery({
     queryKey: ["admin-tenants"],
     queryFn: adminApi.getTenants,
@@ -87,6 +88,8 @@ export default function TenantPicker({ onSelect }: { onSelect: (slug: string) =>
         <ul className="mb-8">{tenants?.map(tenantRow)}</ul>
       )}
 
+      {isSuperAdmin && (
+        <>
       <h3 className="font-label text-label-caps text-forest-green uppercase mb-3 tracking-wider">
         {t("admin.tenantCreate")}
       </h3>
@@ -116,6 +119,8 @@ export default function TenantPicker({ onSelect }: { onSelect: (slug: string) =>
           </PrimaryButton>
         </div>
       </div>
+        </>
+      )}
     </AdminAuthFrame>
   );
 }

@@ -18,6 +18,7 @@ class UserOut(ORMModel):
     id: int
     username: str
     tenant_id: int
+    is_super_admin: bool = False
 
 
 class LoginIn(BaseModel):
@@ -29,11 +30,40 @@ class TokenOut(BaseModel):
     access_token: str
     token_type: str = "bearer"
     tenant: TenantOut
+    user: UserOut
+    accessible_tenants: list[TenantOut] = Field(default_factory=list)
 
 
 class MeOut(BaseModel):
     user: UserOut
     tenant: TenantOut
+    accessible_tenants: list[TenantOut] = Field(default_factory=list)
+
+
+class AdminUserOut(ORMModel):
+    id: int
+    username: str
+    is_active: bool
+    is_super_admin: bool
+    tenant_ids: list[int] = Field(default_factory=list)
+    created_at: datetime
+
+
+class AdminUserCreateIn(BaseModel):
+    username: str
+    is_super_admin: bool = False
+    tenant_ids: list[int] = Field(default_factory=list)
+
+
+class AdminUserUpdateIn(BaseModel):
+    is_active: bool | None = None
+    is_super_admin: bool | None = None
+    tenant_ids: list[int] | None = None
+
+
+class AdminUserCreateOut(BaseModel):
+    user: AdminUserOut
+    generated_password: str
 
 
 class TenantAdminOut(ORMModel):

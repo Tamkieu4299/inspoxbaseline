@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from .config import settings
-from .routers import admin, auth, media, public, tenants
+from .routers import admin, admin_users, auth, media, public, tenants
 
 app = FastAPI(title="Storefront API", version="1.0.0")
 
@@ -26,6 +26,7 @@ app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(media.router)
 app.include_router(tenants.router)
+app.include_router(admin_users.router)
 
 
 @app.get("/api/health")

@@ -12,7 +12,8 @@ export type AdminTab =
   | "journal"
   | "categories"
   | "nav"
-  | "site";
+  | "site"
+  | "users";
 
 type NavItem = { tab: AdminTab; icon: string; labelKey: string };
 type NavGroup = { labelKey: string; items: NavItem[] };
@@ -47,9 +48,21 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     labelKey: "admin.hub.system",
-    items: [{ tab: "site", icon: "settings", labelKey: "admin.tab.site" }],
+    items: [
+      { tab: "site", icon: "settings", labelKey: "admin.tab.site" },
+      { tab: "users", icon: "group", labelKey: "admin.tab.users" },
+    ],
   },
 ];
+
+function navGroups(isSuperAdmin: boolean): NavGroup[] {
+  if (isSuperAdmin) return NAV_GROUPS;
+  return NAV_GROUPS.map((g) =>
+    g.labelKey === "admin.hub.system"
+      ? { ...g, items: g.items.filter((i) => i.tab !== "users") }
+      : g,
+  );
+}
 
 const SCREEN_SUBTITLE: Record<AdminTab, string> = {
   home: "admin.screen.home",
@@ -62,6 +75,7 @@ const SCREEN_SUBTITLE: Record<AdminTab, string> = {
   journal: "admin.screen.journal",
   nav: "admin.screen.nav",
   site: "admin.screen.site",
+  users: "admin.screen.users",
 };
 
 export function AdminPageHeader({ tab }: { tab: AdminTab }) {
@@ -128,6 +142,7 @@ export default function AdminShell({
   onTabChange,
   onSwitchStore,
   onLogout,
+  isSuperAdmin = false,
   children,
 }: {
   tenant: string;
@@ -135,9 +150,11 @@ export default function AdminShell({
   onTabChange: (tab: AdminTab) => void;
   onSwitchStore: () => void;
   onLogout: () => void;
+  isSuperAdmin?: boolean;
   children: ReactNode;
 }) {
   const { t } = useLanguage();
+  const groups = navGroups(isSuperAdmin);
 
   return (
     <div className="min-h-screen bg-[#f3f3f4] font-body text-body-md text-charcoal flex overflow-x-hidden">
@@ -152,7 +169,7 @@ export default function AdminShell({
           </span>
         </div>
         <nav className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-5">
-          {NAV_GROUPS.map((group) => (
+          {groups.map((group) => (
             <div key={group.labelKey}>
               <p className="px-2 mb-2 font-label text-[10px] text-muted uppercase tracking-[0.14em]">
                 {t(group.labelKey)}

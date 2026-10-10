@@ -270,3 +270,12 @@ export interface TenantAdmin {
   created_at: string;
   admin_username?: string | null;
 }
+
+export interface AdminUserRecord {
+  id: number;
+  username: string;
+  is_active: boolean;
+  is_super_admin: boolean;
+  tenant_ids: number[];
+  created_at: string;
+}

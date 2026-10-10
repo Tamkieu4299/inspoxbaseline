@@ -18,6 +18,7 @@ from .models import (
     Product,
     Tenant,
     User,
+    UserTenantMembership,
 )
 from .security import hash_password
 
@@ -113,6 +114,7 @@ def _migrate_existing(db, tenant_id: int):
     _backfill_media_tenant(db, tenant_id)
     _rewrite_media_urls(db)
     _rebuild_slug_tables(db)
+    _migrate_platform_users(db)
 
 
 def _backfill_media_tenant(db, tenant_id: int):
@@ -197,16 +199,77 @@ def _rewrite_media_urls(db):
         print(f"Migration: rewrote {changed} media URL(s) to {base}")
 
 
+def _migrate_platform_users(db):
+    _add_column_if_missing(db, "users", "is_super_admin", "BOOLEAN DEFAULT 0")
+    Base.metadata.create_all(bind=engine)
+
+    tenants = {t.id: t for t in db.execute(select(Tenant)).scalars().all()}
+    for user in db.execute(select(User)).scalars().all():
+        tenant = tenants.get(user.tenant_id)
+        if tenant and user.username == "admin":
+            new_username = f"admin-{tenant.slug}"
+            if not db.scalar(
+                select(User).where(User.username == new_username, User.id != user.id)
+            ):
+                user.username = new_username
+    db.commit()
+
+    for user in db.execute(select(User).where(User.is_super_admin.is_(False))).scalars().all():
+        has = db.scalar(
+            select(UserTenantMembership.id).where(
+                UserTenantMembership.user_id == user.id,
+                UserTenantMembership.tenant_id == user.tenant_id,
+            )
+        )
+        if has is None and user.tenant_id:
+            db.add(UserTenantMembership(user_id=user.id, tenant_id=user.tenant_id))
+    db.commit()
+
+    super_name = settings.SUPER_ADMIN_USERNAME.strip().lower()
+    if not db.scalar(select(User).where(User.username == super_name)):
+        first = db.scalar(select(Tenant).order_by(Tenant.id))
+        if first:
+            db.add(
+                User(
+                    tenant_id=first.id,
+                    username=super_name,
+                    password_hash=hash_password(settings.ADMIN_DEFAULT_PASSWORD),
+                    is_super_admin=True,
+                )
+            )
+            db.commit()
+            print(
+                f"Migration: created super admin '{super_name}' "
+                f"(password from ADMIN_DEFAULT_PASSWORD env, default admin123 in dev)"
+            )
+
+
 def _ensure_admin_user(db, tenant_id: int):
-    user = db.scalar(select(User).where(User.tenant_id == tenant_id, User.username == "admin"))
+    tenant = db.get(Tenant, tenant_id)
+    slug = tenant.slug if tenant else "shop1"
+    username = f"admin-{slug}"
+    user = db.scalar(select(User).where(User.username == username))
+    if user is None:
+        user = db.scalar(select(User).where(User.tenant_id == tenant_id, User.username == "admin"))
     if user is None:
         user = User(
             tenant_id=tenant_id,
-            username="admin",
+            username=username,
             password_hash=hash_password(settings.ADMIN_DEFAULT_PASSWORD),
         )
         db.add(user)
-        db.commit()
+        db.flush()
+    elif user.username == "admin":
+        user.username = username
+    mem = db.scalar(
+        select(UserTenantMembership).where(
+            UserTenantMembership.user_id == user.id,
+            UserTenantMembership.tenant_id == tenant_id,
+        )
+    )
+    if mem is None:
+        db.add(UserTenantMembership(user_id=user.id, tenant_id=tenant_id))
+    db.commit()
 
 
 def run():
