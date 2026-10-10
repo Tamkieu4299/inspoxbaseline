@@ -137,3 +137,64 @@ export function DangerButton({
     </button>
   );
 }
+
+export function AdminPanel({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`bg-white border border-surface-container-highest shadow-sm ${className}`}>{children}</div>
+  );
+}
+
+export function AdminKpiStrip({ children }: { children: ReactNode }) {
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">{children}</div>
+  );
+}
+
+export function AdminKpiCard({
+  label,
+  value,
+  hint,
+  tone = "neutral",
+}: {
+  label: string;
+  value: string | number;
+  hint?: string;
+  tone?: "neutral" | "success" | "warning" | "danger";
+}) {
+  const toneCls = {
+    neutral: "text-charcoal",
+    success: "text-success",
+    warning: "text-warning",
+    danger: "text-status-danger",
+  }[tone];
+  return (
+    <div className="bg-white border border-surface-container-highest p-4">
+      <p className="font-label text-[10px] text-muted uppercase tracking-[0.12em]">{label}</p>
+      <p className={`font-display text-2xl mt-1 tabular-nums ${toneCls}`}>{value}</p>
+      {hint ? <p className="text-xs text-muted mt-1">{hint}</p> : null}
+    </div>
+  );
+}
+
+export function AdminModule({
+  title,
+  children,
+  className = "",
+}: {
+  title: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section className={`border border-surface-container-high bg-surface-container-lowest p-4 md:p-5 ${className}`}>
+      <h4 className="font-label text-label-caps text-charcoal uppercase mb-4 tracking-wider">{title}</h4>
+      {children}
+    </section>
+  );
+}

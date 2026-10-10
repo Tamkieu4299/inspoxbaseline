@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Chivo:wght@700;800&amp;family=Hanken+Grotesk:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"secondary":"#5d5f5f","on-tertiary-fixed-variant":"#454747","on-tertiary":"#ffffff","surface-dim":"#dadada","tertiary-fixed-dim":"#c6c6c6","background":"#f9f9f9","outline":"#7e7576","tertiary":"#000000","primary":"#000000","error":"#ba1a1a","surface-container-low":"#f3f3f4","primary-fixed":"#e2e2e2","on-secondary":"#ffffff","surface-container-highest":"#e2e2e2","on-surface-variant":"#4c4546","error-container":"#ffdad6","surface-tint":"#5e5e5e","on-secondary-fixed-variant":"#454747","outline-variant":"#cfc4c5","on-primary-container":"#848484","secondary-fixed":"#e2e2e2","surface-container-high":"#e8e8e8","primary-fixed-dim":"#c6c6c6","on-error-container":"#93000a","surface":"#f9f9f9","secondary-container":"#dcdddd","surface-bright":"#f9f9f9","surface-container":"#eeeeee","on-error":"#ffffff","inverse-primary":"#c6c6c6","on-secondary-container":"#5f6161","on-primary-fixed-variant":"#474747","on-tertiary-fixed":"#1a1c1c","primary-container":"#1b1b1b","on-tertiary-container":"#838484","inverse-on-surface":"#f0f1f1","on-surface":"#1a1c1c","secondary-fixed-dim":"#c6c6c7","surface-variant":"#e2e2e2","tertiary-container":"#1a1c1c","inverse-surface":"#2f3131","tertiary-fixed":"#e2e2e2","on-secondary-fixed":"#1a1c1c","on-primary-fixed":"#1b1b1b","on-background":"#1a1c1c","on-primary":"#ffffff","surface-container-lowest":"#ffffff"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"margin-mobile":"1rem","stack-sm":"0.5rem","margin-desktop":"5rem","stack-xxl":"8rem","stack-xl":"4rem","stack-xs":"0.25rem","gutter":"1.5rem","stack-lg":"2rem","stack-md":"1rem"},"fontFamily":{"display-lg-mobile":["Chivo"],"display-lg":["Chivo"],"headline-lg-mobile":["Chivo"],"label-caps":["Hanken Grotesk"],"headline-md":["Chivo"],"body-md":["Hanken Grotesk"],"body-lg":["Hanken Grotesk"],"headline-lg":["Chivo"]},"fontSize":{"display-lg-mobile":["48px",{"lineHeight":"1.1","letterSpacing":"-0.02em","fontWeight":"800"}],"display-lg":["72px",{"lineHeight":"1.1","letterSpacing":"-0.04em","fontWeight":"800"}],"headline-lg-mobile":["32px",{"lineHeight":"1.2","letterSpacing":"-0.01em","fontWeight":"700"}],"label-caps":["12px",{"lineHeight":"1.0","letterSpacing":"0.1em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"1.3","fontWeight":"700"}],"body-md":["16px",{"lineHeight":"1.6","fontWeight":"400"}],"body-lg":["18px",{"lineHeight":"1.6","fontWeight":"400"}],"headline-lg":["40px",{"lineHeight":"1.2","letterSpacing":"-0.02em","fontWeight":"700"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-surface-container shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex flex-col"><div class="h-20 px-8 flex items-center justify-between border-b border-surface-container"><div class="flex flex-col"><span class="font-headline-md text-headline-md tracking-tight uppercase text-primary leading-none">APEX</span><span class="font-label-caps text-label-caps tracking-widest uppercase text-on-surface-variant mt-stack-xs">ATHLETIC</span></div><span class="font-label-caps text-label-caps uppercase px-2 py-1 rounded bg-surface-container text-on-surface">HQ</span></div><div class="px-8 pt-6 pb-2"><span class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-widest">Tennis Division</span></div><nav class="flex flex-col px-4 gap-1" data-active-classes="bg-primary text-on-primary font-bold"><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="overview" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span class="font-body-md text-body-md">Overview</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="catalog-&amp;-products" href="#"><span class="material-symbols-outlined text-[20px]">sports_tennis</span><span class="font-body-md text-body-md">Catalog &amp; Products</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="inventory-&amp;-drops" href="#"><span class="material-symbols-outlined text-[20px]">inventory_2</span><span class="font-body-md text-body-md">Inventory &amp; Drops</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="media-&amp;-assets" href="#"><span class="material-symbols-outlined text-[20px]">photo_camera</span><span class="font-body-md text-body-md">Media &amp; Assets</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="the-club-journal-(blog/stories)" href="#"><span class="material-symbols-outlined text-[20px]">menu_book</span><span class="font-body-md text-body-md">The Club Journal</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="homepage-&amp;-content-studio" href="#"><span class="material-symbols-outlined text-[20px]">auto_fix_high</span><span class="font-body-md text-body-md">Homepage &amp; Studio</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="system-configuration" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-body-md text-body-md">System Configuration</span></a></nav></div><div class="p-4 border-t border-surface-container"><div class="flex items-center gap-3 px-4 py-3 rounded bg-surface-container-low"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col min-w-0"><span class="font-label-caps text-label-caps uppercase text-on-surface truncate">Brand Director</span><span class="font-body-md text-body-md text-[11px] text-on-surface-variant uppercase tracking-wider truncate">GLOBAL HQ</span></div></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-20 bg-surface/90 backdrop-blur-xl border-b border-surface-container z-40 px-8 flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex items-center gap-6 flex-1 max-w-2xl"><div class="flex items-center gap-2 px-3 py-1.5 rounded border border-surface-container bg-surface-container-lowest text-on-surface cursor-pointer"><span class="font-label-caps text-label-caps uppercase">Division: Pro Tennis</span><span class="material-symbols-outlined text-[16px] text-on-surface-variant">unfold_more</span></div><div class="flex items-center gap-3 flex-1 px-4 py-2 rounded bg-surface-container-low border border-surface-container"><span class="material-symbols-outlined text-[20px] text-on-surface-variant">search</span><input class="w-full bg-transparent font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none" placeholder="Search global SKU, product, drop ID, or article..." type="text"/></div></div><div class="flex items-center gap-4"><button class="w-10 h-10 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">help_outline</span></button><button class="relative w-10 h-10 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary"></span></button><div class="h-6 w-px bg-surface-container mx-1"></div><div class="flex items-center gap-3 pl-2"><div class="flex flex-col text-right"><span class="font-label-caps text-label-caps uppercase text-on-surface leading-tight">Admin Console</span><span class="font-body-md text-body-md text-[11px] text-on-surface-variant leading-tight">HQ-AUTH-901</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="relative pt-20 w-full min-h-screen bg-surface"><div class="flex flex-col w-full">
+<!-- Top Operational Sub-bar & Context Anchor -->
+<div class="px-8 py-6 bg-surface-container-lowest shadow-sm flex flex-col gap-6">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant">HQ ADMIN SUITE</span>
+<span class="font-label-caps text-label-caps text-outline-variant">/</span>
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant">STOREFRONT CONTENT</span>
+<span class="font-label-caps text-label-caps text-outline-variant">/</span>
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">HOMEPAGE STUDIO V4.2</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg uppercase text-primary tracking-tight mt-1">Homepage Studio &amp; Staging</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-4xl mt-0.5">
+          Configure live campaign hero banners, multi-slide carousel dynamics, trending capsule slots, and master monograph storytelling with dual-language EN/VI synchronization.
+        </p>
+</div>
+<!-- Action Cluster -->
+<div class="flex items-center gap-3 self-start lg:self-auto flex-wrap">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-caps text-label-caps uppercase tracking-wider">Draft Saved 14:02:18 GMT+7</span>
+</div>
+<button class="flex items-center gap-2 px-5 py-2.5 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-label-caps text-label-caps uppercase tracking-wider transition-colors shadow-sm" id="previewBtn">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+<span>Preview Staged Viewport</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 rounded hover:bg-error-container text-on-surface-variant hover:text-on-error-container font-label-caps text-label-caps uppercase tracking-wider transition-colors">
+<span>Discard</span>
+</button>
+<button class="flex items-center gap-2 px-7 py-2.5 rounded bg-primary hover:bg-primary-container text-on-primary font-label-caps text-label-caps uppercase tracking-widest shadow-md transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+<span>Publish Live (Xuất bản)</span>
+</button>
+</div>
+</div>
+<!-- Editorial CMS Sub-Navigation -->
+<div class="flex items-center gap-8 -mb-6 overflow-x-auto">
+<a class="pb-3 text-primary font-label-caps text-label-caps uppercase tracking-widest relative" href="#">
+<span>01. Trang Chủ (Homepage)</span>
+<span class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></span>
+</a>
+<a class="pb-3 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps uppercase tracking-widest transition-colors" href="#">
+<span>02. Sản Phẩm &amp; Media (Asset Vault)</span>
+</a>
+<a class="pb-3 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps uppercase tracking-widest transition-colors" href="#">
+<span>03. The Club Journal (Blog CMS)</span>
+</a>
+<a class="pb-3 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps uppercase tracking-widest transition-colors" href="#">
+<span>04. Bộ Sưu Tập (Collections)</span>
+</a>
+</div>
+</div>
+<!-- Main Work Envelope: Split-Pane Grid -->
+<div class="px-8 py-8 w-full max-w-[1600px] mx-auto grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+<!-- LEFT / PRIMARY EDITORIAL PIPELINE (7 cols) -->
+<div class="xl:col-span-7 flex flex-col gap-10">
+<!-- MODULE 01: HERO BANNER & MULTI-SLIDE CAROUSEL -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col gap-8 relative overflow-hidden">
+<div class="flex items-center justify-between pb-4">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-label-caps text-label-caps">M1</span>
+<div>
+<h2 class="font-headline-md text-headline-md uppercase tracking-tight text-primary">Hero Banner &amp; Carousel Dynamics</h2>
+<p class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-wider">Prime Fold Editorial Storytelling</p>
+</div>
+</div>
+<span class="font-label-caps text-label-caps uppercase px-3 py-1 bg-surface-container rounded-full text-on-surface font-semibold">Active: Eden Campaign</span>
+</div>
+<!-- Bilingual Split Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-lg bg-surface-container-low">
+<!-- English Stream -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">English (Master Locale)</span>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">EN Kicker Category</label>
+<input class="px-3.5 py-2.5 rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="text" value="EDEN COLLECTION"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">EN Title / Headline</label>
+<input class="px-3.5 py-2.5 rounded bg-surface-container-lowest text-on-surface font-headline-md text-headline-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm tracking-tight" type="text" value="THE EDEN DRESS"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">EN Subtitle Body</label>
+<textarea class="px-3.5 py-2.5 rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm resize-none" rows="3">A midi dress cut for movement. Precision seams, recycled crepe, and a drape that follows every line.</textarea>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">EN CTA Primary</label>
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-label-caps text-label-caps uppercase focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="text" value="SHOP THE DRESS"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">EN Primary Target</label>
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm text-xs font-mono" type="text" value="/collections/eden"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">EN CTA Secondary</label>
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-label-caps text-label-caps uppercase focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="text" value="EXPLORE THE BRAND"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">EN Secondary Target</label>
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm text-xs font-mono" type="text" value="/brand"/>
+</div>
+</div>
+</div>
+<!-- Vietnamese Stream -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">Tiếng Việt (Localized)</span>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">VI Kicker Category</label>
+<input class="px-3.5 py-2.5 rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="text" value="BỘ SƯU TẬP EDEN"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">VI Title / Tiêu Đề</label>
+<input class="px-3.5 py-2.5 rounded bg-surface-container-lowest text-on-surface font-headline-md text-headline-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm tracking-tight" type="text" value="ĐẦM EDEN"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">VI Subtitle Body</label>
+<textarea class="px-3.5 py-2.5 rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm resize-none" rows="3">Chiếc đầm midi được cắt may cho chuyển động. Đường may chuẩn xác, chất vải crepe tái chế ôm trọn từng đường nét.</textarea>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">VI CTA Primary</label>
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-label-caps text-label-caps uppercase focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="text" value="MUA ĐẦM"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">Sync Slug</label>
+<div class="px-3 py-2 rounded bg-surface-container text-on-surface-variant text-xs font-mono truncate">/collections/eden</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">VI CTA Secondary</label>
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-label-caps text-label-caps uppercase focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="text" value="KHÁM PHÁ THƯƠNG HIỆU"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">Sync Slug</label>
+<div class="px-3 py-2 rounded bg-surface-container text-on-surface-variant text-xs font-mono truncate">/brand</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Controls & Toggles Row -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+<!-- Hero Gradient Toggle -->
+<div class="p-4 rounded-lg bg-surface-container-low flex items-center justify-between shadow-sm">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">Hero Scrim Gradient</span>
+<span class="font-body-md text-xs text-on-surface-variant">High-contrast legibility veil</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-surface-container-lowest after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Carousel Mode Toggle & Timing -->
+<div class="p-4 rounded-lg bg-surface-container-low flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">Auto Carousel</span>
+<span class="px-2 py-0.5 rounded bg-primary text-on-primary font-label-caps text-[10px]">ENABLED</span>
+</div>
+<div class="flex items-center gap-2 mt-2">
+<span class="font-body-md text-xs text-on-surface-variant">Interval:</span>
+<input class="w-14 px-2 py-1 rounded bg-surface-container-lowest text-on-surface text-center font-bold focus:outline-none" max="10" min="1" type="number" value="2"/>
+<span class="font-label-caps text-label-caps text-on-surface-variant">SEC</span>
+</div>
+</div>
+<!-- Hero Text Color Swatch -->
+<div class="p-4 rounded-lg bg-surface-container-low flex items-center justify-between shadow-sm">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">Accent Text Tint</span>
+<span class="font-mono text-xs text-on-surface-variant uppercase">#F6AFCE</span>
+</div>
+<div class="w-8 h-8 rounded-full shadow-inner cursor-pointer" style="background-color: #F6AFCE;"></div>
+</div>
+</div>
+<!-- Active Hero Media & Multi-slide Gallery -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold tracking-widest">Active Carousel Slides (3)</span>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-surface-container hover:bg-surface-container-high text-primary font-label-caps text-label-caps uppercase transition-colors">
+<span class="material-symbols-outlined text-[16px]">add_photo_alternate</span>
+<span>+ Add Slide / Image</span>
+</button>
+</div>
+<!-- Master Anchor Slide -->
+<div class="p-4 rounded-lg bg-surface-container-low flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-28 h-20 rounded overflow-hidden shadow-sm flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="High luxury editorial photograph of a female model wearing an elegant tennis dress on an open lawn court, dramatic morning lighting, minimalist editorial atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBU8C4wNxtUkYpaz9wpxi-r9FYM-gqc0H88D8YW5-fYRcXrd5ZnVEMW_879-BPmOwrjeH-18rSrqK5aIbqyVwed-_bXR2krh3in2VO2uP5-0FFyOcqcd3wQ6E2j4nBsD2jCcR1bveoavIIvj7n8wB7xzo3XDkqZYvHDYiACpL7TJtkQ0lgQ5l59r-R_LAi1IyLrCi-Iw0B4JqEjtkfNnHjtL72w1FHdHVGxgSt3EJe1HuyjddJE3__l"/>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-primary text-on-primary font-label-caps text-[10px]">PRIMARY ANCHOR</span>
+<span class="font-label-caps text-label-caps text-primary font-bold truncate">eden-master-campaign-01.webp</span>
+</div>
+<span class="font-body-md text-xs text-on-surface-variant mt-1">2880 × 1620 px • 420 KB (WebP Edge-Ready)</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-caps text-label-caps uppercase shadow-sm transition-colors">Change</button>
+<button class="px-3 py-1.5 rounded hover:bg-error-container text-on-surface-variant hover:text-on-error-container font-label-caps text-label-caps uppercase transition-colors">Clear</button>
+</div>
+</div>
+<!-- Slide Thumbs Array -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<!-- Slide 1 -->
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col gap-2 relative group">
+<div class="w-full h-28 rounded overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Female tennis athlete in a sky blue bespoke pleated tennis dress holding a graphite racquet on clay court under soft warm light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJcgW1PuaX_28vL2yEk3FdAPorpJOJaF3U9l9Y1kGQDwCBYCeaZf8_v-mc1aHDKkcdBd3pso5pDU-i5cMfCZbW7S1ZdDl0rsocpFc8riZZRG7llbnOI1alf3VN6wwq4bwmLx_R8Ijl_SREGv0Ep2J77a6T19F_0Q3HYtvZRgXVVfQD3nzCGg0G2IAwsocJdLa1sTqOSwf-L1MMLgxhXJDHRaov-gnZl70F0YAeaLUk51JPzc4RtcCC"/>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col min-w-0">
+<span class="font-label-caps text-label-caps uppercase text-primary truncate">Slide 01: Eden Blue</span>
+<span class="font-body-md text-[11px] text-on-surface-variant font-mono">eden-blue-front.jpg</span>
+</div>
+<button class="p-1 rounded text-on-surface-variant hover:text-error transition-colors" title="Remove">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Slide 2 -->
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col gap-2 relative group">
+<div class="w-full h-28 rounded overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Tennis maison model wearing a forest green aerodynamic dress walking along a manicured stadium grass court, natural overcast daylight." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaoYpWTb4GYmJr6tP0AegEnPfnfaxg3XG2rOUffKX42r1-234QL17nvakE5CEYImJJU4ekxEugD49zDYtETXdrAWRQykAaPwy_XxjCp9QcTsF-zDFkbiOyfhErSNJA90ept2Uv3uy_pb5mGc-LR3ySMCXl2PIrVBzwmFxNThj3Pbv3DsVq39trxDIOPy0GAgo3OEXh9AEikFafAe3Qk1bckO-E3hvzgTBdTn8l3H_jn2xG5wRzZPzI"/>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col min-w-0">
+<span class="font-label-caps text-label-caps uppercase text-primary truncate">Slide 02: Eden Green</span>
+<span class="font-body-md text-[11px] text-on-surface-variant font-mono">eden-green-side.jpg</span>
+</div>
+<button class="p-1 rounded text-on-surface-variant hover:text-error transition-colors" title="Remove">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Slide 3 -->
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col gap-2 relative group">
+<div class="w-full h-28 rounded overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Chic editorial close up portrait of a tennis dress in pale dusty rose crepe with delicate athletic micro-perforations." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGACPOHWRn-e0yaaGkK-mFEILW5IqP4Cp4DpIy94DfrSVMUqb8K2OcKpq_rGM32FUmAJYdK74K4XaFfVLvFVIDqI0UBu5f5t5ttxQ1P774EFV2H0s7eaFzcc0ZGnYaMn7xzHbw05su7k3_mF0P7nFXnj_Tjovl2JA9cO6TjmNDuqVvCW5dDVkraIPlsO3IRSLghSuFsrUdxuL7TEUwEmGQDmSQlWIjKvxsdXKrzmD8KDLMRYTsvRB8"/>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col min-w-0">
+<span class="font-label-caps text-label-caps uppercase text-primary truncate">Slide 03: Eden Pink</span>
+<span class="font-body-md text-[11px] text-on-surface-variant font-mono">eden-blush-cut.jpg</span>
+</div>
+<button class="p-1 rounded text-on-surface-variant hover:text-error transition-colors" title="Remove">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Hero Color Customizer (Prestige Tokens) -->
+<div class="p-6 rounded-lg bg-surface-container-low flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold tracking-widest">Editorial Color Tokens (Direct Storefront CSS Injection)</span>
+<button class="font-label-caps text-label-caps uppercase text-on-surface-variant hover:text-primary transition-colors">Reset Colors</button>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+<div class="flex flex-col gap-1.5 p-3 rounded bg-surface-container-lowest shadow-sm">
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant">Kicker BG</span>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded shadow-inner" style="background-color: #1c1917;"></div>
+<span class="font-mono text-xs uppercase font-bold text-on-surface">#1C1917</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5 p-3 rounded bg-surface-container-lowest shadow-sm">
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant">Kicker Text</span>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded shadow-inner" style="background-color: #ffd700;"></div>
+<span class="font-mono text-xs uppercase font-bold text-on-surface">#FFD700</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5 p-3 rounded bg-surface-container-lowest shadow-sm">
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant">Hero Title</span>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded shadow-inner bg-surface-container-lowest"></div>
+<span class="font-mono text-xs uppercase font-bold text-on-surface">#FFFFFF</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5 p-3 rounded bg-surface-container-lowest shadow-sm">
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant">Hero Subtitle</span>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded shadow-inner" style="background-color: #e5e7eb;"></div>
+<span class="font-mono text-xs uppercase font-bold text-on-surface">#E5E7EB</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5 p-3 rounded bg-surface-container-lowest shadow-sm">
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant">Primary Button BG</span>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded shadow-inner" style="background-color: #004225;"></div>
+<span class="font-mono text-xs uppercase font-bold text-on-surface">#004225</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5 p-3 rounded bg-surface-container-lowest shadow-sm">
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant">Primary Button Text</span>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded shadow-inner bg-surface-container-lowest"></div>
+<span class="font-mono text-xs uppercase font-bold text-on-surface">#FFFFFF</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5 p-3 rounded bg-surface-container-lowest shadow-sm">
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant">Secondary BG</span>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded shadow-inner bg-surface-container"></div>
+<span class="font-mono text-xs uppercase font-bold text-on-surface">TRANS</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5 p-3 rounded bg-surface-container-lowest shadow-sm">
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant">Secondary Border</span>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded shadow-inner bg-surface-container-lowest"></div>
+<span class="font-mono text-xs uppercase font-bold text-on-surface">#FFFFFF</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- MODULE 02: TRENDING CAPSULES & LATEST DROPS -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col gap-8">
+<div class="flex items-center justify-between pb-4">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-label-caps text-label-caps">M2</span>
+<div>
+<h2 class="font-headline-md text-headline-md uppercase tracking-tight text-primary">Trending Capsules &amp; Latest Drops</h2>
+<p class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-wider">Dynamic Storefront Product Ribbons</p>
+</div>
+</div>
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Auto-Syncd with PIM</span>
+</div>
+<!-- Section Headers Form -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col gap-4 p-5 rounded-lg bg-surface-container-low">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">Trending Capsule Header</span>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">EN Capsule Label</label>
+<input class="px-3.5 py-2.5 rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="text" value="THE EDEN COLLECTION"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">VI Capsule Label</label>
+<input class="px-3.5 py-2.5 rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="text" value="BỘ SƯU TẬP EDEN"/>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">View All (EN)</label>
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-label-caps text-label-caps uppercase focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="text" value="VIEW ALL"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">View All (VI)</label>
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-label-caps text-label-caps uppercase focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="text" value="XEM TẤT CẢ"/>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-4 p-5 rounded-lg bg-surface-container-low">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">Latest Drops Ribbon Header</span>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">EN Ribbon Title</label>
+<input class="px-3.5 py-2.5 rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="text" value="LATEST DROPS"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">VI Ribbon Title</label>
+<input class="px-3.5 py-2.5 rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="text" value="SẢN PHẨM MỚI"/>
+</div>
+<div class="p-3 rounded bg-surface-container text-xs text-on-surface-variant leading-relaxed">
+<span class="font-bold text-primary uppercase font-label-caps text-label-caps block mb-1">Algorithmic Manifest Notice</span>
+              Trending collections = marked FEATURED in Collections suite. Latest drops = most recently published SKUs with inventory &gt; 0.
+            </div>
+</div>
+</div>
+<!-- Manifest Slot Ribbon Previews -->
+<div class="flex flex-col gap-3">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold tracking-widest">Active Manifest Preview (Top 4 Featured Slots)</span>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<!-- Slot 1 -->
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col gap-2 relative">
+<span class="absolute top-4 left-4 z-10 px-2 py-0.5 rounded bg-primary text-on-primary font-label-caps text-[10px]">#01</span>
+<div class="w-full h-36 rounded overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Bespoke pleated tennis dress in pure white with subtle emerald trim, laid out on a clean minimalist studio surface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_sxdRvhEIpAcvNEwjYF03-U4wrpyh_QD1siUA1VwSZoKun_nPRut7PFAvaJTLCnirRXUxTOegQipjDvPCem3y4oBkuBjHT8BLiPLv1qze6NomO1J7eNOKE1PL_prggcWPEf0bYBGKR2XZpcvW2AHhDw2mjXT_e-EiOmO6UCVKTkjHOv1MXG4Vl1yIx6KHAZ0euhmGTtbr-X9jbcAaNP3uzPJpoRnwGragRi3Ob3MzipTED5g9I4Mj"/>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps uppercase text-primary truncate">Eden Pleated Dress</span>
+<span class="font-mono text-xs text-on-surface-variant">SKU-APX-882</span>
+</div>
+</div>
+<!-- Slot 2 -->
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col gap-2 relative">
+<span class="absolute top-4 left-4 z-10 px-2 py-0.5 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px]">#02</span>
+<div class="w-full h-36 rounded overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Technical tennis court visor in matte cream colorway with embroidered luxury apex branding." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDtVC4qcF4TTvvhw4WqjYc5nyT6ErYDL8lIHLVpRyLowUIMpaIFK6gJwD6tLE60xihUPOhtLarF2bVvI60KFsG3RJLA2kjOfVZ9x6nk7o8cNTV2gBRQAdvP1YVu8m91VK3E1easMAfORPO5bZfAsaxwpz6LH_0K16E7_F_xjnkk7yK0n1nK9VyULwmyBHNFHGY60tk4uf847HX26tFUcTeMnz6V7UVaifuu-qZwGOTkgZ2JEmoAM1T"/>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps uppercase text-primary truncate">Club Court Visor</span>
+<span class="font-mono text-xs text-on-surface-variant">SKU-APX-914</span>
+</div>
+</div>
+<!-- Slot 3 -->
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col gap-2 relative">
+<span class="absolute top-4 left-4 z-10 px-2 py-0.5 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px]">#03</span>
+<div class="w-full h-36 rounded overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Minimalist luxury tennis tote bag made of treated canvas with leather trim, studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW6T1BKi8xTiBEhbsixlxD5hm07YvLGnKaBjFQCjXxPk5kShaRmikdSsQ7jR8rFTuLdDxbQM_mM_o2xdjCoNQJa68Sth_zZzQex5yknd4rdWyPS7xKQq7hAciv6Bw2g_AC3mxeSKe7A5Lm2z8hvh6YaH6HO5BThXqaoFfx4MWpsZ8cBgNwaVKsCClcPKRnSX7sze28BYjIPnqkWVga0x_vMXPQXy7IoHDw2cMMMHLjZ2W8FtVKqFoT"/>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps uppercase text-primary truncate">Monogram Court Holdall</span>
+<span class="font-mono text-xs text-on-surface-variant">SKU-APX-301</span>
+</div>
+</div>
+<!-- Slot 4 -->
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col gap-2 relative">
+<span class="absolute top-4 left-4 z-10 px-2 py-0.5 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px]">#04</span>
+<div class="w-full h-36 rounded overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Pair of ultra-light court tennis shoes with gum sole and white engineered mesh uppers on stone pedestals." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyX78a2-T5hJKX-oTp6EkJXNCfxEDCWAaldAxFcqG2Ah8XjryJTT3cLvBfO5bmJnXWSv5pRUw6Kh8y2lUW8Lp8MSqIcsSwUETWR1p4AK_lHq93jU5MGJEbtS0Yi0o8WJJXDyMB-CmttFAg1w0pzESOAdy1RVWT56qY3-Q4P5efhpFI00lruUVtuNfoLt6hI3yN2aIpcDv3-_WO1UJ1EBlHZR5HnKZd5xYZzuo0uYtvH0f6r3klvf5K"/>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps uppercase text-primary truncate">Vantage Pro Sneaker</span>
+<span class="font-mono text-xs text-on-surface-variant">SKU-APX-410</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- MODULE 03: MASTER SECTION (THE EDEN DRESS & FEATURE MATRIX) -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col gap-8">
+<div class="flex items-center justify-between pb-4">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-label-caps text-label-caps">M3</span>
+<div>
+<h2 class="font-headline-md text-headline-md uppercase tracking-tight text-primary">Master Monograph Section</h2>
+<p class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-wider">The Eden Dress Feature Matrix &amp; Haute Storytelling</p>
+</div>
+</div>
+<span class="font-label-caps text-label-caps uppercase px-3 py-1 bg-surface-container-high rounded text-on-surface font-bold">Featured Pillar</span>
+</div>
+<!-- Master Section Title -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">Master Title (EN)</label>
+<input class="px-3.5 py-2.5 rounded bg-surface-container-low text-on-surface font-headline-md text-headline-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm tracking-tight" type="text" value="THE EDEN DRESS"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">Master Title (VI)</label>
+<input class="px-3.5 py-2.5 rounded bg-surface-container-low text-on-surface font-headline-md text-headline-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm tracking-tight" type="text" value="ĐẦM EDEN"/>
+</div>
+</div>
+<!-- Master Media Card -->
+<div class="p-4 rounded-lg bg-surface-container-low flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-32 h-24 rounded overflow-hidden shadow-sm flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Full body haute couture tennis editorial of a professional female player mid-serve wearing the Eden dress, high contrast monochrome photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl0E9UdMzeO663NWCN_F7GZ8mcsFU1Ap7JVfeX7qGjfH03BSZUsBow0sCr8QQp-HwAZzK0tLNtIGHRzCOoZZ7SW7Sadeh_1FAy-bGPQUQKvwdqEB7Q3P3dmGCEOFuHnxnzvSPZWNMULYlLkFZ7s6wUimGx3LgoifU1ea6go1Zwyt1kIOSMO-7e7QBlNF4DIB3O6wCKuR9eqqDcSpEemmfhedvCH30kOBtjBtj0UXXLRDZRg4444pmd"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold truncate">eden-monograph-feature-portrait.jpg</span>
+<span class="font-body-md text-xs text-on-surface-variant mt-0.5">2400 × 3200 px (Portrait 3:4) • Editorial Quality</span>
+<span class="font-mono text-xs text-primary mt-1">Status: Optimized for Retina &amp; Ultra-wide</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-4 py-2 rounded bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-caps text-label-caps uppercase shadow-sm transition-colors">Change Asset</button>
+<button class="px-4 py-2 rounded hover:bg-error-container text-on-surface-variant hover:text-on-error-container font-label-caps text-label-caps uppercase transition-colors">Clear</button>
+</div>
+</div>
+<!-- Editorial Description Dual Area -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">Editorial Monograph Narrative (EN)</label>
+<textarea class="px-3.5 py-2.5 rounded bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm resize-none" rows="4">Constructed with high-tension bonded seams and French recycled crepe, The Eden Dress redefines court attire for the modern athlete who commands elegance without compromise.</textarea>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant">Editorial Monograph Narrative (VI)</label>
+<textarea class="px-3.5 py-2.5 rounded bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm resize-none" rows="4">Được hoàn thiện với các đường nối ngoại biên áp lực cao cùng chất liệu crepe Pháp tái chế, Đầm Eden tái định hình trang phục sân đấu cho những vận động viên đề cao sự thanh lịch.</textarea>
+</div>
+</div>
+<!-- Featured Technical List Matrix -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold tracking-widest">Featured Technical Matrix (3 Attributes)</span>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-surface-container hover:bg-surface-container-high text-primary font-label-caps text-label-caps uppercase transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span>+ Add Feature Spec</span>
+</button>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Spec 01 -->
+<div class="p-3.5 rounded-lg bg-surface-container-low flex flex-col sm:flex-row items-center gap-3">
+<span class="font-mono text-xs font-bold text-primary w-8 text-center">01</span>
+<div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-label-caps text-label-caps uppercase shadow-sm focus:outline-none focus:ring-1 focus:ring-primary" type="text" value="LIGHTWEIGHT BREATHABILITY"/>
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-label-caps text-label-caps uppercase shadow-sm focus:outline-none focus:ring-1 focus:ring-primary" type="text" value="THOÁNG KHÍ NHẸ NHÀNG"/>
+</div>
+<button class="p-2 rounded text-on-surface-variant hover:text-error transition-colors" title="Remove">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<!-- Spec 02 -->
+<div class="p-3.5 rounded-lg bg-surface-container-low flex flex-col sm:flex-row items-center gap-3">
+<span class="font-mono text-xs font-bold text-primary w-8 text-center">02</span>
+<div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-label-caps text-label-caps uppercase shadow-sm focus:outline-none focus:ring-1 focus:ring-primary" type="text" value="PRECISION TAILORING"/>
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-label-caps text-label-caps uppercase shadow-sm focus:outline-none focus:ring-1 focus:ring-primary" type="text" value="MAY ĐO CHÍNH XÁC"/>
+</div>
+<button class="p-2 rounded text-on-surface-variant hover:text-error transition-colors" title="Remove">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<!-- Spec 03 -->
+<div class="p-3.5 rounded-lg bg-surface-container-low flex flex-col sm:flex-row items-center gap-3">
+<span class="font-mono text-xs font-bold text-primary w-8 text-center">03</span>
+<div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-label-caps text-label-caps uppercase shadow-sm focus:outline-none focus:ring-1 focus:ring-primary" type="text" value="FOUR-WAY STRETCH"/>
+<input class="px-3 py-2 rounded bg-surface-container-lowest text-on-surface font-label-caps text-label-caps uppercase shadow-sm focus:outline-none focus:ring-1 focus:ring-primary" type="text" value="GIÃN BỐN CHIỀU"/>
+</div>
+<button class="p-2 rounded text-on-surface-variant hover:text-error transition-colors" title="Remove">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- RIGHT / LIVE STAGING SIMULATOR & EDGE PIPELINE (5 cols) -->
+<div class="xl:col-span-5 flex flex-col gap-8 sticky top-28">
+<!-- Interactive 1080p Simulated Live Viewport -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-md flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">1080P Staging Viewport</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Scale: 1:1 Live</span>
+<div class="flex items-center gap-1 bg-surface-container-low p-1 rounded">
+<button class="p-1 rounded bg-surface-container-lowest text-primary shadow-sm"><span class="material-symbols-outlined text-[16px]">desktop_windows</span></button>
+<button class="p-1 rounded text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[16px]">phone_iphone</span></button>
+</div>
+</div>
+</div>
+<!-- Rendered Storefront Hero Simulation Window -->
+<div class="relative w-full aspect-[16/10] rounded-lg overflow-hidden shadow-lg group bg-primary">
+<!-- Background image with simulated grass court & model -->
+<div class="absolute inset-0 bg-cover bg-center transition-all duration-700 group-hover:scale-105" data-alt="Bespoke luxury tennis apparel campaign shot on a sun-drenched private grass court with pristine white sideline chalk and vintage wooden benches in the soft background blur." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDVGPJYhUTxXCrKwzNMppQSp9q10UoBtpndSzU4Nt6KbgArhr1v50TUO0WJyo5nEHRDgyIUp2bEk3325dyaWPSfBod5weyoGxFjdjVNRIp98e1vWG-szMI7O0wbe_a7yC5cqEXHuXl7WytMtmnl7ECh4jWwmJewpIZF_N2C6ip6kobiRJyyiSYMuScjVdy24kwCvnnBBOa3NTpErUyzcfU4-0FNoHKTQ1EhGIOscncw3wNSNQDxxOVO')">
+<!-- Hero Scrim Gradient (Configured in Form) -->
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent"></div>
+</div>
+<!-- Staged Editorial Overlays -->
+<div class="absolute inset-0 p-6 flex flex-col justify-end text-on-primary">
+<!-- Staged Kicker with tokens -->
+<div class="mb-2">
+<span class="px-2.5 py-1 text-[10px] font-label-caps tracking-widest uppercase rounded shadow-sm" style="background-color: #1c1917; color: #ffd700;">
+                EDEN COLLECTION
+              </span>
+</div>
+<!-- Staged Title -->
+<h3 class="font-display-lg text-3xl font-extrabold uppercase tracking-tight text-on-primary drop-shadow-sm">
+              THE EDEN DRESS
+            </h3>
+<!-- Staged Subtitle -->
+<p class="font-body-md text-xs text-secondary-fixed max-w-sm mt-1 line-clamp-2">
+              A midi dress cut for movement. Precision seams, recycled crepe, and a drape that follows every line.
+            </p>
+<!-- Staged Action Buttons with active tokens -->
+<div class="flex items-center gap-3 mt-4">
+<button class="px-4 py-2 text-[11px] font-label-caps uppercase tracking-wider rounded font-bold shadow-md transition-transform hover:scale-105" style="background-color: #004225; color: #ffffff;">
+                SHOP THE DRESS
+              </button>
+<button class="px-4 py-2 text-[11px] font-label-caps uppercase tracking-wider rounded font-bold backdrop-blur-sm transition-transform hover:scale-105" style="background-color: transparent; color: #ffffff; border: 1px solid #ffffff;">
+                EXPLORE THE BRAND
+              </button>
+</div>
+<!-- Staged 2s Interval Dots Indicator -->
+<div class="flex items-center gap-1.5 mt-4 self-center">
+<div class="w-6 h-1 rounded-full bg-on-primary"></div>
+<div class="w-2 h-1 rounded-full bg-on-primary/40"></div>
+<div class="w-2 h-1 rounded-full bg-on-primary/40"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between text-xs text-on-surface-variant font-mono">
+<span>Viewport: 1440 × 900 Staged</span>
+<span>Latency: 42ms (Edge CDN)</span>
+</div>
+</div>
+<!-- Edge CDN & Fastly Pipeline Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold tracking-widest">Global Edge Pipeline &amp; CDN</span>
+<span class="px-2 py-0.5 rounded bg-primary text-on-primary font-label-caps text-[10px]">CACHE WARM</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-3 rounded bg-surface-container-low flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">WebP Compression</span>
+<span class="font-headline-md text-xl font-bold text-primary mt-1">94.8% Opt</span>
+<span class="text-xs text-on-surface-variant">AVIF Fallback Active</span>
+</div>
+<div class="p-3 rounded bg-surface-container-low flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Global Nodes</span>
+<span class="font-headline-md text-xl font-bold text-primary mt-1">284 PoPs</span>
+<span class="text-xs text-on-surface-variant">Singapore, Tokyo, Paris</span>
+</div>
+</div>
+<button class="w-full py-2.5 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-label-caps text-label-caps uppercase tracking-wider transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[16px]">cached</span>
+<span>Instant Purge Staging Cache</span>
+</button>
+</div>
+<!-- Bilingual Localization Health Meter -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold tracking-widest">Localization Health</span>
+<span class="font-mono text-xs font-bold text-primary">100% COMPLETE</span>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-xs">
+<span class="font-label-caps uppercase text-on-surface-variant">English (Master Source)</span>
+<span class="font-mono font-bold text-primary">12/12 Fields Filled</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container overflow-hidden">
+<div class="w-full h-full bg-primary"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-xs">
+<span class="font-label-caps uppercase text-on-surface-variant">Tiếng Việt (Localized Copy)</span>
+<span class="font-mono font-bold text-primary">12/12 Fields Synced</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container overflow-hidden">
+<div class="w-full h-full bg-primary"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Drag-and-Drop Media Vault Uplink -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col gap-3">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold tracking-widest">Direct Media Ingestion</span>
+<div class="p-8 rounded-lg bg-surface-container-low flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant mb-2">cloud_upload</span>
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">Drop High-Res Asset Here</span>
+<span class="font-body-md text-xs text-on-surface-variant mt-1">Accepts TIFF, RAW, WebP, PNG up to 50MB</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple interactive preview confirmation trigger
+  document.getElementById('previewBtn')?.addEventListener('click', function() {
+    alert('Simulated Live Viewport updated with latest form staging parameters.');
+  });
+</script></main></div></body></html>

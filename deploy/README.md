@@ -176,12 +176,35 @@ Your `.env` is kept on the VPS and is **not** overwritten by the zip.
 
 ## 6. Backup & restore
 
-Your data lives in Docker volumes, not the repo:
+Your **application data** lives in Docker volumes, not the repo:
 
-- `inspoxbaseline_backend-data` → `/data/inspo.db` (SQLite database)
-- `inspoxbaseline_minio-data` → `/data/inspo-media` (uploaded images)
+- `inspoxbaseline_backend-data` → `/data/inspo.db` (SQLite — **all tenants**: shop1, baseline, products, CMS, blog, admin users, settings)
+- `inspoxbaseline_minio-data` → `/data/inspo-media` (every uploaded image referenced by the DB)
 
-`deploy/package.sh` already bundles both. For an on-VPS backup without a full package:
+### Export everything (dev machine)
+
+```bash
+docker compose up -d
+bash deploy/export-data.sh    # writes deploy/backup/{inspo.db,minio-data.tar.gz,manifest.json}
+bash deploy/verify-backup.sh  # optional sanity check
+```
+
+Copy `deploy/backup/` somewhere safe (Time Machine, cloud drive). It is gitignored.
+
+### Restore on the same machine (factory reset)
+
+Wipes local Docker volumes and re-imports the backup — same as “start from this snapshot”:
+
+```bash
+bash deploy/restore-from-backup.sh        # prompts
+bash deploy/restore-from-backup.sh --yes  # no prompt
+```
+
+On a VPS after deploy, use `bash deploy/import-data.sh` only (volumes are already empty on first boot).
+
+**Not included in backup:** `.env` / production secrets, `SampleImages/` (source files; objects are in MinIO), or code. Re-run `deploy/package.sh` if you need a deploy zip with code + backup.
+
+`deploy/package.sh` already bundles both artifacts into `inspo-deploy.zip`. For an on-VPS backup without a full package:
 
 ```bash
 docker exec inspo-backend python -c "import sqlite3; s=sqlite3.connect('/data/inspo.db'); d=sqlite3.connect('/data/bak.db'); s.backup(d); d.close(); s.close()"

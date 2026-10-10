@@ -1,6 +1,6 @@
 services:
   minio:
-    image: minio/minio:RELEASE.2025-01-20T14-49-07Z
+    image: quay.io/minio/minio:latest
     container_name: inspo-minio
     command: server /data --console-address ":9001"
     environment:

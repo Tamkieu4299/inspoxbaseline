@@ -75,12 +75,19 @@ SIZES = ["XS", "S", "M", "L", "XL", "XXL"]
 
 def _upload_bytes(db, relpath: str, tenant_id: int) -> Media:
     path = IMAGES_DIR / relpath
-    existing = db.scalar(select(Media).where(Media.filename == path.name))
+    existing = db.scalar(
+        select(Media).where(Media.filename == path.name, Media.tenant_id == tenant_id)
+    )
     if existing is not None:
-        if existing.tenant_id is None:
-            existing.tenant_id = tenant_id
-            db.commit()
         return existing
+    # Legacy rows (filename only, wrong tenant): do not attach baseline assets to shop1.
+    orphan = db.scalar(
+        select(Media).where(Media.filename == path.name, Media.tenant_id.is_(None))
+    )
+    if orphan is not None:
+        orphan.tenant_id = tenant_id
+        db.commit()
+        return orphan
     content_type = "image/png" if path.suffix.lower() == ".png" else "image/jpeg"
     return save_file(db, path.read_bytes(), path.name, content_type, tenant_id=tenant_id)
 

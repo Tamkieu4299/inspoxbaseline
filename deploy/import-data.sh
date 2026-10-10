@@ -23,6 +23,11 @@ if [ ! -f "$BACKUP/inspo.db" ] || [ ! -f "$BACKUP/minio-data.tar.gz" ]; then
   exit 1
 fi
 
+echo "Clearing existing MinIO bucket (clean restore)..."
+docker run --rm \
+  --volumes-from inspo-minio \
+  alpine sh -c 'rm -rf /data/inspo-media'
+
 echo "Restoring MinIO media..."
 docker run --rm \
   --volumes-from inspo-minio \

@@ -1,108 +1,109 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import type { Media, Product } from "../types";
 import ImageCropModal from "./ImageCropModal";
-import ProductGallery from "../components/ProductGallery";
 import { MediaPicker } from "./MediaLibrary";
-import { Checkbox, DangerButton, Field, PrimaryButton, SecondaryButton, Select, TextArea, TextInput, ViArea, ViInput } from "./ui";
+import { ProductEditorForm } from "./ProductEditorForm";
+import {
+  blankProductDraft,
+  liveStatus,
+  productToDraft,
+  skuFromSlug,
+  viCompleteness,
+  type ProductDraft,
+} from "./productDraft";
 import { useLanguage } from "../i18n";
 
-interface Draft {
-  id?: number;
-  slug: string;
-  name: string;
-  name_vi: string;
-  subtitle: string;
-  subtitle_vi: string;
-  description: string;
-  description_vi: string;
-  price: number;
-  category_id: number | "";
-  collection_id: number | "";
-  badge: string;
-  gallery_layout: string;
-  colors: { name: string; hex: string }[];
-  sizes: string[];
-  tech_specs: { label: string; value: string; label_vi: string; value_vi: string }[];
-  features: { icon: string; title: string; description: string; title_vi: string; description_vi: string }[];
-  is_active: boolean;
-  is_featured: boolean;
-  is_bestseller: boolean;
-  images: { media_id?: number; url: string; alt: string; position: number; enabled: boolean }[];
+function CatalogSelect({
+  value,
+  onChange,
+  children,
+  icon = "expand_more",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  children: React.ReactNode;
+  icon?: string;
+}) {
+  return (
+    <div className="relative inline-block text-left">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="appearance-none bg-surface-container-lowest font-label text-label-caps uppercase text-on-surface px-4 py-2.5 pr-8 rounded cursor-pointer focus:outline-none border-0"
+      >
+        {children}
+      </select>
+      <span className="material-symbols-outlined absolute right-2 top-2.5 pointer-events-none text-[16px] text-secondary">
+        {icon}
+      </span>
+    </div>
+  );
 }
 
-function blankDraft(): Draft {
-  return {
-    slug: "",
-    name: "",
-    name_vi: "",
-    subtitle: "",
-    subtitle_vi: "",
-    description: "",
-    description_vi: "",
-    price: 0,
-    category_id: "",
-    collection_id: "",
-    badge: "",
-    gallery_layout: "collage",
-    colors: [{ name: "OPTIC WHITE", hex: "#ffffff" }],
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    tech_specs: [],
-    features: [],
-    is_active: true,
-    is_featured: false,
-    is_bestseller: false,
-    images: [],
-  };
+function KpiPill({
+  label,
+  value,
+  icon,
+  tone = "default",
+}: {
+  label: string;
+  value: number | string;
+  icon: string;
+  tone?: "default" | "error";
+}) {
+  const valueCls = tone === "error" ? "text-error" : "text-primary";
+  const iconWrap =
+    tone === "error" ? "bg-error-container text-error" : "bg-surface-container text-primary";
+  return (
+    <div className="bg-surface-container-low p-4 rounded flex items-center justify-between">
+      <div className="flex flex-col">
+        <span className={`font-label text-label-caps uppercase ${tone === "error" ? "text-error" : "text-secondary"}`}>
+          {label}
+        </span>
+        <span className={`font-headline text-headline-md ${valueCls} mt-1`}>{value}</span>
+      </div>
+      <div className={`w-10 h-10 rounded-full ${iconWrap} flex items-center justify-center`}>
+        <span className="material-symbols-outlined text-[20px]">{icon}</span>
+      </div>
+    </div>
+  );
 }
 
-function toDraft(p: Product): Draft {
-  return {
-    id: p.id,
-    slug: p.slug,
-    name: p.name,
-    name_vi: p.name_vi || "",
-    subtitle: p.subtitle || "",
-    subtitle_vi: p.subtitle_vi || "",
-    description: p.description || "",
-    description_vi: p.description_vi || "",
-    price: p.price,
-    category_id: p.category_id ?? "",
-    collection_id: p.collection_id ?? "",
-    badge: p.badge || "",
-    gallery_layout: p.gallery_layout || "collage",
-    colors: (p.colors || []).map((c) =>
-      typeof c === "string" ? { name: c, hex: "#ffffff" } : { name: c.name || "", hex: c.hex || "#ffffff" }
-    ),
-    sizes: p.sizes || [],
-    tech_specs: (p.tech_specs || []).map((s) => ({
-      label: s.label || "",
-      value: s.value || "",
-      label_vi: s.label_vi || "",
-      value_vi: s.value_vi || "",
-    })),
-    features: (p.features || []).map((f) => ({
-      icon: f.icon || "",
-      title: f.title || "",
-      description: f.description || "",
-      title_vi: f.title_vi || "",
-      description_vi: f.description_vi || "",
-    })),
-    is_active: p.is_active,
-    is_featured: p.is_featured,
-    is_bestseller: p.is_bestseller,
-    images: (p.images || []).map((i) => ({
-      media_id: i.media_id || undefined,
-      url: i.url,
-      alt: i.alt || "",
-      position: i.position,
-      enabled: i.enabled !== false,
-    })),
-  };
+function StatusBadge({ product }: { product: Product }) {
+  const { t } = useLanguage();
+  const status = liveStatus(product);
+  const map = {
+    active: {
+      cls: "bg-surface-container text-on-surface",
+      dot: "bg-primary",
+      label: t("admin.catalog.statusActive"),
+    },
+    limited: {
+      cls: "bg-primary text-on-primary",
+      dot: "bg-surface-container-lowest animate-pulse",
+      label: t("admin.catalog.statusLimited"),
+    },
+    scheduled: {
+      cls: "bg-surface-container text-secondary",
+      dot: "bg-secondary",
+      label: t("admin.catalog.statusScheduled"),
+    },
+    draft: {
+      cls: "bg-surface-container-high text-secondary",
+      dot: "bg-secondary",
+      label: t("admin.catalog.statusDraft"),
+    },
+  }[status];
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded font-label text-label-caps uppercase ${map.cls}`}>
+      <span className={`w-2 h-2 rounded-full ${map.dot}`} />
+      {map.label}
+    </span>
+  );
 }
-
-const BADGES = ["", "NEW", "LIMITED", "BESTSELLER", "NEW ARRIVAL"];
 
 export default function ProductsTab() {
   const { t } = useLanguage();
@@ -110,28 +111,34 @@ export default function ProductsTab() {
   const { data: products, isLoading } = useQuery({ queryKey: ["admin-products"], queryFn: adminApi.getProducts });
   const { data: categories } = useQuery({ queryKey: ["admin-categories"], queryFn: adminApi.getCategories });
   const { data: collections } = useQuery({ queryKey: ["admin-collections"], queryFn: adminApi.getCollections });
-  const { data: media } = useQuery({ queryKey: ["admin-media"], queryFn: adminApi.getMedia });
 
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | "new">();
-  const [draft, setDraft] = useState<Draft | null>(null);
+  const [draft, setDraft] = useState<ProductDraft | null>(null);
   const [pickImageFor, setPickImageFor] = useState<number | null>(null);
   const [cropTarget, setCropTarget] = useState<number | null>(null);
   const [selectedCell, setSelectedCell] = useState<number | null>(null);
+
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [collectionFilter, setCollectionFilter] = useState("all");
+  const [localeFilter, setLocaleFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [checked, setChecked] = useState<Set<number>>(new Set());
+  const [exportState, setExportState] = useState<"idle" | "busy" | "done">("idle");
 
   const uploadMutation = useMutation({
     mutationFn: (file: File | Blob) => adminApi.uploadMedia(file),
   });
 
   const saveMutation = useMutation({
-    mutationFn: (d: Draft) =>
-      d.id
-        ? adminApi.updateProduct(d.id, d)
-        : adminApi.createProduct(d),
+    mutationFn: (d: ProductDraft) => (d.id ? adminApi.updateProduct(d.id, d) : adminApi.createProduct(d)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
       queryClient.invalidateQueries({ queryKey: ["collections"] });
-      setDraft(null);
-      setSelectedId(undefined);
+      closeDrawer();
     },
   });
 
@@ -139,17 +146,31 @@ export default function ProductsTab() {
     mutationFn: adminApi.deleteProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
-      setDraft(null);
-      setSelectedId(undefined);
+      closeDrawer();
     },
   });
 
-  function open(draft: Draft, id: number | "new") {
-    setDraft(draft);
-    setSelectedId(id);
+  const archiveMutation = useMutation({
+    mutationFn: async (p: Product) => adminApi.updateProduct(p.id, { ...productToDraft(p), is_active: false }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-products"] }),
+  });
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+    setDraft(null);
+    setSelectedId(undefined);
+    setSelectedCell(null);
+    setPickImageFor(null);
+    setCropTarget(null);
   }
 
-  function set<K extends keyof Draft>(key: K, value: Draft[K]) {
+  function openDrawer(next: ProductDraft, id: number | "new") {
+    setDraft(next);
+    setSelectedId(id);
+    setDrawerOpen(true);
+  }
+
+  function setField<K extends keyof ProductDraft>(key: K, value: ProductDraft[K]) {
     setDraft((d) => (d ? { ...d, [key]: value } : d));
   }
 
@@ -164,424 +185,575 @@ export default function ProductsTab() {
     });
   }
 
-  const mediaById = new Map((media || []).map((m) => [m.id, m]));
+  const categoryById = useMemo(() => new Map((categories || []).map((c) => [c.id, c])), [categories]);
+  const collectionById = useMemo(() => new Map((collections || []).map((c) => [c.id, c])), [collections]);
+
+  const kpis = useMemo(() => {
+    const list = products || [];
+    const active = list.filter((p) => p.is_active).length;
+    const heritage = list.filter((p) => p.is_featured || p.badge === "NEW" || p.badge === "NEW ARRIVAL").length;
+    const limited = list.filter((p) => p.badge === "LIMITED").length;
+    const drafts = list.filter((p) => !p.is_active).length;
+    return { active, heritage, limited, drafts, total: list.length };
+  }, [products]);
+
+  const filtered = useMemo(() => {
+    let list = products || [];
+    const q = search.trim().toLowerCase();
+    if (q) {
+      list = list.filter((p) => {
+        const cat = p.category_id ? categoryById.get(p.category_id)?.name : "";
+        const sku = skuFromSlug(p.slug);
+        return [p.name, p.slug, sku, cat].some((s) => (s || "").toLowerCase().includes(q));
+      });
+    }
+    if (categoryFilter !== "all") {
+      list = list.filter((p) => String(p.category_id ?? "") === categoryFilter);
+    }
+    if (collectionFilter !== "all") {
+      list = list.filter((p) => String(p.collection_id ?? "") === collectionFilter);
+    }
+    if (statusFilter === "active") list = list.filter((p) => p.is_active);
+    if (statusFilter === "draft") list = list.filter((p) => !p.is_active);
+    if (localeFilter === "vi_full") list = list.filter((p) => viCompleteness(p) === "full");
+    if (localeFilter === "vi_missing") list = list.filter((p) => viCompleteness(p) !== "full");
+    return list;
+  }, [products, search, categoryFilter, collectionFilter, statusFilter, localeFilter, categoryById]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(page, totalPages);
+  const pageItems = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  function clearFilters() {
+    setSearch("");
+    setCategoryFilter("all");
+    setStatusFilter("all");
+    setCollectionFilter("all");
+    setLocaleFilter("all");
+    setPage(1);
+  }
+
+  function toggleCheck(id: number) {
+    setChecked((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAllPage() {
+    const ids = pageItems.map((p) => p.id);
+    const allOn = ids.every((id) => checked.has(id));
+    setChecked((prev) => {
+      const next = new Set(prev);
+      ids.forEach((id) => (allOn ? next.delete(id) : next.add(id)));
+      return next;
+    });
+  }
+
+  function exportCsv() {
+    setExportState("busy");
+    const rows = filtered.map((p) => {
+      const cat = p.category_id ? categoryById.get(p.category_id)?.name : "";
+      const col = p.collection_id ? collectionById.get(p.collection_id)?.name : "";
+      return [skuFromSlug(p.slug), p.name, p.slug, cat, col, p.price, p.is_active ? "active" : "draft", p.badge || ""]
+        .map((c) => `"${String(c).replace(/"/g, '""')}"`)
+        .join(",");
+    });
+    const header = "sku,name,slug,category,collection,price,status,badge";
+    const blob = new Blob([[header, ...rows].join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "catalog-export.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+    setTimeout(() => setExportState("done"), 400);
+    setTimeout(() => setExportState("idle"), 2200);
+  }
+
+  function duplicateProduct(p: Product) {
+    const d = productToDraft(p);
+    delete d.id;
+    d.slug = `${p.slug}-copy`.slice(0, 80);
+    d.name = `${p.name} (Copy)`;
+    openDrawer(d, "new");
+  }
+
+  function productThumb(p: Product): string | null {
+    const img = p.images?.find((i) => i.enabled !== false) || p.images?.[0];
+    return img?.url || null;
+  }
+
+  function tagPills(p: Product): string[] {
+    const tags: string[] = [];
+    if (p.badge) tags.push(p.badge);
+    if (p.is_bestseller) tags.push("BESTSELLER");
+    if (p.is_featured) tags.push("FEATURED");
+    const colors = (p.colors || []).slice(0, 2).map((c) => (typeof c === "string" ? c : c.name || "")).filter(Boolean);
+    return [...tags, ...colors].slice(0, 2);
+  }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      {/* List */}
-      <div className="lg:col-span-3 flex flex-col gap-2 max-h-[70vh] overflow-auto pr-2">
-        <PrimaryButton onClick={() => open(blankDraft(), "new")}>{t("admin.newProduct")}</PrimaryButton>
-        {isLoading ? (
-          <p className="font-body text-body-md text-secondary">{t("admin.loading")}</p>
-        ) : (
-          products?.map((p) => (
+    <div className="flex flex-col w-full min-w-0 max-w-full font-body text-body-md text-on-surface bg-surface">
+      {/* Command strip */}
+      <div className="px-8 pt-8 pb-6 bg-surface-container-lowest">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <span className="font-label text-label-caps uppercase text-secondary tracking-widest">
+                {t("admin.catalog.breadcrumbDivision")}
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+              <span className="font-label text-label-caps uppercase text-secondary">{t("admin.catalog.breadcrumbManifest")}</span>
+            </div>
+            <h1 className="font-headline text-headline-lg uppercase tracking-tight text-primary">
+              {t("admin.catalog.title")}
+            </h1>
+          </div>
+          <div className="flex items-center gap-3 shrink-0 flex-wrap">
             <button
-              key={p.id}
-              onClick={() => open(toDraft(p), p.id)}
-              className={`text-left border p-2 transition-colors ${
-                selectedId === p.id ? "border-forest-green bg-white" : "border-transparent hover:border-surface-container-highest"
-              }`}
+              type="button"
+              onClick={exportCsv}
+              disabled={exportState === "busy"}
+              className="px-6 py-3 bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors font-label text-label-caps uppercase flex items-center gap-2 rounded"
             >
-              <span className="font-headline text-headline-md text-primary uppercase block truncate">{p.name}</span>
-              <span className="font-label text-label-caps text-secondary">${Math.round(p.price)}</span>
+              <span className={`material-symbols-outlined text-[18px] ${exportState === "busy" ? "animate-spin" : ""}`}>
+                {exportState === "done" ? "check" : exportState === "busy" ? "progress_activity" : "file_download"}
+              </span>
+              <span>
+                {exportState === "done"
+                  ? t("admin.catalog.exportDone")
+                  : exportState === "busy"
+                    ? t("admin.catalog.exportBusy")
+                    : t("admin.catalog.exportCsv")}
+              </span>
             </button>
-          ))
-        )}
+            <button
+              type="button"
+              onClick={() => openDrawer(blankProductDraft(), "new")}
+              className="px-8 py-3 bg-primary text-on-primary hover:bg-inverse-surface transition-all font-label text-label-caps uppercase flex items-center gap-2 shadow-sm rounded"
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              <span>{t("admin.catalog.createProduct")}</span>
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-4">
+          <KpiPill label={t("admin.catalog.kpiActive")} value={kpis.active} icon="inventory_2" />
+          <KpiPill label={t("admin.catalog.kpiHeritage")} value={kpis.heritage} icon="workspace_premium" />
+          <KpiPill label={t("admin.catalog.kpiLimited")} value={kpis.limited} icon="workspace_premium" />
+          <KpiPill label={t("admin.catalog.kpiDrafts")} value={kpis.drafts} icon="drafts" />
+        </div>
       </div>
 
-      {/* Editor */}
-      <div className="lg:col-span-9 bg-white border border-surface-container-highest p-6">
-        {!draft ? (
-          <p className="font-body text-body-md text-secondary">
-            {t("admin.selectProduct")}
-          </p>
+      {/* Filters */}
+      <div className="px-8 py-4 bg-surface-container flex flex-col xl:flex-row gap-4 items-stretch xl:items-center justify-between">
+        <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2.5 rounded flex-1 max-w-xl border border-surface-container">
+          <span className="material-symbols-outlined text-secondary text-[20px]">search</span>
+          <input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="w-full bg-transparent font-body text-body-md text-on-surface placeholder:text-secondary focus:outline-none"
+            placeholder={t("admin.catalog.searchPlaceholder")}
+            type="text"
+          />
+          <span className="font-label text-label-caps text-secondary bg-surface-container-low px-1.5 py-0.5 rounded hidden sm:inline">
+            ⌘K
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <CatalogSelect value={categoryFilter} onChange={(v) => { setCategoryFilter(v); setPage(1); }}>
+            <option value="all">{t("admin.catalog.filterCategoryAll")}</option>
+            {(categories || []).map((c) => (
+              <option key={c.id} value={String(c.id)}>
+                {c.name}
+              </option>
+            ))}
+          </CatalogSelect>
+          <CatalogSelect value={statusFilter} onChange={(v) => { setStatusFilter(v); setPage(1); }}>
+            <option value="all">{t("admin.catalog.filterStatusAll")}</option>
+            <option value="active">{t("admin.catalog.filterStatusActive")}</option>
+            <option value="draft">{t("admin.catalog.filterStatusDraft")}</option>
+          </CatalogSelect>
+          <CatalogSelect value={collectionFilter} onChange={(v) => { setCollectionFilter(v); setPage(1); }}>
+            <option value="all">{t("admin.catalog.filterCollectionAll")}</option>
+            {(collections || []).map((c) => (
+              <option key={c.id} value={String(c.id)}>
+                {c.name}
+              </option>
+            ))}
+          </CatalogSelect>
+          <CatalogSelect value={localeFilter} onChange={(v) => { setLocaleFilter(v); setPage(1); }} icon="language">
+            <option value="all">{t("admin.catalog.filterLocaleAll")}</option>
+            <option value="vi_full">{t("admin.catalog.filterLocaleViFull")}</option>
+            <option value="vi_missing">{t("admin.catalog.filterLocaleViMissing")}</option>
+          </CatalogSelect>
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="bg-surface-container-low hover:bg-surface-container-high text-secondary hover:text-on-surface p-2.5 rounded transition-colors flex items-center justify-center"
+            title={t("admin.catalog.clearFilters")}
+          >
+            <span className="material-symbols-outlined text-[20px]">filter_list_off</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="relative overflow-x-auto bg-surface-container-lowest min-h-[240px]">
+        {isLoading ? (
+          <p className="p-8 text-secondary">{t("admin.loading")}</p>
         ) : (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-headline text-headline-md text-primary uppercase">
-                {draft.id ? t("admin.editProduct") : t("admin.newProductTitle")}
-              </h3>
-              <div className="flex gap-2">
-                {draft.id && <DangerButton onClick={() => deleteMutation.mutate(draft.id!)}>{t("admin.delete")}</DangerButton>}
-                <SecondaryButton onClick={() => { setDraft(null); setSelectedId(undefined); }}>{t("admin.cancel")}</SecondaryButton>
-                <PrimaryButton onClick={() => saveMutation.mutate(draft)} disabled={!draft.name || !draft.slug}>
-                  {t("admin.saveProduct")}
-                </PrimaryButton>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Field label="Name *">
-                <TextInput value={draft.name} onChange={(e) => set("name", e.target.value)} placeholder="CLUB PERFORMANCE POLO" />
-              </Field>
-              <ViInput label={t("admin.name")} value={draft.name_vi} onChange={(e) => set("name_vi", e.target.value)} placeholder="Tên tiếng Việt" />
-              <Field label="Slug *">
-                <TextInput value={draft.slug} onChange={(e) => set("slug", e.target.value)} placeholder="club-performance-polo" />
-              </Field>
-              <Field label="Price (USD)">
-                <TextInput type="number" value={draft.price} onChange={(e) => set("price", Number(e.target.value))} />
-              </Field>
-              <Field label="Category">
-                <Select
-                  value={draft.category_id}
-                  onChange={(e) => set("category_id", e.target.value ? Number(e.target.value) : "")}
-                >
-                  <option value="">{t("admin.none")}</option>
-                  {(categories || []).map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </Select>
-              </Field>
-              <Field label="Collection">
-                <Select
-                  value={draft.collection_id}
-                  onChange={(e) => set("collection_id", e.target.value ? Number(e.target.value) : "")}
-                >
-                  <option value="">{t("admin.none")}</option>
-                  {(collections || []).map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </Select>
-              </Field>
-              <Field label="Badge">
-                <Select value={draft.badge} onChange={(e) => set("badge", e.target.value)}>
-                  {BADGES.map((b) => (
-                    <option key={b || "none"} value={b}>{b || t("admin.none")}</option>
-                  ))}
-                </Select>
-              </Field>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field label={t("admin.subtitle")}>
-                <TextInput value={draft.subtitle} onChange={(e) => set("subtitle", e.target.value)} />
-              </Field>
-              <ViInput label={t("admin.subtitle")} value={draft.subtitle_vi} onChange={(e) => set("subtitle_vi", e.target.value)} placeholder="Phụ đề tiếng Việt" />
-            </div>
-            <Field label={t("admin.description")}>
-              <TextArea rows={3} value={draft.description} onChange={(e) => set("description", e.target.value)} />
-            </Field>
-            <ViArea label={t("admin.description")} rows={3} value={draft.description_vi} onChange={(e) => set("description_vi", e.target.value)} placeholder="Mô tả tiếng Việt" />
-
-            <div className="flex gap-6">
-              <label className="flex items-center gap-2 font-body text-body-md text-on-background">
-                <Checkbox checked={draft.is_active} onChange={(e) => set("is_active", e.target.checked)} /> {t("admin.active")}
-              </label>
-              <label className="flex items-center gap-2 font-body text-body-md text-on-background">
-                <Checkbox checked={draft.is_featured} onChange={(e) => set("is_featured", e.target.checked)} /> {t("admin.featuredHome")}
-              </label>
-              <label className="flex items-center gap-2 font-body text-body-md text-on-background">
-                <Checkbox checked={draft.is_bestseller} onChange={(e) => set("is_bestseller", e.target.checked)} /> {t("admin.bestseller")}
-              </label>
-            </div>
-
-            <Field label={t("admin.galleryLayout")}>
-              <Select value={draft.gallery_layout} onChange={(e) => set("gallery_layout", e.target.value)}>
-                <option value="collage">{t("admin.galleryCollage")}</option>
-                <option value="grid">{t("admin.galleryGrid")}</option>
-                <option value="masonry">{t("admin.galleryMasonry")}</option>
-                <option value="slideshow">{t("admin.gallerySlideshow")}</option>
-              </Select>
-              <span className="font-label text-label-caps text-secondary">
-                {t("admin.galleryCollageHint")}
-              </span>
-            </Field>
-
-            {/* Layout preview */}
-            <div>
-              <h4 className="font-headline text-headline-md text-primary uppercase mb-2">{t("admin.layoutPreview")}</h4>
-              <p className="font-label text-label-caps text-secondary mb-2">{t("admin.layoutPreviewHint")}</p>
-              <div className="border border-surface-container-highest bg-white p-4">
-                {draft.images.some((i) => i.enabled) ? (
-                  (() => {
-                    const visibleIndices = draft.images
-                      .map((im, i) => (im.enabled ? i : -1))
-                      .filter((i) => i >= 0);
-                    return (
-                      <>
-                        <ProductGallery
-                          images={draft.images}
-                          name={draft.name || "PRODUCT"}
-                          layout={draft.gallery_layout}
-                          activeIndex={
-                            selectedCell != null ? visibleIndices.indexOf(selectedCell) : undefined
-                          }
-                          onImageClick={(vIdx) => {
-                            const draftIdx = visibleIndices[vIdx];
-                            if (draftIdx !== undefined) setSelectedCell(draftIdx);
-                          }}
-                        />
-                        {selectedCell !== null && draft.images[selectedCell] && (
-                          <div className="fixed top-20 right-4 z-50 w-80 border border-forest-green bg-white shadow-2xl p-4 flex flex-col gap-3">
-                            <div className="flex items-center justify-between">
-                              <p className="font-headline text-headline-md text-primary uppercase">
-                                {t("admin.imageEditor")}
-                              </p>
-                              <button
-                                onClick={() => setSelectedCell(null)}
-                                aria-label={t("admin.done")}
-                                className="text-primary hover:text-forest-green text-xl leading-none"
-                              >
-                                ✕
-                              </button>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <img
-                                src={draft.images[selectedCell].url}
-                                alt=""
-                                className="w-14 h-[72px] object-cover bg-surface-container-low"
-                              />
-                              <div>
-                                <p className="font-label text-label-caps text-secondary uppercase">
-                                  {t("admin.imageN")} {selectedCell + 1} / {draft.images.length}
-                                </p>
-                                <p className="font-body text-body-md text-on-background">
-                                  {draft.images[selectedCell].enabled
-                                    ? t("admin.navEnabled")
-                                    : t("admin.hidden")}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                              <PrimaryButton onClick={() => setCropTarget(selectedCell)}>
-                                {t("admin.crop")}
-                              </PrimaryButton>
-                              <SecondaryButton onClick={() => setPickImageFor(selectedCell)}>
-                                {t("admin.change")}
-                              </SecondaryButton>
-                              <SecondaryButton
-                                onClick={() => {
-                                  const idx = selectedCell;
-                                  if (idx === 0) return;
-                                  moveImage(idx, -1);
-                                  setSelectedCell(idx - 1);
-                                }}
-                                disabled={selectedCell === 0}
-                              >
-                                ↑ {t("admin.navUp")}
-                              </SecondaryButton>
-                              <SecondaryButton
-                                onClick={() => {
-                                  const idx = selectedCell;
-                                  if (idx === draft.images.length - 1) return;
-                                  moveImage(idx, 1);
-                                  setSelectedCell(idx + 1);
-                                }}
-                                disabled={selectedCell === draft.images.length - 1}
-                              >
-                                ↓ {t("admin.navDown")}
-                              </SecondaryButton>
-                              {draft.images[selectedCell].enabled &&
-                                selectedCell !== draft.images.findIndex((i) => i.enabled) && (
-                                  <SecondaryButton
-                                    onClick={() => {
-                                      const images = [...draft.images];
-                                      const [image] = images.splice(selectedCell, 1);
-                                      images.unshift(image);
-                                      set("images", images.map((im, i) => ({ ...im, position: i })));
-                                      setSelectedCell(0);
-                                    }}
-                                    className="col-span-2"
-                                  >
-                                    {t("admin.setAsMain")}
-                                  </SecondaryButton>
-                                )}
-                              <SecondaryButton
-                                onClick={() => {
-                                  set(
-                                    "images",
-                                    draft.images.map((im, i) =>
-                                      i === selectedCell ? { ...im, enabled: !im.enabled } : im
-                                    )
-                                  );
-                                  setSelectedCell(null);
-                                }}
-                              >
-                                {draft.images[selectedCell].enabled ? t("admin.hide") : t("admin.show")}
-                              </SecondaryButton>
-                              <DangerButton
-                                onClick={() => {
-                                  set("images", draft.images.filter((_, i) => i !== selectedCell));
-                                  setSelectedCell(null);
-                                }}
-                              >
-                                {t("admin.remove")}
-                              </DangerButton>
-                            </div>
-                            <PrimaryButton onClick={() => setSelectedCell(null)}>
-                              {t("admin.done")}
-                            </PrimaryButton>
-                          </div>
-                        )}
-                      </>
-                    );
-                  })()
-                ) : (
-                  <p className="font-body text-body-md text-secondary">
-                    {t("admin.noVisibleImages")}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Images */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-headline text-headline-md text-primary uppercase">{t("admin.images")}</h4>
-                <SecondaryButton onClick={() => setPickImageFor(draft.images.length)}>{t("admin.addImage")}</SecondaryButton>
-              </div>
-              <p className="font-label text-label-caps text-secondary mb-2">
-                {t("admin.imagesHint")}
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {(() => {
-                  const mainIndex = draft.images.findIndex((i) => i.enabled);
-                  return draft.images.map((img, index) => (
-                    <div
-                      key={index}
-                      className={`relative border border-surface-container-highest bg-white p-2 ${
-                        img.enabled ? "" : "opacity-60"
-                      }`}
-                    >
-                      {index === mainIndex && (
-                        <span className="absolute top-1 left-1 z-10 bg-forest-green text-white font-label text-label-caps px-2 py-0.5 uppercase">
-                          {t("admin.main")}
-                        </span>
-                      )}
-                      {!img.enabled && (
-                        <span className="absolute top-1 right-1 z-10 bg-error text-white font-label text-label-caps px-2 py-0.5 uppercase">
-                          {t("admin.hidden")}
-                        </span>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          set(
-                            "images",
-                            draft.images.map((im, i) => (i === index ? { ...im, enabled: !im.enabled } : im))
-                          )
-                        }
-                        title={img.enabled ? t("admin.hide") : t("admin.show")}
-                        className="block w-full relative p-0 border-0 bg-surface-container-low cursor-pointer"
-                      >
-                        <img src={img.url} alt={img.alt} className="w-full aspect-[3/4] object-cover" />
-                        <span
-                          className={`absolute bottom-1 right-1 z-10 rounded-full h-6 w-6 flex items-center justify-center text-white ${
-                            img.enabled ? "bg-forest-green" : "bg-black/60"
-                          }`}
-                        >
-                          {img.enabled ? "✓" : "✕"}
-                        </span>
-                      </button>
-                      <div className="flex flex-col gap-1 mt-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => moveImage(index, -1)}
-                              disabled={index === 0}
-                              className={`font-label text-label-caps uppercase ${
-                                index === 0
-                                  ? "text-outline cursor-not-allowed"
-                                  : "text-primary hover:text-forest-green hover:underline"
-                              }`}
-                            >
-                              {t("admin.navUp")}
-                            </button>
-                            <button
-                              onClick={() => moveImage(index, 1)}
-                              disabled={index === draft.images.length - 1}
-                              className={`font-label text-label-caps uppercase ${
-                                index === draft.images.length - 1
-                                  ? "text-outline cursor-not-allowed"
-                                  : "text-primary hover:text-forest-green hover:underline"
-                              }`}
-                            >
-                              {t("admin.navDown")}
-                            </button>
-                          </div>
-                          {index !== mainIndex && img.enabled && (
-                            <button
-                              onClick={() => {
-                                const images = [...draft.images];
-                                const [image] = images.splice(index, 1);
-                                images.unshift(image);
-                                set("images", images.map((im, i) => ({ ...im, position: i })));
-                              }}
-                              className="font-label text-label-caps text-forest-green hover:underline uppercase"
-                            >
-                              {t("admin.setAsMain")}
-                            </button>
-                          )}
+          <table className="w-full text-left font-body text-body-md border-collapse">
+            <thead>
+              <tr className="bg-surface-container-low font-label text-label-caps uppercase tracking-wider text-secondary select-none">
+                <th className="py-4 px-6 w-12 text-center">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 rounded accent-primary cursor-pointer"
+                    checked={pageItems.length > 0 && pageItems.every((p) => checked.has(p.id))}
+                    onChange={toggleAllPage}
+                  />
+                </th>
+                <th className="py-4 px-4 font-bold">{t("admin.catalog.colProduct")}</th>
+                <th className="py-4 px-4 font-bold">{t("admin.catalog.colCategory")}</th>
+                <th className="py-4 px-4 font-bold">{t("admin.catalog.colPrice")}</th>
+                <th className="py-4 px-4 font-bold">{t("admin.catalog.colCollection")}</th>
+                <th className="py-4 px-4 font-bold">{t("admin.catalog.colStatus")}</th>
+                <th className="py-4 px-4 font-bold">{t("admin.catalog.colLocale")}</th>
+                <th className="py-4 px-6 font-bold text-right">{t("admin.catalog.colActions")}</th>
+              </tr>
+            </thead>
+            <tbody className="text-on-surface">
+              {pageItems.map((p) => {
+                const cat = p.category_id ? categoryById.get(p.category_id) : null;
+                const col = p.collection_id ? collectionById.get(p.collection_id) : null;
+                const vi = viCompleteness(p);
+                const thumb = productThumb(p);
+                return (
+                  <tr key={p.id} className="hover:bg-surface-container-low/60 transition-colors group">
+                    <td className="py-4 px-6 text-center">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 rounded accent-primary cursor-pointer"
+                        checked={checked.has(p.id)}
+                        onChange={() => toggleCheck(p.id)}
+                      />
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-16 bg-surface-container shrink-0 rounded overflow-hidden relative">
+                          {thumb ? (
+                            <img
+                              src={thumb}
+                              alt=""
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          ) : null}
                         </div>
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col min-w-0">
                           <button
-                            onClick={() => setCropTarget(index)}
-                            className="font-label text-label-caps text-primary hover:underline uppercase"
+                            type="button"
+                            onClick={() => openDrawer(productToDraft(p), p.id)}
+                            className="font-headline text-[18px] text-primary truncate leading-tight text-left hover:underline"
                           >
-                            {t("admin.crop")}
+                            {p.name}
                           </button>
-                          <button
-                            onClick={() => setPickImageFor(index)}
-                            className="font-label text-label-caps text-secondary hover:underline uppercase"
-                          >
-                            {t("admin.change")}
-                          </button>
-                          <button
-                            onClick={() => set("images", draft.images.filter((_, i) => i !== index))}
-                            className="font-label text-label-caps text-error hover:underline uppercase"
-                          >
-                            {t("admin.remove")}
-                          </button>
+                          <span className="font-label text-label-caps text-secondary uppercase mt-1 tracking-wider">
+                            SKU: {skuFromSlug(p.slug)}
+                          </span>
+                          <span className="font-body text-[12px] text-secondary">
+                            {col?.name || t("admin.none")}
+                            {p.badge ? ` · ${p.badge}` : ""}
+                          </span>
                         </div>
                       </div>
-                    </div>
-                  ));
-                })()}
-              </div>
-            </div>
-
-            {/* Colors */}
-            <KeyValueList
-              title={t("admin.colorways")}
-              addLabel={t("admin.addColor")}
-              values={draft.colors}
-              onChange={(colors) => set("colors", colors)}
-              render={(c) => [
-                <TextInput key="n" value={c.name || ""} placeholder="OPTIC WHITE" onChange={(e) => (c.name = e.target.value)} />,
-                <TextInput key="h" type="color" value={c.hex || "#ffffff"} className="h-[38px] p-1 w-16" onChange={(e) => (c.hex = e.target.value)} />,
-              ]}
-            />
-
-            {/* Sizes */}
-            <Field label={t("admin.sizes")}>
-              <TextInput
-                value={draft.sizes.join(", ")}
-                onChange={(e) => set("sizes", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-                placeholder="XS, S, M, L, XL, XXL"
-              />
-            </Field>
-
-            {/* Tech Specs */}
-            <PairList
-              title={t("admin.techSpecs")}
-              addLabel={t("admin.addSpec")}
-              values={draft.tech_specs}
-              onChange={(v) => set("tech_specs", v)}
-              aPlaceholder={t("admin.specLabel")}
-              bPlaceholder={t("admin.specValue")}
-            />
-
-            {/* Features */}
-            <FeatureList values={draft.features} onChange={(v) => set("features", v)} />
-          </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex flex-col gap-1">
+                        <span className="font-body text-body-md text-on-surface">{cat?.name || "—"}</span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {tagPills(p).map((tag) => (
+                            <span
+                              key={tag}
+                              className="bg-surface-container font-label text-[10px] uppercase text-secondary px-2 py-0.5 rounded"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="font-body font-bold text-on-surface">${p.price.toFixed(2)} USD</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="font-body text-body-md text-on-surface">{col?.name || "—"}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <StatusBadge product={p} />
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex flex-col gap-1">
+                        <span
+                          className={`font-label text-[11px] uppercase text-on-surface px-2 py-0.5 rounded inline-block w-fit ${
+                            vi === "full" ? "bg-surface-container" : "bg-surface-container-high"
+                          }`}
+                        >
+                          {vi === "full"
+                            ? t("admin.catalog.localeFull")
+                            : vi === "partial"
+                              ? t("admin.catalog.localePartial")
+                              : t("admin.catalog.localeViDraft")}
+                        </span>
+                        <span className="text-[11px] text-secondary font-label">
+                          {vi === "full"
+                            ? t("admin.catalog.localeSynced")
+                            : vi === "partial"
+                              ? t("admin.catalog.localePartialHint")
+                              : t("admin.catalog.localeViHint")}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          onClick={() => openDrawer(productToDraft(p), p.id)}
+                          className="w-8 h-8 rounded bg-surface-container-low hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors"
+                          title={t("admin.catalog.actionEdit")}
+                        >
+                          <span className="material-symbols-outlined text-[18px]">edit</span>
+                        </button>
+                        <Link
+                          to={`/products/${p.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="w-8 h-8 rounded bg-surface-container-low hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors"
+                          title={t("admin.catalog.actionPreview")}
+                        >
+                          <span className="material-symbols-outlined text-[18px]">visibility</span>
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => duplicateProduct(p)}
+                          className="w-8 h-8 rounded bg-surface-container-low hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors"
+                          title={t("admin.catalog.actionDuplicate")}
+                        >
+                          <span className="material-symbols-outlined text-[18px]">content_copy</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(t("admin.catalog.archiveConfirm"))) archiveMutation.mutate(p);
+                          }}
+                          className="w-8 h-8 rounded bg-surface-container-low hover:bg-error-container text-on-surface hover:text-error flex items-center justify-center transition-colors"
+                          title={t("admin.catalog.actionArchive")}
+                        >
+                          <span className="material-symbols-outlined text-[18px]">archive</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+        {!isLoading && filtered.length === 0 && (
+          <p className="p-8 text-secondary text-center">{t("admin.catalog.noResults")}</p>
         )}
       </div>
 
-      {pickImageFor !== null && (
+      {/* Pagination */}
+      <div className="px-8 py-5 bg-surface-container-lowest flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-4 flex-wrap">
+          <span className="font-body text-[13px] text-secondary">
+            {t("admin.catalog.showing")}{" "}
+            <span className="font-bold text-on-surface">
+              {filtered.length === 0 ? 0 : (safePage - 1) * pageSize + 1} - {Math.min(safePage * pageSize, filtered.length)}
+            </span>{" "}
+            {t("admin.catalog.of")}{" "}
+            <span className="font-bold text-on-surface">{filtered.length}</span> {t("admin.catalog.items")}
+          </span>
+          <div className="h-4 w-px bg-surface-container hidden sm:block" />
+          <div className="flex items-center gap-2">
+            <span className="font-label text-[11px] uppercase text-secondary">{t("admin.catalog.rowsPerPage")}</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setPage(1);
+              }}
+              className="bg-surface-container-low text-on-surface font-label text-label-caps px-2 py-1 rounded focus:outline-none"
+            >
+              {[10, 25, 50, 100].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            disabled={safePage <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            className="w-9 h-9 rounded bg-surface-container-low text-secondary flex items-center justify-center hover:bg-surface-container disabled:opacity-40"
+          >
+            <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+          </button>
+          <button
+            type="button"
+            className="w-9 h-9 rounded bg-primary text-on-primary font-bold text-[13px] flex items-center justify-center"
+          >
+            {safePage}
+          </button>
+          {totalPages > 1 && safePage < totalPages && (
+            <button
+              type="button"
+              onClick={() => setPage((p) => p + 1)}
+              className="w-9 h-9 rounded bg-surface-container-low text-on-surface hover:bg-surface-container font-body text-[13px] flex items-center justify-center transition-colors"
+            >
+              {safePage + 1}
+            </button>
+          )}
+          <button
+            type="button"
+            disabled={safePage >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            className="w-9 h-9 rounded bg-surface-container-low text-on-surface hover:bg-surface-container flex items-center justify-center transition-colors disabled:opacity-40"
+          >
+            <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Drawer */}
+      <div
+        className={`fixed inset-0 bg-primary/40 backdrop-blur-sm z-[60] transition-opacity duration-300 ${
+          drawerOpen && draft ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        aria-hidden={!drawerOpen}
+      >
+        <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
+          <div
+            className={`w-screen max-w-xl bg-surface-container-lowest shadow-2xl flex flex-col transform transition-transform duration-300 ease-out ${
+              drawerOpen && draft ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
+            {draft && (
+              <>
+                <div className="p-6 bg-surface-container-low flex items-center justify-between shrink-0">
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-label text-label-caps uppercase text-secondary">{t("admin.catalog.drawerKicker")}</span>
+                    <h2 className="font-headline text-headline-md uppercase text-primary mt-0.5 truncate">
+                      {draft.name || t("admin.newProductTitle")}
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeDrawer}
+                    className="w-10 h-10 rounded-full hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors shrink-0"
+                  >
+                    <span className="material-symbols-outlined text-[24px]">close</span>
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+                  {draft.images.find((i) => i.enabled)?.url && (
+                    <div className="w-full h-48 bg-surface-container rounded overflow-hidden relative">
+                      <img
+                        src={draft.images.find((i) => i.enabled)?.url || draft.images[0]?.url}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute bottom-3 left-3 bg-primary text-on-primary font-label text-[10px] px-2.5 py-1 uppercase rounded tracking-wider">
+                        {t("admin.catalog.heroAsset")}
+                      </div>
+                    </div>
+                  )}
+                  {draft.id && (
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.confirm(t("admin.delete") + "?")) deleteMutation.mutate(draft.id!);
+                        }}
+                        className="font-label text-label-caps text-error uppercase hover:underline"
+                      >
+                        {t("admin.delete")}
+                      </button>
+                    </div>
+                  )}
+                  <ProductEditorForm
+                    draft={draft}
+                    set={setField}
+                    categories={categories}
+                    collections={collections}
+                    selectedCell={selectedCell}
+                    setSelectedCell={setSelectedCell}
+                    pickImageFor={pickImageFor}
+                    setPickImageFor={setPickImageFor}
+                    cropTarget={cropTarget}
+                    setCropTarget={setCropTarget}
+                    moveImage={moveImage}
+                    uploadMutation={uploadMutation}
+                    queryClient={queryClient}
+                  />
+                  {saveMutation.isError && <p className="text-error text-sm">{String(saveMutation.error)}</p>}
+                </div>
+                <div className="p-6 bg-surface-container-low flex items-center justify-between gap-3 shrink-0 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={closeDrawer}
+                    className="px-6 py-3 bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-label text-label-caps uppercase rounded"
+                  >
+                    {t("admin.catalog.discard")}
+                  </button>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    {draft.slug ? (
+                      <Link
+                        to={`/products/${draft.slug}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-5 py-3 bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-label text-label-caps uppercase rounded flex items-center gap-1.5"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+                        {t("admin.catalog.livePreview")}
+                      </Link>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => saveMutation.mutate(draft)}
+                      disabled={!draft.name || !draft.slug || saveMutation.isPending}
+                      className="px-8 py-3 bg-primary text-on-primary hover:bg-inverse-surface transition-all font-label text-label-caps uppercase rounded flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">check</span>
+                      {t("admin.catalog.saveChanges")}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {pickImageFor !== null && draft && (
         <MediaPicker
           onSelect={(m: Media) => {
             const index = pickImageFor;
-            const images = [...draft!.images];
+            const images = [...draft.images];
             if (index < images.length) {
               images[index] = {
                 media_id: m.id,
@@ -593,7 +765,7 @@ export default function ProductsTab() {
             } else {
               images.push({ media_id: m.id, url: m.url, alt: "", position: index, enabled: true });
             }
-            set("images", images);
+            setField("images", images);
           }}
           onClose={() => setPickImageFor(null)}
         />
@@ -614,7 +786,7 @@ export default function ProductsTab() {
                 position: cropTarget,
                 enabled: images[cropTarget]?.enabled ?? true,
               };
-              set("images", images);
+              setField("images", images);
               queryClient.invalidateQueries({ queryKey: ["admin-media"] });
               setCropTarget(null);
             } catch {
@@ -623,163 +795,6 @@ export default function ProductsTab() {
           }}
         />
       )}
-      {saveMutation.isError && <p className="text-error text-sm">{String(saveMutation.error)}</p>}
-      {saveMutation.isSuccess && <p className="text-forest-green text-sm">{t("admin.productSaved")}</p>}
-    </div>
-  );
-}
-
-function KeyValueList<T extends { name?: string; hex?: string }>({
-  title,
-  addLabel,
-  values,
-  onChange,
-  render,
-}: {
-  title: string;
-  addLabel: string;
-  values: T[];
-  onChange: (v: T[]) => void;
-  render: (item: T) => React.ReactNode[];
-}) {
-  const { t } = useLanguage();
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
-        <h4 className="font-headline text-headline-md text-primary uppercase">{title}</h4>
-        <SecondaryButton onClick={() => onChange([...values, {} as T])}>{addLabel}</SecondaryButton>
-      </div>
-      <div className="flex flex-col gap-2">
-        {values.map((item, index) => (
-          <div key={index} className="flex items-center gap-2">
-            {render(item).map((node, i) => <div key={i} className="flex-1">{node}</div>)}
-            <DangerButton onClick={() => onChange(values.filter((_, i) => i !== index))}>{t("admin.remove")}</DangerButton>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function PairList<T extends { label?: string; value?: string; label_vi?: string; value_vi?: string }>({
-  title,
-  addLabel,
-  values,
-  onChange,
-  aPlaceholder,
-  bPlaceholder,
-}: {
-  title: string;
-  addLabel: string;
-  values: T[];
-  onChange: (v: T[]) => void;
-  aPlaceholder: string;
-  bPlaceholder: string;
-}) {
-  const { t } = useLanguage();
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
-        <h4 className="font-headline text-headline-md text-primary uppercase">{title}</h4>
-        <SecondaryButton onClick={() => onChange([...values, {} as T])}>{addLabel}</SecondaryButton>
-      </div>
-      <div className="flex flex-col gap-2">
-        {values.map((item, index) => (
-          <div key={index} className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <TextInput
-                value={item.label || ""}
-                placeholder={aPlaceholder}
-                onChange={(e) => (item.label = e.target.value)}
-              />
-              <TextInput
-                value={item.value || ""}
-                placeholder={bPlaceholder}
-                onChange={(e) => (item.value = e.target.value)}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <TextInput
-                value={item.label_vi || ""}
-                placeholder={`VI · ${aPlaceholder}`}
-                onChange={(e) => (item.label_vi = e.target.value)}
-              />
-              <TextInput
-                value={item.value_vi || ""}
-                placeholder={`VI · ${bPlaceholder}`}
-                onChange={(e) => (item.value_vi = e.target.value)}
-              />
-              <DangerButton onClick={() => onChange(values.filter((_, i) => i !== index))}>{t("admin.remove")}</DangerButton>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function FeatureList({
-  values,
-  onChange,
-}: {
-  values: { icon: string; title: string; description: string; title_vi: string; description_vi: string }[];
-  onChange: (v: { icon: string; title: string; description: string; title_vi: string; description_vi: string }[]) => void;
-}) {
-  const { t } = useLanguage();
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
-        <h4 className="font-headline text-headline-md text-primary uppercase">{t("admin.engineeringFeatures")}</h4>
-        <SecondaryButton
-          onClick={() => onChange([...values, { icon: "", title: "", description: "", title_vi: "", description_vi: "" }])}
-        >
-          + ADD FEATURE
-        </SecondaryButton>
-      </div>
-      <div className="flex flex-col gap-3">
-        {values.map((item, index) => (
-          <div key={index} className="border border-surface-container-highest p-3 flex flex-col gap-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <TextInput
-                value={item.icon}
-                placeholder="Icon name (e.g. balance, straighten, air)"
-                onChange={(e) => (item.icon = e.target.value)}
-              />
-              <TextInput
-                value={item.title}
-                placeholder="Title (e.g. LATERAL LOCKDOWN)"
-                onChange={(e) => (item.title = e.target.value)}
-              />
-            </div>
-            <div className="flex gap-2">
-              <TextArea
-                rows={2}
-                value={item.description}
-                placeholder="Description"
-                className="flex-1"
-                onChange={(e) => (item.description = e.target.value)}
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <TextInput
-                value={item.title_vi}
-                placeholder="VI · Title (Tiêu đề tiếng Việt)"
-                onChange={(e) => (item.title_vi = e.target.value)}
-              />
-              <TextArea
-                rows={2}
-                value={item.description_vi}
-                placeholder="VI · Description (Mô tả tiếng Việt)"
-                className="flex-1"
-                onChange={(e) => (item.description_vi = e.target.value)}
-              />
-            </div>
-            <div className="flex justify-end">
-              <DangerButton onClick={() => onChange(values.filter((_, i) => i !== index))}>{t("admin.remove")}</DangerButton>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
