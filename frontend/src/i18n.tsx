@@ -456,6 +456,9 @@ const en: Record<string, string> = {
   "admin.siteBranding": "SITE BRANDING",
   "admin.brandingHint": "The logo replaces the wordmark across the navbar and footer. The favicon appears on the browser tab, next to the site name.",
   "admin.siteName": "Site name (browser tab title)",
+  "admin.storeCurrency": "Store currency",
+  "admin.storeCurrencyHint": "Prices on the storefront and in the product catalog use this currency. Amounts are stored as numbers; change currency here to change how they are displayed.",
+  "admin.priceInCurrency": "Price ({currency})",
   "admin.logo": "Logo (navbar + footer)",
   "admin.favicon": "Favicon (browser tab)",
   "admin.preview": "PREVIEW",
@@ -948,6 +951,9 @@ const vi: Record<string, string> = {
   "admin.siteBranding": "THƯƠNG HIỆU SITE",
   "admin.brandingHint": "Logo thay thế chữ thương hiệu trên menu và footer. Favicon xuất hiện trên tab trình duyệt, cạnh tên site.",
   "admin.siteName": "Tên site (tiêu đề tab trình duyệt)",
+  "admin.storeCurrency": "Tiền tệ cửa hàng",
+  "admin.storeCurrencyHint": "Giá trên storefront và trong danh mục sản phẩm dùng loại tiền này. Số tiền lưu dạng số; đổi tiền tệ ở đây để thay đổi cách hiển thị.",
+  "admin.priceInCurrency": "Giá ({currency})",
   "admin.logo": "Logo (menu + footer)",
   "admin.favicon": "Favicon (tab trình duyệt)",
   "admin.preview": "XEM TRƯỚC",
@@ -990,16 +996,26 @@ const vi: Record<string, string> = {
 
 const dictionaries: Record<Lang, Record<string, string>> = { en, vi };
 
+type TParams = Record<string, string | number>;
+
 interface LanguageContextValue {
   lang: Lang;
   setLang: (lang: Lang) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: TParams) => string;
+}
+
+function interpolate(template: string, params?: TParams): string {
+  if (!params) return template;
+  return template.replace(/\{(\w+)\}/g, (_, name: string) => {
+    const v = params[name];
+    return v === undefined ? `{${name}}` : String(v);
+  });
 }
 
 const LanguageContext = createContext<LanguageContextValue>({
   lang: "en",
   setLang: () => {},
-  t: (key: string) => en[key] ?? key,
+  t: (key: string, params?: TParams) => interpolate(en[key] ?? key, params),
 });
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
@@ -1014,7 +1030,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [lang]);
 
   const setLang = (next: Lang) => setLangState(next);
-  const t = (key: string) => dictionaries[lang][key] ?? en[key] ?? key;
+  const t = (key: string, params?: TParams) =>
+    interpolate(dictionaries[lang][key] ?? en[key] ?? key, params);
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t }}>

@@ -4,7 +4,8 @@ import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
 import type { Media, SiteSettings } from "../types";
 import { ImageField } from "./MediaLibrary";
-import { Field, PrimaryButton, TextInput } from "./ui";
+import { STORE_CURRENCIES } from "../money";
+import { Field, PrimaryButton, Select, TextInput } from "./ui";
 
 export default function SiteTab() {
   const queryClient = useQueryClient();
@@ -53,6 +54,19 @@ export default function SiteTab() {
       <div className="flex flex-col gap-4">
         <Field label={t("admin.siteName")}>
           <TextInput value={draftValue.site_name} onChange={(e) => set("site_name", e.target.value)} />
+        </Field>
+        <Field label={t("admin.storeCurrency")}>
+          <Select
+            value={(draftValue.currency_code || "USD").toUpperCase()}
+            onChange={(e) => set("currency_code", e.target.value.toUpperCase())}
+          >
+            {STORE_CURRENCIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </Select>
+          <p className="text-secondary text-sm mt-1">{t("admin.storeCurrencyHint")}</p>
         </Field>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ImageField

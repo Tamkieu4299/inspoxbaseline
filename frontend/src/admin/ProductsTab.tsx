@@ -15,6 +15,7 @@ import {
   type ProductDraft,
 } from "./productDraft";
 import { useLanguage } from "../i18n";
+import { formatMoney } from "../money";
 
 function CatalogSelect({
   value,
@@ -111,6 +112,8 @@ export default function ProductsTab() {
   const { data: products, isLoading } = useQuery({ queryKey: ["admin-products"], queryFn: adminApi.getProducts });
   const { data: categories } = useQuery({ queryKey: ["admin-categories"], queryFn: adminApi.getCategories });
   const { data: collections } = useQuery({ queryKey: ["admin-collections"], queryFn: adminApi.getCollections });
+  const { data: siteSettings } = useQuery({ queryKey: ["admin-site"], queryFn: adminApi.getSite });
+  const storeCurrency = (siteSettings?.currency_code || "USD").toUpperCase();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | "new">();
@@ -494,7 +497,9 @@ export default function ProductsTab() {
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <span className="font-body font-bold text-on-surface">${p.price.toFixed(2)} USD</span>
+                      <span className="font-body font-bold text-on-surface">
+                        {formatMoney(p.price, storeCurrency)}
+                      </span>
                     </td>
                     <td className="py-4 px-4">
                       <span className="font-body text-body-md text-on-surface">{col?.name || "—"}</span>

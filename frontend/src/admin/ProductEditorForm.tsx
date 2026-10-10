@@ -1,5 +1,7 @@
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { QueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { adminApi } from "../api";
 import type { Category, CollectionSummary } from "../types";
 import ProductGallery from "../components/ProductGallery";
 import {
@@ -51,6 +53,8 @@ export function ProductEditorForm({
   compactHeader?: boolean;
 }) {
   const { t } = useLanguage();
+  const { data: siteSettings } = useQuery({ queryKey: ["admin-site"], queryFn: adminApi.getSite });
+  const currency = (siteSettings?.currency_code || "USD").toUpperCase();
 
   return (
     <div className="flex flex-col gap-4">
@@ -62,7 +66,7 @@ export function ProductEditorForm({
               <Field label="Slug *">
                 <TextInput value={draft.slug} onChange={(e) => set("slug", e.target.value)} placeholder="club-performance-polo" />
               </Field>
-              <Field label="Price (USD)">
+              <Field label={t("admin.priceInCurrency", { currency })}>
                 <TextInput type="number" value={draft.price} onChange={(e) => set("price", Number(e.target.value))} />
               </Field>
               <Field label="Category">

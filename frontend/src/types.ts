@@ -241,6 +241,7 @@ export interface SitePublic {
   logo_url?: string | null;
   favicon_url?: string | null;
   nav_items: NavItem[];
+  currency_code?: string;
 }
 
 export interface SiteSettings {
@@ -251,6 +252,7 @@ export interface SiteSettings {
   favicon_media_id?: number | null;
   favicon_media?: Media | null;
   nav_items: NavItem[];
+  currency_code?: string;
 }
 
 export interface TenantAdmin {

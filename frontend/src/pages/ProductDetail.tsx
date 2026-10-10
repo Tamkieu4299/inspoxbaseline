@@ -6,9 +6,11 @@ import Icon from "../components/Icon";
 import Lightbox from "../components/Lightbox";
 import ProductGallery from "../components/ProductGallery";
 import { useLanguage } from "../i18n";
+import { useStoreCurrency } from "../useStoreCurrency";
 
 export default function ProductDetail() {
   const { lang, t } = useLanguage();
+  const { formatPrice } = useStoreCurrency();
   const { slug = "" } = useParams();
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const { data: product, isLoading } = useQuery({
@@ -52,6 +54,12 @@ export default function ProductDetail() {
           <h1 className="font-display text-display-lg-mobile md:text-display-lg text-primary uppercase mb-1 tracking-tighter">
             {product.name}
           </h1>
+          {product.subtitle && (
+            <p className="font-label text-label-caps text-secondary uppercase tracking-widest mb-2">{product.subtitle}</p>
+          )}
+          <p className="font-body text-body-lg text-primary font-semibold mb-4">
+            {formatPrice(Number(product.price) || 0)}
+          </p>
           {product.description && (
             <p className="font-body text-body-md text-on-background opacity-80 mb-6 max-w-md">
               {product.description}

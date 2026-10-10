@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { Product } from "../types";
 import { useLanguage } from "../i18n";
+import { useStoreCurrency } from "../useStoreCurrency";
 
 const COLOR_KEY: Record<string, string> = {
   BLUE: "color.blue",
@@ -17,6 +18,7 @@ function colorLabel(product: Product, t: (k: string) => string): string {
 
 export default function ProductCard({ product }: { product: Product }) {
   const { t } = useLanguage();
+  const { formatPrice } = useStoreCurrency();
   const image = product.images?.find((i) => i.position === 0) || product.images?.[0];
   return (
     <Link to={`/products/${product.slug}`} className="group cursor-pointer flex flex-col h-full bg-background border border-transparent hover:border-surface-container-high p-2 transition-all">
@@ -42,8 +44,9 @@ export default function ProductCard({ product }: { product: Product }) {
             {product.name}
           </h2>
           <p className="font-label text-label-caps text-secondary mt-1">
-          {product.category?.name || product.subtitle || ""} / {colorLabel(product, t)}
-        </p>
+            {product.category?.name || product.subtitle || ""} / {colorLabel(product, t)}
+          </p>
+          <p className="font-body text-body-md text-primary mt-2">{formatPrice(product.price)}</p>
       </div>
     </Link>
   );
