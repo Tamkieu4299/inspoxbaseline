@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import Icon from "./Icon";
 import { useLanguage } from "../i18n";
+import { useStoreCurrency } from "../useStoreCurrency";
+import type { StoreCurrency } from "../money";
 import type { NavItem } from "../types";
 
 interface BuiltLink {
@@ -21,6 +23,7 @@ function isCategoryView(pathname: string, search: string): boolean {
 
 export default function Navbar() {
   const { lang, setLang, t } = useLanguage();
+  const { displayCurrency, setDisplayCurrency, supportedCurrencies } = useStoreCurrency();
   const { data: pages } = useQuery({
     queryKey: ["nav-pages", lang],
     queryFn: () => api.getPages(lang),
@@ -164,6 +167,26 @@ export default function Navbar() {
           >
             <Icon name="search" />
           </button>
+          <div
+            className="flex font-label text-label-caps border border-outline-variant overflow-hidden"
+            role="group"
+            aria-label={t("nav.currency")}
+          >
+            {supportedCurrencies.map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setDisplayCurrency(c as StoreCurrency)}
+                className={`px-2 py-1 transition-colors focus:outline-none focus:ring-1 focus:ring-forest-green ${
+                  displayCurrency === c
+                    ? "bg-primary text-on-primary"
+                    : "hover:bg-surface-container-low hover:text-forest-green"
+                }`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
           <button
             onClick={() => setLang(lang === "en" ? "vi" : "en")}
             aria-label="Language"

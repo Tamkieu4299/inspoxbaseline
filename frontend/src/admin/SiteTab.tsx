@@ -55,7 +55,7 @@ export default function SiteTab() {
         <Field label={t("admin.siteName")}>
           <TextInput value={draftValue.site_name} onChange={(e) => set("site_name", e.target.value)} />
         </Field>
-        <Field label={t("admin.storeCurrency")}>
+        <Field label={t("admin.baseCurrency")}>
           <Select
             value={(draftValue.currency_code || "USD").toUpperCase()}
             onChange={(e) => set("currency_code", e.target.value.toUpperCase())}
@@ -67,6 +67,16 @@ export default function SiteTab() {
             ))}
           </Select>
           <p className="text-secondary text-sm mt-1">{t("admin.storeCurrencyHint")}</p>
+        </Field>
+        <Field label={t("admin.usdToVndRate")}>
+          <TextInput
+            type="number"
+            min={1}
+            step={1}
+            value={draftValue.usd_to_vnd_rate ?? 24500}
+            onChange={(e) => set("usd_to_vnd_rate", Number(e.target.value))}
+          />
+          <p className="text-secondary text-sm mt-1">{t("admin.usdToVndRateHint")}</p>
         </Field>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ImageField

@@ -618,10 +618,15 @@ def get_site(db: Session = Depends(get_db), tenant: Tenant = Depends(get_tenant)
         db.add(site)
         db.commit()
         db.refresh(site)
+    rate = float(site.usd_to_vnd_rate or 24500)
+    if rate <= 0:
+        rate = 24500.0
     return SitePublic(
         site_name=site.site_name,
         logo_url=site.logo_media.url if site.logo_media else None,
         favicon_url=site.favicon_media.url if site.favicon_media else None,
         nav_items=site.nav_items or [],
         currency_code=(site.currency_code or "USD").upper(),
+        usd_to_vnd_rate=rate,
+        supported_currencies=["USD", "VND"],
     )

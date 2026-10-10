@@ -246,6 +246,8 @@ export interface SitePublic {
   favicon_url?: string | null;
   nav_items: NavItem[];
   currency_code?: string;
+  usd_to_vnd_rate?: number;
+  supported_currencies?: string[];
 }
 
 export interface SiteSettings {
@@ -257,6 +259,7 @@ export interface SiteSettings {
   favicon_media?: Media | null;
   nav_items: NavItem[];
   currency_code?: string;
+  usd_to_vnd_rate?: number;
 }
 
 export interface TenantAdmin {

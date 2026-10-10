@@ -13,6 +13,7 @@ import BlogPostPage from "./pages/BlogPostPage";
 import Admin from "./admin/Admin";
 import SiteBranding from "./components/SiteBranding";
 import { LanguageProvider } from "./i18n";
+import { StoreCurrencyProvider } from "./useStoreCurrency";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 60_000, refetchOnWindowFocus: false } },
@@ -29,6 +30,7 @@ export default function App() {
           <Route
             path="*"
             element={
+              <StoreCurrencyProvider>
               <div className="bg-surface-container-lowest text-on-surface font-body text-body-md antialiased overflow-x-hidden selection:bg-forest-green selection:text-white min-h-screen flex flex-col">
                 <Navbar />
                 <div className="flex-grow flex flex-col">
@@ -47,6 +49,7 @@ export default function App() {
                 </div>
                 <Footer />
               </div>
+              </StoreCurrencyProvider>
             }
           />
         </Routes>

@@ -107,6 +107,8 @@ def _migrate_existing(db, tenant_id: int):
     _add_column_if_missing(db, "blog_posts", "hero_text_color", "VARCHAR(20) DEFAULT '#1c1917'")
     _add_column_if_missing(db, "site_settings", "currency_code", "VARCHAR(3) DEFAULT 'USD'")
     db.execute(text("UPDATE site_settings SET currency_code='USD' WHERE currency_code IS NULL OR currency_code=''"))
+    _add_column_if_missing(db, "site_settings", "usd_to_vnd_rate", "FLOAT DEFAULT 24500")
+    db.execute(text("UPDATE site_settings SET usd_to_vnd_rate=24500 WHERE usd_to_vnd_rate IS NULL OR usd_to_vnd_rate<=0"))
     db.commit()
     _backfill_media_tenant(db, tenant_id)
     _rewrite_media_urls(db)

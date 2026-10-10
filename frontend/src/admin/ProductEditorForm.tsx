@@ -17,7 +17,7 @@ import {
   ViInput,
 } from "./ui";
 import { useLanguage } from "../i18n";
-import { formatMoney, priceInputStep, usesWholeCurrencyUnits } from "../money";
+import { convertMoney, formatMoney, priceInputStep, usesWholeCurrencyUnits, type StoreCurrency } from "../money";
 import { PRODUCT_BADGES, type ProductDraft } from "./productDraft";
 
 export function ProductEditorForm({
@@ -58,6 +58,9 @@ export function ProductEditorForm({
   const currency = (siteSettings?.currency_code || "USD").toUpperCase();
   const locale = lang === "vi" ? "vi-VN" : "en-US";
   const wholeUnits = usesWholeCurrencyUnits(currency);
+  const rate = siteSettings?.usd_to_vnd_rate && siteSettings.usd_to_vnd_rate > 0 ? siteSettings.usd_to_vnd_rate : 24500;
+  const altCurrency: StoreCurrency = currency === "USD" ? "VND" : "USD";
+  const altAmount = convertMoney(Number(draft.price) || 0, currency, altCurrency, rate);
 
   return (
     <div className="flex flex-col gap-4">
@@ -82,8 +85,9 @@ export function ProductEditorForm({
                   }}
                 />
                 <p className="text-secondary text-xs mt-1 font-body">
-                  {t("admin.priceStorefrontPreview", {
-                    price: formatMoney(Number(draft.price) || 0, currency, locale),
+                  {t("admin.priceDualPreview", {
+                    base: formatMoney(Number(draft.price) || 0, currency, locale),
+                    converted: formatMoney(altAmount, altCurrency, locale),
                   })}
                 </p>
                 <p className="text-secondary text-xs mt-0.5 font-body">{t("admin.priceCurrencyHint")}</p>

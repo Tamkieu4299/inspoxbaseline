@@ -530,8 +530,14 @@ def get_site_settings(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
 def update_site_settings(
     payload: SiteSettingsIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep
 ):
+    from ..currency import normalize_base_currency
+
     site = _get_or_create_site(db, tenant.id)
-    for field, value in payload.model_dump().items():
+    data = payload.model_dump()
+    data["currency_code"] = normalize_base_currency(data.get("currency_code"))
+    rate = float(data.get("usd_to_vnd_rate") or 24500)
+    data["usd_to_vnd_rate"] = rate if rate > 0 else 24500.0
+    for field, value in data.items():
         setattr(site, field, value)
     db.commit()
     db.refresh(site)
