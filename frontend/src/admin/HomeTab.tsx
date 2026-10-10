@@ -180,11 +180,11 @@ export default function HomeTab() {
         </div>
       </div>
 
-      <div className="px-6 lg:px-8 py-8 max-w-[1600px] mx-auto w-full grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+      <div className="px-6 lg:px-8 py-8 max-w-[1600px] mx-auto w-full grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_min(420px,38%)] gap-8 xl:gap-10 items-start">
         {/* Left editor */}
-        <div className="xl:col-span-7 flex flex-col gap-10">
+        <div className="flex flex-col gap-10 min-w-0 relative z-[2]">
           {/* M1 Hero */}
-          <section className="bg-white p-6 lg:p-8 rounded-xl shadow-sm flex flex-col gap-8">
+          <section className="bg-white p-6 lg:p-8 rounded-xl shadow-sm flex flex-col gap-8 min-w-0">
             <div className="flex items-center justify-between pb-2 flex-wrap gap-3">
               <div className="flex items-center gap-3">
                 <ModuleBadge n="M1" />
@@ -384,14 +384,14 @@ export default function HomeTab() {
               </div>
             </div>
 
-            <div className="p-6 rounded-lg bg-surface-container-low flex flex-col gap-4">
-              <div className="flex items-center justify-between">
+            <div className="rounded-lg bg-surface-container-low flex flex-col gap-4 border-t border-surface-container-high pt-8 mt-2">
+              <div className="flex items-center justify-between px-1">
                 <span className="font-label text-label-caps uppercase text-primary font-bold tracking-widest text-xs">{t("admin.heroColors")}</span>
                 <button type="button" className="font-label text-label-caps uppercase text-secondary hover:text-primary text-xs" onClick={() => set("hero_colors", {})}>
                   {t("admin.reset")}
                 </button>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-1 pb-1">
                 <ColorField label={t("admin.colorKickerBg")} value={colors.kickerBg} onChange={(v) => setColor("kickerBg", v)} clearLabel={t("admin.clear")} />
                 <ColorField label={t("admin.colorKickerText")} value={colors.kickerText} onChange={(v) => setColor("kickerText", v)} clearLabel={t("admin.clear")} />
                 <ColorField label={t("admin.colorTitle")} value={colors.title} onChange={(v) => setColor("title", v)} clearLabel={t("admin.clear")} />
@@ -553,8 +553,8 @@ export default function HomeTab() {
           {saveMutation.isError && <p className="text-error text-sm">{String(saveMutation.error)}</p>}
         </div>
 
-        {/* Right staging panel */}
-        <div className="xl:col-span-5 flex flex-col gap-8 xl:sticky xl:top-20">
+        {/* Right staging panel — scrolls inside column so it does not cover the editor */}
+        <div className="flex flex-col gap-8 min-w-0 xl:sticky xl:top-4 xl:self-start xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto xl:z-[1] xl:overscroll-contain">
           <div className="bg-white p-6 rounded-xl shadow-md flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">

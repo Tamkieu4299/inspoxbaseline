@@ -48,22 +48,22 @@ export function ColorField({
   return (
     <label className="flex flex-col gap-1">
       <span className="font-label text-label-caps text-secondary uppercase">{label}</span>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 min-w-0">
         <input
           type="color"
           value={value || "#ffffff"}
           onChange={(e) => onChange(e.target.value)}
-          className="h-10 w-12 cursor-pointer border border-surface-container-highest bg-white p-1"
+          className="h-10 w-12 shrink-0 cursor-pointer border border-surface-container-highest bg-white p-1"
         />
         <TextInput
           value={value || ""}
           onChange={(e) => onChange(e.target.value || undefined)}
-          className="flex-1"
+          className="flex-1 min-w-[5rem]"
         />
         <button
           type="button"
           onClick={() => onChange(undefined)}
-          className="font-label text-label-caps text-error hover:underline uppercase"
+          className="font-label text-label-caps text-error hover:underline uppercase shrink-0"
         >
           {clearLabel}
         </button>
