@@ -147,7 +147,11 @@ export const adminApi = {
     saveAdminProfile(data.user);
     return data;
   },
-  testAuth: () => request<MeResponse>("/api/admin/auth/me", { headers: adminHeaders() }),
+  testAuth: async () => {
+    const me = await request<MeResponse>("/api/admin/auth/me", { headers: adminHeaders() });
+    saveAdminProfile(me.user);
+    return me;
+  },
 
   getCollections: () => request<Collection[]>(`/api/admin/collections`, { headers: adminHeaders() }),
   createCollection: (body: unknown) =>

@@ -78,6 +78,11 @@ export default function TenantPicker({ onSelect }: { onSelect: (slug: string) =>
     <AdminAuthFrame wide title={t("admin.panelTitle")} subtitle={t("admin.selectTenantHint")}>
       <h2 className="font-headline text-headline-md text-charcoal uppercase mb-2">{t("admin.tenants")}</h2>
       <p className="text-secondary text-sm mb-6">{t("admin.selectTenantHint")}</p>
+      {isSuperAdmin && (
+        <p className="text-body-sm text-primary mb-4 border border-surface-container-high bg-surface-container-low p-3 rounded">
+          {t("admin.superAdminUsersHint")}
+        </p>
+      )}
 
       {notice && <p className="text-success text-sm mb-3">{notice}</p>}
       {error && <p className="text-error text-sm mb-3">{error}</p>}
