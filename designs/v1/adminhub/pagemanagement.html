@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Chivo:wght@700;800&amp;family=Hanken+Grotesk:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"secondary":"#5d5f5f","on-tertiary-fixed-variant":"#454747","on-tertiary":"#ffffff","surface-dim":"#dadada","tertiary-fixed-dim":"#c6c6c6","background":"#f9f9f9","outline":"#7e7576","tertiary":"#000000","primary":"#000000","error":"#ba1a1a","surface-container-low":"#f3f3f4","primary-fixed":"#e2e2e2","on-secondary":"#ffffff","surface-container-highest":"#e2e2e2","on-surface-variant":"#4c4546","error-container":"#ffdad6","surface-tint":"#5e5e5e","on-secondary-fixed-variant":"#454747","outline-variant":"#cfc4c5","on-primary-container":"#848484","secondary-fixed":"#e2e2e2","surface-container-high":"#e8e8e8","primary-fixed-dim":"#c6c6c6","on-error-container":"#93000a","surface":"#f9f9f9","secondary-container":"#dcdddd","surface-bright":"#f9f9f9","surface-container":"#eeeeee","on-error":"#ffffff","inverse-primary":"#c6c6c6","on-secondary-container":"#5f6161","on-primary-fixed-variant":"#474747","on-tertiary-fixed":"#1a1c1c","primary-container":"#1b1b1b","on-tertiary-container":"#838484","inverse-on-surface":"#f0f1f1","on-surface":"#1a1c1c","secondary-fixed-dim":"#c6c6c7","surface-variant":"#e2e2e2","tertiary-container":"#1a1c1c","inverse-surface":"#2f3131","tertiary-fixed":"#e2e2e2","on-secondary-fixed":"#1a1c1c","on-primary-fixed":"#1b1b1b","on-background":"#1a1c1c","on-primary":"#ffffff","surface-container-lowest":"#ffffff"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"margin-mobile":"1rem","stack-sm":"0.5rem","margin-desktop":"5rem","stack-xxl":"8rem","stack-xl":"4rem","stack-xs":"0.25rem","gutter":"1.5rem","stack-lg":"2rem","stack-md":"1rem"},"fontFamily":{"display-lg-mobile":["Chivo"],"display-lg":["Chivo"],"headline-lg-mobile":["Chivo"],"label-caps":["Hanken Grotesk"],"headline-md":["Chivo"],"body-md":["Hanken Grotesk"],"body-lg":["Hanken Grotesk"],"headline-lg":["Chivo"]},"fontSize":{"display-lg-mobile":["48px",{"lineHeight":"1.1","letterSpacing":"-0.02em","fontWeight":"800"}],"display-lg":["72px",{"lineHeight":"1.1","letterSpacing":"-0.04em","fontWeight":"800"}],"headline-lg-mobile":["32px",{"lineHeight":"1.2","letterSpacing":"-0.01em","fontWeight":"700"}],"label-caps":["12px",{"lineHeight":"1.0","letterSpacing":"0.1em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"1.3","fontWeight":"700"}],"body-md":["16px",{"lineHeight":"1.6","fontWeight":"400"}],"body-lg":["18px",{"lineHeight":"1.6","fontWeight":"400"}],"headline-lg":["40px",{"lineHeight":"1.2","letterSpacing":"-0.02em","fontWeight":"700"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-surface-container shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex flex-col"><div class="h-20 px-8 flex items-center justify-between border-b border-surface-container"><div class="flex flex-col"><span class="font-headline-md text-headline-md tracking-tight uppercase text-primary leading-none">APEX</span><span class="font-label-caps text-label-caps tracking-widest uppercase text-on-surface-variant mt-stack-xs">ATHLETIC</span></div><span class="font-label-caps text-label-caps uppercase px-2 py-1 rounded bg-surface-container text-on-surface">HQ</span></div><div class="px-8 pt-6 pb-2"><span class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-widest">Tennis Division</span></div><nav class="flex flex-col px-4 gap-1" data-active-classes="bg-primary text-on-primary font-bold"><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="overview" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span class="font-body-md text-body-md">Overview</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="catalog-&amp;-products" href="#"><span class="material-symbols-outlined text-[20px]">sports_tennis</span><span class="font-body-md text-body-md">Catalog &amp; Products</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="inventory-&amp;-drops" href="#"><span class="material-symbols-outlined text-[20px]">inventory_2</span><span class="font-body-md text-body-md">Inventory &amp; Drops</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="media-&amp;-assets" href="#"><span class="material-symbols-outlined text-[20px]">photo_camera</span><span class="font-body-md text-body-md">Media &amp; Assets</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="the-club-journal-(blog/stories)" href="#"><span class="material-symbols-outlined text-[20px]">menu_book</span><span class="font-body-md text-body-md">The Club Journal</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="homepage-&amp;-content-studio" href="#"><span class="material-symbols-outlined text-[20px]">auto_fix_high</span><span class="font-body-md text-body-md">Homepage &amp; Studio</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="system-configuration" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-body-md text-body-md">System Configuration</span></a></nav></div><div class="p-4 border-t border-surface-container"><div class="flex items-center gap-3 px-4 py-3 rounded bg-surface-container-low"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col min-w-0"><span class="font-label-caps text-label-caps uppercase text-on-surface truncate">Brand Director</span><span class="font-body-md text-body-md text-[11px] text-on-surface-variant uppercase tracking-wider truncate">GLOBAL HQ</span></div></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-20 bg-surface/90 backdrop-blur-xl border-b border-surface-container z-40 px-8 flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex items-center gap-6 flex-1 max-w-2xl"><div class="flex items-center gap-2 px-3 py-1.5 rounded border border-surface-container bg-surface-container-lowest text-on-surface cursor-pointer"><span class="font-label-caps text-label-caps uppercase">Division: Pro Tennis</span><span class="material-symbols-outlined text-[16px] text-on-surface-variant">unfold_more</span></div><div class="flex items-center gap-3 flex-1 px-4 py-2 rounded bg-surface-container-low border border-surface-container"><span class="material-symbols-outlined text-[20px] text-on-surface-variant">search</span><input class="w-full bg-transparent font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none" placeholder="Search global SKU, product, drop ID, or article..." type="text"/></div></div><div class="flex items-center gap-4"><button class="w-10 h-10 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">help_outline</span></button><button class="relative w-10 h-10 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary"></span></button><div class="h-6 w-px bg-surface-container mx-1"></div><div class="flex items-center gap-3 pl-2"><div class="flex flex-col text-right"><span class="font-label-caps text-label-caps uppercase text-on-surface leading-tight">Admin Console</span><span class="font-body-md text-body-md text-[11px] text-on-surface-variant leading-tight">HQ-AUTH-901</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="relative pt-20 w-full min-h-screen bg-surface"><div class="flex flex-col w-full">
+<!-- Top Command Ribbon / Monograph Header -->
+<section class="w-full bg-surface-container-lowest px-8 py-6 shadow-sm">
+<div class="max-w-[1440px] mx-auto flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
+<div class="flex flex-col space-y-2">
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-label-caps uppercase text-secondary tracking-widest">HQ ADMIN SUITE</span>
+<span class="text-secondary text-xs">/</span>
+<span class="font-label-caps text-label-caps uppercase text-secondary tracking-widest">STOREFRONT CONTENT</span>
+<span class="text-secondary text-xs">/</span>
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold tracking-widest">STATIC PAGES &amp; MONOGRAPHS</span>
+</div>
+<div class="flex items-baseline gap-4">
+<h1 class="font-headline-lg text-headline-lg tracking-tight uppercase text-primary">
+            PAGES STUDIO <span class="font-body-md text-body-md text-secondary font-normal uppercase tracking-widest">· STATIC CMS &amp; STORYTELLING</span>
+</h1>
+<span class="px-2.5 py-0.5 rounded bg-surface-container-high text-primary font-label-caps text-[10px] tracking-wider uppercase font-bold">
+            PRO TENNIS CMS v4.2
+          </span>
+</div>
+<p class="font-body-md text-body-md text-secondary max-w-3xl">
+          Curate persistent brand monographs, heritage manifesto, and static content blocks with dual-language EN / VI synchronization for high-impact brand expression.
+        </p>
+</div>
+<!-- Action Cluster & System Telemetry -->
+<div class="flex flex-wrap items-center gap-4 xl:justify-end">
+<div class="flex flex-col text-right pr-4">
+<div class="flex items-center gap-1.5 justify-end">
+<span class="w-2 h-2 rounded-full bg-emerald-700 animate-pulse"></span>
+<span class="font-label-caps text-label-caps text-secondary uppercase">DRAFT AUTO-SAVED 14:24 GMT+7</span>
+</div>
+<span class="font-body-md text-[11px] text-secondary/70 uppercase tracking-widest font-mono">REVISION #04-STABLE</span>
+</div>
+<button class="px-5 py-3 rounded bg-surface-container-low text-primary font-label-caps text-label-caps uppercase tracking-wider hover:bg-surface-container transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">history</span>
+          DISCARD CHANGES
+        </button>
+<button class="px-6 py-3 rounded bg-surface-container-high text-primary font-label-caps text-label-caps uppercase tracking-wider hover:bg-primary-fixed-dim transition-colors flex items-center gap-2" id="previewTriggerBtn">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+          PREVIEW STOREFRONT
+        </button>
+<button class="px-7 py-3 rounded bg-[#004225] text-on-primary font-label-caps text-label-caps uppercase tracking-wider shadow-md hover:bg-[#00331d] transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">rocket_launch</span>
+          PUBLISH LIVE (XUẤT BẢN)
+        </button>
+</div>
+</div>
+</section>
+<!-- Dual Workspace: Studio Editor + Live Telemetry Rail -->
+<section class="max-w-[1440px] mx-auto w-full px-8 py-8 grid grid-cols-12 gap-8">
+<!-- LEFT & CENTER: Navigation Directory + Interactive Page Builder (Cols 1-8) -->
+<div class="col-span-12 lg:col-span-8 flex flex-col space-y-8">
+<!-- Monograph Selector / Page Directory Bento -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
+<div class="flex items-center justify-between pb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">folder_special</span>
+<h2 class="font-headline-md text-headline-md uppercase tracking-tight text-primary">MONOGRAPH REPOSITORY</h2>
+</div>
+<button class="px-4 py-2 rounded bg-[#004225] text-on-primary font-label-caps text-[11px] uppercase tracking-wider flex items-center gap-1.5 shadow-sm hover:bg-[#00331d] transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span>
+            + TẠO TRANG MỚI (+ NEW PAGE)
+          </button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+<!-- Item 1 (Selected) -->
+<div class="p-3.5 rounded-lg bg-surface-container-low cursor-pointer relative shadow-sm transition-all hover:bg-surface-container">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-caps text-[10px] text-[#004225] font-bold uppercase tracking-widest bg-emerald-100 px-1.5 py-0.5 rounded">ACTIVE · HOẠT ĐỘNG</span>
+<span class="font-label-caps text-[10px] text-secondary font-mono">POS: 01</span>
+</div>
+<p class="font-headline-md text-[15px] uppercase text-primary leading-tight font-bold">ABOUT US</p>
+<p class="font-body-md text-[12px] text-secondary truncate mt-0.5">VỀ CHÚNG TÔI</p>
+<div class="mt-3 flex items-center justify-between">
+<span class="font-body-md text-[11px] text-secondary font-mono">/pages/about-us</span>
+<span class="w-1.5 h-1.5 rounded-full bg-[#004225]"></span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="p-3.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low cursor-pointer transition-all">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-caps text-[10px] text-secondary uppercase tracking-widest bg-surface-container px-1.5 py-0.5 rounded">ACTIVE</span>
+<span class="font-label-caps text-[10px] text-secondary font-mono">POS: 02</span>
+</div>
+<p class="font-headline-md text-[15px] uppercase text-primary leading-tight font-bold">THE CLUB JOURNAL</p>
+<p class="font-body-md text-[12px] text-secondary truncate mt-0.5">NHẬT KÝ SÂN CỎ</p>
+<div class="mt-3 flex items-center justify-between">
+<span class="font-body-md text-[11px] text-secondary font-mono">/pages/journal</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">arrow_forward</span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="p-3.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low cursor-pointer transition-all">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-caps text-[10px] text-secondary uppercase tracking-widest bg-surface-container px-1.5 py-0.5 rounded">ACTIVE</span>
+<span class="font-label-caps text-[10px] text-secondary font-mono">POS: 03</span>
+</div>
+<p class="font-headline-md text-[15px] uppercase text-primary leading-tight font-bold">HERITAGE ARCHIVE</p>
+<p class="font-body-md text-[12px] text-secondary truncate mt-0.5">KHO LƯU TRỮ DI SẢN</p>
+<div class="mt-3 flex items-center justify-between">
+<span class="font-body-md text-[11px] text-secondary font-mono">/pages/heritage</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">arrow_forward</span>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="p-3.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low cursor-pointer transition-all">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest bg-surface-container-high px-1.5 py-0.5 rounded">DRAFT</span>
+<span class="font-label-caps text-[10px] text-secondary font-mono">POS: --</span>
+</div>
+<p class="font-headline-md text-[15px] uppercase text-primary leading-tight font-bold">TERMS &amp; GUARANTEE</p>
+<p class="font-body-md text-[12px] text-secondary truncate mt-0.5">CHÍNH SÁCH ĐỘC QUYỀN</p>
+<div class="mt-3 flex items-center justify-between">
+<span class="font-body-md text-[11px] text-secondary font-mono">/pages/legal</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">lock</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bilingual Page Metadata & Architectural Configuration -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col space-y-6">
+<div class="flex items-center justify-between pb-4">
+<div>
+<span class="font-label-caps text-label-caps uppercase text-secondary tracking-widest">CORE SPECIFICATIONS</span>
+<h3 class="font-headline-md text-headline-md uppercase text-primary tracking-tight">PAGE ATTRIBUTES &amp; ROUTING</h3>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-surface-container text-primary font-label-caps text-[11px] uppercase tracking-wider rounded">
+              PERMALINK IDENTIFIER
+            </span>
+</div>
+</div>
+<!-- Slug & URL Mapping -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+<div class="md:col-span-3">
+<label class="font-label-caps text-label-caps uppercase text-primary font-bold block mb-1">CANONICAL SLUG</label>
+<span class="font-body-md text-[12px] text-secondary">Base storefront path</span>
+</div>
+<div class="md:col-span-9 flex items-center gap-2">
+<div class="flex-1 flex items-center bg-surface-container-low px-4 py-3 rounded">
+<span class="font-body-md text-secondary select-none text-[13px] mr-1">https://apexathletic.maison/</span>
+<input class="bg-transparent font-body-md text-primary font-bold focus:outline-none flex-1 text-[14px]" type="text" value="pages/about-us"/>
+</div>
+<button class="p-3 rounded bg-surface-container text-primary hover:bg-surface-container-high transition-colors" title="Copy URL">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Dual Language Titles -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+<!-- English Title -->
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col space-y-2">
+<div class="flex items-center justify-between">
+<label class="font-label-caps text-label-caps uppercase text-primary font-bold flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-blue-600"></span> PAGE TITLE (MASTER EN)
+              </label>
+<span class="font-label-caps text-[10px] text-secondary">EN_GLOBAL</span>
+</div>
+<input class="w-full bg-surface-container-lowest px-3 py-2.5 rounded font-headline-md text-[18px] text-primary uppercase tracking-tight focus:outline-none shadow-sm" type="text" value="ABOUT US"/>
+<div class="flex items-center justify-between pt-1">
+<span class="font-body-md text-[11px] text-secondary">Header navigation representation</span>
+<input class="w-28 text-right bg-surface-container-lowest px-2 py-1 rounded font-label-caps text-[11px] uppercase tracking-wider text-primary focus:outline-none shadow-sm" type="text" value="ABOUT"/>
+</div>
+</div>
+<!-- Vietnamese Title -->
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col space-y-2">
+<div class="flex items-center justify-between">
+<label class="font-label-caps text-label-caps uppercase text-primary font-bold flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-red-600"></span> TIÊU ĐỀ TRANG (BẢN VI)
+              </label>
+<span class="font-label-caps text-[10px] text-secondary">VI_DOMESTIC</span>
+</div>
+<input class="w-full bg-surface-container-lowest px-3 py-2.5 rounded font-headline-md text-[18px] text-primary uppercase tracking-tight focus:outline-none shadow-sm" type="text" value="VỀ CHÚNG TÔI"/>
+<div class="flex items-center justify-between pt-1">
+<span class="font-body-md text-[11px] text-secondary">Hiển thị thanh menu chính</span>
+<input class="w-28 text-right bg-surface-container-lowest px-2 py-1 rounded font-label-caps text-[11px] uppercase tracking-wider text-primary focus:outline-none shadow-sm" type="text" value="GIỚI THIỆU"/>
+</div>
+</div>
+</div>
+<!-- Subtitle / Brand Tagline Sync -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col space-y-1.5">
+<label class="font-label-caps text-[11px] uppercase text-secondary font-bold">SUBTITLE / NARRATIVE HOOK (EN)</label>
+<textarea class="w-full bg-surface-container-low p-3 rounded font-body-md text-primary text-[13px] focus:outline-none resize-none leading-relaxed" rows="2">The story behind Baseline Club and the quiet luxury of lawn tennis.</textarea>
+</div>
+<div class="flex flex-col space-y-1.5">
+<label class="font-label-caps text-[11px] uppercase text-secondary font-bold">MÔ TẢ NGẮN / DẪN NHẬP (VI)</label>
+<textarea class="w-full bg-surface-container-low p-3 rounded font-body-md text-primary text-[13px] focus:outline-none resize-none leading-relaxed" rows="2">Câu chuyện đằng sau Baseline Club và vẻ đẹp sang trọng vượt thời gian của tennis sân cỏ.</textarea>
+</div>
+</div>
+<!-- Storefront Controls, Toggles & Shade -->
+<div class="p-4 rounded-lg bg-surface-container-low grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-center">
+<div class="flex items-center justify-between px-2">
+<div>
+<span class="font-label-caps text-[11px] uppercase text-primary font-bold block">ENABLE PAGE</span>
+<span class="font-body-md text-[10px] text-secondary uppercase">BẬT TRANG</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#004225]"></div>
+</label>
+</div>
+<div class="flex items-center justify-between px-2">
+<div>
+<span class="font-label-caps text-[11px] uppercase text-primary font-bold block">HEADER NAV</span>
+<span class="font-body-md text-[10px] text-secondary uppercase">THANH ĐIỀU HƯỚNG</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#004225]"></div>
+</label>
+</div>
+<div class="flex items-center justify-between px-2">
+<div>
+<span class="font-label-caps text-[11px] uppercase text-primary font-bold block">MENU ORDER</span>
+<span class="font-body-md text-[10px] text-secondary uppercase">THỨ TỰ MENU</span>
+</div>
+<input class="w-12 text-center bg-surface-container-lowest py-1 rounded font-bold font-mono text-[13px] text-primary focus:outline-none shadow-sm" type="number" value="1"/>
+</div>
+<div class="flex items-center justify-between px-2">
+<div>
+<span class="font-label-caps text-[11px] uppercase text-primary font-bold block">TITLE TONE</span>
+<span class="font-body-md text-[10px] text-secondary font-mono">#1C1917</span>
+</div>
+<div class="w-6 h-6 rounded-full bg-[#1c1917] shadow-sm cursor-pointer ring-2 ring-surface-container-lowest"></div>
+</div>
+</div>
+<!-- Hero Asset Selection Unit -->
+<div class="flex flex-col space-y-3 pt-2">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">COVER HERO MONOGRAM ASSET</span>
+<span class="font-label-caps text-[11px] text-secondary uppercase tracking-widest font-mono">2880 × 1400 (RETINA 4K)</span>
+</div>
+<div class="relative w-full h-56 rounded-lg overflow-hidden group shadow-sm bg-surface-container">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A pristine high-end Wimbledon style grass tennis court on an overcast morning with white baseline chalk markings, vintage leather tennis racquets resting on a teak court bench, and dew drops glistening on manicured lawn turf, luxury athletic editorial aesthetic with muted forest green and chalk white tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNPp8mNfME4AeG9wr8aMB3PLlUPaRAabruwAXAMuDOn8dqEhrxl_DixBdcrpfJLzxprVwUFgbxforbqCSrwQpqlFAYVSvXH29dYsZZRw7s-swchtOrQR_s-xyqxG8w7qU687EfZ1IRrWa6-A-byt4nyPq5WTTFctl37VQPAKtsH-lmML-DOGsdMSv2xrDc2Ej3BS-m-t6CwXHMh13CwyBEfU-rTHiXwSH9bl5s7KIcJ5kYzJaGf0lY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent flex flex-col justify-between p-6">
+<div class="flex justify-between items-center">
+<span class="px-2.5 py-1 rounded bg-surface-container-lowest text-primary font-label-caps text-[10px] font-bold tracking-widest uppercase shadow">
+                  ACTIVE HERO COVER
+                </span>
+<span class="font-label-caps text-[11px] text-on-primary tracking-widest uppercase bg-primary/40 backdrop-blur-sm px-2 py-0.5 rounded">
+                  ASSET ID: APX-ASSET-092
+                </span>
+</div>
+<div class="flex items-end justify-between">
+<div>
+<h4 class="font-headline-md text-headline-md text-on-primary uppercase tracking-tight">CENTRE COURT HERITAGE MANIFESTO</h4>
+<p class="font-body-md text-on-primary/80 text-[12px] uppercase tracking-wider">APEX ARCHIVE · PHOTOGRAPHY BY SEBASTIEN LECLERC</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest/90 backdrop-blur-sm text-primary font-label-caps text-[10px] uppercase font-bold tracking-wider hover:bg-surface-container-lowest transition-all">
+                    CHANGE ASSET
+                  </button>
+<button class="p-1.5 rounded bg-primary/60 backdrop-blur-sm text-on-primary hover:bg-red-800 transition-all">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Modular Content Blocks Stream ('KHỐI NỘI DUNG') -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col space-y-6">
+<div class="flex items-center justify-between pb-2">
+<div>
+<span class="font-label-caps text-label-caps uppercase text-secondary tracking-widest">CONTENT ARCHITECTURE</span>
+<h3 class="font-headline-md text-headline-md uppercase text-primary tracking-tight">STORYTELLING MODULAR BLOCKS (KHỐI NỘI DUNG)</h3>
+</div>
+<span class="font-label-caps text-[11px] uppercase text-secondary font-mono">5 ACTIVE SECTIONS</span>
+</div>
+<!-- Quick Add Toolbar -->
+<div class="p-3 bg-surface-container-low rounded-lg flex flex-wrap items-center gap-2">
+<span class="font-label-caps text-[10px] uppercase text-secondary font-bold mr-2">APPEND BLOCK:</span>
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest text-primary font-label-caps text-[11px] uppercase tracking-wider hover:bg-primary hover:text-on-primary transition-all flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">title</span> + HEADING
+          </button>
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest text-primary font-label-caps text-[11px] uppercase tracking-wider hover:bg-primary hover:text-on-primary transition-all flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">format_align_left</span> + TEXT BLOCK
+          </button>
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest text-primary font-label-caps text-[11px] uppercase tracking-wider hover:bg-primary hover:text-on-primary transition-all flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">image</span> + IMAGE ASSET
+          </button>
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest text-primary font-label-caps text-[11px] uppercase tracking-wider hover:bg-primary hover:text-on-primary transition-all flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">format_quote</span> + PULL QUOTE
+          </button>
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest text-primary font-label-caps text-[11px] uppercase tracking-wider hover:bg-primary hover:text-on-primary transition-all flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">smart_button</span> + CTA LINK
+          </button>
+</div>
+<!-- Blocks Container -->
+<div class="flex flex-col space-y-4">
+<!-- Block 1: HEADING -->
+<div class="p-5 rounded-lg bg-surface-container-low shadow-sm flex flex-col space-y-3 group transition-all hover:bg-surface-container">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="w-6 h-6 rounded bg-primary text-on-primary flex items-center justify-center font-label-caps text-[11px] font-mono">01</span>
+<span class="font-label-caps text-[11px] uppercase font-bold text-primary tracking-wider">TYPE: HEADING (H2 EDITORIAL)</span>
+</div>
+<div class="flex items-center gap-1 text-secondary">
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">arrow_upward</span></button>
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">arrow_downward</span></button>
+<button class="p-1 hover:text-red-700 transition-colors ml-2"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<span class="font-label-caps text-[10px] uppercase text-secondary block mb-1">ENGLISH MASTER</span>
+<input class="w-full bg-surface-container-lowest px-3 py-2 rounded font-headline-md text-[16px] text-primary uppercase tracking-tight focus:outline-none" type="text" value="OUR STORY &amp; HERITAGE"/>
+</div>
+<div>
+<span class="font-label-caps text-[10px] uppercase text-secondary block mb-1">TIẾNG VIỆT LOCALIZED</span>
+<input class="w-full bg-surface-container-lowest px-3 py-2 rounded font-headline-md text-[16px] text-primary uppercase tracking-tight focus:outline-none" type="text" value="CÂU CHUYỆN VÀ DI SẢN CỦA CHÚNG TÔI"/>
+</div>
+</div>
+</div>
+<!-- Block 2: TEXT / RICHTEXT -->
+<div class="p-5 rounded-lg bg-surface-container-low shadow-sm flex flex-col space-y-3 group transition-all hover:bg-surface-container">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="w-6 h-6 rounded bg-primary text-on-primary flex items-center justify-center font-label-caps text-[11px] font-mono">02</span>
+<span class="font-label-caps text-[11px] uppercase font-bold text-primary tracking-wider">TYPE: TEXT / RICHTEXT MONOGRAPH</span>
+</div>
+<div class="flex items-center gap-1 text-secondary">
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">arrow_upward</span></button>
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">arrow_downward</span></button>
+<button class="p-1 hover:text-red-700 transition-colors ml-2"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<span class="font-label-caps text-[10px] uppercase text-secondary block mb-1">ENGLISH NARRATIVE</span>
+<textarea class="w-full bg-surface-container-lowest p-3 rounded font-body-md text-[13px] text-primary leading-relaxed focus:outline-none resize-none" rows="3">To bring a fresh and modern take on tennis style, combining timeless elegance with technical athletic precision.</textarea>
+</div>
+<div>
+<span class="font-label-caps text-[10px] uppercase text-secondary block mb-1">NỘI DUNG TIẾNG VIỆT</span>
+<textarea class="w-full bg-surface-container-lowest p-3 rounded font-body-md text-[13px] text-primary leading-relaxed focus:outline-none resize-none" rows="3">Mang đến một góc nhìn mới và hiện đại cho phong cách tennis, kết hợp nét thanh lịch với kỹ thuật thể thao chuẩn xác.</textarea>
+</div>
+</div>
+</div>
+<!-- Block 3: IMAGE & CAPTION -->
+<div class="p-5 rounded-lg bg-surface-container-low shadow-sm flex flex-col space-y-3 group transition-all hover:bg-surface-container">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="w-6 h-6 rounded bg-primary text-on-primary flex items-center justify-center font-label-caps text-[11px] font-mono">03</span>
+<span class="font-label-caps text-[11px] uppercase font-bold text-primary tracking-wider">TYPE: EDITORIAL ASSET &amp; CAPTION</span>
+</div>
+<div class="flex items-center gap-1 text-secondary">
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">arrow_upward</span></button>
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">arrow_downward</span></button>
+<button class="p-1 hover:text-red-700 transition-colors ml-2"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+<div class="md:col-span-4 h-28 rounded-md overflow-hidden relative shadow-sm">
+<img class="w-full h-full object-cover" data-alt="Close up architectural detail of an English historic tennis club pavilion with dark green painted wood slats, ivory club insignia, and players in tailored white polo shirts walking toward the grass courts, high contrast luxury minimalism." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAylZsDgA7Lz0zeM3Nh_nNAciNvCeEkYDS5GgAFaSxY45DeGYlwqxzWpYNwqtyTfF_AT8dLAZth6hok2mjUdT7LAgFBY7Q3iMhoGOIwL1rafl0Ju5-pAv2Wuhzdb13Vo9xj2FYoRhz-80ODoaJgIEKMpOxgVT-iHN2Iyz8uGHv5kGjNM3D72zRK9oop9tsMAUvrMBehYzR5TW6EQ7wrvvBV17QZJMjDPIiVggqPP9enLiPiEqHZ1uyp"/>
+<span class="absolute bottom-1 right-1 bg-primary/70 text-on-primary text-[9px] font-label-caps px-1 py-0.5 rounded uppercase">IMG_082</span>
+</div>
+<div class="md:col-span-8 flex flex-col space-y-2">
+<div>
+<span class="font-label-caps text-[10px] uppercase text-secondary block mb-1">CAPTION (EN)</span>
+<input class="w-full bg-surface-container-lowest px-3 py-1.5 rounded font-body-md text-[13px] text-primary focus:outline-none" type="text" value="The OnCourt Collection · Engineered for grass-court kinematics"/>
+</div>
+<div>
+<span class="font-label-caps text-[10px] uppercase text-secondary block mb-1">CHÚ THÍCH (VI)</span>
+<input class="w-full bg-surface-container-lowest px-3 py-1.5 rounded font-body-md text-[13px] text-primary focus:outline-none" type="text" value="Bộ sưu tập OnCourt · Kỹ thuật cho chuyển động trên sân cỏ"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Block 4: PULLQUOTE -->
+<div class="p-5 rounded-lg bg-surface-container-low shadow-sm flex flex-col space-y-3 group transition-all hover:bg-surface-container">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="w-6 h-6 rounded bg-primary text-on-primary flex items-center justify-center font-label-caps text-[11px] font-mono">04</span>
+<span class="font-label-caps text-[11px] uppercase font-bold text-primary tracking-wider">TYPE: PHILOSOPHICAL PULLQUOTE</span>
+</div>
+<div class="flex items-center gap-1 text-secondary">
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">arrow_upward</span></button>
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">arrow_downward</span></button>
+<button class="p-1 hover:text-red-700 transition-colors ml-2"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</div>
+<div class="flex flex-col space-y-2">
+<input class="w-full bg-surface-container-lowest px-3 py-2 rounded font-body-lg text-[15px] italic text-primary focus:outline-none" type="text" value="“Every point is a calculation. Every swing, a testament to physics and timeless elegance.”"/>
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-[10px] uppercase text-secondary">CITATION / BYLINE:</span>
+<input class="w-72 bg-surface-container-lowest px-3 py-1 rounded font-label-caps text-[11px] uppercase tracking-wider text-primary focus:outline-none" type="text" value="APEX ATHLETIC MONOGRAPH VOL. 1"/>
+</div>
+</div>
+</div>
+<!-- Block 5: CTA BUTTON -->
+<div class="p-5 rounded-lg bg-surface-container-low shadow-sm flex flex-col space-y-3 group transition-all hover:bg-surface-container">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="w-6 h-6 rounded bg-primary text-on-primary flex items-center justify-center font-label-caps text-[11px] font-mono">05</span>
+<span class="font-label-caps text-[11px] uppercase font-bold text-primary tracking-wider">TYPE: CALL TO ACTION (INTERACTIVE LINK)</span>
+</div>
+<div class="flex items-center gap-1 text-secondary">
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">arrow_upward</span></button>
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">arrow_downward</span></button>
+<button class="p-1 hover:text-red-700 transition-colors ml-2"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+<div>
+<span class="font-label-caps text-[10px] uppercase text-secondary block mb-1">BUTTON TEXT (EN)</span>
+<input class="w-full bg-surface-container-lowest px-3 py-2 rounded font-label-caps text-[11px] uppercase tracking-wider text-primary font-bold focus:outline-none" type="text" value="EXPLORE THE COURT COLLECTION"/>
+</div>
+<div>
+<span class="font-label-caps text-[10px] uppercase text-secondary block mb-1">NÚT HÀNH ĐỘNG (VI)</span>
+<input class="w-full bg-surface-container-lowest px-3 py-2 rounded font-label-caps text-[11px] uppercase tracking-wider text-primary font-bold focus:outline-none" type="text" value="KHÁM PHÁ BỘ SƯU TẬP ONCOURT"/>
+</div>
+<div>
+<span class="font-label-caps text-[10px] uppercase text-secondary block mb-1">DESTINATION URI</span>
+<input class="w-full bg-surface-container-lowest px-3 py-2 rounded font-mono text-[12px] text-primary focus:outline-none" type="text" value="/collections/oncourt"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT: Live Viewport Simulator & Ingestion Telemetry (Cols 9-12) -->
+<div class="col-span-12 lg:col-span-4 flex flex-col space-y-8">
+<!-- Simulated Live Viewport Replica -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold tracking-wider">LIVE VIEWPORT (1080P STAGED)</span>
+</div>
+<div class="flex items-center bg-surface-container-low rounded p-0.5">
+<button class="px-2 py-1 rounded bg-surface-container-lowest text-primary text-[11px] font-label-caps uppercase tracking-wider shadow-xs" id="viewDesktopBtn">
+<span class="material-symbols-outlined text-[14px]">desktop_windows</span>
+</button>
+<button class="px-2 py-1 rounded text-secondary hover:text-primary text-[11px] font-label-caps uppercase tracking-wider" id="viewMobileBtn">
+<span class="material-symbols-outlined text-[14px]">smartphone</span>
+</button>
+</div>
+</div>
+<!-- Browser Simulation Frame -->
+<div class="w-full rounded-lg bg-surface-container-lowest overflow-hidden shadow-md flex flex-col">
+<!-- Browser Top Chrome -->
+<div class="bg-surface-container-high px-3 py-2 flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary/40"></span>
+<span class="w-2 h-2 rounded-full bg-secondary/40"></span>
+<span class="w-2 h-2 rounded-full bg-secondary/40"></span>
+</div>
+<div class="bg-surface-container-lowest px-3 py-0.5 rounded text-[10px] font-mono text-secondary truncate max-w-[200px]">
+              apexathletic.maison/pages/about-us
+            </div>
+<span class="material-symbols-outlined text-[13px] text-secondary">refresh</span>
+</div>
+<!-- Staged Page Mockup Canvas -->
+<div class="p-4 bg-surface max-h-[500px] overflow-y-auto space-y-4">
+<!-- Simulated Storefront Nav -->
+<div class="flex items-center justify-between pb-3">
+<span class="font-headline-md text-[13px] tracking-widest uppercase font-bold text-primary">APEX</span>
+<div class="flex items-center gap-3 text-[10px] font-label-caps uppercase text-secondary">
+<span class="text-primary font-bold">ABOUT</span>
+<span>COLLECTION</span>
+<span>JOURNAL</span>
+</div>
+</div>
+<!-- Simulated Hero Banner -->
+<div class="relative w-full h-36 rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Chalk line on wet morning tennis grass with player in minimalist cream colored uniform, luxury sportswear photoshoot." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbbu6a56hvmzRoFtyThxEaO4pE3OYLmtHJcMbmXUFrcMvG7XGraAB5sm951xqja7Ztms3P23zwwyZXF0yg2gT81lw4rWEXcoLLPdV9yS3Jgh6yXEWNiE9m2ektFlYgGTjgyE3La0ruV2LxEej6vQl_6PsLlWpoZ3GiNGe9Sih0MenxDtSvT9CH85s8IzhjfyjCu5dLoi7rMbtG8bUA_khs4OteH-NTyu7zaKV4S3o_rsZALGhUdbDk"/>
+<div class="absolute inset-0 bg-primary/40 flex flex-col justify-center items-center text-center p-3">
+<span class="font-label-caps text-[9px] uppercase tracking-widest text-on-primary/90">MONOGRAPH 01</span>
+<h3 class="font-headline-md text-[18px] uppercase text-on-primary tracking-tight">ABOUT US</h3>
+<p class="font-body-md text-[10px] text-on-primary/80 line-clamp-1 mt-1">The quiet luxury of lawn tennis.</p>
+</div>
+</div>
+<!-- Staged Body Content -->
+<div class="space-y-3 pt-2">
+<div class="text-center">
+<span class="font-label-caps text-[9px] uppercase tracking-widest text-[#004225] font-bold">OUR STORY &amp; HERITAGE</span>
+<p class="font-body-md text-[11px] text-primary leading-tight mt-1 px-2">
+                  To bring a fresh and modern take on tennis style, combining timeless elegance with technical athletic precision.
+                </p>
+</div>
+<!-- Staged Pullquote -->
+<div class="p-3 bg-surface-container-low rounded text-center">
+<p class="font-body-md text-[11px] italic text-primary">“Every point is a calculation. Every swing, a testament to physics.”</p>
+<span class="font-label-caps text-[8px] uppercase tracking-wider text-secondary mt-1 block">APEX ATHLETIC VOL. 1</span>
+</div>
+<!-- Staged CTA -->
+<div class="pt-2 text-center">
+<button class="px-4 py-2 bg-primary text-on-primary font-label-caps text-[9px] uppercase tracking-wider rounded">
+                  EXPLORE THE COURT COLLECTION
+                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Localization Health & Bilingual Parity -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col space-y-4">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">LOCALIZATION MATRIX</span>
+<span class="font-label-caps text-[11px] text-[#004225] uppercase font-bold tracking-wider">SYNCHRONIZED</span>
+</div>
+<div class="space-y-3">
+<!-- English Bar -->
+<div class="space-y-1">
+<div class="flex justify-between text-[11px] font-label-caps uppercase">
+<span class="text-primary font-bold">ENGLISH (MASTER REPO)</span>
+<span class="text-secondary font-mono">100% COMPLETE</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 100%"></div>
+</div>
+</div>
+<!-- Vietnamese Bar -->
+<div class="space-y-1">
+<div class="flex justify-between text-[11px] font-label-caps uppercase">
+<span class="text-primary font-bold">TIẾNG VIỆT (LOCALIZED)</span>
+<span class="text-[#004225] font-mono">100% SYNCED</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-[#004225] h-full rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+<div class="p-3 rounded bg-surface-container-low flex items-center justify-between text-[11px]">
+<span class="font-body-md text-secondary">Last localized audit:</span>
+<span class="font-mono text-primary font-bold">14:10 GMT+7 by ApexVN-AI</span>
+</div>
+</div>
+<!-- SEO & OpenGraph Snippet Engine -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col space-y-4">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">SEARCH &amp; SOCIAL METADATA</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">share</span>
+</div>
+<div class="space-y-2">
+<span class="font-label-caps text-[10px] uppercase text-secondary">SERP SEARCH ENGINE PREVIEW</span>
+<div class="p-3 rounded bg-surface-container-low">
+<p class="font-headline-md text-[14px] text-blue-900 leading-tight">About APEX ATHLETIC | Heritage Tennis Maison</p>
+<p class="font-mono text-[10px] text-emerald-800 mt-0.5">https://apexathletic.maison/pages/about-us</p>
+<p class="font-body-md text-[11px] text-secondary mt-1 line-clamp-2">
+              Discover the story behind Baseline Club and the quiet luxury of lawn tennis. Precision apparel engineered for timeless courtside poise.
+            </p>
+</div>
+</div>
+<div class="space-y-2 pt-1">
+<span class="font-label-caps text-[10px] uppercase text-secondary">OG SOCIAL CARD ASSET</span>
+<div class="flex items-center gap-3 p-2 rounded bg-surface-container-low">
+<div class="w-12 h-12 rounded bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Minimalist luxury tennis court social sharing thumbnail card with white lines and green turf." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnC05ETYZ_e3tvbexrbmuVGbDtEHuIMfdfz1mVJvcRpY_hkYgjMN71DBDJ9LgYMDCeZBIi1rn_-1LFN8CuUO5A-rgwiyaE7a7qKHT3sLyqmfgpPK-QM6aVNy1C-bWwCt1qiFLGpo1-bdNWKHtxDqa_Qb-bb2Mxtsyyfjdi4v9oSyAsmuQEKcx7FLX9MB6bDX4u5li4RAC3vn-mPJ3QabJx6n7os4nmBmMTHoS9ZkJAvQRv2LnVFex7"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-caps text-[10px] text-primary uppercase font-bold truncate">og:image-apex-about.jpg</span>
+<span class="font-mono text-[9px] text-secondary">1200 × 630px · WebP 98KB</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Edge CDN & Cache Invalidation Telemetry -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col space-y-3">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">CDN &amp; CACHE INVALIDATION</span>
+<span class="flex items-center gap-1 font-label-caps text-[10px] text-emerald-700 font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span> WARM
+          </span>
+</div>
+<!-- Inline SVG Sparkline / POP Sync Graph -->
+<div class="p-3 bg-surface-container-low rounded-lg space-y-2">
+<div class="flex justify-between items-center text-[10px] font-label-caps uppercase text-secondary">
+<span>EDGE LATENCY (TOKYO / SINGAPORE / LONDON)</span>
+<span class="font-mono text-primary font-bold">18ms AVG</span>
+</div>
+<svg class="w-full h-10 text-primary" fill="none" viewbox="0 0 200 40">
+<path d="M0,30 Q30,10 60,25 T120,15 T160,28 T200,8" fill="none" stroke="currentColor" stroke-width="2"></path>
+<circle cx="200" cy="8" fill="#004225" r="3"></circle>
+</svg>
+</div>
+<div class="grid grid-cols-2 gap-2 text-[10px] font-mono text-secondary pt-1">
+<div class="p-2 bg-surface-container-low rounded">
+<span class="block text-secondary">FASTLY POP:</span>
+<span class="text-primary font-bold">HAN-01 (ACTIVE)</span>
+</div>
+<div class="p-2 bg-surface-container-low rounded">
+<span class="block text-secondary">CLOUDFLARE:</span>
+<span class="text-primary font-bold">SIN-EDGE (PURGED)</span>
+</div>
+</div>
+<button class="w-full py-2 rounded bg-surface-container text-primary font-label-caps text-[10px] uppercase tracking-wider hover:bg-surface-container-high transition-colors">
+          FORCE PURGE EDGE CACHE (STATIC VARY)
+        </button>
+</div>
+</div>
+</section>
+</div>
+<script>
+  // Device Preview Toggle
+  const viewDesktopBtn = document.getElementById('viewDesktopBtn');
+  const viewMobileBtn = document.getElementById('viewMobileBtn');
+
+  if (viewDesktopBtn && viewMobileBtn) {
+    viewDesktopBtn.addEventListener('click', () => {
+      viewDesktopBtn.classList.add('bg-surface-container-lowest', 'text-primary');
+      viewDesktopBtn.classList.remove('text-secondary');
+      viewMobileBtn.classList.remove('bg-surface-container-lowest', 'text-primary');
+      viewMobileBtn.classList.add('text-secondary');
+    });
+
+    viewMobileBtn.addEventListener('click', () => {
+      viewMobileBtn.classList.add('bg-surface-container-lowest', 'text-primary');
+      viewMobileBtn.classList.remove('text-secondary');
+      viewDesktopBtn.classList.remove('bg-surface-container-lowest', 'text-primary');
+      viewDesktopBtn.classList.add('text-secondary');
+    });
+  }
+
+  // Preview Button Feedback
+  const previewBtn = document.getElementById('previewTriggerBtn');
+  if (previewBtn) {
+    previewBtn.addEventListener('click', () => {
+      previewBtn.classList.add('opacity-70');
+      setTimeout(() => previewBtn.classList.remove('opacity-70'), 300);
+    });
+  }
+</script></main></div></body></html>

@@ -11,16 +11,28 @@ export function blankBlock(type: BlockType = "text"): PageBlock {
   return { id: 0, block_type: type, position: 0, data: {} };
 }
 
+const BLOCK_STUDIO_META: Record<BlockType, { icon: string; labelKey: string }> = {
+  heading: { icon: "title", labelKey: "admin.blockTypeHeading" },
+  text: { icon: "format_align_left", labelKey: "admin.blockTypeText" },
+  image: { icon: "image", labelKey: "admin.blockTypeImage" },
+  quote: { icon: "format_quote", labelKey: "admin.blockTypeQuote" },
+  list: { icon: "list", labelKey: "admin.blockTypeList" },
+  cta: { icon: "smart_button", labelKey: "admin.blockTypeCta" },
+};
+
 export function BlocksField({
   blocks,
   onChange,
   mediaById,
+  variant = "default",
 }: {
   blocks: PageBlock[];
   onChange: (blocks: PageBlock[]) => void;
   mediaById: Map<number, Media>;
+  variant?: "default" | "studio";
 }) {
   const { t } = useLanguage();
+  const studio = variant === "studio";
   function update(index: number, block: PageBlock) {
     onChange(blocks.map((b, i) => (i === index ? block : b)));
   }
@@ -29,51 +41,153 @@ export function BlocksField({
     update(index, { ...blocks[index], data });
   }
 
+  const quickAddBar = (
+    <div
+      className={
+        studio
+          ? "p-3 bg-surface-container-low rounded-lg flex flex-wrap items-center gap-2"
+          : "flex flex-wrap gap-2"
+      }
+    >
+      {studio ? (
+        <span className="font-label text-[10px] uppercase text-secondary font-bold mr-1">{t("admin.pagesStudio.appendBlock")}</span>
+      ) : null}
+      {BLOCK_TYPES.map((bt) => (
+        <button
+          key={bt}
+          type="button"
+          onClick={() => onChange([...blocks, blankBlock(bt)])}
+          className={
+            studio
+              ? "px-3 py-1.5 rounded bg-surface-container-lowest text-primary font-label text-[11px] uppercase tracking-wider hover:bg-primary hover:text-on-primary transition-all flex items-center gap-1 shadow-sm"
+              : "border border-surface-container-highest px-3 py-1.5 font-label text-label-caps text-primary hover:border-forest-green hover:text-forest-green transition-colors"
+          }
+        >
+          {studio ? (
+            <span className="material-symbols-outlined text-[14px]">{BLOCK_STUDIO_META[bt].icon}</span>
+          ) : null}
+          + {studio ? t(BLOCK_STUDIO_META[bt].labelKey as "admin.blockTypeHeading") : bt.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <span className="font-label text-label-caps text-secondary uppercase">{t("admin.contentBlocks")}</span>
-      </div>
+      {!studio ? (
+        <div className="flex items-center justify-between">
+          <span className="font-label text-label-caps text-secondary uppercase">{t("admin.contentBlocks")}</span>
+        </div>
+      ) : null}
+      {studio ? quickAddBar : null}
       {blocks.length === 0 && (
         <p className="font-body text-body-md text-secondary">{t("admin.noBlocks")}</p>
       )}
       {blocks.map((block, index) => {
         const d = block.data || {};
+        const shellClass = studio
+          ? "p-5 rounded-lg bg-surface-container-low shadow-sm flex flex-col gap-3 group transition-all hover:bg-surface-container"
+          : "border border-surface-container-highest p-3 flex flex-col gap-3";
         return (
-          <div key={index} className="border border-surface-container-highest p-3 flex flex-col gap-3">
+          <div key={index} className={shellClass}>
             <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <Select
-                  value={block.block_type}
-                  onChange={(e) => update(index, { ...block, block_type: e.target.value })}
-                  className="w-40"
-                >
-                  {BLOCK_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t.toUpperCase()}
-                    </option>
-                  ))}
-                </Select>
-                <span className="font-label text-label-caps text-secondary">{t("admin.pos")} {index + 1}</span>
+              <div className="flex items-center gap-2 min-w-0">
+                {studio ? (
+                  <>
+                    <span className="w-6 h-6 rounded bg-primary text-on-primary flex items-center justify-center font-label text-[11px] font-mono shrink-0">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="font-label text-[11px] uppercase font-bold text-primary tracking-wider truncate">
+                      {t("admin.pagesStudio.blockType")}: {block.block_type.toUpperCase()}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Select
+                      value={block.block_type}
+                      onChange={(e) => update(index, { ...block, block_type: e.target.value })}
+                      className="w-40"
+                    >
+                      {BLOCK_TYPES.map((bt) => (
+                        <option key={bt} value={bt}>
+                          {bt.toUpperCase()}
+                        </option>
+                      ))}
+                    </Select>
+                    <span className="font-label text-label-caps text-secondary">
+                      {t("admin.pos")} {index + 1}
+                    </span>
+                  </>
+                )}
               </div>
-              <div className="flex items-center gap-2">
-                <SecondaryButtonSmall onClick={() => {
-                  const next = [...blocks];
-                  if (index > 0) [next[index - 1], next[index]] = [next[index], next[index - 1]];
-                  onChange(next);
-                }}>
-                  ↑
-                </SecondaryButtonSmall>
-                <SecondaryButtonSmall onClick={() => {
-                  const next = [...blocks];
-                  if (index < blocks.length - 1) [next[index + 1], next[index]] = [next[index], next[index + 1]];
-                  onChange(next);
-                }}>
-                  ↓
-                </SecondaryButtonSmall>
-                <DangerButton onClick={() => onChange(blocks.filter((_, i) => i !== index))}>
-                  {t("admin.remove")}
-                </DangerButton>
+              <div className="flex items-center gap-1 shrink-0">
+                {studio ? (
+                  <>
+                    <button
+                      type="button"
+                      className="p-1 text-secondary hover:text-primary transition-colors"
+                      onClick={() => {
+                        const next = [...blocks];
+                        if (index > 0) [next[index - 1], next[index]] = [next[index], next[index - 1]];
+                        onChange(next);
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">arrow_upward</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="p-1 text-secondary hover:text-primary transition-colors"
+                      onClick={() => {
+                        const next = [...blocks];
+                        if (index < blocks.length - 1) [next[index + 1], next[index]] = [next[index], next[index + 1]];
+                        onChange(next);
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">arrow_downward</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="p-1 text-secondary hover:text-error transition-colors ml-1"
+                      onClick={() => onChange(blocks.filter((_, i) => i !== index))}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
+                    <Select
+                      value={block.block_type}
+                      onChange={(e) => update(index, { ...block, block_type: e.target.value })}
+                      className="w-28 ml-1 text-xs"
+                      aria-label={t("admin.pagesStudio.blockType")}
+                    >
+                      {BLOCK_TYPES.map((bt) => (
+                        <option key={bt} value={bt}>
+                          {bt}
+                        </option>
+                      ))}
+                    </Select>
+                  </>
+                ) : (
+                  <>
+                    <SecondaryButtonSmall
+                      onClick={() => {
+                        const next = [...blocks];
+                        if (index > 0) [next[index - 1], next[index]] = [next[index], next[index - 1]];
+                        onChange(next);
+                      }}
+                    >
+                      ↑
+                    </SecondaryButtonSmall>
+                    <SecondaryButtonSmall
+                      onClick={() => {
+                        const next = [...blocks];
+                        if (index < blocks.length - 1) [next[index + 1], next[index]] = [next[index], next[index + 1]];
+                        onChange(next);
+                      }}
+                    >
+                      ↓
+                    </SecondaryButtonSmall>
+                    <DangerButton onClick={() => onChange(blocks.filter((_, i) => i !== index))}>{t("admin.remove")}</DangerButton>
+                  </>
+                )}
               </div>
             </div>
 
@@ -208,17 +322,7 @@ export function BlocksField({
           </div>
         );
       })}
-      <div className="flex flex-wrap gap-2">
-        {BLOCK_TYPES.map((t) => (
-          <button
-            key={t}
-            onClick={() => onChange([...blocks, blankBlock(t)])}
-            className="border border-surface-container-highest px-3 py-1.5 font-label text-label-caps text-primary hover:border-forest-green hover:text-forest-green transition-colors"
-          >
-            + {t.toUpperCase()}
-          </button>
-        ))}
-      </div>
+      {!studio ? quickAddBar : null}
     </div>
   );
 }
