@@ -516,6 +516,11 @@ export function ProductEditorForm({
               <p className="font-label text-label-caps text-secondary mb-2">
                 {t("admin.imagesHint")}
               </p>
+              {draft.colors.length === 0 ? (
+                <p className="font-body text-body-sm text-secondary mb-3">{t("admin.imageColorwayNeedsColors")}</p>
+              ) : (
+                <p className="font-body text-body-sm text-secondary mb-3">{t("admin.imageColorwayHint")}</p>
+              )}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {(() => {
                   const mainIndex = draft.images.findIndex((i) => i.enabled);
@@ -561,6 +566,32 @@ export function ProductEditorForm({
                           {img.enabled ? "✓" : "✕"}
                         </span>
                       </button>
+                      {draft.colors.length > 0 ? (
+                        <div className="mt-2">
+                          <label className="font-label text-[9px] uppercase tracking-wider text-secondary block mb-1">
+                            {t("admin.imageColorway")}
+                          </label>
+                          <Select
+                            value={img.color_name || ""}
+                            onChange={(e) => {
+                              set(
+                                "images",
+                                draft.images.map((im, i) =>
+                                  i === index ? { ...im, color_name: e.target.value } : im
+                                )
+                              );
+                            }}
+                            className="w-full text-xs"
+                          >
+                            <option value="">{t("admin.imageColorwayAll")}</option>
+                            {draft.colors.map((c) => (
+                              <option key={c.name} value={c.name}>
+                                {c.name}
+                              </option>
+                            ))}
+                          </Select>
+                        </div>
+                      ) : null}
                       <div className="flex flex-col gap-1 mt-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
