@@ -15,7 +15,7 @@ import {
   type ProductDraft,
 } from "./productDraft";
 import { useLanguage } from "../i18n";
-import { convertMoney, formatMoney, type StoreCurrency } from "../money";
+import { formatMoney } from "../money";
 
 function CatalogSelect({
   value,
@@ -113,9 +113,7 @@ export default function ProductsTab() {
   const { data: categories } = useQuery({ queryKey: ["admin-categories"], queryFn: adminApi.getCategories });
   const { data: collections } = useQuery({ queryKey: ["admin-collections"], queryFn: adminApi.getCollections });
   const { data: siteSettings } = useQuery({ queryKey: ["admin-site"], queryFn: adminApi.getSite });
-  const storeCurrency = ((siteSettings?.currency_code || "USD").toUpperCase() as StoreCurrency) || "USD";
-  const usdToVnd = siteSettings?.usd_to_vnd_rate && siteSettings.usd_to_vnd_rate > 0 ? siteSettings.usd_to_vnd_rate : 24500;
-  const altCurrency: StoreCurrency = storeCurrency === "USD" ? "VND" : "USD";
+  const storeCurrency = (siteSettings?.currency_code || "VND").toUpperCase();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | "new">();
@@ -502,11 +500,8 @@ export default function ProductsTab() {
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <span className="font-body font-bold text-on-surface flex flex-col">
-                        <span>{formatMoney(p.price, storeCurrency)}</span>
-                        <span className="text-xs font-normal text-secondary">
-                          ≈ {formatMoney(convertMoney(p.price, storeCurrency, altCurrency, usdToVnd), altCurrency)}
-                        </span>
+                      <span className="font-body font-bold text-on-surface">
+                        {formatMoney(p.price, storeCurrency, "vi-VN")}
                       </span>
                     </td>
                     <td className="py-4 px-4">

@@ -4,8 +4,7 @@ import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
 import type { Media, SiteSettings } from "../types";
 import { ImageField } from "./MediaLibrary";
-import { STORE_CURRENCIES } from "../money";
-import { Field, PrimaryButton, Select, TextInput } from "./ui";
+import { Field, PrimaryButton, TextInput } from "./ui";
 
 export default function SiteTab() {
   const queryClient = useQueryClient();
@@ -40,7 +39,7 @@ export default function SiteTab() {
       <div className="flex items-center justify-between">
         <h3 className="font-headline text-headline-md text-primary uppercase">{t("admin.siteBranding")}</h3>
         <PrimaryButton
-          onClick={() => saveMutation.mutate(draftValue)}
+          onClick={() => saveMutation.mutate({ ...draftValue, currency_code: "VND" })}
           disabled={!draft}
         >
           {t("admin.saveBranding")}
@@ -56,27 +55,12 @@ export default function SiteTab() {
           <TextInput value={draftValue.site_name} onChange={(e) => set("site_name", e.target.value)} />
         </Field>
         <Field label={t("admin.baseCurrency")}>
-          <Select
-            value={(draftValue.currency_code || "USD").toUpperCase()}
-            onChange={(e) => set("currency_code", e.target.value.toUpperCase())}
-          >
-            {STORE_CURRENCIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </Select>
-          <p className="text-secondary text-sm mt-1">{t("admin.storeCurrencyHint")}</p>
-        </Field>
-        <Field label={t("admin.usdToVndRate")}>
-          <TextInput
-            type="number"
-            min={1}
-            step={1}
-            value={draftValue.usd_to_vnd_rate ?? 24500}
-            onChange={(e) => set("usd_to_vnd_rate", Number(e.target.value))}
-          />
-          <p className="text-secondary text-sm mt-1">{t("admin.usdToVndRateHint")}</p>
+          <p className="font-body text-body-md text-primary py-2">VND — {t("admin.vndOnlyHint")}</p>
+          {(draftValue.currency_code || "VND").toUpperCase() !== "VND" && (
+            <PrimaryButton type="button" className="mt-2 text-xs" onClick={() => set("currency_code", "VND")}>
+              {t("admin.switchToVnd")}
+            </PrimaryButton>
+          )}
         </Field>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ImageField

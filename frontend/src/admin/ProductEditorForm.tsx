@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { QueryClient } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
@@ -17,7 +18,7 @@ import {
   ViInput,
 } from "./ui";
 import { useLanguage } from "../i18n";
-import { convertMoney, formatMoney, priceInputStep, usesWholeCurrencyUnits, type StoreCurrency } from "../money";
+import { formatMoney } from "../money";
 import { PRODUCT_BADGES, type ProductDraft } from "./productDraft";
 
 export function ProductEditorForm({
@@ -55,12 +56,13 @@ export function ProductEditorForm({
 }) {
   const { t, lang } = useLanguage();
   const { data: siteSettings } = useQuery({ queryKey: ["admin-site"], queryFn: adminApi.getSite });
-  const currency = (siteSettings?.currency_code || "USD").toUpperCase();
-  const locale = lang === "vi" ? "vi-VN" : "en-US";
-  const wholeUnits = usesWholeCurrencyUnits(currency);
-  const rate = siteSettings?.usd_to_vnd_rate && siteSettings.usd_to_vnd_rate > 0 ? siteSettings.usd_to_vnd_rate : 24500;
-  const altCurrency: StoreCurrency = currency === "USD" ? "VND" : "USD";
-  const altAmount = convertMoney(Number(draft.price) || 0, currency, altCurrency, rate);
+  const currency = (siteSettings?.currency_code || "VND").toUpperCase();
+  const locale = "vi-VN";
+  const [priceText, setPriceText] = useState("");
+  useEffect(() => {
+    const p = Number(draft.price);
+    setPriceText(p > 0 ? String(Math.round(p)) : "");
+  }, [draft.id]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -74,23 +76,22 @@ export function ProductEditorForm({
               </Field>
               <Field label={t("admin.priceInCurrency", { currency })}>
                 <TextInput
-                  type="number"
-                  min={0}
-                  step={priceInputStep(currency)}
-                  value={draft.price}
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  placeholder="350000"
+                  value={priceText}
                   onChange={(e) => {
-                    const raw = e.target.value;
-                    const n = raw === "" ? 0 : Number(raw);
-                    set("price", wholeUnits ? Math.round(n) : n);
+                    const digits = e.target.value.replace(/\D/g, "");
+                    setPriceText(digits);
+                    set("price", digits === "" ? 0 : Number(digits));
                   }}
                 />
                 <p className="text-secondary text-xs mt-1 font-body">
-                  {t("admin.priceDualPreview", {
-                    base: formatMoney(Number(draft.price) || 0, currency, locale),
-                    converted: formatMoney(altAmount, altCurrency, locale),
+                  {t("admin.priceStorefrontPreview", {
+                    price: formatMoney(Number(draft.price) || 0, currency, locale),
                   })}
                 </p>
-                <p className="text-secondary text-xs mt-0.5 font-body">{t("admin.priceCurrencyHint")}</p>
               </Field>
               <Field label="Category">
                 <Select
@@ -124,10 +125,10 @@ export function ProductEditorForm({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field label={t("admin.subtitle")}>
-                <TextInput value={draft.subtitle} onChange={(e) => set("subtitle", e.target.value)} />
+              <Field label={t("admin.productCaption")}>
+                <TextArea rows={2} value={draft.subtitle} onChange={(e) => set("subtitle", e.target.value)} placeholder={t("admin.productCaptionHint")} />
               </Field>
-              <ViInput label={t("admin.subtitle")} value={draft.subtitle_vi} onChange={(e) => set("subtitle_vi", e.target.value)} placeholder="Phụ đề tiếng Việt" />
+              <ViArea label={t("admin.productCaption")} rows={2} value={draft.subtitle_vi} onChange={(e) => set("subtitle_vi", e.target.value)} placeholder="Phụ đề / caption tiếng Việt" />
             </div>
             <Field label={t("admin.description")}>
               <TextArea rows={3} value={draft.description} onChange={(e) => set("description", e.target.value)} />

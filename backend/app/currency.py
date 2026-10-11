@@ -1,14 +1,14 @@
-"""USD ↔ VND conversion for multi-currency storefronts."""
+"""Store currency normalization (VND-only storefront)."""
 
 from __future__ import annotations
 
-STOREFRONT_CURRENCIES = ("USD", "VND")
+STOREFRONT_CURRENCIES = ("VND",)
 DEFAULT_USD_TO_VND = 24_500.0
 
 
 def normalize_base_currency(code: str | None) -> str:
-    c = (code or "USD").upper()
-    return c if c in STOREFRONT_CURRENCIES else "USD"
+    c = (code or "VND").upper()
+    return c if c in STOREFRONT_CURRENCIES else "VND"
 
 
 def convert_amount(

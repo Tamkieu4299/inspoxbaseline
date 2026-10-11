@@ -228,7 +228,7 @@ function HomeHero({ hero }: { hero: HomeData["hero"] }) {
           </>
         )}
       </div>
-      <div className="relative z-10 w-full max-w-3xl flex flex-col items-start gap-4">
+      <div className="relative z-10 w-full max-w-5xl flex flex-col items-start gap-4 pr-4 md:pr-16">
         <div className="bg-forest-green px-3 py-1 inline-block" style={c.kickerBg ? { backgroundColor: c.kickerBg } : undefined}>
           <span
             className="font-label text-label-caps text-white uppercase tracking-widest font-bold"
@@ -243,7 +243,10 @@ function HomeHero({ hero }: { hero: HomeData["hero"] }) {
         >
           {hero.title}
         </h1>
-        <p className="font-body text-body-lg text-secondary max-w-xl" style={subtitleColor ? { color: subtitleColor } : undefined}>
+        <p
+          className="font-body text-body-lg text-secondary max-w-4xl leading-relaxed text-pretty"
+          style={subtitleColor ? { color: subtitleColor } : undefined}
+        >
           {hero.subtitle}
         </p>
         <div className="mt-4 flex gap-4">

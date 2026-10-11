@@ -313,5 +313,5 @@ class SiteSettings(Base, TimestampMixin):
     favicon_media_id: Mapped[int | None] = mapped_column(ForeignKey("media.id"), nullable=True)
     favicon_media: Mapped["Media | None"] = relationship("Media", foreign_keys=[favicon_media_id])
     nav_items: Mapped[list] = mapped_column(JSON, default=list)
-    currency_code: Mapped[str] = mapped_column(String(3), default="USD")
+    currency_code: Mapped[str] = mapped_column(String(3), default="VND")
     usd_to_vnd_rate: Mapped[float] = mapped_column(Float, default=24500.0)

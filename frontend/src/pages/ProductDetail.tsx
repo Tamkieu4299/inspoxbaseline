@@ -55,7 +55,7 @@ export default function ProductDetail() {
             {product.name}
           </h1>
           {product.subtitle && (
-            <p className="font-label text-label-caps text-secondary uppercase tracking-widest mb-2">{product.subtitle}</p>
+            <p className="font-body text-body-md text-secondary max-w-2xl leading-relaxed mb-2">{product.subtitle}</p>
           )}
           <p className="font-body text-body-lg text-primary font-semibold mb-4">
             {formatPrice(Number(product.price) || 0)}

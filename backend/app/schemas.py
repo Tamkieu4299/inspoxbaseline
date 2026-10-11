@@ -363,7 +363,7 @@ class SiteSettingsBase(BaseModel):
     logo_media_id: int | None = None
     favicon_media_id: int | None = None
     nav_items: list[Any] = Field(default_factory=list)
-    currency_code: str = "USD"
+    currency_code: str = "VND"
     usd_to_vnd_rate: float = 24500.0
 
 
@@ -382,9 +382,9 @@ class SitePublic(BaseModel):
     logo_url: str | None = None
     favicon_url: str | None = None
     nav_items: list[Any] = Field(default_factory=list)
-    currency_code: str = "USD"
+    currency_code: str = "VND"
     usd_to_vnd_rate: float = 24500.0
-    supported_currencies: list[str] = Field(default_factory=lambda: ["USD", "VND"])
+    supported_currencies: list[str] = Field(default_factory=lambda: ["VND"])
 
 
 from pydantic import model_validator

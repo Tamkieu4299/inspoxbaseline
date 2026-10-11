@@ -698,7 +698,7 @@ export default function HomeTab() {
                 <h3 className="font-editorial text-3xl font-extrabold uppercase tracking-tight whitespace-pre-line" style={{ color: colors.title || "#fff" }}>
                   {d.hero_title}
                 </h3>
-                <p className="text-xs max-w-sm mt-1 line-clamp-2 opacity-90" style={{ color: colors.subtitle || "#e5e7eb" }}>
+                <p className="text-sm max-w-xl mt-2 leading-relaxed opacity-90" style={{ color: colors.subtitle || "#e5e7eb" }}>
                   {d.hero_subtitle}
                 </p>
                 <div className="flex items-center gap-3 mt-4 flex-wrap">

@@ -43,8 +43,8 @@ export default function ProductCard({ product }: { product: Product }) {
           <h2 className="font-headline text-headline-md text-primary uppercase leading-none group-hover:text-forest-green transition-colors">
             {product.name}
           </h2>
-          <p className="font-label text-label-caps text-secondary mt-1">
-            {product.category?.name || product.subtitle || ""} / {colorLabel(product, t)}
+          <p className="font-body text-body-sm text-secondary mt-1 leading-snug">
+            {[product.subtitle || product.category?.name, colorLabel(product, t)].filter(Boolean).join(" · ")}
           </p>
           <p className="font-body text-body-md text-primary mt-2">{formatPrice(product.price)}</p>
       </div>
