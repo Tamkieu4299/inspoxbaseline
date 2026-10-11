@@ -178,7 +178,17 @@ def get_home(
     )
 
     hero_image = home.hero_media.url if home.hero_media else None
-    master_image = home.master_media.url if home.master_media else None
+    master_media_obj = home.master_media
+    master_image = master_media_obj.url if master_media_obj else None
+    master_media_type: str | None = None
+    if master_media_obj:
+        ct = (master_media_obj.content_type or "").lower()
+        if ct.startswith("video/"):
+            master_media_type = "video"
+        elif ct.startswith("image/"):
+            master_media_type = "image"
+        elif master_image and master_image.lower().split("?")[0].endswith((".mp4", ".webm", ".mov", ".m4v")):
+            master_media_type = "video"
 
     carousel_images = []
     if home.hero_image_ids:
@@ -210,6 +220,7 @@ def get_home(
         "title": loc(home.master_title, home.master_title_vi),
         "description": loc(home.master_description, home.master_description_vi),
         "media": master_image,
+        "media_type": master_media_type,
         "features": _vi_list(home.features or [], [("title", "title_vi")]),
         "trending_title": loc(home.trending_title, home.trending_title_vi),
         "trending_view_all_label": loc(

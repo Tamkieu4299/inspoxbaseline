@@ -131,26 +131,49 @@ function HomeSectionBlock({
                 ))}
               </div>
             </div>
-            <div className="relative bg-surface-container-low h-full min-h-[400px] overflow-hidden">
-              {master.media && (
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url('${master.media}')` }}
-                />
-              )}
-              <div className="absolute inset-0 bg-white/10" />
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-20 h-20 border-2 border-forest-green rounded-full flex items-center justify-center backdrop-blur-sm bg-white/50 text-forest-green">
-                  <Icon name="play_arrow" className="text-[32px]" weight="fill" />
-                </div>
-              </div>
-            </div>
+            <MasterMediaPanel url={master.media} mediaType={master.media_type} />
           </div>
         </section>
       );
     default:
       return null;
   }
+}
+
+function MasterMediaPanel({
+  url,
+  mediaType,
+}: {
+  url: string | null;
+  mediaType?: "image" | "video" | null;
+}) {
+  const isVideo = Boolean(url && mediaType === "video");
+
+  return (
+    <div className="relative bg-surface-container-low h-full min-h-[400px] overflow-hidden">
+      {url && isVideo ? (
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          src={url}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+        />
+      ) : url ? (
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${url}')` }} />
+      ) : null}
+      <div className="absolute inset-0 bg-white/10 pointer-events-none" />
+      {!isVideo && url ? (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-20 h-20 border-2 border-forest-green rounded-full flex items-center justify-center backdrop-blur-sm bg-white/50 text-forest-green">
+            <Icon name="play_arrow" className="text-[32px]" weight="fill" />
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 function HomeHero({ hero }: { hero: HomeData["hero"] }) {

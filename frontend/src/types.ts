@@ -96,6 +96,7 @@ export interface HomeData {
     title: string;
     description: string;
     media: string | null;
+    media_type?: "image" | "video" | null;
     features: { index?: string; title?: string }[];
     trending_title: string;
     trending_view_all_label: string;

@@ -10,7 +10,7 @@ import {
   type HomeSectionConfig,
   type HomeSectionId,
 } from "../homeSections";
-import { ImageField, MediaPicker } from "./MediaLibrary";
+import { ImageField, MediaField, MediaPicker } from "./MediaLibrary";
 import { ColorField, PrimaryButton, SecondaryButton } from "./ui";
 
 const studioInputClass =
@@ -603,8 +603,9 @@ export default function HomeTab() {
                 <input className={`${studioInputClass} font-headline text-lg`} value={d.master_title_vi || ""} onChange={(e) => set("master_title_vi", e.target.value)} />
               </label>
             </div>
-            <ImageField
-              label={t("admin.mediaImage")}
+            <MediaField
+              allowVideo
+              label={t("admin.masterMedia")}
               value={d.master_media_id ? mediaById.get(d.master_media_id) || null : null}
               onChange={(m) => set("master_media_id", m ? m.id : null)}
             />

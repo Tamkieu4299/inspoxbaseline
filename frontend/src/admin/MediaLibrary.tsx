@@ -27,6 +27,21 @@ function extLabel(filename: string, contentType: string): string {
   return "IMG";
 }
 
+export function isVideoMedia(m: Media): boolean {
+  return (m.content_type || "").toLowerCase().startsWith("video/");
+}
+
+export function isImageMedia(m: Media): boolean {
+  return (m.content_type || "").toLowerCase().startsWith("image/");
+}
+
+function MediaThumb({ media: m, className }: { media: Media; className?: string }) {
+  if (isVideoMedia(m)) {
+    return <video src={m.url} className={className || "w-full h-32 object-cover mb-2"} muted playsInline preload="metadata" />;
+  }
+  return <img src={m.url} alt={m.filename} className={className || "w-full h-32 object-cover mb-2"} loading="lazy" />;
+}
+
 function assetCategory(m: Media): AssetTab {
   const f = m.filename.toLowerCase();
   if (f.includes("video") || m.content_type.startsWith("video/")) return "video";
@@ -36,7 +51,15 @@ function assetCategory(m: Media): AssetTab {
   return "pdp";
 }
 
-function UploadButton({ onDone, label }: { onDone: (m: Media) => void; label?: string }) {
+function UploadButton({
+  onDone,
+  label,
+  accept = "image/*",
+}: {
+  onDone: (m: Media) => void;
+  label?: string;
+  accept?: string;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { t } = useLanguage();
@@ -56,13 +79,23 @@ function UploadButton({ onDone, label }: { onDone: (m: Media) => void; label?: s
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept={accept}
         className="hidden"
         multiple
-        onChange={(e) => {
+        onChange={async (e) => {
           const file = e.target.files?.[0];
-          if (file) setPendingFile({ file, preview: URL.createObjectURL(file) });
+          if (!file) return;
           e.target.value = "";
+          if (file.type.startsWith("video/")) {
+            setUploading(true);
+            try {
+              await mutation.mutateAsync(file);
+            } finally {
+              setUploading(false);
+            }
+            return;
+          }
+          setPendingFile({ file, preview: URL.createObjectURL(file) });
         }}
       />
       <PrimaryButton
@@ -557,16 +590,19 @@ function IconBtn({
 export function MediaLibrary({
   onSelect,
   hubLayout = false,
+  mediaFilter,
 }: {
   onSelect?: (m: Media) => void;
   hubLayout?: boolean;
+  mediaFilter?: (m: Media) => boolean;
 }) {
   const { data: media, isLoading } = useMedia();
   const { t } = useLanguage();
 
   if (isLoading) return <p className="font-body text-body-md text-secondary">{t("admin.loadingMedia")}</p>;
 
-  const list = media || [];
+  let list = media || [];
+  if (mediaFilter) list = list.filter(mediaFilter);
 
   if (hubLayout) {
     return <DigitalAssetStudio media={list} />;
@@ -582,7 +618,7 @@ export function MediaLibrary({
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {list.map((m) => (
           <div key={m.id} className="group relative border border-surface-container-highest bg-white p-2 flex flex-col">
-            <img src={m.url} alt={m.filename} className="w-full h-32 object-cover mb-2" loading="lazy" />
+            <MediaThumb media={m} />
             <p className="font-body text-body-md text-secondary text-xs truncate">{m.filename}</p>
             {onSelect ? (
               <button
@@ -603,9 +639,11 @@ export function MediaLibrary({
 export function MediaPicker({
   onSelect,
   onClose,
+  mediaFilter,
 }: {
   onSelect: (m: Media) => void;
   onClose: () => void;
+  mediaFilter?: (m: Media) => boolean;
 }) {
   const { t } = useLanguage();
   return createPortal(
@@ -628,6 +666,7 @@ export function MediaPicker({
         </div>
         <div className="flex-1 overflow-y-auto p-6 min-h-0">
           <MediaLibrary
+            mediaFilter={mediaFilter}
             onSelect={(m) => {
               onSelect(m);
               onClose();
@@ -720,6 +759,84 @@ export function ImageField({
         </div>
       )}
       {open && <MediaPicker onSelect={onChange} onClose={() => setOpen(false)} />}
+    </div>
+  );
+}
+
+/** Image or video (e.g. homepage master monograph panel). */
+export function MediaField({
+  label,
+  value,
+  onChange,
+  allowVideo = false,
+}: {
+  label: string;
+  value?: Media | null;
+  onChange: (m: Media | null) => void;
+  allowVideo?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const uploadRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
+  const { t } = useLanguage();
+  const uploadMutation = useMutation({
+    mutationFn: (file: File) => adminApi.uploadMedia(file),
+    onSuccess: (media) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-media"] });
+      onChange(media);
+    },
+  });
+  const mediaFilter = allowVideo
+    ? (m: Media) => isImageMedia(m) || isVideoMedia(m)
+    : (m: Media) => isImageMedia(m);
+
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="font-label text-label-caps text-secondary uppercase">{label}</span>
+      {value ? (
+        <div className="flex items-center gap-3 border border-surface-container-highest bg-white p-2">
+          {isVideoMedia(value) ? (
+            <video src={value.url} className="w-24 h-16 object-cover bg-black" muted controls playsInline />
+          ) : (
+            <img src={value.url} alt={value.filename} className="w-16 h-16 object-cover" />
+          )}
+          <div className="flex flex-col gap-1 min-w-0">
+            <span className="font-body text-body-md text-on-background text-xs truncate max-w-[200px]">{value.filename}</span>
+            {isVideoMedia(value) ? (
+              <span className="font-label text-label-caps text-secondary text-[10px] uppercase">{t("admin.videoAsset")}</span>
+            ) : null}
+            <div className="flex gap-2 flex-wrap">
+              <button type="button" onClick={() => setOpen(true)} className="font-label text-label-caps text-forest-green hover:underline uppercase">
+                {t("admin.change")}
+              </button>
+              <button type="button" onClick={() => onChange(null)} className="font-label text-label-caps text-error hover:underline uppercase">
+                {t("admin.clear")}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          <SecondaryButton onClick={() => setOpen(true)}>{t("admin.chooseImage")}</SecondaryButton>
+          <input
+            ref={uploadRef}
+            type="file"
+            accept={allowVideo ? "image/*,video/*" : "image/*"}
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) uploadMutation.mutate(file);
+              e.target.value = "";
+            }}
+          />
+          <SecondaryButton type="button" onClick={() => uploadRef.current?.click()} disabled={uploadMutation.isPending}>
+            {uploadMutation.isPending ? t("admin.uploading") : allowVideo ? t("admin.uploadImageOrVideo") : t("admin.uploadImage")}
+          </SecondaryButton>
+        </div>
+      )}
+      {open && (
+        <MediaPicker mediaFilter={mediaFilter} onSelect={onChange} onClose={() => setOpen(false)} />
+      )}
     </div>
   );
 }
