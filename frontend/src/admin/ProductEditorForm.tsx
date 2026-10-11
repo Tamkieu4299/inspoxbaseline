@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { QueryClient } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
@@ -16,10 +16,86 @@ import {
   TextInput,
   ViArea,
   ViInput,
+  inputCls,
 } from "./ui";
 import { useLanguage } from "../i18n";
 import { formatMoney } from "../money";
 import { PRODUCT_BADGES, type ProductDraft } from "./productDraft";
+
+function CategoryMultiSelect({
+  categories,
+  categoryIds,
+  onChange,
+  draftKey,
+}: {
+  categories: Category[] | undefined;
+  categoryIds: number[];
+  onChange: (ids: number[]) => void;
+  /** Reset closed state when switching products */
+  draftKey: number | undefined;
+}) {
+  const { t } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [draftKey]);
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(e: MouseEvent) {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [open]);
+
+  const selected = (categories || []).filter((c) => categoryIds.includes(c.id));
+  const summary = selected.length > 0 ? selected.map((c) => c.name).join(", ") : t("admin.none");
+
+  return (
+    <div ref={rootRef} className="relative flex flex-col gap-1">
+      <span className="font-label text-label-caps text-secondary uppercase">{t("admin.categories")}</span>
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className={`${inputCls} w-full flex items-center justify-between gap-2 text-left`}
+      >
+        <span className="truncate font-body text-body-md">{summary}</span>
+        <span className={`material-symbols-outlined text-[20px] text-secondary shrink-0 transition-transform ${open ? "rotate-180" : ""}`}>
+          expand_more
+        </span>
+      </button>
+      {open ? (
+        <div className="absolute z-30 top-full left-0 right-0 mt-1 border border-surface-container-highest bg-white shadow-lg px-3 py-2 max-h-40 overflow-y-auto flex flex-col gap-2">
+          {(categories || []).length === 0 ? (
+            <span className="font-body text-body-sm text-secondary">{t("admin.none")}</span>
+          ) : (
+            (categories || []).map((c) => (
+              <div key={c.id} className="flex items-center gap-2 font-body text-body-md text-on-background">
+                <Checkbox
+                  checked={categoryIds.includes(c.id)}
+                  onChange={(e) => {
+                    const next = new Set(categoryIds);
+                    if (e.target.checked) next.add(c.id);
+                    else next.delete(c.id);
+                    onChange([...next]);
+                  }}
+                />
+                {c.name}
+              </div>
+            ))
+          )}
+        </div>
+      ) : null}
+      <p className="text-secondary text-xs mt-1 font-body">{t("admin.productCategoriesHint")}</p>
+    </div>
+  );
+}
 
 export function ProductEditorForm({
   draft,
@@ -93,31 +169,15 @@ export function ProductEditorForm({
                   })}
                 </p>
               </Field>
-              <Field label={t("admin.categories")}>
-                <div className="border border-surface-container-highest bg-white px-3 py-2 max-h-36 overflow-y-auto flex flex-col gap-2">
-                  {(categories || []).length === 0 ? (
-                    <span className="font-body text-body-sm text-secondary">{t("admin.none")}</span>
-                  ) : (
-                    (categories || []).map((c) => (
-                      <label key={c.id} className="flex items-center gap-2 font-body text-body-md text-on-background cursor-pointer">
-                        <Checkbox
-                          checked={draft.category_ids.includes(c.id)}
-                          onChange={(e) => {
-                            const next = new Set(draft.category_ids);
-                            if (e.target.checked) next.add(c.id);
-                            else next.delete(c.id);
-                            const ids = [...next];
-                            set("category_ids", ids);
-                            set("category_id", ids[0] ?? "");
-                          }}
-                        />
-                        {c.name}
-                      </label>
-                    ))
-                  )}
-                </div>
-                <p className="text-secondary text-xs mt-1 font-body">{t("admin.productCategoriesHint")}</p>
-              </Field>
+              <CategoryMultiSelect
+                categories={categories}
+                categoryIds={draft.category_ids}
+                draftKey={draft.id}
+                onChange={(ids) => {
+                  set("category_ids", ids);
+                  set("category_id", ids[0] ?? "");
+                }}
+              />
               <Field label="Collection">
                 <Select
                   value={draft.collection_id}
