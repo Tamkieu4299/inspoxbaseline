@@ -22,7 +22,7 @@ export interface ProductDraft {
   is_active: boolean;
   is_featured: boolean;
   is_bestseller: boolean;
-  images: { media_id?: number; url: string; alt: string; position: number; enabled: boolean }[];
+  images: { media_id?: number; url: string; alt: string; color_name?: string; position: number; enabled: boolean }[];
 }
 
 export const PRODUCT_BADGES = ["", "NEW", "LIMITED", "BESTSELLER", "NEW ARRIVAL"];
@@ -42,8 +42,8 @@ export function blankProductDraft(): ProductDraft {
     collection_id: "",
     badge: "",
     gallery_layout: "collage",
-    colors: [{ name: "OPTIC WHITE", hex: "#ffffff" }],
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    colors: [],
+    sizes: [],
     tech_specs: [],
     features: [],
     is_active: true,
@@ -94,6 +94,7 @@ export function productToDraft(p: Product): ProductDraft {
       media_id: i.media_id || undefined,
       url: i.url,
       alt: i.alt || "",
+      color_name: i.color_name || "",
       position: i.position,
       enabled: i.enabled !== false,
     })),

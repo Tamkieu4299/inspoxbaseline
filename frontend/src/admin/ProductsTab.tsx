@@ -830,11 +830,12 @@ export default function ProductsTab() {
                 media_id: m.id,
                 url: m.url,
                 alt: images[index].alt,
+                color_name: images[index].color_name,
                 position: index,
                 enabled: images[index].enabled,
               };
             } else {
-              images.push({ media_id: m.id, url: m.url, alt: "", position: index, enabled: true });
+              images.push({ media_id: m.id, url: m.url, alt: "", color_name: "", position: index, enabled: true });
             }
             setField("images", images);
           }}
@@ -854,6 +855,7 @@ export default function ProductsTab() {
                 media_id: media.id,
                 url: media.url,
                 alt: images[cropTarget]?.alt || "",
+                color_name: images[cropTarget]?.color_name,
                 position: cropTarget,
                 enabled: images[cropTarget]?.enabled ?? true,
               };

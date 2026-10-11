@@ -116,6 +116,7 @@ class ProductImageIn(BaseModel):
     media_id: int | None = None
     url: str = ""
     alt: str | None = None
+    color_name: str | None = None
     position: int = 0
     enabled: bool = True
 
@@ -125,6 +126,7 @@ class ProductImageOut(ORMModel):
     media_id: int | None
     url: str
     alt: str | None
+    color_name: str | None = None
     position: int
     enabled: bool
 

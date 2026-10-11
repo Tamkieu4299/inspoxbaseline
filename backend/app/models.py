@@ -177,6 +177,7 @@ class ProductImage(Base):
     media_id: Mapped[int | None] = mapped_column(ForeignKey("media.id"), nullable=True)
     url: Mapped[str] = mapped_column(String(1000))
     alt: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    color_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
     position: Mapped[int] = mapped_column(Integer, default=0)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
 

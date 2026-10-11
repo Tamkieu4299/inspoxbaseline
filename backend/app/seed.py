@@ -111,6 +111,8 @@ def _migrate_existing(db, tenant_id: int):
     _add_column_if_missing(db, "site_settings", "usd_to_vnd_rate", "FLOAT DEFAULT 24500")
     db.execute(text("UPDATE site_settings SET usd_to_vnd_rate=24500 WHERE usd_to_vnd_rate IS NULL OR usd_to_vnd_rate<=0"))
     db.commit()
+    _add_column_if_missing(db, "product_images", "color_name", "VARCHAR(200)")
+    db.commit()
     _migrate_product_categories(db)
     _backfill_media_tenant(db, tenant_id)
     _rewrite_media_urls(db)

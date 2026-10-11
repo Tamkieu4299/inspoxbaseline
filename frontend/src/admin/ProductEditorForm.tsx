@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { QueryClient } from "@tanstack/react-query";
 import type { Category, CollectionSummary } from "../types";
@@ -18,6 +18,7 @@ import {
 import { useLanguage } from "../i18n";
 import { formatMoney } from "../money";
 import { PRODUCT_BADGES, type ProductDraft } from "./productDraft";
+import { getProductVariantOptions, variantStorefrontSummaryKey } from "../productDisplay";
 import { StudioModule, StudioToggle, studioInputClass } from "./studioUi";
 
 export type ProductStudioTab = "general" | "media" | "story" | "variants";
@@ -161,6 +162,10 @@ export function ProductEditorForm({
   const { t, lang } = useLanguage();
   const currency = "VND";
   const locale = "vi-VN";
+  const storefrontVariants = useMemo(
+    () => getProductVariantOptions({ colors: draft.colors, sizes: draft.sizes }),
+    [draft.colors, draft.sizes]
+  );
   const [priceText, setPriceText] = useState("");
   useEffect(() => {
     const p = Number(draft.price);
@@ -395,6 +400,31 @@ export function ProductEditorForm({
                                 </p>
                               </div>
                             </div>
+                            {draft.colors.length > 0 ? (
+                              <Field label={t("admin.imageColorway")}>
+                                <Select
+                                  value={draft.images[selectedCell].color_name || ""}
+                                  onChange={(e) => {
+                                    set(
+                                      "images",
+                                      draft.images.map((im, i) =>
+                                        i === selectedCell ? { ...im, color_name: e.target.value } : im
+                                      )
+                                    );
+                                  }}
+                                >
+                                  <option value="">{t("admin.imageColorwayAll")}</option>
+                                  {draft.colors.map((c) => (
+                                    <option key={c.name} value={c.name}>
+                                      {c.name}
+                                    </option>
+                                  ))}
+                                </Select>
+                                <p className="text-secondary text-xs mt-1 font-body">{t("admin.imageColorwayHint")}</p>
+                              </Field>
+                            ) : (
+                              <p className="text-secondary text-xs font-body">{t("admin.imageColorwayNeedsColors")}</p>
+                            )}
                             <div className="grid grid-cols-2 gap-2">
                               <PrimaryButton onClick={() => setCropTarget(selectedCell)}>
                                 {t("admin.crop")}
@@ -501,6 +531,11 @@ export function ProductEditorForm({
                           {t("admin.main")}
                         </span>
                       )}
+                      {img.color_name ? (
+                        <span className="absolute top-1 right-1 z-10 bg-primary text-on-primary font-label text-[9px] px-1.5 py-0.5 uppercase max-w-[90%] truncate">
+                          {img.color_name}
+                        </span>
+                      ) : null}
                       {!img.enabled && (
                         <span className="absolute top-1 right-1 z-10 bg-error text-white font-label text-label-caps px-2 py-0.5 uppercase">
                           {t("admin.hidden")}
@@ -600,8 +635,12 @@ export function ProductEditorForm({
           n="04"
           title={t("admin.studio.variantsTitle")}
           subtitle={t("admin.studio.variantsSubtitle")}
-          badge={t("admin.studio.moduleActive")}
+          badge={t(variantStorefrontSummaryKey(storefrontVariants))}
         >
+            <p className="font-body text-body-sm text-secondary mb-4">
+              <span className="font-label text-label-caps text-primary uppercase">{t("admin.studio.variantsStorefrontPreview")}: </span>
+              {t(variantStorefrontSummaryKey(storefrontVariants))}
+            </p>
             <KeyValueList
               title={t("admin.colorways")}
               addLabel={t("admin.addColor")}
@@ -612,14 +651,15 @@ export function ProductEditorForm({
                 <TextInput key="h" type="color" value={c.hex || "#ffffff"} className="h-[38px] p-1 w-16" onChange={(e) => (c.hex = e.target.value)} />,
               ]}
             />
+            <p className="font-body text-body-sm text-secondary -mt-2 mb-4">{t("admin.colorwaysOptionalHint")}</p>
 
-            {/* Sizes */}
             <Field label={t("admin.sizes")}>
               <TextInput
                 value={draft.sizes.join(", ")}
                 onChange={(e) => set("sizes", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-                placeholder="XS, S, M, L, XL, XXL"
+                placeholder={t("admin.sizesPlaceholder")}
               />
+              <p className="text-secondary text-xs mt-1 font-body">{t("admin.sizesOptionalHint")}</p>
             </Field>
         </StudioModule>
       ) : null}

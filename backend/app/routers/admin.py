@@ -104,6 +104,7 @@ def _apply_product(db: Session, product: Product | None, payload: ProductIn, ten
                 media_id=img.media_id,
                 url=url,
                 alt=img.alt,
+                color_name=(img.color_name or "").strip() or None,
                 position=img.position,
                 enabled=img.enabled,
             )

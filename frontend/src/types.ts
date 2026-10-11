@@ -20,6 +20,8 @@ export interface ProductImage {
   media_id?: number | null;
   url: string;
   alt?: string | null;
+  /** When set, image is shown for this colorway name on the PDP. */
+  color_name?: string | null;
   position: number;
   enabled?: boolean;
 }
