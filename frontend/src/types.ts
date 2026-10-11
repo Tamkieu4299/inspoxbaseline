@@ -35,6 +35,7 @@ export interface Product {
   description_vi?: string | null;
   price: number;
   category_id?: number | null;
+  category_ids?: number[];
   collection_id?: number | null;
   badge?: string | null;
   gallery_layout?: string;
@@ -48,6 +49,7 @@ export interface Product {
   created_at: string;
   images: ProductImage[];
   category?: Category | null;
+  categories?: Category[];
   collection?: CollectionSummary | null;
 }
 

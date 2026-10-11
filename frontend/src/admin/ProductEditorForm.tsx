@@ -93,16 +93,30 @@ export function ProductEditorForm({
                   })}
                 </p>
               </Field>
-              <Field label="Category">
-                <Select
-                  value={draft.category_id}
-                  onChange={(e) => set("category_id", e.target.value ? Number(e.target.value) : "")}
-                >
-                  <option value="">{t("admin.none")}</option>
-                  {(categories || []).map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </Select>
+              <Field label={t("admin.categories")}>
+                <div className="border border-surface-container-highest bg-white px-3 py-2 max-h-36 overflow-y-auto flex flex-col gap-2">
+                  {(categories || []).length === 0 ? (
+                    <span className="font-body text-body-sm text-secondary">{t("admin.none")}</span>
+                  ) : (
+                    (categories || []).map((c) => (
+                      <label key={c.id} className="flex items-center gap-2 font-body text-body-md text-on-background cursor-pointer">
+                        <Checkbox
+                          checked={draft.category_ids.includes(c.id)}
+                          onChange={(e) => {
+                            const next = new Set(draft.category_ids);
+                            if (e.target.checked) next.add(c.id);
+                            else next.delete(c.id);
+                            const ids = [...next];
+                            set("category_ids", ids);
+                            set("category_id", ids[0] ?? "");
+                          }}
+                        />
+                        {c.name}
+                      </label>
+                    ))
+                  )}
+                </div>
+                <p className="text-secondary text-xs mt-1 font-body">{t("admin.productCategoriesHint")}</p>
               </Field>
               <Field label="Collection">
                 <Select

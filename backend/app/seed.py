@@ -111,10 +111,37 @@ def _migrate_existing(db, tenant_id: int):
     _add_column_if_missing(db, "site_settings", "usd_to_vnd_rate", "FLOAT DEFAULT 24500")
     db.execute(text("UPDATE site_settings SET usd_to_vnd_rate=24500 WHERE usd_to_vnd_rate IS NULL OR usd_to_vnd_rate<=0"))
     db.commit()
+    _migrate_product_categories(db)
     _backfill_media_tenant(db, tenant_id)
     _rewrite_media_urls(db)
     _rebuild_slug_tables(db)
     _migrate_platform_users(db)
+
+
+def _migrate_product_categories(db):
+    db.execute(
+        text(
+            """
+            CREATE TABLE IF NOT EXISTS product_categories (
+                product_id INTEGER NOT NULL,
+                category_id INTEGER NOT NULL,
+                PRIMARY KEY (product_id, category_id),
+                FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE,
+                FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
+            )
+            """
+        )
+    )
+    db.execute(
+        text(
+            """
+            INSERT OR IGNORE INTO product_categories (product_id, category_id)
+            SELECT id, category_id FROM products WHERE category_id IS NOT NULL
+            """
+        )
+    )
+    db.commit()
+    print("Migration: product_categories junction (multi-category products)")
 
 
 def _backfill_media_tenant(db, tenant_id: int):

@@ -11,6 +11,7 @@ export interface ProductDraft {
   description_vi: string;
   price: number;
   category_id: number | "";
+  category_ids: number[];
   collection_id: number | "";
   badge: string;
   gallery_layout: string;
@@ -37,6 +38,7 @@ export function blankProductDraft(): ProductDraft {
     description_vi: "",
     price: 0,
     category_id: "",
+    category_ids: [],
     collection_id: "",
     badge: "",
     gallery_layout: "collage",
@@ -63,6 +65,8 @@ export function productToDraft(p: Product): ProductDraft {
     description_vi: p.description_vi || "",
     price: p.price,
     category_id: p.category_id ?? "",
+    category_ids:
+      p.categories?.map((c) => c.id) ?? (p.category_id != null ? [p.category_id] : []),
     collection_id: p.collection_id ?? "",
     badge: p.badge || "",
     gallery_layout: p.gallery_layout || "collage",

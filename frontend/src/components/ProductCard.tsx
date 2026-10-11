@@ -16,9 +16,17 @@ function colorLabel(product: Product, t: (k: string) => string): string {
   return t(COLOR_KEY[name] || name) || name;
 }
 
+function categoryNames(product: Product): string {
+  const names = (product.categories?.length ? product.categories : product.category ? [product.category] : []).map(
+    (c) => c.name,
+  );
+  return names.join(" · ");
+}
+
 export default function ProductCard({ product }: { product: Product }) {
   const { t } = useLanguage();
   const { formatPrice } = useStoreCurrency();
+  const cats = categoryNames(product);
   const image = product.images?.find((i) => i.position === 0) || product.images?.[0];
   return (
     <Link to={`/products/${product.slug}`} className="group cursor-pointer flex flex-col h-full bg-background border border-transparent hover:border-surface-container-high p-2 transition-all">
@@ -44,7 +52,7 @@ export default function ProductCard({ product }: { product: Product }) {
             {product.name}
           </h2>
           <p className="font-body text-body-sm text-secondary mt-1 leading-snug">
-            {[product.subtitle || product.category?.name, colorLabel(product, t)].filter(Boolean).join(" · ")}
+            {[product.subtitle || cats, colorLabel(product, t)].filter(Boolean).join(" · ")}
           </p>
           <p className="font-body text-body-md text-primary mt-2">{formatPrice(product.price)}</p>
       </div>

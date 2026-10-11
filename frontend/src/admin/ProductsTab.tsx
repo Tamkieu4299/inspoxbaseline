@@ -189,6 +189,18 @@ export default function ProductsTab() {
   }
 
   const categoryById = useMemo(() => new Map((categories || []).map((c) => [c.id, c])), [categories]);
+
+  function productCategoryIds(p: Product): number[] {
+    if (p.categories?.length) return p.categories.map((c) => c.id);
+    return p.category_id != null ? [p.category_id] : [];
+  }
+
+  function productCategoryLabel(p: Product): string {
+    const names =
+      p.categories?.map((c) => c.name) ??
+      (p.category_id ? [categoryById.get(p.category_id)?.name].filter(Boolean) : []);
+    return names.join(", ");
+  }
   const collectionById = useMemo(() => new Map((collections || []).map((c) => [c.id, c])), [collections]);
 
   const kpis = useMemo(() => {
@@ -205,13 +217,14 @@ export default function ProductsTab() {
     const q = search.trim().toLowerCase();
     if (q) {
       list = list.filter((p) => {
-        const cat = p.category_id ? categoryById.get(p.category_id)?.name : "";
+        const cat = productCategoryLabel(p);
         const sku = skuFromSlug(p.slug);
         return [p.name, p.slug, sku, cat].some((s) => (s || "").toLowerCase().includes(q));
       });
     }
     if (categoryFilter !== "all") {
-      list = list.filter((p) => String(p.category_id ?? "") === categoryFilter);
+      const fid = Number(categoryFilter);
+      list = list.filter((p) => productCategoryIds(p).includes(fid));
     }
     if (collectionFilter !== "all") {
       list = list.filter((p) => String(p.collection_id ?? "") === collectionFilter);
@@ -262,7 +275,7 @@ export default function ProductsTab() {
   function exportCsv() {
     setExportState("busy");
     const rows = filtered.map((p) => {
-      const cat = p.category_id ? categoryById.get(p.category_id)?.name : "";
+      const cat = productCategoryLabel(p);
       const col = p.collection_id ? collectionById.get(p.collection_id)?.name : "";
       return [skuFromSlug(p.slug), p.name, p.slug, cat, col, p.price, p.is_active ? "active" : "draft", p.badge || ""]
         .map((c) => `"${String(c).replace(/"/g, '""')}"`)
@@ -441,7 +454,7 @@ export default function ProductsTab() {
             </thead>
             <tbody className="text-on-surface">
               {pageItems.map((p) => {
-                const cat = p.category_id ? categoryById.get(p.category_id) : null;
+                const catLabel = productCategoryLabel(p);
                 const col = p.collection_id ? collectionById.get(p.collection_id) : null;
                 const vi = viCompleteness(p);
                 const thumb = productThumb(p);
@@ -486,7 +499,7 @@ export default function ProductsTab() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex flex-col gap-1">
-                        <span className="font-body text-body-md text-on-surface">{cat?.name || "—"}</span>
+                        <span className="font-body text-body-md text-on-surface">{catLabel || "—"}</span>
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {tagPills(p).map((tag) => (
                             <span

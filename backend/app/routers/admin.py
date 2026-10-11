@@ -46,8 +46,44 @@ def _apply_collection(collection: Collection, payload: CollectionIn):
         setattr(collection, field, value)
 
 
+def _resolve_category_ids(payload: ProductIn) -> list[int]:
+    ids = [int(x) for x in (payload.category_ids or []) if x]
+    if not ids and payload.category_id:
+        ids = [int(payload.category_id)]
+    # preserve order, dedupe
+    seen: set[int] = set()
+    out: list[int] = []
+    for cid in ids:
+        if cid not in seen:
+            seen.add(cid)
+            out.append(cid)
+    return out
+
+
+def _sync_product_categories(
+    db: Session, product: Product, category_ids: list[int], tenant_id: int
+) -> None:
+    if not category_ids:
+        product.categories = []
+        return
+    cats = (
+        db.execute(
+            select(Category).where(
+                Category.id.in_(category_ids),
+                Category.tenant_id == tenant_id,
+            )
+        )
+        .scalars()
+        .all()
+    )
+    order = {cid: i for i, cid in enumerate(category_ids)}
+    product.categories = sorted(cats, key=lambda c: order.get(c.id, 999))
+
+
 def _apply_product(db: Session, product: Product | None, payload: ProductIn, tenant_id: int):
-    data = payload.model_dump(exclude={"images"})
+    category_ids = _resolve_category_ids(payload)
+    data = payload.model_dump(exclude={"images", "category_ids"})
+    data["category_id"] = category_ids[0] if category_ids else None
     if product is None:
         product = Product(**data, tenant_id=tenant_id)
         db.add(product)
@@ -55,6 +91,7 @@ def _apply_product(db: Session, product: Product | None, payload: ProductIn, ten
     else:
         for field, value in data.items():
             setattr(product, field, value)
+    _sync_product_categories(db, product, category_ids, tenant_id)
     for img in payload.images:
         url = img.url
         if img.media_id:
@@ -239,7 +276,7 @@ def list_products(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
         ProductOut.model_validate(p)
         for p in db.execute(
             select(Product)
-            .options(selectinload(Product.images))
+            .options(selectinload(Product.images), selectinload(Product.categories))
             .where(Product.tenant_id == tenant.id)
             .order_by(Product.created_at.desc())
         )
@@ -253,7 +290,7 @@ def get_product(product_id: int, db: Session = Depends(get_db), tenant: Tenant =
     product = (
         db.execute(
             select(Product)
-            .options(selectinload(Product.images))
+            .options(selectinload(Product.images), selectinload(Product.categories))
             .where(Product.id == product_id, Product.tenant_id == tenant.id)
         )
         .scalars()

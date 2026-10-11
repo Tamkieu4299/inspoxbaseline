@@ -3,17 +3,26 @@ from datetime import datetime
 from sqlalchemy import (
     JSON,
     Boolean,
+    Column,
     DateTime,
     Float,
     ForeignKey,
     Integer,
     String,
+    Table,
     Text,
     UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
+
+product_categories = Table(
+    "product_categories",
+    Base.metadata,
+    Column("product_id", ForeignKey("products.id", ondelete="CASCADE"), primary_key=True),
+    Column("category_id", ForeignKey("categories.id", ondelete="CASCADE"), primary_key=True),
+)
 
 
 class TimestampMixin:
@@ -84,7 +93,10 @@ class Category(Base, TimestampMixin):
     name: Mapped[str] = mapped_column(String(100))
     name_vi: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
-    products: Mapped[list["Product"]] = relationship(back_populates="category")
+    products: Mapped[list["Product"]] = relationship(
+        secondary=product_categories,
+        back_populates="categories",
+    )
 
 
 class Collection(Base, TimestampMixin):
@@ -144,7 +156,11 @@ class Product(Base, TimestampMixin):
     is_featured: Mapped[bool] = mapped_column(Boolean, default=False)
     is_bestseller: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    category: Mapped["Category | None"] = relationship(back_populates="products")
+    category: Mapped["Category | None"] = relationship(foreign_keys=[category_id])
+    categories: Mapped[list["Category"]] = relationship(
+        secondary=product_categories,
+        back_populates="products",
+    )
     collection: Mapped["Collection | None"] = relationship(back_populates="products")
     images: Mapped[list["ProductImage"]] = relationship(
         back_populates="product",

@@ -153,6 +153,7 @@ class ProductBase(BaseModel):
 
 class ProductIn(ProductBase):
     images: list[ProductImageIn] = Field(default_factory=list)
+    category_ids: list[int] = Field(default_factory=list)
 
 
 class ProductOut(ProductBase, ORMModel):
@@ -160,6 +161,7 @@ class ProductOut(ProductBase, ORMModel):
     created_at: datetime
     images: list[ProductImageOut] = Field(default_factory=list)
     category: CategoryOut | None = None
+    categories: list[CategoryOut] = Field(default_factory=list)
     collection: "CollectionSummary | None" = None
 
 

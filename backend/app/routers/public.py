@@ -98,7 +98,11 @@ def _load_collection(db: Session, collection: Collection, lang: str = "en") -> C
     products = (
         db.execute(
             select(Product)
-            .options(selectinload(Product.images), selectinload(Product.category))
+            .options(
+                selectinload(Product.images),
+                selectinload(Product.category),
+                selectinload(Product.categories),
+            )
             .where(Product.collection_id == collection.id, Product.is_active.is_(True))
             .order_by(Product.created_at.desc())
         )
@@ -168,7 +172,11 @@ def get_home(
     latest = (
         db.execute(
             select(Product)
-            .options(selectinload(Product.images), selectinload(Product.category))
+            .options(
+                selectinload(Product.images),
+                selectinload(Product.category),
+                selectinload(Product.categories),
+            )
             .where(Product.tenant_id == tenant.id, Product.is_active.is_(True))
             .order_by(Product.created_at.desc())
             .limit(latest_limit)
@@ -324,7 +332,11 @@ def list_products(
 ):
     stmt = (
         select(Product)
-        .options(selectinload(Product.images), selectinload(Product.category))
+        .options(
+            selectinload(Product.images),
+            selectinload(Product.category),
+            selectinload(Product.categories),
+        )
         .where(Product.tenant_id == tenant.id, Product.is_active.is_(True))
     )
     if collection:
@@ -344,7 +356,10 @@ def list_products(
         ).scalar_one_or_none()
         if cat is None:
             raise HTTPException(status_code=404, detail="Category not found")
-        stmt = stmt.where(Product.category_id == cat.id)
+        stmt = stmt.where(
+            (Product.category_id == cat.id)
+            | Product.categories.any(Category.id == cat.id)
+        )
     if q:
         stmt = stmt.where(Product.name.ilike(f"%{q}%"))
 
@@ -382,6 +397,7 @@ def get_product(
             .options(
                 selectinload(Product.images),
                 selectinload(Product.category),
+                selectinload(Product.categories),
                 selectinload(Product.collection),
             )
             .where(
