@@ -77,6 +77,7 @@ function UploadButton({ onDone, label }: { onDone: (m: Media) => void; label?: s
       {pendingFile && (
         <ImageCropModal
           src={pendingFile.preview}
+          sourceMime={pendingFile.file.type}
           title={t("admin.editUpload")}
           onClose={() => {
             URL.revokeObjectURL(pendingFile.preview);
@@ -86,7 +87,9 @@ function UploadButton({ onDone, label }: { onDone: (m: Media) => void; label?: s
             URL.revokeObjectURL(pendingFile.preview);
             setPendingFile(null);
             setUploading(true);
-            await mutation.mutateAsync(blob, { onSettled: () => setUploading(false) });
+            const ext = blob.type === "image/png" ? "png" : "jpg";
+            const named = new File([blob], `upload.${ext}`, { type: blob.type || "image/jpeg" });
+            await mutation.mutateAsync(named, { onSettled: () => setUploading(false) });
           }}
         />
       )}
@@ -462,7 +465,9 @@ function DigitalAssetStudio({ media }: { media: Media[] }) {
           title={t("admin.editImageInPlace")}
           onClose={() => setCropTarget(null)}
           onComplete={async (blob) => {
-            await replaceMutation.mutateAsync({ id: cropTarget.id, file: blob });
+            const ext = blob.type === "image/png" ? "png" : "jpg";
+            const named = new File([blob], `crop.${ext}`, { type: blob.type || "image/jpeg" });
+            await replaceMutation.mutateAsync({ id: cropTarget.id, file: named });
             setCropTarget(null);
           }}
         />
@@ -639,19 +644,38 @@ export function ImageField({
   label,
   value,
   onChange,
+  preserveTransparency,
 }: {
   label: string;
   value?: Media | null;
   onChange: (m: Media | null) => void;
+  /** Favicon / logos: upload PNG as-is and show checkerboard preview. */
+  preserveTransparency?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const directUploadRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
   const { t } = useLanguage();
+  const directUpload = useMutation({
+    mutationFn: (file: File) => adminApi.uploadMedia(file),
+    onSuccess: (media) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-media"] });
+      onChange(media);
+    },
+  });
+  const previewBg = preserveTransparency
+    ? "bg-[repeating-conic-gradient(#e5e7eb_0_25%,#fff_0_50%)] bg-[length:10px_10px]"
+    : "bg-white";
   return (
     <div className="flex flex-col gap-1">
       <span className="font-label text-label-caps text-secondary uppercase">{label}</span>
       {value ? (
-        <div className="flex items-center gap-3 border border-surface-container-highest bg-white p-2">
-          <img src={value.url} alt={value.filename} className="w-16 h-16 object-cover" />
+        <div className={`flex items-center gap-3 border border-surface-container-highest p-2 ${previewBg}`}>
+          <img
+            src={value.url}
+            alt={value.filename}
+            className={`w-16 h-16 ${preserveTransparency ? "object-contain" : "object-cover"}`}
+          />
           <div className="flex flex-col gap-1">
             <span className="font-body text-body-md text-on-background text-xs truncate max-w-[200px]">{value.filename}</span>
             <div className="flex gap-2">
@@ -673,7 +697,27 @@ export function ImageField({
           </div>
         </div>
       ) : (
-        <SecondaryButton onClick={() => setOpen(true)}>{t("admin.chooseImage")}</SecondaryButton>
+        <div className="flex flex-wrap gap-2">
+          <SecondaryButton onClick={() => setOpen(true)}>{t("admin.chooseImage")}</SecondaryButton>
+          {preserveTransparency && (
+            <>
+              <input
+                ref={directUploadRef}
+                type="file"
+                accept="image/png,image/svg+xml,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) directUpload.mutate(file);
+                  e.target.value = "";
+                }}
+              />
+              <SecondaryButton type="button" onClick={() => directUploadRef.current?.click()} disabled={directUpload.isPending}>
+                {directUpload.isPending ? t("admin.uploading") : t("admin.uploadPngFavicon")}
+              </SecondaryButton>
+            </>
+          )}
+        </div>
       )}
       {open && <MediaPicker onSelect={onChange} onClose={() => setOpen(false)} />}
     </div>

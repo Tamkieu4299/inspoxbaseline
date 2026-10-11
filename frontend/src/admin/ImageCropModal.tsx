@@ -23,16 +23,36 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
+function outputMimeForSource(sourceMime?: string): "image/png" | "image/jpeg" {
+  return sourceMime === "image/png" || sourceMime === "image/webp" ? "image/png" : "image/jpeg";
+}
+
+function blobFromCanvas(canvas: HTMLCanvasElement, mime: "image/png" | "image/jpeg"): Promise<Blob> {
+  return new Promise((resolve, reject) =>
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error("Export failed — image may be cross-origin."))),
+      mime,
+      mime === "image/jpeg" ? 0.92 : undefined
+    )
+  );
+}
+
 export async function cropImageToBlob(
   src: string,
   area: Area,
-  aspect?: number
+  _aspect?: number,
+  sourceMime?: string
 ): Promise<Blob> {
+  const mime = outputMimeForSource(sourceMime);
   const image = await loadImage(src);
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(area.width);
   canvas.height = Math.round(area.height);
   const ctx = canvas.getContext("2d")!;
+  if (mime === "image/jpeg") {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
   ctx.drawImage(
     image,
     area.x,
@@ -44,20 +64,16 @@ export async function cropImageToBlob(
     canvas.width,
     canvas.height
   );
-  return new Promise((resolve, reject) =>
-    canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error("Crop failed — image may be cross-origin."))),
-      "image/jpeg",
-      0.92
-    )
-  );
+  return blobFromCanvas(canvas, mime);
 }
 
 export async function fitImageToBlob(
   src: string,
   aspect?: number,
-  bg: string = "#ffffff"
+  bg: string = "#ffffff",
+  sourceMime?: string
 ): Promise<Blob> {
+  const mime = outputMimeForSource(sourceMime);
   const image = await loadImage(src);
   const iw = image.naturalWidth;
   const ih = image.naturalHeight;
@@ -78,27 +94,26 @@ export async function fitImageToBlob(
   canvas.width = Math.round(boxW);
   canvas.height = Math.round(boxH);
   const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (mime === "image/jpeg") {
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
   ctx.drawImage(image, (canvas.width - iw) / 2, (canvas.height - ih) / 2, iw, ih);
 
-  return new Promise((resolve, reject) =>
-    canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error("Fit failed — image may be cross-origin."))),
-      "image/jpeg",
-      0.92
-    )
-  );
+  return blobFromCanvas(canvas, mime);
 }
 
 export default function ImageCropModal({
   src,
   title = "EDIT IMAGE",
+  sourceMime,
   onComplete,
   onClose,
 }: {
   src: string;
   title?: string;
+  /** Original file MIME (e.g. image/png) so exports keep transparency. */
+  sourceMime?: string;
   onComplete: (blob: Blob) => void;
   onClose: () => void;
 }) {
@@ -123,10 +138,10 @@ export default function ImageCropModal({
     try {
       let blob: Blob;
       if (mode === "fit") {
-        blob = await fitImageToBlob(src, aspectValue || undefined, bgColor);
+        blob = await fitImageToBlob(src, aspectValue || undefined, bgColor, sourceMime);
       } else {
         if (!croppedArea) return;
-        blob = await cropImageToBlob(src, croppedArea, aspectValue || undefined);
+        blob = await cropImageToBlob(src, croppedArea, aspectValue || undefined, sourceMime);
       }
       onComplete(blob);
     } catch (e) {

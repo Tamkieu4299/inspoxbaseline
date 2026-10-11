@@ -70,6 +70,7 @@ export default function SiteTab() {
           />
           <ImageField
             label={t("admin.favicon")}
+            preserveTransparency
             value={draftValue.favicon_media_id ? mediaById.get(draftValue.favicon_media_id) as Media || null : null}
             onChange={(m) => set("favicon_media_id", m ? m.id : null)}
           />
