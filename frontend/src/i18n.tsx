@@ -6,7 +6,6 @@ const STORAGE_KEY = "inspo_lang";
 
 const en: Record<string, string> = {
   "nav.home": "HOME",
-  "nav.currency": "Display currency",
   "nav.collections": "COLLECTIONS",
   "nav.newArrivals": "NEW ARRIVALS",
   "nav.brand": "THE BRAND",
@@ -544,7 +543,6 @@ const en: Record<string, string> = {
 
 const vi: Record<string, string> = {
   "nav.home": "TRANG CHỦ",
-  "nav.currency": "Tiền hiển thị",
   "nav.collections": "BỘ SƯU TẬP",
   "nav.newArrivals": "HÀNG MỚI VỀ",
   "nav.brand": "THƯƠNG HIỆU",
