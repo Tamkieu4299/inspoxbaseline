@@ -66,8 +66,24 @@ export function canPurchaseWithVariants(
   return true;
 }
 
+export function enabledProductImages(images: ProductImage[] | undefined): ProductImage[] {
+  return (images || []).filter((i) => i.enabled !== false);
+}
+
+/** Index in enabled gallery order of the first image tagged for this colorway, or null. */
+export function firstImageIndexForColorway(
+  images: ProductImage[] | undefined,
+  colorName: string
+): number | null {
+  const enabled = enabledProductImages(images);
+  const key = norm(colorName);
+  const idx = enabled.findIndex((i) => i.color_name && norm(i.color_name) === key);
+  return idx >= 0 ? idx : null;
+}
+
+/** @deprecated Prefer showing all images on PDP and jumping via firstImageIndexForColorway. */
 export function imagesForColorway(images: ProductImage[], colorName: string | null): ProductImage[] {
-  const enabled = (images || []).filter((i) => i.enabled !== false);
+  const enabled = enabledProductImages(images);
   if (!colorName) return enabled;
   const key = norm(colorName);
   const tagged = enabled.filter((i) => i.color_name && norm(i.color_name) === key);

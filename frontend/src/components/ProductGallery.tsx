@@ -216,6 +216,11 @@ function Slideshow({
 }) {
   const [active, setActive] = useState(0);
 
+  useEffect(() => {
+    if (activeIndex == null || activeIndex < 0 || activeIndex >= images.length) return;
+    setActive(activeIndex);
+  }, [activeIndex, images.length]);
+
   const prev = useCallback(
     () => setActive((a) => (a - 1 + images.length) % images.length),
     [images.length]

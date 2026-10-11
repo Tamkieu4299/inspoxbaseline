@@ -4,14 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import Icon from "../components/Icon";
 import Lightbox from "../components/Lightbox";
-import ProductGallery from "../components/ProductGallery";
+import ProductGallery, { isGalleryLayout } from "../components/ProductGallery";
 import { useLanguage } from "../i18n";
 import { useStoreCurrency } from "../useStoreCurrency";
 import {
   canPurchaseWithVariants,
   colorDisplayName,
+  enabledProductImages,
+  firstImageIndexForColorway,
   getProductVariantOptions,
-  imagesForColorway,
 } from "../productDisplay";
 
 export default function ProductDetail() {
@@ -19,7 +20,7 @@ export default function ProductDetail() {
   const { formatPrice } = useStoreCurrency();
   const { slug = "" } = useParams();
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [selectedColorIndex, setSelectedColorIndex] = useState(0);
+  const [selectedColorIndex, setSelectedColorIndex] = useState<number | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
   const { data: product, isLoading } = useQuery({
@@ -38,24 +39,40 @@ export default function ProductDetail() {
     hasSizes: false,
   };
 
-  const safeColorIndex = hasColors ? Math.min(selectedColorIndex, Math.max(0, colors.length - 1)) : 0;
-  const selectedColor = hasColors ? colors[safeColorIndex] ?? null : null;
+  const selectedColor =
+    hasColors && selectedColorIndex != null && selectedColorIndex >= 0
+      ? colors[selectedColorIndex] ?? null
+      : null;
 
-  const galleryImages = useMemo(() => {
-    if (!product) return [];
-    const colorKey = hasColors ? selectedColor?.name ?? null : null;
-    return imagesForColorway(product.images || [], colorKey);
-  }, [product, hasColors, selectedColor?.name]);
+  const galleryImages = useMemo(
+    () => (product ? enabledProductImages(product.images) : []),
+    [product]
+  );
+
+  const galleryFocusIndex = useMemo(() => {
+    if (!product || !selectedColor?.name) return undefined;
+    const idx = firstImageIndexForColorway(product.images, selectedColor.name);
+    return idx ?? undefined;
+  }, [product, selectedColor?.name]);
+
+  const galleryLayout = product?.gallery_layout;
+  const isSlideshowGallery = isGalleryLayout(galleryLayout) && galleryLayout === "slideshow";
 
   useEffect(() => {
-    setSelectedColorIndex(0);
+    setSelectedColorIndex(null);
     setSelectedSize(null);
     setLightboxIndex(null);
   }, [slug, product?.id]);
 
-  useEffect(() => {
-    setLightboxIndex(null);
-  }, [selectedColorIndex]);
+  function selectColorway(idx: number) {
+    setSelectedColorIndex(idx);
+    const colorName = colors[idx]?.name;
+    if (!colorName || !product) return;
+    const imageIdx = firstImageIndexForColorway(product.images, colorName);
+    if (imageIdx == null) return;
+    if (isSlideshowGallery) return;
+    setLightboxIndex(imageIdx);
+  }
 
   if (isLoading || !product) {
     return (
@@ -78,6 +95,7 @@ export default function ProductDetail() {
               images={galleryImages}
               name={product.name}
               layout={product.gallery_layout}
+              activeIndex={galleryFocusIndex}
               onImageClick={(index) => setLightboxIndex(index)}
             />
           </div>
@@ -104,18 +122,19 @@ export default function ProductDetail() {
             {hasColors && (
               <div className="mb-8">
                 <h3 className="font-label text-label-caps text-primary mb-2 uppercase">
-                  {t("product.colorway")}: {selectedColor ? colorDisplayName(selectedColor, lang).toUpperCase() : "—"}
+                  {t("product.colorway")}
+                  {selectedColor ? `: ${colorDisplayName(selectedColor, lang).toUpperCase()}` : ""}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {colors.map((c, idx) => {
-                    const active = idx === safeColorIndex;
+                    const active = selectedColorIndex === idx;
                     return (
                       <button
                         key={`${c.name}-${idx}`}
                         type="button"
                         aria-label={colorDisplayName(c, lang)}
                         aria-pressed={active}
-                        onClick={() => setSelectedColorIndex(idx)}
+                        onClick={() => selectColorway(idx)}
                         className={`w-12 h-12 border-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors ${
                           active ? "border-primary" : "border-outline hover:border-primary"
                         }`}
