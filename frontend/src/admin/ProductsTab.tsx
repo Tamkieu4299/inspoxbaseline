@@ -5,7 +5,8 @@ import { adminApi } from "../api";
 import type { Media, Product } from "../types";
 import ImageCropModal from "./ImageCropModal";
 import { MediaPicker } from "./MediaLibrary";
-import { ProductEditorForm } from "./ProductEditorForm";
+import { ProductEditorForm, type ProductStudioTab } from "./ProductEditorForm";
+import { ProductStudioPreview } from "./ProductStudioPreview";
 import {
   blankProductDraft,
   liveStatus,
@@ -121,6 +122,7 @@ export default function ProductsTab() {
   const [pickImageFor, setPickImageFor] = useState<number | null>(null);
   const [cropTarget, setCropTarget] = useState<number | null>(null);
   const [selectedCell, setSelectedCell] = useState<number | null>(null);
+  const [productStudioTab, setProductStudioTab] = useState<ProductStudioTab>("general");
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -165,11 +167,13 @@ export default function ProductsTab() {
     setSelectedCell(null);
     setPickImageFor(null);
     setCropTarget(null);
+    setProductStudioTab("general");
   }
 
   function openDrawer(next: ProductDraft, id: number | "new") {
     setDraft(next);
     setSelectedId(id);
+    setProductStudioTab("general");
     setDrawerOpen(true);
   }
 
@@ -669,7 +673,7 @@ export default function ProductsTab() {
         onClick={() => drawerOpen && closeDrawer()}
       >
         <div
-          className={`w-full max-w-6xl max-h-[min(92vh,960px)] bg-surface-container-lowest shadow-2xl rounded-xl border border-surface-container-high flex flex-col transform transition-all duration-300 ease-out ${
+          className={`w-full max-w-[1440px] max-h-[min(94vh,980px)] bg-surface shadow-2xl rounded-xl border border-surface-container-high flex flex-col transform transition-all duration-300 ease-out overflow-hidden ${
             drawerOpen && draft ? "scale-100 opacity-100" : "scale-[0.98] opacity-0"
           }`}
           onClick={(e) => e.stopPropagation()}
@@ -678,93 +682,138 @@ export default function ProductsTab() {
         >
             {draft && (
               <>
-                <div className="p-6 bg-surface-container-low flex items-center justify-between shrink-0">
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-label text-label-caps uppercase text-secondary">{t("admin.catalog.drawerKicker")}</span>
-                    <h2 className="font-headline text-headline-md uppercase text-primary mt-0.5 truncate">
-                      {draft.name || t("admin.newProductTitle")}
-                    </h2>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={closeDrawer}
-                    className="w-10 h-10 rounded-full hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors shrink-0"
-                  >
-                    <span className="material-symbols-outlined text-[24px]">close</span>
-                  </button>
-                </div>
-                <div className="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col gap-6 min-h-0">
-                  {draft.images.find((i) => i.enabled)?.url && (
-                    <div className="w-full h-56 md:h-64 bg-surface-container rounded-lg overflow-hidden relative">
-                      <img
-                        src={draft.images.find((i) => i.enabled)?.url || draft.images[0]?.url}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute bottom-3 left-3 bg-primary text-on-primary font-label text-[10px] px-2.5 py-1 uppercase rounded tracking-wider">
-                        {t("admin.catalog.heroAsset")}
-                      </div>
+                <div className="shrink-0 bg-surface-container-lowest border-b border-surface-container px-6 lg:px-8 py-6 flex flex-col gap-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2 text-on-surface-variant">
+                      <span className="font-label text-label-caps uppercase tracking-widest text-xs">
+                        {t("admin.catalog.studioBreadcrumbSuite")}
+                      </span>
+                      <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                      <span className="font-label text-label-caps uppercase tracking-widest text-xs">
+                        {t("admin.catalog.studioBreadcrumbCatalog")}
+                      </span>
+                      <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                      <span className="font-label text-label-caps uppercase tracking-widest text-xs text-primary font-bold">
+                        {t("admin.catalog.studioBreadcrumbEditor")}
+                      </span>
                     </div>
-                  )}
-                  {draft.id && (
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (window.confirm(t("admin.delete") + "?")) deleteMutation.mutate(draft.id!);
-                        }}
-                        className="font-label text-label-caps text-error uppercase hover:underline"
-                      >
-                        {t("admin.delete")}
-                      </button>
-                    </div>
-                  )}
-                  <ProductEditorForm
-                    draft={draft}
-                    set={setField}
-                    categories={categories}
-                    collections={collections}
-                    selectedCell={selectedCell}
-                    setSelectedCell={setSelectedCell}
-                    pickImageFor={pickImageFor}
-                    setPickImageFor={setPickImageFor}
-                    cropTarget={cropTarget}
-                    setCropTarget={setCropTarget}
-                    moveImage={moveImage}
-                    uploadMutation={uploadMutation}
-                    queryClient={queryClient}
-                  />
-                  {saveMutation.isError && <p className="text-error text-sm">{String(saveMutation.error)}</p>}
-                </div>
-                <div className="p-6 bg-surface-container-low flex items-center justify-between gap-3 shrink-0 flex-wrap">
-                  <button
-                    type="button"
-                    onClick={closeDrawer}
-                    className="px-6 py-3 bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-label text-label-caps uppercase rounded"
-                  >
-                    {t("admin.catalog.discard")}
-                  </button>
-                  <div className="flex items-center gap-3 flex-wrap">
-                    {draft.slug ? (
-                      <Link
-                        to={`/products/${draft.slug}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-5 py-3 bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-label text-label-caps uppercase rounded flex items-center gap-1.5"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">open_in_new</span>
-                        {t("admin.catalog.livePreview")}
-                      </Link>
-                    ) : null}
                     <button
                       type="button"
-                      onClick={() => saveMutation.mutate(draft)}
-                      disabled={!draft.name || !draft.slug || saveMutation.isPending}
-                      className="px-8 py-3 bg-primary text-on-primary hover:bg-inverse-surface transition-all font-label text-label-caps uppercase rounded flex items-center gap-1.5 disabled:opacity-50"
+                      onClick={closeDrawer}
+                      className="w-10 h-10 rounded hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors shrink-0"
+                      aria-label={t("admin.cancel")}
                     >
-                      <span className="material-symbols-outlined text-[18px]">check</span>
-                      {t("admin.catalog.saveChanges")}
+                      <span className="material-symbols-outlined text-[24px]">close</span>
                     </button>
+                  </div>
+                  <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className="px-2.5 py-0.5 rounded bg-primary text-on-primary font-label text-[10px] uppercase tracking-widest">
+                          PDP Studio
+                        </span>
+                        {draft.slug ? (
+                          <span className="px-2.5 py-0.5 rounded bg-surface-container font-label text-[10px] uppercase tracking-widest">
+                            SKU: {skuFromSlug(draft.slug)}
+                          </span>
+                        ) : null}
+                      </div>
+                      <h2 className="font-headline text-2xl lg:text-3xl uppercase text-primary tracking-tight leading-none">
+                        {t("admin.catalog.productStudio")}
+                      </h2>
+                      <p className="font-body text-body-md text-secondary mt-2 max-w-2xl line-clamp-2">
+                        {draft.name || t("admin.newProductTitle")}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {draft.id ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(t("admin.delete") + "?")) deleteMutation.mutate(draft.id!);
+                          }}
+                          className="px-4 py-2.5 rounded font-label text-label-caps uppercase text-error hover:bg-error-container/30 transition-colors"
+                        >
+                          {t("admin.delete")}
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={closeDrawer}
+                        className="px-5 py-2.5 rounded bg-surface-container-low hover:bg-surface-container font-label text-label-caps uppercase tracking-wider"
+                      >
+                        {t("admin.catalog.discard")}
+                      </button>
+                      {draft.slug ? (
+                        <Link
+                          to={`/products/${draft.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-5 py-2.5 rounded bg-surface-container-highest hover:bg-surface-dim font-label text-label-caps uppercase tracking-wider flex items-center gap-1.5"
+                        >
+                          {t("admin.catalog.previewPdp")}
+                          <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+                        </Link>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => saveMutation.mutate(draft)}
+                        disabled={!draft.name || !draft.slug || saveMutation.isPending}
+                        className="px-6 py-2.5 rounded bg-forest-green hover:bg-[#00331c] text-white font-label text-label-caps uppercase tracking-widest font-bold flex items-center gap-1.5 disabled:opacity-50"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                        {t("admin.catalog.publishLive")}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 overflow-x-auto pt-1">
+                    {(
+                      [
+                        ["general", t("admin.studio.tabGeneral")],
+                        ["media", t("admin.studio.tabMedia")],
+                        ["story", t("admin.studio.tabStory")],
+                        ["variants", t("admin.studio.tabVariants")],
+                      ] as const
+                    ).map(([tab, label]) => (
+                      <button
+                        key={tab}
+                        type="button"
+                        onClick={() => setProductStudioTab(tab)}
+                        className={`px-4 py-2 rounded font-label text-label-caps uppercase tracking-widest whitespace-nowrap transition-colors ${
+                          productStudioTab === tab
+                            ? "bg-primary text-on-primary"
+                            : "bg-surface-container hover:bg-surface-container-high text-on-surface"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto px-6 lg:px-8 py-6 min-h-0 bg-surface">
+                  <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start max-w-[1440px] mx-auto">
+                    <div className="xl:col-span-7 min-w-0">
+                      <ProductEditorForm
+                        draft={draft}
+                        set={setField}
+                        categories={categories}
+                        collections={collections}
+                        selectedCell={selectedCell}
+                        setSelectedCell={setSelectedCell}
+                        pickImageFor={pickImageFor}
+                        setPickImageFor={setPickImageFor}
+                        cropTarget={cropTarget}
+                        setCropTarget={setCropTarget}
+                        moveImage={moveImage}
+                        uploadMutation={uploadMutation}
+                        queryClient={queryClient}
+                        studioTab={productStudioTab}
+                      />
+                      {saveMutation.isError && <p className="text-error text-sm mt-4">{String(saveMutation.error)}</p>}
+                    </div>
+                    <div className="xl:col-span-5 hidden xl:block">
+                      <ProductStudioPreview draft={draft} currency={storeCurrency} locale="vi-VN" />
+                    </div>
                   </div>
                 </div>
               </>

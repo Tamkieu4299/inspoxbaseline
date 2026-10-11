@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
@@ -118,35 +119,42 @@ export default function JournalTab() {
   }
 
   return (
-    <div className="flex flex-col w-full -mx-0">
-      <section className="px-6 lg:px-8 py-8 bg-white border-b border-surface-container-high">
-        <div className="max-w-[1440px] mx-auto flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="font-label text-label-caps uppercase text-secondary tracking-widest">
-                {t("admin.journal.eyebrow")}
-              </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-              <span className="font-label text-label-caps uppercase text-on-surface">{t("admin.journal.division")}</span>
+    <div className="flex flex-col w-full bg-surface min-h-full">
+      <div className="px-6 lg:px-8 py-8 flex flex-col gap-8 max-w-[1560px] mx-auto w-full">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-surface-container">
+          <div className="flex flex-col max-w-2xl">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-label text-label-caps uppercase text-secondary tracking-widest">{t("admin.journal.eyebrow")}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+              <span className="font-label text-label-caps uppercase text-on-surface-variant tracking-wider">{t("admin.journal.division")}</span>
             </div>
-            <h1 className="font-headline text-3xl lg:text-4xl uppercase text-primary tracking-tight">
-              {t("admin.journal.title")}
-            </h1>
-            <p className="font-body text-body-md text-secondary mt-2 max-w-2xl">{t("admin.journal.subtitle")}</p>
+            <h1 className="font-headline text-headline-lg text-on-surface tracking-tight uppercase">{t("admin.journal.title")}</h1>
+            <p className="font-body text-body-md text-on-surface-variant mt-2 leading-relaxed">{t("admin.journal.subtitle")}</p>
           </div>
-          <PrimaryButton
-            className="uppercase font-label text-label-caps px-8 py-4"
-            onClick={() => setDraft(blankPost())}
-          >
-            <span className="material-symbols-outlined text-[18px] align-middle mr-2">add</span>
-            {t("admin.journal.newStory")}
-          </PrimaryButton>
+          <div className="flex flex-wrap items-center gap-3">
+            {draft?.slug ? (
+              <Link
+                to={`/blogs/${draft.slug}`}
+                target="_blank"
+                rel="noreferrer"
+                className="px-5 py-2.5 rounded bg-surface-container-lowest text-on-surface font-label text-label-caps tracking-widest uppercase hover:bg-surface-container transition-colors flex items-center gap-2 shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[18px]">visibility</span>
+                {t("admin.journal.previewJournal")}
+              </Link>
+            ) : null}
+            <PrimaryButton
+              className="uppercase font-label text-label-caps px-6 py-2.5 flex items-center gap-2 shadow-sm"
+              onClick={() => setDraft(blankPost())}
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              {t("admin.journal.newEssay")}
+            </PrimaryButton>
+          </div>
         </div>
-      </section>
 
-      <section className="px-6 lg:px-8 py-4 bg-surface sticky top-14 z-20 border-b border-surface-container shadow-sm">
-        <div className="max-w-[1440px] mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex items-center gap-1 overflow-x-auto">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-surface-container-low overflow-x-auto w-full sm:w-auto">
             {(
               [
                 ["published", t("admin.journal.tabPublished"), counts.published],
@@ -158,40 +166,45 @@ export default function JournalTab() {
                 key={key}
                 type="button"
                 onClick={() => setWorkflow(key)}
-                className={`px-4 py-2.5 rounded font-label text-label-caps uppercase whitespace-nowrap transition-all ${
+                className={`px-4 py-2 rounded font-label text-label-caps uppercase tracking-wider whitespace-nowrap transition-all ${
                   workflow === key
-                    ? "bg-primary text-on-primary"
-                    : "text-secondary hover:text-on-surface hover:bg-surface-container-low"
+                    ? "bg-surface-container-lowest text-on-surface shadow-sm"
+                    : "text-secondary hover:text-on-surface"
                 }`}
               >
                 {label} ({count})
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2 bg-surface-container-low px-3 py-2 rounded min-w-[260px]">
-            <span className="material-symbols-outlined text-[18px] text-secondary">search</span>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t("admin.journal.searchPlaceholder")}
-              className="bg-transparent text-sm w-full focus:outline-none"
-            />
+          <div className="flex items-center gap-2 text-secondary text-sm flex-wrap">
+            <span className="font-label text-label-caps uppercase text-secondary">{t("admin.journal.volumeStatus")}:</span>
+            <span className="px-2 py-0.5 rounded bg-surface-container text-on-surface font-label text-label-caps uppercase text-xs">
+              {t("admin.journal.volumeActive")}
+            </span>
+            <div className="flex items-center gap-2 bg-surface-container-low px-3 py-2 rounded min-w-[200px] ml-auto sm:ml-2">
+              <span className="material-symbols-outlined text-[18px] text-secondary">search</span>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t("admin.journal.searchPlaceholder")}
+                className="bg-transparent text-sm w-full focus:outline-none"
+              />
+            </div>
           </div>
         </div>
-      </section>
 
-      <section className="px-6 lg:px-8 py-8 max-w-[1440px] mx-auto w-full">
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-          <div className="xl:col-span-5 flex flex-col gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="lg:col-span-4 flex flex-col gap-4">
+            <div className="flex items-center justify-between pb-2">
+              <span className="font-label text-label-caps uppercase tracking-widest text-on-surface">{t("admin.journal.storyQueue")}</span>
+            </div>
             {isLoading ? (
               <p className="text-secondary">{t("admin.loading")}</p>
             ) : filtered.length === 0 ? (
-              <p className="text-secondary p-6 bg-white rounded border border-surface-container-high">
-                {t("admin.journal.emptyQueue")}
-              </p>
+              <p className="text-secondary p-6 bg-surface-container-lowest rounded-lg border border-surface-container">{t("admin.journal.emptyQueue")}</p>
             ) : (
               filtered.map((p) => {
-                const cover = p.cover_image_id ? mediaById.get(p.cover_image_id) : null;
+                const wf = workflowOf(p);
                 const mins = readingMinutes(toBlocks(p.content), p.excerpt);
                 const active = draft?.id === p.id;
                 return (
@@ -199,33 +212,44 @@ export default function JournalTab() {
                     key={p.id}
                     type="button"
                     onClick={() => openPost(p)}
-                    className={`text-left w-full bg-white rounded overflow-hidden border transition-shadow flex gap-4 p-4 ${
-                      active ? "border-primary shadow-md" : "border-surface-container-high hover:shadow-sm"
+                    className={`p-5 rounded-lg flex flex-col gap-3 relative cursor-pointer group text-left w-full transition-all ${
+                      active
+                        ? "bg-surface-container-lowest shadow-md ring-1 ring-primary/20"
+                        : "bg-surface-container-low hover:bg-surface-container-lowest"
                     }`}
                   >
-                    <div className="w-24 h-28 shrink-0 bg-surface-container rounded overflow-hidden">
-                      {cover ? (
-                        <img src={cover.url} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-secondary">
-                          <span className="material-symbols-outlined">image</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex flex-col min-w-0 flex-1 gap-1">
-                      <span className="font-label text-[10px] uppercase text-secondary tracking-widest">
-                        {t("admin.journal.edition")} · {mins} {t("admin.journal.minRead")}
-                      </span>
-                      <h3 className="font-headline text-lg text-primary uppercase leading-tight truncate">{p.title}</h3>
-                      <p className="text-xs text-secondary truncate">/blogs/{p.slug}</p>
-                      <div className="flex items-center gap-2 mt-auto pt-2">
-                        <StatusBadge workflow={workflowOf(p)} />
-                        {p.published_at ? (
-                          <span className="font-label text-[10px] uppercase text-secondary">
-                            {new Date(p.published_at).toLocaleDateString()}
-                          </span>
-                        ) : null}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`w-2 h-2 rounded-full ${
+                            wf === "published" ? "bg-primary" : wf === "scheduled" ? "bg-amber-600" : "bg-secondary"
+                          }`}
+                        />
+                        <StatusBadge workflow={wf} />
                       </div>
+                      <span className="font-label text-label-caps uppercase text-secondary tracking-widest text-[11px]">
+                        {mins} {t("admin.journal.minRead")}
+                      </span>
+                    </div>
+                    <h3 className="font-headline text-headline-md text-on-surface group-hover:text-primary transition-colors leading-snug line-clamp-3">
+                      {p.title}
+                    </h3>
+                    {p.excerpt ? (
+                      <p className="font-body text-body-md text-on-surface-variant line-clamp-2">{p.excerpt}</p>
+                    ) : (
+                      <p className="font-body text-body-md text-on-surface-variant line-clamp-1 opacity-70">/blogs/{p.slug}</p>
+                    )}
+                    <div className="flex items-center justify-between pt-2 border-t border-surface-container mt-1">
+                      {p.published_at ? (
+                        <span className="font-label text-[10px] uppercase text-on-surface-variant">
+                          {new Date(p.published_at).toLocaleDateString()}
+                        </span>
+                      ) : (
+                        <span className="font-label text-[10px] uppercase text-on-surface-variant">—</span>
+                      )}
+                      {p.cover_image_id && mediaById.get(p.cover_image_id) ? (
+                        <span className="material-symbols-outlined text-[16px] text-on-surface-variant">image</span>
+                      ) : null}
                     </div>
                   </button>
                 );
@@ -233,18 +257,21 @@ export default function JournalTab() {
             )}
           </div>
 
-          <div className="xl:col-span-7 bg-white rounded border border-surface-container-high p-6 lg:p-8 min-h-[420px]">
+          <div className="lg:col-span-8 bg-surface-container-lowest rounded-xl shadow-sm border border-surface-container p-6 lg:p-8 min-h-[480px]">
             {!draft ? (
               <div className="h-full flex flex-col items-center justify-center text-center text-secondary gap-3 py-16">
                 <span className="material-symbols-outlined text-4xl">menu_book</span>
                 <p className="max-w-sm">{t("admin.journal.selectStory")}</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-6">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-surface-container pb-4">
-                  <h2 className="font-headline text-xl uppercase text-primary">
-                    {draft.id ? t("admin.editPost") : t("admin.newPostTitle")}
-                  </h2>
+                  <div>
+                    <span className="font-label text-[10px] uppercase text-secondary tracking-widest">
+                      {draft.id ? t("admin.editPost") : t("admin.newPostTitle")}
+                    </span>
+                    <h2 className="font-headline text-xl uppercase text-primary mt-1 line-clamp-2">{draft.title || t("admin.newPostTitle")}</h2>
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {draft.id ? (
                       <DangerButton onClick={() => deleteMutation.mutate(draft.id!)}>{t("admin.delete")}</DangerButton>
@@ -329,7 +356,7 @@ export default function JournalTab() {
             )}
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
@@ -337,11 +364,11 @@ export default function JournalTab() {
 function StatusBadge({ workflow }: { workflow: Workflow }) {
   const { t } = useLanguage();
   const map = {
-    published: { cls: "bg-surface-container text-on-surface", label: t("admin.journal.statusPublished") },
-    scheduled: { cls: "bg-primary/10 text-primary", label: t("admin.journal.statusScheduled") },
-    drafts: { cls: "bg-surface-container-high text-secondary", label: t("admin.journal.statusDraft") },
+    published: { cls: "text-on-surface", label: t("admin.journal.statusPublished") },
+    scheduled: { cls: "text-on-surface", label: t("admin.journal.statusScheduled") },
+    drafts: { cls: "text-secondary", label: t("admin.journal.statusDraft") },
   }[workflow];
   return (
-    <span className={`font-label text-[10px] uppercase px-2 py-0.5 rounded ${map.cls}`}>{map.label}</span>
+    <span className={`font-label text-label-caps uppercase tracking-wider text-[11px] ${map.cls}`}>{map.label}</span>
   );
 }

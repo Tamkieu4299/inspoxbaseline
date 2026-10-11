@@ -6,7 +6,6 @@ import { adminApi } from "../api";
 import type { Category, CollectionSummary } from "../types";
 import ProductGallery from "../components/ProductGallery";
 import {
-  Checkbox,
   DangerButton,
   Field,
   PrimaryButton,
@@ -21,8 +20,11 @@ import {
 import { useLanguage } from "../i18n";
 import { formatMoney } from "../money";
 import { PRODUCT_BADGES, type ProductDraft } from "./productDraft";
+import { StudioModule, StudioToggle, studioInputClass } from "./studioUi";
 
-function CategoryMultiSelect({
+export type ProductStudioTab = "general" | "media" | "story" | "variants";
+
+function CategoryChipField({
   categories,
   categoryIds,
   onChange,
@@ -54,48 +56,74 @@ function CategoryMultiSelect({
   }, [open]);
 
   const selected = (categories || []).filter((c) => categoryIds.includes(c.id));
-  const summary = selected.length > 0 ? selected.map((c) => c.name).join(", ") : t("admin.none");
+  const primaryId = categoryIds[0];
+  const available = (categories || []).filter((c) => !categoryIds.includes(c.id));
+
+  function remove(id: number) {
+    onChange(categoryIds.filter((x) => x !== id));
+  }
+
+  function add(id: number) {
+    onChange([...categoryIds, id]);
+    setOpen(false);
+  }
 
   return (
-    <div ref={rootRef} className="relative flex flex-col gap-1">
-      <span className="font-label text-label-caps text-secondary uppercase">{t("admin.categories")}</span>
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
-        className={`${inputCls} w-full flex items-center justify-between gap-2 text-left`}
-      >
-        <span className="truncate font-body text-body-md">{summary}</span>
-        <span className={`material-symbols-outlined text-[20px] text-secondary shrink-0 transition-transform ${open ? "rotate-180" : ""}`}>
-          expand_more
-        </span>
-      </button>
-      {open ? (
-        <div className="absolute z-30 top-full left-0 right-0 mt-1 border border-surface-container-highest bg-white shadow-lg px-3 py-2 max-h-40 overflow-y-auto flex flex-col gap-2">
-          {(categories || []).length === 0 ? (
-            <span className="font-body text-body-sm text-secondary">{t("admin.none")}</span>
-          ) : (
-            (categories || []).map((c) => (
-              <div key={c.id} className="flex items-center gap-2 font-body text-body-md text-on-background">
-                <Checkbox
-                  checked={categoryIds.includes(c.id)}
-                  onChange={(e) => {
-                    const next = new Set(categoryIds);
-                    if (e.target.checked) next.add(c.id);
-                    else next.delete(c.id);
-                    onChange([...next]);
-                  }}
-                />
-                {c.name}
-              </div>
-            ))
-          )}
+    <div ref={rootRef} className="relative flex flex-col gap-2 md:col-span-2">
+      <span className="font-label text-label-caps uppercase tracking-wider text-on-surface">{t("admin.categories")}</span>
+      <div className="p-2.5 bg-surface-container-low rounded min-h-[50px] flex flex-wrap gap-2 items-center">
+        {selected.length === 0 ? (
+          <span className="font-body text-body-sm text-secondary px-1">{t("admin.none")}</span>
+        ) : (
+          selected.map((c) => (
+            <span
+              key={c.id}
+              className={`px-2.5 py-1 rounded font-label text-[11px] uppercase tracking-wider flex items-center gap-1.5 ${
+                c.id === primaryId ? "bg-primary text-on-primary" : "bg-surface-container-highest text-on-surface"
+              }`}
+            >
+              {c.name}
+              <button type="button" aria-label={t("admin.remove")} onClick={() => remove(c.id)} className="leading-none opacity-80 hover:opacity-100">
+                <span className="material-symbols-outlined text-[14px]">close</span>
+              </button>
+            </span>
+          ))
+        )}
+        {available.length > 0 ? (
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            className="px-2.5 py-1 rounded border border-dashed border-surface-container-highest font-label text-[11px] uppercase text-forest-green hover:bg-surface-container-lowest"
+          >
+            + {t("admin.add")}
+          </button>
+        ) : null}
+      </div>
+      {open && available.length > 0 ? (
+        <div className="absolute z-30 top-full left-0 right-0 mt-1 border border-surface-container-highest bg-white shadow-lg py-1 max-h-40 overflow-y-auto">
+          {available.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => add(c.id)}
+              className="w-full text-left px-3 py-2 font-body text-body-md hover:bg-surface-container-low"
+            >
+              {c.name}
+            </button>
+          ))}
         </div>
       ) : null}
-      <p className="text-secondary text-xs mt-1 font-body">{t("admin.productCategoriesHint")}</p>
+      <p className="text-secondary text-xs font-body">{t("admin.productCategoriesHint")}</p>
     </div>
   );
 }
+
+const GALLERY_LAYOUTS = [
+  { id: "collage", icon: "dashboard_customize", labelKey: "admin.galleryCollage" },
+  { id: "grid", icon: "grid_view", labelKey: "admin.galleryGrid" },
+  { id: "masonry", icon: "view_quilt", labelKey: "admin.galleryMasonry" },
+  { id: "slideshow", icon: "view_carousel", labelKey: "admin.gallerySlideshow" },
+] as const;
 
 export function ProductEditorForm({
   draft,
@@ -113,6 +141,7 @@ export function ProductEditorForm({
   queryClient,
   onDelete,
   compactHeader,
+  studioTab = "general",
 }: {
   draft: ProductDraft;
   set: <K extends keyof ProductDraft>(key: K, value: ProductDraft[K]) => void;
@@ -129,6 +158,7 @@ export function ProductEditorForm({
   queryClient: QueryClient;
   onDelete?: () => void;
   compactHeader?: boolean;
+  studioTab?: ProductStudioTab;
 }) {
   const { t, lang } = useLanguage();
   const { data: siteSettings } = useQuery({ queryKey: ["admin-site"], queryFn: adminApi.getSite });
@@ -140,9 +170,62 @@ export function ProductEditorForm({
     setPriceText(p > 0 ? String(Math.round(p)) : "");
   }, [draft.id]);
 
+  const mainImageIndex = draft.images.findIndex((i) => i.enabled);
+  const heroIndex = mainImageIndex >= 0 ? mainImageIndex : 0;
+  const heroImage = draft.images[heroIndex];
+
   return (
-    <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="flex flex-col gap-8">
+      {studioTab === "general" ? (
+        <StudioModule
+          n="01"
+          title={t("admin.studio.generalTitle")}
+          subtitle={t("admin.studio.generalSubtitle")}
+          badge={t("admin.studio.moduleActive")}
+        >
+          <div className="p-4 rounded-lg bg-surface-container-low flex flex-col sm:flex-row items-center gap-5">
+            <div className="w-24 h-24 rounded-lg overflow-hidden relative shrink-0 bg-surface-container">
+              {heroImage?.url ? (
+                <img src={heroImage.url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-secondary">
+                  <span className="material-symbols-outlined">image</span>
+                </div>
+              )}
+              {heroImage?.enabled !== false && heroImage?.url ? (
+                <span className="absolute bottom-1 left-1 right-1 text-center font-label text-[9px] bg-primary text-on-primary px-1 py-0.5 rounded uppercase tracking-wider">
+                  {t("admin.studio.heroKey")}
+                </span>
+              ) : null}
+            </div>
+            <div className="flex flex-col flex-1 min-w-0">
+              <span className="font-label text-label-caps text-primary uppercase">{t("admin.studio.mainCover")}</span>
+              <span className="font-body text-[13px] text-secondary truncate mt-1">
+                {heroImage?.url ? heroImage.url.split("/").pop() : t("admin.noVisibleImages")}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 flex-wrap">
+              <SecondaryButton onClick={() => setPickImageFor(heroIndex)}>{t("admin.change")}</SecondaryButton>
+              {heroImage?.url ? (
+                <SecondaryButton
+                  onClick={() => {
+                    if (draft.images.length <= 1) {
+                      set("images", [{ media_id: 0, url: "", alt: "", position: 0, enabled: false }]);
+                    } else {
+                      set(
+                        "images",
+                        draft.images.map((im, i) => (i === heroIndex ? { ...im, enabled: false } : im))
+                      );
+                    }
+                  }}
+                >
+                  {t("admin.studio.clearHero")}
+                </SecondaryButton>
+              ) : null}
+            </div>
+          </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Field label="Name *">
                 <TextInput value={draft.name} onChange={(e) => set("name", e.target.value)} placeholder="CLUB PERFORMANCE POLO" />
               </Field>
@@ -169,7 +252,7 @@ export function ProductEditorForm({
                   })}
                 </p>
               </Field>
-              <CategoryMultiSelect
+              <CategoryChipField
                 categories={categories}
                 categoryIds={draft.category_ids}
                 draftKey={draft.id}
@@ -209,29 +292,56 @@ export function ProductEditorForm({
             </Field>
             <ViArea label={t("admin.description")} rows={3} value={draft.description_vi} onChange={(e) => set("description_vi", e.target.value)} placeholder="Mô tả tiếng Việt" />
 
-            <div className="flex gap-6">
-              <label className="flex items-center gap-2 font-body text-body-md text-on-background">
-                <Checkbox checked={draft.is_active} onChange={(e) => set("is_active", e.target.checked)} /> {t("admin.active")}
-              </label>
-              <label className="flex items-center gap-2 font-body text-body-md text-on-background">
-                <Checkbox checked={draft.is_featured} onChange={(e) => set("is_featured", e.target.checked)} /> {t("admin.featuredHome")}
-              </label>
-              <label className="flex items-center gap-2 font-body text-body-md text-on-background">
-                <Checkbox checked={draft.is_bestseller} onChange={(e) => set("is_bestseller", e.target.checked)} /> {t("admin.bestseller")}
-              </label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <StudioToggle
+                label={t("admin.active")}
+                checked={draft.is_active}
+                onChange={(v) => set("is_active", v)}
+              />
+              <StudioToggle
+                label={t("admin.featuredHome")}
+                checked={draft.is_featured}
+                onChange={(v) => set("is_featured", v)}
+              />
+              <StudioToggle
+                label={t("admin.bestseller")}
+                checked={draft.is_bestseller}
+                onChange={(v) => set("is_bestseller", v)}
+              />
             </div>
+        </StudioModule>
+      ) : null}
 
-            <Field label={t("admin.galleryLayout")}>
-              <Select value={draft.gallery_layout} onChange={(e) => set("gallery_layout", e.target.value)}>
-                <option value="collage">{t("admin.galleryCollage")}</option>
-                <option value="grid">{t("admin.galleryGrid")}</option>
-                <option value="masonry">{t("admin.galleryMasonry")}</option>
-                <option value="slideshow">{t("admin.gallerySlideshow")}</option>
-              </Select>
-              <span className="font-label text-label-caps text-secondary">
-                {t("admin.galleryCollageHint")}
-              </span>
-            </Field>
+      {studioTab === "media" ? (
+        <>
+            <StudioModule
+              n="02"
+              title={t("admin.studio.mediaTitle")}
+              subtitle={t("admin.studio.mediaSubtitle")}
+              badge={t("admin.studio.moduleActive")}
+            >
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {GALLERY_LAYOUTS.map((layout) => {
+                  const active = draft.gallery_layout === layout.id;
+                  return (
+                    <button
+                      key={layout.id}
+                      type="button"
+                      onClick={() => set("gallery_layout", layout.id)}
+                      className={`p-4 rounded-lg border flex flex-col items-center gap-2 transition-colors ${
+                        active
+                          ? "border-primary bg-surface-container-low"
+                          : "border-surface-container bg-surface-container-lowest hover:bg-surface-container-low"
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[28px] text-primary">{layout.icon}</span>
+                      <span className="font-label text-[10px] uppercase tracking-wider text-on-surface">{t(layout.labelKey)}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="font-label text-label-caps text-secondary text-xs">{t("admin.galleryCollageHint")}</p>
+            </StudioModule>
 
             {/* Layout preview */}
             <div>
@@ -485,8 +595,16 @@ export function ProductEditorForm({
                 })()}
               </div>
             </div>
+        </>
+      ) : null}
 
-            {/* Colors */}
+      {studioTab === "variants" ? (
+        <StudioModule
+          n="04"
+          title={t("admin.studio.variantsTitle")}
+          subtitle={t("admin.studio.variantsSubtitle")}
+          badge={t("admin.studio.moduleActive")}
+        >
             <KeyValueList
               title={t("admin.colorways")}
               addLabel={t("admin.addColor")}
@@ -506,8 +624,16 @@ export function ProductEditorForm({
                 placeholder="XS, S, M, L, XL, XXL"
               />
             </Field>
+        </StudioModule>
+      ) : null}
 
-            {/* Tech Specs */}
+      {studioTab === "story" ? (
+        <StudioModule
+          n="03"
+          title={t("admin.studio.storyTitle")}
+          subtitle={t("admin.studio.storySubtitle")}
+          badge={t("admin.studio.moduleActive")}
+        >
             <PairList
               title={t("admin.techSpecs")}
               addLabel={t("admin.addSpec")}
@@ -517,8 +643,9 @@ export function ProductEditorForm({
               bPlaceholder={t("admin.specValue")}
             />
 
-            {/* Features */}
             <FeatureList values={draft.features} onChange={(v) => set("features", v)} />
+        </StudioModule>
+      ) : null}
     </div>
   );
 }

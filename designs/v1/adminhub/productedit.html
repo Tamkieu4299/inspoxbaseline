@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Chivo:wght@700;800&amp;family=Hanken+Grotesk:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"secondary":"#5d5f5f","on-tertiary-fixed-variant":"#454747","on-tertiary":"#ffffff","surface-dim":"#dadada","tertiary-fixed-dim":"#c6c6c6","background":"#f9f9f9","outline":"#7e7576","tertiary":"#000000","primary":"#000000","error":"#ba1a1a","surface-container-low":"#f3f3f4","primary-fixed":"#e2e2e2","on-secondary":"#ffffff","surface-container-highest":"#e2e2e2","on-surface-variant":"#4c4546","error-container":"#ffdad6","surface-tint":"#5e5e5e","on-secondary-fixed-variant":"#454747","outline-variant":"#cfc4c5","on-primary-container":"#848484","secondary-fixed":"#e2e2e2","surface-container-high":"#e8e8e8","primary-fixed-dim":"#c6c6c6","on-error-container":"#93000a","surface":"#f9f9f9","secondary-container":"#dcdddd","surface-bright":"#f9f9f9","surface-container":"#eeeeee","on-error":"#ffffff","inverse-primary":"#c6c6c6","on-secondary-container":"#5f6161","on-primary-fixed-variant":"#474747","on-tertiary-fixed":"#1a1c1c","primary-container":"#1b1b1b","on-tertiary-container":"#838484","inverse-on-surface":"#f0f1f1","on-surface":"#1a1c1c","secondary-fixed-dim":"#c6c6c7","surface-variant":"#e2e2e2","tertiary-container":"#1a1c1c","inverse-surface":"#2f3131","tertiary-fixed":"#e2e2e2","on-secondary-fixed":"#1a1c1c","on-primary-fixed":"#1b1b1b","on-background":"#1a1c1c","on-primary":"#ffffff","surface-container-lowest":"#ffffff"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"margin-mobile":"1rem","stack-sm":"0.5rem","margin-desktop":"5rem","stack-xxl":"8rem","stack-xl":"4rem","stack-xs":"0.25rem","gutter":"1.5rem","stack-lg":"2rem","stack-md":"1rem"},"fontFamily":{"display-lg-mobile":["Chivo"],"display-lg":["Chivo"],"headline-lg-mobile":["Chivo"],"label-caps":["Hanken Grotesk"],"headline-md":["Chivo"],"body-md":["Hanken Grotesk"],"body-lg":["Hanken Grotesk"],"headline-lg":["Chivo"]},"fontSize":{"display-lg-mobile":["48px",{"lineHeight":"1.1","letterSpacing":"-0.02em","fontWeight":"800"}],"display-lg":["72px",{"lineHeight":"1.1","letterSpacing":"-0.04em","fontWeight":"800"}],"headline-lg-mobile":["32px",{"lineHeight":"1.2","letterSpacing":"-0.01em","fontWeight":"700"}],"label-caps":["12px",{"lineHeight":"1.0","letterSpacing":"0.1em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"1.3","fontWeight":"700"}],"body-md":["16px",{"lineHeight":"1.6","fontWeight":"400"}],"body-lg":["18px",{"lineHeight":"1.6","fontWeight":"400"}],"headline-lg":["40px",{"lineHeight":"1.2","letterSpacing":"-0.02em","fontWeight":"700"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-surface-container shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex flex-col"><div class="h-20 px-8 flex items-center justify-between border-b border-surface-container"><div class="flex flex-col"><span class="font-headline-md text-headline-md tracking-tight uppercase text-primary leading-none">APEX</span><span class="font-label-caps text-label-caps tracking-widest uppercase text-on-surface-variant mt-stack-xs">ATHLETIC</span></div><span class="font-label-caps text-label-caps uppercase px-2 py-1 rounded bg-surface-container text-on-surface">HQ</span></div><div class="px-8 pt-6 pb-2"><span class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-widest">Tennis Division</span></div><nav class="flex flex-col px-4 gap-1" data-active-classes="bg-primary text-on-primary font-bold"><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="overview" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span class="font-body-md text-body-md">Overview</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="catalog-&amp;-products" href="#"><span class="material-symbols-outlined text-[20px]">sports_tennis</span><span class="font-body-md text-body-md">Catalog &amp; Products</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="inventory-&amp;-drops" href="#"><span class="material-symbols-outlined text-[20px]">inventory_2</span><span class="font-body-md text-body-md">Inventory &amp; Drops</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="media-&amp;-assets" href="#"><span class="material-symbols-outlined text-[20px]">photo_camera</span><span class="font-body-md text-body-md">Media &amp; Assets</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="the-club-journal-(blog/stories)" href="#"><span class="material-symbols-outlined text-[20px]">menu_book</span><span class="font-body-md text-body-md">The Club Journal</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="homepage-&amp;-content-studio" href="#"><span class="material-symbols-outlined text-[20px]">auto_fix_high</span><span class="font-body-md text-body-md">Homepage &amp; Studio</span></a><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="system-configuration" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-body-md text-body-md">System Configuration</span></a></nav></div><div class="p-4 border-t border-surface-container"><div class="flex items-center gap-3 px-4 py-3 rounded bg-surface-container-low"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col min-w-0"><span class="font-label-caps text-label-caps uppercase text-on-surface truncate">Brand Director</span><span class="font-body-md text-body-md text-[11px] text-on-surface-variant uppercase tracking-wider truncate">GLOBAL HQ</span></div></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-20 bg-surface/90 backdrop-blur-xl border-b border-surface-container z-40 px-8 flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex items-center gap-6 flex-1 max-w-2xl"><div class="flex items-center gap-2 px-3 py-1.5 rounded border border-surface-container bg-surface-container-lowest text-on-surface cursor-pointer"><span class="font-label-caps text-label-caps uppercase">Division: Pro Tennis</span><span class="material-symbols-outlined text-[16px] text-on-surface-variant">unfold_more</span></div><div class="flex items-center gap-3 flex-1 px-4 py-2 rounded bg-surface-container-low border border-surface-container"><span class="material-symbols-outlined text-[20px] text-on-surface-variant">search</span><input class="w-full bg-transparent font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none" placeholder="Search global SKU, product, drop ID, or article..." type="text"/></div></div><div class="flex items-center gap-4"><button class="w-10 h-10 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">help_outline</span></button><button class="relative w-10 h-10 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary"></span></button><div class="h-6 w-px bg-surface-container mx-1"></div><div class="flex items-center gap-3 pl-2"><div class="flex flex-col text-right"><span class="font-label-caps text-label-caps uppercase text-on-surface leading-tight">Admin Console</span><span class="font-body-md text-body-md text-[11px] text-on-surface-variant leading-tight">HQ-AUTH-901</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="relative pt-20 w-full min-h-screen bg-surface"><div class="flex flex-col w-full pb-24">
+<!-- Context & Action Bar -->
+<section class="w-full bg-surface-container-lowest px-8 py-6 mb-8">
+<div class="max-w-[1440px] mx-auto flex flex-col gap-6">
+<!-- Breadcrumb & Auto-save Status -->
+<div class="flex flex-wrap items-center justify-between gap-4">
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">HQ ADMIN SUITE</span>
+<span class="material-symbols-outlined text-[14px] text-outline-variant">chevron_right</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">CATALOG &amp; MERCHANDISING</span>
+<span class="material-symbols-outlined text-[14px] text-outline-variant">chevron_right</span>
+<span class="font-label-caps text-label-caps text-primary uppercase tracking-widest font-bold">PRODUCT STUDIO V4.2</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-emerald-700 animate-pulse"></span>
+<span class="font-label-caps text-label-caps tracking-wider text-[11px] uppercase">DRAFT AUTO-SAVED 14:18 GMT+7</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant text-[11px] uppercase tracking-widest">REVISION #082-ALPHA</span>
+</div>
+</div>
+<!-- Title & Main Actions -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2">
+<div class="flex flex-col max-w-3xl">
+<div class="flex items-center gap-3 mb-2">
+<span class="px-2.5 py-0.5 rounded bg-primary text-on-primary font-label-caps text-label-caps tracking-widest text-[10px] uppercase">PDP STUDIO</span>
+<span class="px-2.5 py-0.5 rounded bg-surface-container text-on-surface font-label-caps text-label-caps tracking-widest text-[10px] uppercase">SKU: HED-SPD-PF01</span>
+</div>
+<h1 class="font-display-lg text-[36px] lg:text-[44px] uppercase tracking-tight text-primary leading-none">PRODUCT STUDIO · PDP EDITOR</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-3 max-w-2xl leading-relaxed">
+            Curate product taxonomy, bilingual editorial storytelling, gallery layout choreography, and technical engineering specs for global omnichannel storefronts.
+          </p>
+</div>
+<!-- Global Control Buttons -->
+<div class="flex items-center flex-wrap gap-3">
+<button class="flex items-center gap-2 px-5 py-3 rounded bg-surface-container-low hover:bg-surface-container text-on-surface transition-colors font-label-caps text-label-caps uppercase tracking-wider">
+<span>DISCARD</span>
+</button>
+<button class="flex items-center gap-2 px-5 py-3 rounded bg-surface-container-highest hover:bg-surface-dim text-on-surface transition-colors font-label-caps text-label-caps uppercase tracking-wider">
+<span>PREVIEW STOREFRONT PDP</span>
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</button>
+<button class="flex items-center gap-2 px-7 py-3 rounded bg-[#004225] hover:bg-[#00331c] text-white shadow-sm transition-all font-label-caps text-label-caps uppercase tracking-widest font-bold">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>PUBLISH LIVE (XUẤT BẢN)</span>
+</button>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<div class="flex items-center gap-2 overflow-x-auto pt-4">
+<button class="px-5 py-2.5 rounded bg-primary text-on-primary font-label-caps text-label-caps uppercase tracking-widest whitespace-nowrap">
+          01. GENERAL &amp; TAXONOMY (THÔNG TIN CHUNG)
+        </button>
+<button class="px-5 py-2.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-caps text-label-caps uppercase tracking-widest whitespace-nowrap transition-colors">
+          02. MEDIA &amp; GALLERY CHOREOGRAPHY (HÌNH ẢNH)
+        </button>
+<button class="px-5 py-2.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-caps text-label-caps uppercase tracking-widest whitespace-nowrap transition-colors">
+          03. STORYTELLING &amp; SPECIFICATIONS (THÔNG SỐ &amp; CÔNG NGHỆ)
+        </button>
+<button class="px-5 py-2.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-caps text-label-caps uppercase tracking-widest whitespace-nowrap transition-colors">
+          04. INVENTORY &amp; VARIANTS (TỒN KHO)
+        </button>
+</div>
+</div>
+</section>
+<!-- Main Content Layout (60% / 40%) -->
+<div class="w-full max-w-[1440px] mx-auto px-8">
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+<!-- ==================== LEFT COLUMN: EDITORIAL PANELS (7 Cols) ==================== -->
+<div class="xl:col-span-7 flex flex-col gap-8">
+<!-- MODULE 01: TAXONOMY & BILINGUAL IDENTITY -->
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-sm flex flex-col gap-8">
+<div class="flex items-center justify-between pb-4">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-label-caps text-label-caps">01</span>
+<div>
+<h2 class="font-headline-md text-headline-md text-primary uppercase tracking-tight">Core Taxonomy &amp; Identity</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mt-0.5 tracking-wider">Bilingual Naming, Pricing &amp; Distribution Logic</p>
+</div>
+</div>
+<span class="font-label-caps text-label-caps px-2.5 py-1 rounded bg-surface-container-low text-on-surface uppercase">MODULE ACTIVE</span>
+</div>
+<!-- Hero Cover Thumbnail Strip -->
+<div class="p-4 rounded-lg bg-surface-container-low flex flex-col sm:flex-row items-center gap-5">
+<div class="w-24 h-24 rounded-lg overflow-hidden relative shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="High-contrast minimalist studio photograph of the HEAD Speed MP tennis racket custom painted with vivid magenta power pink and matte carbon black accents on a stark gallery podium" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCm7vZztodi6nSmG1MdUh9YBqgQaFnpMR3DUzYZ_V7gDtbmgZl90bO13FwdF4UFUmWsyGdWKTYESN4H2RuBpRUVZ7V9mgWXAHtJB_QkRtby3G644xjO0_1AgrbpFH3CoQLWqh2FUSG5ARvDJ_uvClZ77kI2r6hWcdO0954qKOhmYjzNTLbGDibKaT-Z5RBM4hK2wao_N1adAMoSznHBbpn5PLjOS5b_XSBIYTlvxzl6IIdlfrKuc7hq"/>
+<span class="absolute bottom-1 left-1 right-1 text-center font-label-caps text-[9px] bg-primary text-on-primary px-1 py-0.5 rounded uppercase tracking-wider">HERO KEY</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-label-caps text-primary uppercase">Main Cover Asset</span>
+<span class="px-2 py-0.5 rounded-full bg-[#004225] text-white font-label-caps text-[10px] uppercase tracking-widest font-bold">MAIN HERO IMAGE</span>
+</div>
+<span class="font-body-md text-[13px] text-on-surface-variant truncate mt-1">head-speed-mpl-pretty-fast-master-hero.webp</span>
+<span class="font-label-caps text-[11px] text-on-surface-variant uppercase tracking-wider mt-0.5">3840 x 2880 px · WebP Pro Studio Layer</span>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="px-3 py-2 rounded bg-surface-container-highest hover:bg-surface-dim font-label-caps text-label-caps uppercase text-on-surface transition-colors">Replace</button>
+<button class="px-3 py-2 rounded bg-surface-container hover:bg-surface-container-high font-label-caps text-label-caps uppercase text-error transition-colors">Clear</button>
+</div>
+</div>
+<!-- Basic Input Matrix -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Product Name EN -->
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface flex justify-between">
+<span>Product Name (EN)</span>
+<span class="text-on-surface-variant font-normal">REQUIRED</span>
+</label>
+<input class="w-full px-4 py-3 bg-surface-container-low rounded text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-1 focus:ring-primary transition-all" type="text" value="PRETTY FAST - HEAD SPEED MPL"/>
+</div>
+<!-- Product Name VI -->
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface flex justify-between">
+<span>VI · Tên sản phẩm</span>
+<span class="text-on-surface-variant font-normal">TIẾNG VIỆT</span>
+</label>
+<input class="w-full px-4 py-3 bg-surface-container-low rounded text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-1 focus:ring-primary transition-all" type="text" value="PRETTY FAST - HEAD SPEED MPL (BẢN GIỚI HẠN)"/>
+</div>
+<!-- Slug / Handle -->
+<div class="flex flex-col gap-2 md:col-span-2">
+<label class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface flex items-center justify-between">
+<span>URL Slug / Permalinks</span>
+<span class="text-on-surface-variant font-normal">apexathletic.com/rackets/custom/...</span>
+</label>
+<div class="flex items-center gap-2">
+<div class="flex-1 flex items-center bg-surface-container-low rounded px-4 py-3 text-on-surface font-body-md text-body-md">
+<span class="text-on-surface-variant mr-1 select-none">/shop/products/</span>
+<input class="bg-transparent flex-1 text-on-surface focus:outline-none font-bold" type="text" value="head-speed-mpl-pretty-fast"/>
+</div>
+<button class="px-4 py-3 rounded bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center gap-1.5 font-label-caps text-label-caps uppercase tracking-wider transition-colors shrink-0">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+<span>COPY</span>
+</button>
+</div>
+</div>
+<!-- Base Retail Price + Currency Telemetry -->
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface flex justify-between">
+<span>Base Retail Price (USD)</span>
+<span class="text-on-surface-variant font-normal">GLOBAL PRICE</span>
+</label>
+<div class="relative">
+<span class="absolute left-4 top-3.5 text-on-surface-variant font-bold">$</span>
+<input class="w-full pl-8 pr-4 py-3 bg-surface-container-low rounded text-on-surface font-body-md text-body-md font-bold focus:bg-surface-container-lowest focus:outline-none focus:ring-1 focus:ring-primary transition-all" type="text" value="250.00"/>
+</div>
+<div class="p-3 bg-surface-container-low rounded flex items-center justify-between mt-1">
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">Storefront (VNĐ)</span>
+<span class="font-body-md text-[13px] font-bold text-primary">6,350,000 ₫</span>
+</div>
+<div class="h-6 w-px bg-surface-container"></div>
+<div class="flex flex-col text-right">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">COGS Margin</span>
+<span class="font-body-md text-[13px] font-bold text-emerald-800">76% Gross Margin</span>
+</div>
+</div>
+</div>
+<!-- Categories / Taxonomy -->
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface">Category / Danh mục</label>
+<div class="p-2.5 bg-surface-container-low rounded min-h-[50px] flex flex-wrap gap-2 items-center">
+<span class="px-2.5 py-1 rounded bg-primary text-on-primary font-label-caps text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                  CUSTOM RACKETS
+                  <span class="material-symbols-outlined text-[12px] cursor-pointer">close</span>
+</span>
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-caps text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                  Masterpiece Series
+                  <span class="material-symbols-outlined text-[12px] cursor-pointer">close</span>
+</span>
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-caps text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                  Limited Edition
+                  <span class="material-symbols-outlined text-[12px] cursor-pointer">close</span>
+</span>
+</div>
+<div class="flex items-center gap-3 mt-1">
+<span class="font-label-caps text-[11px] text-on-surface-variant uppercase">Collection:</span>
+<span class="font-label-caps text-[11px] px-2 py-0.5 rounded bg-surface-container text-on-surface uppercase font-bold">BASELINE GEAR</span>
+<span class="font-label-caps text-[11px] px-2 py-0.5 rounded bg-surface-container text-on-surface uppercase font-bold">ONCOURT SS25</span>
+</div>
+</div>
+</div>
+<!-- Merchandising Badges & Status Switches -->
+<div class="p-5 bg-surface-container-low rounded-lg flex flex-col gap-5">
+<div class="flex flex-col gap-3">
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface">Storefront Merchandising Badge</span>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded bg-surface-container-highest text-on-surface font-label-caps text-label-caps uppercase tracking-wider hover:bg-surface-container transition-colors">NEW ARRIVAL</button>
+<button class="px-4 py-2 rounded bg-primary text-on-primary font-label-caps text-label-caps uppercase tracking-widest font-bold flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  LIMITED DROP (ACTIVE)
+                </button>
+<button class="px-4 py-2 rounded bg-surface-container-highest text-on-surface font-label-caps text-label-caps uppercase tracking-wider hover:bg-surface-container transition-colors">BESTSELLER</button>
+<button class="px-4 py-2 rounded bg-surface-container-highest text-on-surface font-label-caps text-label-caps uppercase tracking-wider hover:bg-surface-container transition-colors">STAFF PICK</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+<!-- Switch 1 -->
+<div class="p-3 rounded bg-surface-container-lowest flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-caps text-[11px] text-primary uppercase font-bold">ACTIVE STOREFRONT</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Hoạt động hiển thị</span>
+</div>
+<div class="w-12 h-6 bg-[#004225] rounded-full p-0.5 flex items-center justify-end cursor-pointer">
+<div class="w-5 h-5 bg-white rounded-full shadow-sm"></div>
+</div>
+</div>
+<!-- Switch 2 -->
+<div class="p-3 rounded bg-surface-container-lowest flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-caps text-[11px] text-primary uppercase font-bold">FEATURED HOMEPAGE</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Nổi bật trang chủ</span>
+</div>
+<div class="w-12 h-6 bg-[#004225] rounded-full p-0.5 flex items-center justify-end cursor-pointer">
+<div class="w-5 h-5 bg-white rounded-full shadow-sm"></div>
+</div>
+</div>
+<!-- Switch 3 -->
+<div class="p-3 rounded bg-surface-container-lowest flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-caps text-[11px] text-primary uppercase font-bold">POPULAR ARCHIVE</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Bán chạy / Nổi bật</span>
+</div>
+<div class="w-12 h-6 bg-surface-container-highest rounded-full p-0.5 flex items-center justify-start cursor-pointer">
+<div class="w-5 h-5 bg-white rounded-full shadow-sm"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bilingual Editorial Copywriting -->
+<div class="flex flex-col gap-6 pt-2">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface">Caption / Subtitle (EN)</label>
+<input class="w-full px-4 py-3 bg-surface-container-low rounded text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-1 focus:ring-primary" type="text" value="SAME FRAME MORE FUN"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface">VI · Phụ đề bài viết</label>
+<input class="w-full px-4 py-3 bg-surface-container-low rounded text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-1 focus:ring-primary" type="text" value="CÙNG KHUNG VỢT · NHIỀU CẢM HỨNG HƠN"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Long description EN -->
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface flex justify-between">
+<span>Editorial Story (EN)</span>
+<span class="text-on-surface-variant text-[11px]">MARKDOWN ENABLED</span>
+</label>
+<textarea class="w-full p-4 bg-surface-container-low rounded text-on-surface font-body-md text-[14px] leading-relaxed focus:bg-surface-container-lowest focus:outline-none focus:ring-1 focus:ring-primary resize-none" rows="5">The HEAD Speed MPL is a versatile, stable frame with a blend of power, control, and spin. This Baseline Club custom keeps the same performance — we only replaced the boring colors with a fresh, bold look that is fun, energetic, and made for modern players. Same frame. More fun. Same performance.</textarea>
+</div>
+<!-- Long description VI -->
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface flex justify-between">
+<span>VI · Mô tả thương mại</span>
+<span class="text-on-surface-variant text-[11px]">BẢN DỊCH CHUẨN</span>
+</label>
+<textarea class="w-full p-4 bg-surface-container-low rounded text-on-surface font-body-md text-[14px] leading-relaxed focus:bg-surface-container-lowest focus:outline-none focus:ring-1 focus:ring-primary resize-none" rows="5">HEAD Speed MPL là cây vợt đa năng, ổn định với sự cân bằng giữa sức mạnh, kiểm soát và độ xoáy. Phiên bản Baseline Club giữ nguyên hiệu năng — chỉ thay màu nhàm chán bằng diện mạo táo bạo, trẻ trung dành cho người chơi hiện đại. Cùng khung vợt. Vui hơn. Hiệu năng như cũ.</textarea>
+</div>
+</div>
+</div>
+</div>
+<!-- MODULE 02: GALLERY CHOREOGRAPHY & MEDIA MATRIX -->
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-sm flex flex-col gap-8">
+<div class="flex items-center justify-between pb-4">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-label-caps text-label-caps">02</span>
+<div>
+<h2 class="font-headline-md text-headline-md text-primary uppercase tracking-tight">Gallery Choreography &amp; Media Matrix</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mt-0.5 tracking-wider">Dynamic Layout Choreography &amp; Master Photographic Assets</p>
+</div>
+</div>
+<button class="px-4 py-2 rounded bg-primary text-on-primary font-label-caps text-label-caps uppercase tracking-wider flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">add_photo_alternate</span>
+<span>+ ADD MEDIA ASSET</span>
+</button>
+</div>
+<!-- Choreography Selector -->
+<div class="p-5 bg-surface-container-low rounded-lg flex flex-col gap-3">
+<label class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface">Gallery Layout Mode Selector</label>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+<button class="p-3 rounded bg-primary text-on-primary flex flex-col items-center justify-center gap-2 text-center transition-colors">
+<span class="material-symbols-outlined text-[20px]">dashboard_customize</span>
+<span class="font-label-caps text-[11px] uppercase tracking-wider leading-tight">COLLAGE · FEED<br/>(TỰ ĐỘNG)</span>
+</button>
+<button class="p-3 rounded bg-surface-container-highest hover:bg-surface-dim text-on-surface flex flex-col items-center justify-center gap-2 text-center transition-colors">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+<span class="font-label-caps text-[11px] uppercase tracking-wider leading-tight">GRID · SQUARES<br/>(ĐỒNG ĐỀU)</span>
+</button>
+<button class="p-3 rounded bg-surface-container-highest hover:bg-surface-dim text-on-surface flex flex-col items-center justify-center gap-2 text-center transition-colors">
+<span class="material-symbols-outlined text-[20px]">view_quilt</span>
+<span class="font-label-caps text-[11px] uppercase tracking-wider leading-tight">MASONRY · TALL<br/>(TỰ NHIÊN)</span>
+</button>
+<button class="p-3 rounded bg-surface-container-highest hover:bg-surface-dim text-on-surface flex flex-col items-center justify-center gap-2 text-center transition-colors">
+<span class="material-symbols-outlined text-[20px]">view_carousel</span>
+<span class="font-label-caps text-[11px] uppercase tracking-wider leading-tight">SLIDESHOW · HERO<br/>(BANNER LỚN)</span>
+</button>
+</div>
+<div class="flex items-center gap-2 mt-2 px-3 py-2 bg-surface-container-lowest rounded">
+<span class="material-symbols-outlined text-[16px] text-primary">auto_awesome</span>
+<p class="font-body-md text-[12px] text-on-surface-variant">
+                Collage adapts automatically: <strong class="text-primary">1 = Full Bleed</strong> · <strong class="text-primary">2 = Split View</strong> · <strong class="text-primary">3 = Master Left + Stacking</strong> · <strong class="text-primary">4 = 2x2 Grid</strong> · <strong class="text-primary">5+ = Dynamic 3-Column Studio</strong>.
+              </p>
+</div>
+</div>
+<!-- Photo Asset Cards Matrix -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Asset 01 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col gap-3 group">
+<div class="relative w-full h-48 rounded overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="High-resolution frontal product shot of customized HEAD Speed MPL racquet with bold electric magenta pink finish on clean off-white background with subtle shadow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP13gK9_G8_Mhe2AoRspo0s7BZXjlPpL3JdYI4M3II56oQLpZNig_jSpTR0kIEGLMJGbq0BTtLp-x38wJu6gTJNfaiBJbZ4SISzdlS4UjmAGrbHrjhArM1Z-i2WBDVOEZcHCreywQOKd6sEncZeDpW2VlwR3de-xqe8lTDLL1K3HBzcjg9VepHTok0Jpm8Y8P3PXLrJwi8qbrVxjeVW-GEUSxGO4mdBLkpUzPtuZBy0PeFien5BBtA"/>
+<div class="absolute top-2 left-2 flex gap-1">
+<span class="px-2 py-0.5 rounded bg-[#004225] text-white font-label-caps text-[10px] uppercase font-bold tracking-widest">PRIMARY / BÌA</span>
+</div>
+<div class="absolute bottom-2 right-2 flex items-center gap-1 bg-primary/80 backdrop-blur px-2 py-1 rounded text-on-primary">
+<span class="material-symbols-outlined text-[14px]">drag_indicator</span>
+<span class="font-label-caps text-[10px]">POS 01</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-caps text-[11px] uppercase text-primary font-bold">Frontal Master Shot</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Ratio 4:5 · 2.4 MB</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">crop</span></button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">swap_horiz</span></button>
+</div>
+</div>
+</div>
+<!-- Asset 02 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col gap-3 group">
+<div class="relative w-full h-48 rounded overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Extreme macro close-up detail of tennis racquet string bed with custom stencil logo and ergonomic calfskin leather tennis grip wrapping" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvQw2JDT4b0WUGu7Qa-WFPq1H9qMcjH5o7ppIvnmWdA5UgFTYOAV3jiy486RtU15tFbpew_25BUOpk-Y83r082vNzRmDESIbasM14wDhnieRKBwAPivxgueor1NjR-SRw9cmy2zbu7jJ2QF3JEqsf3HzQI8T_L3dypT4krTK1YP8AtEfRVizUIasqURvBKeZfZPTpobHcDB9_1vHs_JkPbaO0VZzNFnBwQPariEwNWdcvQ1grzDvTQ"/>
+<div class="absolute top-2 left-2 flex gap-1">
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-label-caps text-[10px] uppercase font-bold tracking-widest">ACTIVE</span>
+</div>
+<div class="absolute bottom-2 right-2 flex items-center gap-1 bg-primary/80 backdrop-blur px-2 py-1 rounded text-on-primary">
+<span class="material-symbols-outlined text-[14px]">drag_indicator</span>
+<span class="font-label-caps text-[10px]">POS 02</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-caps text-[11px] uppercase text-primary font-bold">String Bed &amp; Grip</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Ratio 4:5 · 1.8 MB</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">crop</span></button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">swap_horiz</span></button>
+</div>
+</div>
+</div>
+<!-- Asset 03 (Hidden State) -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col gap-3 group opacity-75">
+<div class="relative w-full h-48 rounded overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Pro tennis player serving on red clay court holding modern pink custom HEAD racquet in dramatic sunlight with lens flare" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxYFntShGm5cGFFaUHTUsZdNpHyvNkP_m5ZhRhntxQKIyDGlKKJNZzXhedPXpK04KG0RCnsknxwgD0yqnUHeoLSnfbiTVZjYulFBM5yHblGoJa2Fv46YTOr-f-UvQzYlJqahievn2xJGiR95YCJa2RntAifqOvGWiyZW1nBdQHZZrY33yIruqFqorPiCa4t8xrq7wQllSTiGiOwA-Zy-H1whhaUZHNgE-ZxIwEuqQQpWBUyb0euAJB"/>
+<div class="absolute top-2 left-2 flex gap-1">
+<span class="px-2 py-0.5 rounded bg-error text-on-error font-label-caps text-[10px] uppercase font-bold tracking-widest">HIDDEN / ẨN</span>
+</div>
+<div class="absolute bottom-2 right-2 flex items-center gap-1 bg-surface-dim/90 px-2 py-1 rounded text-on-surface">
+<span class="material-symbols-outlined text-[14px]">visibility_off</span>
+<span class="font-label-caps text-[10px]">INACTIVE</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-caps text-[11px] uppercase text-primary font-bold">Court Action Staging</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Ratio 4:5 · 3.1 MB</span>
+</div>
+<button class="px-2 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-caps text-[10px] uppercase tracking-wider transition-colors">
+                  UNHIDE
+                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- MODULE 03: COLORWAYS, SIZES & TECHNICAL SPECS -->
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-sm flex flex-col gap-8">
+<div class="flex items-center justify-between pb-4">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-label-caps text-label-caps">03</span>
+<div>
+<h2 class="font-headline-md text-headline-md text-primary uppercase tracking-tight">Colorways, Grips &amp; Engineering</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mt-0.5 tracking-wider">Dynamic Variants &amp; Tournament Specification Tables</p>
+</div>
+</div>
+<span class="font-label-caps text-label-caps px-2.5 py-1 rounded bg-surface-container-low text-on-surface uppercase">ENGINEERED MATRIX</span>
+</div>
+<!-- Colorways & Grips Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Colorways Builder -->
+<div class="p-4 bg-surface-container-low rounded-lg flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface font-bold">Colorway Palette</span>
+<button class="font-label-caps text-[11px] uppercase text-primary tracking-wider hover:underline font-bold">+ ADD COLORWAY</button>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between p-2.5 rounded bg-surface-container-lowest">
+<div class="flex items-center gap-3">
+<span class="w-6 h-6 rounded-full bg-[#e91e8c] shadow-sm"></span>
+<div class="flex flex-col">
+<span class="font-label-caps text-[11px] uppercase font-bold text-primary">POWER PINK</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Hex #E91E8C · Active Edition</span>
+</div>
+</div>
+<span class="font-label-caps text-[10px] px-2 py-0.5 rounded bg-primary text-on-primary uppercase">DEFAULT</span>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded bg-surface-container-lowest">
+<div class="flex items-center gap-3">
+<span class="w-6 h-6 rounded-full bg-[#131313] shadow-sm"></span>
+<div class="flex flex-col">
+<span class="font-label-caps text-[11px] uppercase font-bold text-primary">MATTE CARBON</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Hex #131313 · Stealth Finish</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant cursor-pointer">more_horiz</span>
+</div>
+</div>
+</div>
+<!-- Grip Sizing Matrix -->
+<div class="p-4 bg-surface-container-low rounded-lg flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface font-bold">Grip Sizes (Kích Thước Cán)</span>
+<span class="font-label-caps text-[11px] uppercase text-on-surface-variant">ISO 4 1/4 - 4 1/2</span>
+</div>
+<div class="flex flex-wrap gap-2 pt-1">
+<div class="px-4 py-2.5 rounded bg-primary text-on-primary flex items-center gap-2">
+<span class="font-label-caps text-[12px] uppercase font-bold">G2 (4 1/4")</span>
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="px-4 py-2.5 rounded bg-primary text-on-primary flex items-center gap-2">
+<span class="font-label-caps text-[12px] uppercase font-bold">G3 (4 3/8")</span>
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="px-4 py-2.5 rounded bg-surface-container-highest text-on-surface flex items-center gap-2">
+<span class="font-label-caps text-[12px] uppercase font-bold">G4 (4 1/2")</span>
+<span class="font-label-caps text-[10px] text-error font-bold">OUT</span>
+</div>
+</div>
+<span class="font-body-md text-[11px] text-on-surface-variant mt-2">Default grip tape: Apex Hydro-Tack Pro Leather Wrap 1.8mm.</span>
+</div>
+</div>
+<!-- Technical Specs Table (Bilingual) -->
+<div class="flex flex-col gap-3">
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface font-bold">Technical Specifications Matrix</span>
+<div class="rounded-lg overflow-hidden bg-surface-container-low">
+<div class="grid grid-cols-1 md:grid-cols-2 p-3.5 bg-surface-container-high font-label-caps text-label-caps uppercase tracking-wider text-primary">
+<span>SPECIFICATION PARAMETER</span>
+<span class="hidden md:block">VALUE &amp; ENGINEERING METRICS</span>
+</div>
+<div class="divide-y divide-surface-container">
+<div class="grid grid-cols-1 md:grid-cols-2 p-3.5 bg-surface-container-lowest items-center gap-2">
+<div class="flex flex-col">
+<span class="font-label-caps text-[12px] uppercase text-primary font-bold">Frame Layup</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Khung vợt</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-[13px] text-primary font-bold">Auxetic 2.0 Carbon Weave</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Sợi carbon Auxetic 2.0 nâng cấp</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 p-3.5 bg-surface-container-lowest items-center gap-2">
+<div class="flex flex-col">
+<span class="font-label-caps text-[12px] uppercase text-primary font-bold">Weight (Unstrung)</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Trọng lượng</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-[13px] text-primary font-bold">305g / 10.8 oz Unstrung</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">±3g dung sai thi đấu chuyên nghiệp</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 p-3.5 bg-surface-container-lowest items-center gap-2">
+<div class="flex flex-col">
+<span class="font-label-caps text-[12px] uppercase text-primary font-bold">Balance Point</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Điểm cân bằng</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-[13px] text-primary font-bold">315mm / 1 in HL</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Head Light cơ động trên lưới</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 p-3.5 bg-surface-container-lowest items-center gap-2">
+<div class="flex flex-col">
+<span class="font-label-caps text-[12px] uppercase text-primary font-bold">String Pattern</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Mật độ dây đan</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-[13px] text-primary font-bold">16x19 Spin Dynamics</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Tối ưu tạo xoáy và lực bung</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Technical Features Pillars -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Feature Pillar 1 -->
+<div class="p-4 rounded-lg bg-surface-container-low flex items-start gap-4">
+<div class="w-10 h-10 rounded bg-primary text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">HIGH PERFORMANCE · HIỆU NĂNG CAO</span>
+<p class="font-body-md text-[12px] text-on-surface mt-1">Power, control, and spin in a stable MP layup.</p>
+<p class="font-body-md text-[11px] text-on-surface-variant mt-0.5">Sức mạnh, kiểm soát và xoáy trên khung MP ổn định đỉnh cao.</p>
+</div>
+</div>
+<!-- Feature Pillar 2 -->
+<div class="p-4 rounded-lg bg-surface-container-low flex items-start gap-4">
+<div class="w-10 h-10 rounded bg-[#004225] text-white flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">brush</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">BOLD BASELINE LOOK · DIỆN MẠO BASELINE</span>
+<p class="font-body-md text-[12px] text-on-surface mt-1">Power pink and black graphics designed by Baseline Club.</p>
+<p class="font-body-md text-[11px] text-on-surface-variant mt-0.5">Hồng đậm và đen — thiết kế độc quyền bởi Baseline Club.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ==================== RIGHT COLUMN: VIEWPORT SIMULATOR & TELEMETRY (5 Cols) ==================== -->
+<div class="xl:col-span-5 flex flex-col gap-8 sticky top-28">
+<!-- STAGED PDP VIEWPORT SIMULATOR -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-md flex flex-col gap-6">
+<div class="flex items-center justify-between pb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">visibility</span>
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">Live Storefront PDP Viewport</span>
+</div>
+<!-- Viewport Switcher -->
+<div class="flex items-center p-1 rounded bg-surface-container-low">
+<button class="px-2.5 py-1 rounded bg-surface-container-lowest text-primary shadow-sm font-label-caps text-[10px] uppercase font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">smartphone</span>
+<span>MOBILE</span>
+</button>
+<button class="px-2.5 py-1 text-on-surface-variant hover:text-on-surface font-label-caps text-[10px] uppercase font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">desktop_windows</span>
+<span>DESKTOP</span>
+</button>
+</div>
+</div>
+<!-- Staged Phone Canvas Simulator -->
+<div class="mx-auto w-full max-w-[360px] bg-surface rounded-2xl overflow-hidden shadow-xl p-4 flex flex-col gap-4">
+<!-- Simulated Storefront Header -->
+<div class="flex items-center justify-between px-1">
+<span class="font-headline-md text-[16px] uppercase tracking-wider text-primary font-extrabold">APEX</span>
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-[18px]">search</span>
+<span class="material-symbols-outlined text-[18px]">shopping_bag</span>
+</div>
+</div>
+<!-- Simulated Visual Hero with Badge -->
+<div class="relative w-full aspect-[4/5] bg-surface-container-lowest rounded-xl overflow-hidden group">
+<img class="w-full h-full object-cover" data-alt="Luxury studio product presentation of customized magenta and matte black tennis racquet angled dramatically on dark architectural surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6gFOE_gXkDO3MIfGjzRkgfc25VWPAKDTJtUYc8BxJHRiGDyM_ap9dWlLlsJajIgpYjX-_R1jY8MumV-EaX0zDHo-VtdhAmMAzFE5gpWzYa0MoUvmNFsQIFjaublYwVc85IyDqJEw0Zi0aD6iVrM5FYzKbU-s5DdwYBUOPoqo1aQehHmVBSS3hri0iydmzm_EaxN8fEsgCaRK5OfUcmjA8phi61LLW3WJ1ui52y0fYSKn3FgLnDK9h"/>
+<div class="absolute top-3 left-3">
+<span class="px-2.5 py-1 rounded bg-[#004225] text-white font-label-caps text-[9px] uppercase font-bold tracking-widest">LIMITED DROP</span>
+</div>
+<div class="absolute bottom-3 right-3 w-7 h-7 rounded-full bg-surface-container-lowest/80 backdrop-blur flex items-center justify-center text-primary cursor-pointer">
+<span class="material-symbols-outlined text-[14px]">zoom_in</span>
+</div>
+</div>
+<!-- Simulated PDP Meta & Info -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant tracking-wider">BASELINE CLUB SERIES</span>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-caps text-[10px] text-primary font-bold">5.0 (42)</span>
+</div>
+</div>
+<h3 class="font-headline-md text-[20px] uppercase tracking-tight text-primary leading-tight">PRETTY FAST - HEAD SPEED MPL</h3>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-md text-[18px] text-primary font-bold">$250.00 USD</span>
+<span class="font-body-md text-[12px] text-on-surface-variant">/ 6,350,000 ₫</span>
+</div>
+<p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed line-clamp-2">
+                The HEAD Speed MPL is a versatile, stable frame with power, control, and spin. Custom painted by Baseline Club.
+              </p>
+<!-- Colorway Pill Selection -->
+<div class="flex flex-col gap-1.5 mt-2">
+<span class="font-label-caps text-[10px] uppercase text-on-surface tracking-wider font-bold">COLOR: <span class="text-on-surface-variant font-normal">POWER PINK / CARBON</span></span>
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-[#e91e8c] ring-2 ring-primary"></span>
+<span class="w-5 h-5 rounded-full bg-[#131313]"></span>
+</div>
+</div>
+<!-- Grip Sizing Interactive -->
+<div class="flex flex-col gap-1.5 mt-1">
+<span class="font-label-caps text-[10px] uppercase text-on-surface tracking-wider font-bold">GRIP SIZE:</span>
+<div class="flex gap-2">
+<span class="px-2.5 py-1 rounded bg-primary text-on-primary font-label-caps text-[10px] uppercase font-bold">G2 (4 1/4")</span>
+<span class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-label-caps text-[10px] uppercase font-bold">G3 (4 3/8")</span>
+<span class="px-2.5 py-1 rounded bg-surface-container text-on-surface-variant font-label-caps text-[10px] uppercase line-through opacity-50">G4</span>
+</div>
+</div>
+<!-- Add to Cart CTA -->
+<button class="w-full mt-3 py-3 rounded bg-primary text-on-primary font-label-caps text-label-caps uppercase tracking-widest font-bold flex items-center justify-center gap-2 shadow-sm">
+<span>ADD TO BAG · THÊM VÀO GIỎ</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- SEO & SOCIAL OPEN GRAPH PREVIEW -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm flex flex-col gap-4">
+<div class="flex items-center justify-between pb-2">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">SEO &amp; OpenGraph Snippet</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-caps text-[10px] uppercase">GOOGLE BOT INDEXED</span>
+</div>
+<div class="p-3 bg-surface-container-low rounded-lg flex flex-col gap-1.5">
+<span class="font-body-md text-[11px] text-on-surface-variant">https://apexathletic.com › shop › custom-rackets</span>
+<a class="font-body-md text-[14px] text-blue-800 hover:underline font-bold truncate" href="#">Pretty Fast - Head Speed MPL | APEX ATHLETIC Heritage Tennis</a>
+<p class="font-body-md text-[12px] text-on-surface-variant leading-relaxed line-clamp-2">
+              The customized HEAD Speed MPL racquet engineered with Auxetic 2.0 Carbon Weave and bold power pink design by Baseline Club. Free global courier delivery.
+            </p>
+</div>
+<div class="flex items-center gap-3 p-3 bg-surface-container-low rounded-lg">
+<div class="w-16 h-12 rounded bg-surface-container overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Thumbnail social card preview of modern tennis racket with power pink finish and sleek black background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChnxqS_5CguUkMlOEaFtFyfqAgXWplgaNXQXN3RMkj6Z3elY6XAiIK1eYiuySwaRHcCo5VgtdMbjMdea0z59fKR3RM2oBy01CLs2D-qdV_TD9vJaxrmaTV4tCCCjth7tIveTDzoluVprQ8BO-u6b_Z_kL0FV2Q_C3Ta6QU1M6QWCEA-jH69FWwXbw3DQ1OFpwRbjudMHWcvfE5-OM_6ue2EwDw-fqIZtjYy99CRVztw_hLhX9cBL6g"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-caps text-[10px] uppercase text-primary font-bold truncate">OG:IMAGE / TWITTER CARD 1200x630</span>
+<span class="font-body-md text-[11px] text-on-surface-variant truncate">Apex-head-speed-mpl-pretty-fast-og.jpg</span>
+</div>
+</div>
+</div>
+<!-- PIM SYNC & MULTI-HUB ALLOCATION WIDGET -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm flex flex-col gap-4">
+<div class="flex items-center justify-between pb-2">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">PIM Inventory &amp; Edge Sync</span>
+</div>
+<span class="px-2 py-0.5 rounded bg-error/10 text-error font-label-caps text-[10px] uppercase font-bold">LOW STOCK (14 UNITS)</span>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="p-3 rounded bg-surface-container-low flex flex-col">
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant tracking-wider">UK GLOBAL HUB</span>
+<span class="font-headline-md text-[18px] text-primary font-bold mt-1">08 Units</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Wimbledon Depot</span>
+</div>
+<div class="p-3 rounded bg-surface-container-low flex flex-col">
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant tracking-wider">APAC SINGAPORE</span>
+<span class="font-headline-md text-[18px] text-primary font-bold mt-1">06 Units</span>
+<span class="font-body-md text-[11px] text-on-surface-variant">Jurong Fulfillment</span>
+</div>
+</div>
+<!-- CDN Edge Telemetry bar -->
+<div class="p-3 bg-surface-container-low rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-emerald-800">cloud_done</span>
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-primary uppercase font-bold">CDN Edge Hit Rate: 99.88%</span>
+<span class="font-body-md text-[10px] text-on-surface-variant">Cache Key: #VAR-SPEED-MPL-V4</span>
+</div>
+</div>
+<button class="px-2.5 py-1 rounded bg-surface-container-highest hover:bg-surface-dim font-label-caps text-[10px] uppercase tracking-wider text-primary transition-colors">
+              PURGE EDGE
+            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>
