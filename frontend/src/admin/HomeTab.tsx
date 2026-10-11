@@ -627,43 +627,60 @@ export default function HomeTab() {
                 </SecondaryButton>
               </div>
               {d.features.map((feature, index) => (
-                <div key={index} className="p-3.5 rounded-lg bg-surface-container-low flex flex-col sm:flex-row items-center gap-3">
-                  <span className="font-mono text-xs font-bold text-primary w-8 text-center">{feature.index || String(index + 1).padStart(2, "0")}</span>
-                  <div className="flex-1 w-full">
-                    <span className="font-label text-[10px] uppercase text-secondary block mb-1">
-                      {lang === "vi" ? t("admin.localeVi") : t("admin.localeEn")} · {t("admin.title")}
-                    </span>
-                    <input
-                      className={studioInputClass}
-                      value={lang === "vi" ? feature.title_vi || "" : feature.title || ""}
-                      placeholder={lang === "vi" ? t("admin.localeVi") : t("admin.localeEn")}
-                      onChange={(e) => {
-                        const next = [...d.features];
-                        if (lang === "vi") {
-                          next[index] = { ...next[index], title_vi: e.target.value };
-                        } else {
-                          next[index] = { ...next[index], title: e.target.value };
-                        }
-                        set("features", next);
-                      }}
-                    />
-                    <p className="text-[11px] text-secondary mt-1 font-body">
-                      {lang === "vi"
-                        ? feature.title
-                          ? `${t("admin.localeEn")}: ${feature.title}`
-                          : t("admin.homeStudio.featureEnEmpty")
-                        : feature.title_vi
-                          ? `${t("admin.localeVi")}: ${feature.title_vi}`
-                          : t("admin.homeStudio.featureViEmpty")}
-                    </p>
+                <div key={index} className="p-3.5 rounded-lg bg-surface-container-low flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="flex items-center gap-2 font-label text-label-caps uppercase text-secondary text-xs">
+                      {t("admin.homeStudio.featureIndex")}
+                      <input
+                        className={`${studioInputClass} w-16 py-1.5 text-center font-mono`}
+                        value={feature.index ?? ""}
+                        placeholder={String(index + 1).padStart(2, "0")}
+                        onChange={(e) => {
+                          const next = [...d.features];
+                          next[index] = { ...next[index], index: e.target.value };
+                          set("features", next);
+                        }}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      className="p-2 text-secondary hover:text-error"
+                      onClick={() => set("features", d.features.filter((_, i) => i !== index))}
+                      aria-label={t("admin.remove")}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">close</span>
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    className="p-2 text-secondary hover:text-error"
-                    onClick={() => set("features", d.features.filter((_, i) => i !== index))}
-                  >
-                    <span className="material-symbols-outlined text-[18px]">close</span>
-                  </button>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label className="flex flex-col gap-1">
+                      <span className="font-label text-label-caps uppercase text-secondary text-xs">
+                        {t("admin.title")} (EN)
+                      </span>
+                      <input
+                        className={studioInputClass}
+                        value={feature.title || ""}
+                        onChange={(e) => {
+                          const next = [...d.features];
+                          next[index] = { ...next[index], title: e.target.value };
+                          set("features", next);
+                        }}
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="font-label text-label-caps uppercase text-secondary text-xs">
+                        {t("admin.title")} (VI)
+                      </span>
+                      <input
+                        className={studioInputClass}
+                        value={feature.title_vi || ""}
+                        onChange={(e) => {
+                          const next = [...d.features];
+                          next[index] = { ...next[index], title_vi: e.target.value };
+                          set("features", next);
+                        }}
+                      />
+                    </label>
+                  </div>
                 </div>
               ))}
             </div>
