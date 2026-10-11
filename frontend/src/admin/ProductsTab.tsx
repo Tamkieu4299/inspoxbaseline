@@ -113,8 +113,7 @@ export default function ProductsTab() {
   const { data: products, isLoading } = useQuery({ queryKey: ["admin-products"], queryFn: adminApi.getProducts });
   const { data: categories } = useQuery({ queryKey: ["admin-categories"], queryFn: adminApi.getCategories });
   const { data: collections } = useQuery({ queryKey: ["admin-collections"], queryFn: adminApi.getCollections });
-  const { data: siteSettings } = useQuery({ queryKey: ["admin-site"], queryFn: adminApi.getSite });
-  const storeCurrency = (siteSettings?.currency_code || "VND").toUpperCase();
+  const storeCurrency = "VND";
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | "new">();

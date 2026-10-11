@@ -548,10 +548,17 @@ def delete_blog_post(post_id: int, db: Session = Depends(get_db), tenant: Tenant
 
 # ---------------- Site Settings / Branding ----------------
 def _get_or_create_site(db: Session, tenant_id: int) -> SiteSettings:
+    from ..currency import normalize_base_currency
+
     site = db.scalar(select(SiteSettings).where(SiteSettings.tenant_id == tenant_id))
     if site is None:
         site = SiteSettings(tenant_id=tenant_id)
         db.add(site)
+        db.commit()
+        db.refresh(site)
+    normalized = normalize_base_currency(site.currency_code)
+    if (site.currency_code or "").upper() != normalized:
+        site.currency_code = normalized
         db.commit()
         db.refresh(site)
     return site

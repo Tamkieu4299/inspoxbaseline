@@ -56,7 +56,7 @@ function ModuleBadge({ n }: { n: string }) {
 
 export default function HomeTab() {
   const queryClient = useQueryClient();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { data: home, isLoading } = useQuery({ queryKey: ["admin-home"], queryFn: adminApi.getHome });
   const { data: media } = useQuery({ queryKey: ["admin-media"], queryFn: adminApi.getMedia });
   const { data: products } = useQuery({ queryKey: ["admin-products"], queryFn: adminApi.getProducts });
@@ -629,27 +629,33 @@ export default function HomeTab() {
               {d.features.map((feature, index) => (
                 <div key={index} className="p-3.5 rounded-lg bg-surface-container-low flex flex-col sm:flex-row items-center gap-3">
                   <span className="font-mono text-xs font-bold text-primary w-8 text-center">{feature.index || String(index + 1).padStart(2, "0")}</span>
-                  <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                  <div className="flex-1 w-full">
+                    <span className="font-label text-[10px] uppercase text-secondary block mb-1">
+                      {lang === "vi" ? t("admin.localeVi") : t("admin.localeEn")} · {t("admin.title")}
+                    </span>
                     <input
                       className={studioInputClass}
-                      value={feature.title || ""}
-                      placeholder="EN"
+                      value={lang === "vi" ? feature.title_vi || "" : feature.title || ""}
+                      placeholder={lang === "vi" ? t("admin.localeVi") : t("admin.localeEn")}
                       onChange={(e) => {
                         const next = [...d.features];
-                        next[index] = { ...next[index], title: e.target.value };
+                        if (lang === "vi") {
+                          next[index] = { ...next[index], title_vi: e.target.value };
+                        } else {
+                          next[index] = { ...next[index], title: e.target.value };
+                        }
                         set("features", next);
                       }}
                     />
-                    <input
-                      className={studioInputClass}
-                      value={feature.title_vi || ""}
-                      placeholder="VI"
-                      onChange={(e) => {
-                        const next = [...d.features];
-                        next[index] = { ...next[index], title_vi: e.target.value };
-                        set("features", next);
-                      }}
-                    />
+                    <p className="text-[11px] text-secondary mt-1 font-body">
+                      {lang === "vi"
+                        ? feature.title
+                          ? `${t("admin.localeEn")}: ${feature.title}`
+                          : t("admin.homeStudio.featureEnEmpty")
+                        : feature.title_vi
+                          ? `${t("admin.localeVi")}: ${feature.title_vi}`
+                          : t("admin.homeStudio.featureViEmpty")}
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -697,17 +703,17 @@ export default function HomeTab() {
                   {d.hero_kicker}
                 </span>
                 <h3 className="font-editorial text-3xl font-extrabold uppercase tracking-tight whitespace-pre-line" style={{ color: colors.title || "#fff" }}>
-                  {d.hero_title}
+                  {lang === "vi" ? d.hero_title_vi || d.hero_title : d.hero_title}
                 </h3>
                 <p className="text-sm max-w-xl mt-2 leading-relaxed opacity-90" style={{ color: colors.subtitle || "#e5e7eb" }}>
-                  {d.hero_subtitle}
+                  {lang === "vi" ? d.hero_subtitle_vi || d.hero_subtitle : d.hero_subtitle}
                 </p>
                 <div className="flex items-center gap-3 mt-4 flex-wrap">
                   <span
                     className="px-4 py-2 text-[11px] font-label uppercase tracking-wider rounded font-bold"
                     style={{ backgroundColor: colors.primaryBg || "#004225", color: colors.primaryText || "#fff" }}
                   >
-                    {d.hero_primary_cta}
+                    {lang === "vi" ? d.hero_primary_cta_vi || d.hero_primary_cta : d.hero_primary_cta}
                   </span>
                   <span
                     className="px-4 py-2 text-[11px] font-label uppercase tracking-wider rounded font-bold border"
@@ -717,7 +723,7 @@ export default function HomeTab() {
                       backgroundColor: colors.secondaryBg || "transparent",
                     }}
                   >
-                    {d.hero_secondary_cta}
+                    {lang === "vi" ? d.hero_secondary_cta_vi || d.hero_secondary_cta : d.hero_secondary_cta}
                   </span>
                 </div>
                 {(d.hero_image_ids || []).length > 1 ? (

@@ -68,6 +68,23 @@ def _vi_list(items: list | None, mapping: list[tuple[str, str]]):
     return out
 
 
+def _localize_home_feature_list(items: list | None, lang: str) -> list:
+    """Master panel featured rows: pick title by lang (vi falls back to en)."""
+    out = []
+    for item in items or []:
+        if not isinstance(item, dict):
+            out.append(item)
+            continue
+        row = dict(item)
+        if lang == "vi":
+            row["title"] = (row.get("title_vi") or row.get("title") or "").strip() or (row.get("title") or "")
+        else:
+            row["title"] = row.get("title") or ""
+        row.pop("title_vi", None)
+        out.append(row)
+    return out
+
+
 def _vi_dict(data: dict | None, mapping: list[tuple[str, str]]):
     if not data:
         return data or {}
@@ -138,10 +155,11 @@ def _load_product(db: Session, product: Product, lang: str = "en") -> ProductOut
 
 @router.get("/home", response_model=HomeOut)
 def get_home(
-    lang: str = "en",
+    lang: str = "vi",
     db: Session = Depends(get_db),
     tenant: Tenant = Depends(get_tenant),
 ):
+    lang = "vi" if lang == "vi" else "en"
     home = db.scalar(select(HomeContent).where(HomeContent.tenant_id == tenant.id))
     if home is None:
         home = HomeContent(tenant_id=tenant.id)
@@ -229,7 +247,7 @@ def get_home(
         "description": loc(home.master_description, home.master_description_vi),
         "media": master_image,
         "media_type": master_media_type,
-        "features": _vi_list(home.features or [], [("title", "title_vi")]),
+        "features": _localize_home_feature_list(home.features or [], lang),
         "trending_title": loc(home.trending_title, home.trending_title_vi),
         "trending_view_all_label": loc(
             home.trending_view_all_label, home.trending_view_all_label_vi
@@ -639,6 +657,8 @@ def get_blog_post(
 
 @router.get("/site", response_model=SitePublic)
 def get_site(db: Session = Depends(get_db), tenant: Tenant = Depends(get_tenant)):
+    from ..currency import normalize_base_currency
+
     site = db.scalar(select(SiteSettings).where(SiteSettings.tenant_id == tenant.id))
     if site is None:
         site = SiteSettings(tenant_id=tenant.id)
@@ -653,7 +673,7 @@ def get_site(db: Session = Depends(get_db), tenant: Tenant = Depends(get_tenant)
         logo_url=site.logo_media.url if site.logo_media else None,
         favicon_url=site.favicon_media.url if site.favicon_media else None,
         nav_items=site.nav_items or [],
-        currency_code=(site.currency_code or "VND").upper(),
+        currency_code=normalize_base_currency(site.currency_code),
         usd_to_vnd_rate=rate,
         supported_currencies=["VND"],
     )

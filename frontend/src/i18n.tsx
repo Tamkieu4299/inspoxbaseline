@@ -9,7 +9,7 @@ const en: Record<string, string> = {
   "nav.collections": "COLLECTIONS",
   "nav.newArrivals": "NEW ARRIVALS",
   "nav.brand": "THE BRAND",
-  "nav.categories": "CATEGORIES",
+  "nav.categories": "PRODUCTS",
   "nav.search": "Search",
   "nav.admin": "Admin",
   "footer.privacy": "PRIVACY POLICY",
@@ -28,7 +28,7 @@ const en: Record<string, string> = {
   "collection.sortBy": "SORT BY:",
   "collection.newest": "NEWEST",
   "collection.name": "NAME",
-  "collection.category": "CATEGORY",
+  "collection.category": "PRODUCTS",
   "collection.all": "ALL",
   "collection.size": "SIZE",
   "collection.color": "COLOR",
@@ -327,7 +327,7 @@ const en: Record<string, string> = {
   "admin.navTypeCollections": "COLLECTIONS",
   "admin.navTypeNewArrivals": "NEW ARRIVALS",
   "admin.navTypeBrand": "BRAND",
-  "admin.navTypeCategories": "CATEGORIES",
+  "admin.navTypeCategories": "PRODUCTS",
   "admin.navTypePage": "PAGE",
   "admin.navEmpty": "No nav items yet — add some below.",
   "admin.loading": "LOADING…",
@@ -551,6 +551,10 @@ const en: Record<string, string> = {
   "admin.uploadImageOrVideo": "Upload image or video",
   "admin.videoAsset": "Video",
   "admin.featuredList": "FEATURED LIST (index + title)",
+  "admin.localeEn": "English",
+  "admin.localeVi": "Vietnamese",
+  "admin.homeStudio.featureEnEmpty": "No English title yet.",
+  "admin.homeStudio.featureViEmpty": "No Vietnamese title yet.",
   "admin.siteBranding": "SITE BRANDING",
   "admin.brandingHint": "The logo replaces the wordmark across the navbar and footer. The favicon appears on the browser tab, next to the site name.",
   "admin.siteName": "Site name (browser tab title)",
@@ -611,7 +615,7 @@ const vi: Record<string, string> = {
   "nav.collections": "BỘ SƯU TẬP",
   "nav.newArrivals": "HÀNG MỚI VỀ",
   "nav.brand": "THƯƠNG HIỆU",
-  "nav.categories": "DANH MỤC",
+  "nav.categories": "SẢN PHẨM",
   "nav.search": "Tìm kiếm",
   "nav.admin": "Quản trị",
   "footer.privacy": "CHÍNH SÁCH BẢO MẬT",
@@ -630,7 +634,7 @@ const vi: Record<string, string> = {
   "collection.sortBy": "SẮP XẾP THEO:",
   "collection.newest": "MỚI NHẤT",
   "collection.name": "TÊN",
-  "collection.category": "DANH MỤC",
+  "collection.category": "SẢN PHẨM",
   "collection.all": "TẤT CẢ",
   "collection.size": "KÍCH CỠ",
   "collection.color": "MÀU SẮC",
@@ -929,7 +933,7 @@ const vi: Record<string, string> = {
   "admin.navTypeCollections": "BỘ SƯU TẬP",
   "admin.navTypeNewArrivals": "HÀNG MỚI VỀ",
   "admin.navTypeBrand": "THƯƠNG HIỆU",
-  "admin.navTypeCategories": "DANH MỤC",
+  "admin.navTypeCategories": "SẢN PHẨM",
   "admin.navTypePage": "TRANG",
   "admin.navEmpty": "Chưa có mục nào — thêm bên dưới.",
   "admin.loading": "ĐANG TẢI…",
@@ -1153,6 +1157,10 @@ const vi: Record<string, string> = {
   "admin.uploadImageOrVideo": "Tải ảnh hoặc video",
   "admin.videoAsset": "Video",
   "admin.featuredList": "DANH SÁCH NỔI BẬT (số + tiêu đề)",
+  "admin.localeEn": "Tiếng Anh",
+  "admin.localeVi": "Tiếng Việt",
+  "admin.homeStudio.featureEnEmpty": "Chưa có tiêu đề tiếng Anh.",
+  "admin.homeStudio.featureViEmpty": "Chưa có tiêu đề tiếng Việt.",
   "admin.siteBranding": "THƯƠNG HIỆU SITE",
   "admin.brandingHint": "Logo thay thế chữ thương hiệu trên menu và footer. Favicon xuất hiện trên tab trình duyệt, cạnh tên site.",
   "admin.siteName": "Tên site (tiêu đề tab trình duyệt)",
@@ -1227,15 +1235,16 @@ function interpolate(template: string, params?: TParams): string {
 }
 
 const LanguageContext = createContext<LanguageContextValue>({
-  lang: "en",
+  lang: "vi",
   setLang: () => {},
-  t: (key: string, params?: TParams) => interpolate(en[key] ?? key, params),
+  t: (key: string, params?: TParams) => interpolate(vi[key] ?? en[key] ?? key, params),
 });
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Lang>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored === "vi" ? "vi" : "en";
+    if (stored === "en") return "en";
+    return "vi";
   });
 
   useEffect(() => {

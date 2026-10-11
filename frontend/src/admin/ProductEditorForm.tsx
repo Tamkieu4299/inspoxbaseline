@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { QueryClient } from "@tanstack/react-query";
-import { useQuery } from "@tanstack/react-query";
-import { adminApi } from "../api";
 import type { Category, CollectionSummary } from "../types";
 import ProductGallery from "../components/ProductGallery";
 import {
@@ -161,8 +159,7 @@ export function ProductEditorForm({
   studioTab?: ProductStudioTab;
 }) {
   const { t, lang } = useLanguage();
-  const { data: siteSettings } = useQuery({ queryKey: ["admin-site"], queryFn: adminApi.getSite });
-  const currency = (siteSettings?.currency_code || "VND").toUpperCase();
+  const currency = "VND";
   const locale = "vi-VN";
   const [priceText, setPriceText] = useState("");
   useEffect(() => {
