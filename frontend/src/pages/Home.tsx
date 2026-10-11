@@ -104,7 +104,7 @@ function HomeSectionBlock({
             <div className="mt-12 flex justify-center">
               <Link
                 to="/products"
-                className="px-8 py-4 bg-transparent border border-primary text-primary font-label text-label-caps uppercase rounded-none hover:bg-forest-green hover:border-forest-green hover:text-white transition-colors"
+                className="inline-flex items-center justify-center px-6 py-2.5 bg-transparent border border-primary text-primary font-label text-label-caps uppercase rounded-none hover:bg-forest-green hover:border-forest-green hover:text-white transition-colors"
               >
                 {t("viewAllProducts")}
               </Link>

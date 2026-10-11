@@ -209,7 +209,7 @@ export default function Collection() {
           <div className="col-span-full flex justify-center mt-8 border-t border-surface-container-high pt-8">
             <Link
               to="/products"
-              className="bg-forest-green text-white font-label text-label-caps py-4 px-10 uppercase tracking-widest hover:bg-inverse-surface transition-colors"
+              className="inline-flex items-center justify-center px-6 py-2.5 bg-transparent border border-primary text-primary font-label text-label-caps uppercase rounded-none hover:bg-forest-green hover:border-forest-green hover:text-white transition-colors"
             >
               {t("viewAllProducts")}
             </Link>
