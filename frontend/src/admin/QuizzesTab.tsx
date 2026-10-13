@@ -91,6 +91,7 @@ export default function QuizzesTab() {
   const [simAnswers, setSimAnswers] = useState<Record<string, string>>({});
   const [simStepIndex, setSimStepIndex] = useState(0);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [weightsHelpOpen, setWeightsHelpOpen] = useState(false);
 
   const saveMutation = useMutation({
     mutationFn: (d: Partial<ShopQuiz>) =>
@@ -165,6 +166,7 @@ export default function QuizzesTab() {
         </button>
       </div>
       {helpOpen ? <QuizMatchingHelpModal onClose={() => setHelpOpen(false)} /> : null}
+      {weightsHelpOpen ? <DimensionWeightsHelpModal onClose={() => setWeightsHelpOpen(false)} /> : null}
 
     <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
       <div className="xl:col-span-3 bg-white border border-surface-container-highest p-4 flex flex-col gap-3">
@@ -369,7 +371,18 @@ export default function QuizzesTab() {
               }}
             />
 
-            <Field label={t("admin.quizzes.weights")}>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-1.5">
+                <span className="font-label text-label-caps text-secondary uppercase">{t("admin.quizzes.weights")}</span>
+                <button
+                  type="button"
+                  onClick={() => setWeightsHelpOpen(true)}
+                  className="inline-flex items-center justify-center w-7 h-7 border border-surface-container-highest hover:border-primary text-primary"
+                  aria-label={t("admin.quizzes.weightsHelpAria")}
+                >
+                  <Icon name="help_outline" className="text-[18px]" />
+                </button>
+              </div>
               <p className="text-xs text-secondary mb-2">{t("admin.quizzes.weightsHint")}</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                 {dimensionDefs.map((d) => (
@@ -391,7 +404,7 @@ export default function QuizzesTab() {
                   </label>
                 ))}
               </div>
-            </Field>
+            </div>
           </>
         )}
       </div>
@@ -471,6 +484,79 @@ export default function QuizzesTab() {
       </div>
     </div>
     </>
+  );
+}
+
+function HelpBulletList({ text }: { text: string }) {
+  const items = text.split("\n").filter((line) => line.trim());
+  return (
+    <ul className="list-disc pl-5 space-y-1 font-body text-body-md text-secondary leading-relaxed">
+      {items.map((line) => (
+        <li key={line}>{line.replace(/^•\s*/, "")}</li>
+      ))}
+    </ul>
+  );
+}
+
+function DimensionWeightsHelpModal({ onClose }: { onClose: () => void }) {
+  const { t } = useLanguage();
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="quiz-weights-help-title"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white border border-surface-container-highest shadow-xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 md:p-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="flex items-center gap-2">
+            <Icon name="help_outline" className="text-primary text-[28px]" />
+            <h2 id="quiz-weights-help-title" className="font-headline text-headline-md uppercase text-primary">
+              {t("admin.quizzes.weightsHelpTitle")}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-2xl leading-none text-secondary hover:text-primary"
+            aria-label={t("admin.quizzes.helpClose")}
+          >
+            ×
+          </button>
+        </div>
+        <div className="flex flex-col gap-4 font-body text-body-md text-secondary leading-relaxed">
+          <p className="text-on-background m-0">{t("admin.quizzes.weightsHelpIntro")}</p>
+          <section>
+            <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.weightsHelpExampleTitle")}</h3>
+            <p className="m-0 mb-2">{t("admin.quizzes.weightsHelpExampleP1")}</p>
+            <p className="m-0 mb-2">{t("admin.quizzes.weightsHelpExampleP2")}</p>
+            <p className="m-0 mb-1">{t("admin.quizzes.weightsHelpExampleP3")}</p>
+            <HelpBulletList text={t("admin.quizzes.weightsHelpExampleBullets")} />
+          </section>
+          <section>
+            <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.weightsHelpNormalizeTitle")}</h3>
+            <p className="m-0 mb-2">{t("admin.quizzes.weightsHelpNormalizeP1")}</p>
+            <p className="m-0">{t("admin.quizzes.weightsHelpNormalizeP2")}</p>
+          </section>
+          <section>
+            <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.weightsHelpNotTitle")}</h3>
+            <HelpBulletList text={t("admin.quizzes.weightsHelpNotBullets")} />
+          </section>
+          <section>
+            <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.weightsHelpTipsTitle")}</h3>
+            <HelpBulletList text={t("admin.quizzes.weightsHelpTipsBullets")} />
+          </section>
+          <p className="text-on-background m-0 border-t border-outline-variant pt-4">{t("admin.quizzes.weightsHelpSummary")}</p>
+        </div>
+        <div className="mt-8 flex justify-end">
+          <PrimaryButton onClick={onClose}>{t("admin.quizzes.helpClose")}</PrimaryButton>
+        </div>
+      </div>
+    </div>
   );
 }
 
