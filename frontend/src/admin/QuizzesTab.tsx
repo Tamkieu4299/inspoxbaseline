@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
@@ -487,6 +487,28 @@ export default function QuizzesTab() {
   );
 }
 
+function QuizInlineHelpButton({ ariaLabel, onClick }: { ariaLabel: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center justify-center w-6 h-6 border border-surface-container-highest hover:border-primary text-primary shrink-0"
+      aria-label={ariaLabel}
+    >
+      <Icon name="help_outline" className="text-[16px]" />
+    </button>
+  );
+}
+
+function QuizSectionLabel({ label, ariaLabel, onHelp }: { label: string; ariaLabel: string; onHelp: () => void }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="font-label text-[10px] uppercase text-secondary">{label}</span>
+      <QuizInlineHelpButton ariaLabel={ariaLabel} onClick={onHelp} />
+    </div>
+  );
+}
+
 function HelpBulletList({ text }: { text: string }) {
   const items = text.split("\n").filter((line) => line.trim());
   return (
@@ -498,14 +520,24 @@ function HelpBulletList({ text }: { text: string }) {
   );
 }
 
-function DimensionWeightsHelpModal({ onClose }: { onClose: () => void }) {
+function QuizHelpDialog({
+  titleId,
+  titleKey,
+  onClose,
+  children,
+}: {
+  titleId: string;
+  titleKey: string;
+  onClose: () => void;
+  children: ReactNode;
+}) {
   const { t } = useLanguage();
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="quiz-weights-help-title"
+      aria-labelledby={titleId}
       onClick={onClose}
     >
       <div
@@ -515,8 +547,8 @@ function DimensionWeightsHelpModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex items-center gap-2">
             <Icon name="help_outline" className="text-primary text-[28px]" />
-            <h2 id="quiz-weights-help-title" className="font-headline text-headline-md uppercase text-primary">
-              {t("admin.quizzes.weightsHelpTitle")}
+            <h2 id={titleId} className="font-headline text-headline-md uppercase text-primary">
+              {t(titleKey)}
             </h2>
           </div>
           <button
@@ -528,35 +560,92 @@ function DimensionWeightsHelpModal({ onClose }: { onClose: () => void }) {
             ×
           </button>
         </div>
-        <div className="flex flex-col gap-4 font-body text-body-md text-secondary leading-relaxed">
-          <p className="text-on-background m-0">{t("admin.quizzes.weightsHelpIntro")}</p>
-          <section>
-            <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.weightsHelpExampleTitle")}</h3>
-            <p className="m-0 mb-2">{t("admin.quizzes.weightsHelpExampleP1")}</p>
-            <p className="m-0 mb-2">{t("admin.quizzes.weightsHelpExampleP2")}</p>
-            <p className="m-0 mb-1">{t("admin.quizzes.weightsHelpExampleP3")}</p>
-            <HelpBulletList text={t("admin.quizzes.weightsHelpExampleBullets")} />
-          </section>
-          <section>
-            <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.weightsHelpNormalizeTitle")}</h3>
-            <p className="m-0 mb-2">{t("admin.quizzes.weightsHelpNormalizeP1")}</p>
-            <p className="m-0">{t("admin.quizzes.weightsHelpNormalizeP2")}</p>
-          </section>
-          <section>
-            <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.weightsHelpNotTitle")}</h3>
-            <HelpBulletList text={t("admin.quizzes.weightsHelpNotBullets")} />
-          </section>
-          <section>
-            <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.weightsHelpTipsTitle")}</h3>
-            <HelpBulletList text={t("admin.quizzes.weightsHelpTipsBullets")} />
-          </section>
-          <p className="text-on-background m-0 border-t border-outline-variant pt-4">{t("admin.quizzes.weightsHelpSummary")}</p>
-        </div>
+        {children}
         <div className="mt-8 flex justify-end">
           <PrimaryButton onClick={onClose}>{t("admin.quizzes.helpClose")}</PrimaryButton>
         </div>
       </div>
     </div>
+  );
+}
+
+function DimensionWeightsHelpModal({ onClose }: { onClose: () => void }) {
+  const { t } = useLanguage();
+  return (
+    <QuizHelpDialog titleId="quiz-weights-help-title" titleKey="admin.quizzes.weightsHelpTitle" onClose={onClose}>
+      <div className="flex flex-col gap-4 font-body text-body-md text-secondary leading-relaxed">
+        <p className="text-on-background m-0">{t("admin.quizzes.weightsHelpIntro")}</p>
+        <section>
+          <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.weightsHelpExampleTitle")}</h3>
+          <p className="m-0 mb-2">{t("admin.quizzes.weightsHelpExampleP1")}</p>
+          <p className="m-0 mb-2">{t("admin.quizzes.weightsHelpExampleP2")}</p>
+          <p className="m-0 mb-1">{t("admin.quizzes.weightsHelpExampleP3")}</p>
+          <HelpBulletList text={t("admin.quizzes.weightsHelpExampleBullets")} />
+        </section>
+        <section>
+          <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.weightsHelpNormalizeTitle")}</h3>
+          <p className="m-0 mb-2">{t("admin.quizzes.weightsHelpNormalizeP1")}</p>
+          <p className="m-0">{t("admin.quizzes.weightsHelpNormalizeP2")}</p>
+        </section>
+        <section>
+          <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.weightsHelpNotTitle")}</h3>
+          <HelpBulletList text={t("admin.quizzes.weightsHelpNotBullets")} />
+        </section>
+        <section>
+          <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.weightsHelpTipsTitle")}</h3>
+          <HelpBulletList text={t("admin.quizzes.weightsHelpTipsBullets")} />
+        </section>
+        <p className="text-on-background m-0 border-t border-outline-variant pt-4">{t("admin.quizzes.weightsHelpSummary")}</p>
+      </div>
+    </QuizHelpDialog>
+  );
+}
+
+function OptionDeltasHelpModal({ onClose }: { onClose: () => void }) {
+  const { t } = useLanguage();
+  return (
+    <QuizHelpDialog titleId="quiz-deltas-help-title" titleKey="admin.quizzes.optionDeltasHelpTitle" onClose={onClose}>
+      <div className="flex flex-col gap-4 font-body text-body-md text-secondary leading-relaxed">
+        <p className="text-on-background m-0">{t("admin.quizzes.optionDeltasHelpIntro")}</p>
+        <section>
+          <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.optionDeltasHelpHowTitle")}</h3>
+          <HelpBulletList text={t("admin.quizzes.optionDeltasHelpHowBullets")} />
+        </section>
+        <section>
+          <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.optionDeltasHelpNotTitle")}</h3>
+          <HelpBulletList text={t("admin.quizzes.optionDeltasHelpNotBullets")} />
+        </section>
+        <section>
+          <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.optionDeltasHelpTipsTitle")}</h3>
+          <HelpBulletList text={t("admin.quizzes.optionDeltasHelpTipsBullets")} />
+        </section>
+        <p className="text-on-background m-0 border-t border-outline-variant pt-4">{t("admin.quizzes.optionDeltasHelpSummary")}</p>
+      </div>
+    </QuizHelpDialog>
+  );
+}
+
+function OptionFiltersHelpModal({ onClose }: { onClose: () => void }) {
+  const { t } = useLanguage();
+  return (
+    <QuizHelpDialog titleId="quiz-filters-help-title" titleKey="admin.quizzes.optionFiltersHelpTitle" onClose={onClose}>
+      <div className="flex flex-col gap-4 font-body text-body-md text-secondary leading-relaxed">
+        <p className="text-on-background m-0">{t("admin.quizzes.optionFiltersHelpIntro")}</p>
+        <section>
+          <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.optionFiltersHelpFieldsTitle")}</h3>
+          <HelpBulletList text={t("admin.quizzes.optionFiltersHelpFieldsBullets")} />
+        </section>
+        <section>
+          <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.optionFiltersHelpMergeTitle")}</h3>
+          <HelpBulletList text={t("admin.quizzes.optionFiltersHelpMergeBullets")} />
+        </section>
+        <section>
+          <h3 className="font-headline text-headline-md text-primary m-0 mb-2">{t("admin.quizzes.optionFiltersHelpNotTitle")}</h3>
+          <HelpBulletList text={t("admin.quizzes.optionFiltersHelpNotBullets")} />
+        </section>
+        <p className="text-on-background m-0 border-t border-outline-variant pt-4">{t("admin.quizzes.optionFiltersHelpSummary")}</p>
+      </div>
+    </QuizHelpDialog>
   );
 }
 
@@ -707,8 +796,11 @@ function StepEditor({
   canMoveDown: boolean;
 }) {
   const { t } = useLanguage();
+  const [optionHelp, setOptionHelp] = useState<"deltas" | "filters" | null>(null);
   return (
     <div className="border border-surface-container-highest p-4 mb-3 bg-surface-container-lowest">
+      {optionHelp === "deltas" ? <OptionDeltasHelpModal onClose={() => setOptionHelp(null)} /> : null}
+      {optionHelp === "filters" ? <OptionFiltersHelpModal onClose={() => setOptionHelp(null)} /> : null}
       <div className="flex gap-2 mb-2">
         <SecondaryButton onClick={() => onMove(-1)} disabled={!canMoveUp}>
           ↑
@@ -771,7 +863,11 @@ function StepEditor({
               }}
             />
           </div>
-          <p className="font-label text-[10px] uppercase text-secondary">{t("admin.quizzes.optionDeltas")}</p>
+          <QuizSectionLabel
+            label={t("admin.quizzes.optionDeltas")}
+            ariaLabel={t("admin.quizzes.optionDeltasHelpAria")}
+            onHelp={() => setOptionHelp("deltas")}
+          />
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
             {dimensionDefs.map((dim) => (
               <label key={dim.id} className="flex flex-col gap-0.5 font-label text-[10px]">
@@ -793,7 +889,11 @@ function StepEditor({
               </label>
             ))}
           </div>
-          <p className="font-label text-[10px] uppercase text-secondary">{t("admin.quizzes.optionFilters")}</p>
+          <QuizSectionLabel
+            label={t("admin.quizzes.optionFilters")}
+            ariaLabel={t("admin.quizzes.optionFiltersHelpAria")}
+            onHelp={() => setOptionHelp("filters")}
+          />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {(
               [
