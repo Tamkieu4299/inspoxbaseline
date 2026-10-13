@@ -24,7 +24,12 @@ const HELP_BLOCKS = [
   { title: "admin.quizzes.helpBlock3Title", body: "admin.quizzes.helpBlock3Body" },
   { title: "admin.quizzes.helpBlock4Title", body: "admin.quizzes.helpBlock4Body" },
   { title: "admin.quizzes.helpBlock5Title", body: "admin.quizzes.helpBlock5Body" },
-  { title: "admin.quizzes.helpBlock6Title", body: "admin.quizzes.helpBlock6Body" },
+] as const;
+
+const HELP_FLOW_KEYS = [
+  "admin.quizzes.helpFlow1",
+  "admin.quizzes.helpFlow2",
+  "admin.quizzes.helpFlow3",
 ] as const;
 
 function quizPayload(d: Partial<ShopQuiz>): unknown {
@@ -441,7 +446,7 @@ function QuizMatchingHelpModal({ onClose }: { onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="bg-white border border-surface-container-highest shadow-xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 md:p-8"
+        className="bg-white border border-surface-container-highest shadow-xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-6 md:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4 mb-4">
@@ -455,12 +460,24 @@ function QuizMatchingHelpModal({ onClose }: { onClose: () => void }) {
             ×
           </button>
         </div>
-        <p className="font-body text-body-md text-secondary mb-6">{t("admin.quizzes.helpIntro")}</p>
+        <p className="font-body text-body-md text-on-background mb-4 leading-relaxed">{t("admin.quizzes.helpIntro")}</p>
+        <div className="bg-surface-container-low border border-outline-variant p-4 mb-6 space-y-2">
+          {HELP_FLOW_KEYS.map((key) => (
+            <p key={key} className="font-body text-body-md text-primary m-0">
+              {t(key)}
+            </p>
+          ))}
+        </div>
         <ol className="flex flex-col gap-5 list-none p-0 m-0">
-          {HELP_BLOCKS.map((block) => (
+          {HELP_BLOCKS.map((block, i) => (
             <li key={block.title}>
-              <h3 className="font-headline text-headline-md text-primary uppercase mb-1">{t(block.title)}</h3>
-              <p className="font-body text-body-md text-secondary leading-relaxed">{t(block.body)}</p>
+              <h3 className="font-headline text-headline-md text-primary mb-1">
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary text-on-primary text-sm mr-2 align-middle">
+                  {i + 1}
+                </span>
+                {t(block.title)}
+              </h3>
+              <p className="font-body text-body-md text-secondary leading-relaxed pl-9">{t(block.body)}</p>
             </li>
           ))}
         </ol>
