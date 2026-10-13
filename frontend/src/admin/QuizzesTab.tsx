@@ -15,7 +15,17 @@ import {
   type QuizOptionDef,
 } from "../quiz/score";
 import { blankQuiz, racquetFinderTemplate } from "../quiz/template";
+import Icon from "../components/Icon";
 import { Checkbox, DangerButton, Field, PrimaryButton, SecondaryButton, TextArea, TextInput } from "./ui";
+
+const HELP_BLOCKS = [
+  { title: "admin.quizzes.helpBlock1Title", body: "admin.quizzes.helpBlock1Body" },
+  { title: "admin.quizzes.helpBlock2Title", body: "admin.quizzes.helpBlock2Body" },
+  { title: "admin.quizzes.helpBlock3Title", body: "admin.quizzes.helpBlock3Body" },
+  { title: "admin.quizzes.helpBlock4Title", body: "admin.quizzes.helpBlock4Body" },
+  { title: "admin.quizzes.helpBlock5Title", body: "admin.quizzes.helpBlock5Body" },
+  { title: "admin.quizzes.helpBlock6Title", body: "admin.quizzes.helpBlock6Body" },
+] as const;
 
 function quizPayload(d: Partial<ShopQuiz>): unknown {
   return {
@@ -66,6 +76,7 @@ export default function QuizzesTab() {
   const [draft, setDraft] = useState<Partial<ShopQuiz> | null>(null);
   const [simAnswers, setSimAnswers] = useState<Record<string, string>>({});
   const [simStepIndex, setSimStepIndex] = useState(0);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const saveMutation = useMutation({
     mutationFn: (d: Partial<ShopQuiz>) =>
@@ -121,11 +132,34 @@ export default function QuizzesTab() {
   }
 
   return (
+    <>
+      <div className="flex justify-end mb-3">
+        <button
+          type="button"
+          onClick={() => setHelpOpen(true)}
+          className="inline-flex items-center gap-2 px-3 py-2 border border-surface-container-highest bg-white hover:border-primary font-label text-label-caps uppercase text-primary text-xs tracking-wider"
+          aria-label={t("admin.quizzes.helpTitle")}
+        >
+          <Icon name="help_outline" className="text-[20px]" />
+          {t("admin.quizzes.helpButton")}
+        </button>
+      </div>
+      {helpOpen ? <QuizMatchingHelpModal onClose={() => setHelpOpen(false)} /> : null}
+
     <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
       <div className="xl:col-span-3 bg-white border border-surface-container-highest p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2">
           <h3 className="font-headline text-headline-md uppercase text-primary">{t("admin.quizzes.title")}</h3>
-          <PrimaryButton
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setHelpOpen(true)}
+              className="w-9 h-9 flex items-center justify-center border border-surface-container-highest hover:border-primary text-primary"
+              aria-label={t("admin.quizzes.helpTitle")}
+            >
+              <Icon name="help_outline" className="text-[22px]" />
+            </button>
+            <PrimaryButton
             onClick={() => {
               setDraft(blankQuiz());
               setSimAnswers({});
@@ -133,6 +167,7 @@ export default function QuizzesTab() {
           >
             +
           </PrimaryButton>
+          </div>
         </div>
         <SecondaryButton onClick={() => setDraft(racquetFinderTemplate())}>{t("admin.quizzes.fromTemplate")}</SecondaryButton>
         <ul className="flex flex-col gap-1 max-h-[480px] overflow-y-auto">
@@ -227,9 +262,22 @@ export default function QuizzesTab() {
                     require_finder_profile: draft.product_filter?.require_finder_profile !== false,
                   })
                 }
-                placeholder="racquets, tennis"
+                placeholder="racquets, dresses, polos"
               />
             </Field>
+            <label className="flex items-center gap-2 font-body text-body-md">
+              <Checkbox
+                checked={draft.product_filter?.require_finder_profile !== false}
+                onChange={(e) =>
+                  set("product_filter", {
+                    ...draft.product_filter,
+                    category_slugs: draft.product_filter?.category_slugs || [],
+                    require_finder_profile: e.target.checked,
+                  })
+                }
+              />
+              {t("admin.quizzes.requireProfile")}
+            </label>
 
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -373,6 +421,49 @@ export default function QuizzesTab() {
             </ul>
           </>
         )}
+      </div>
+    </div>
+    </>
+  );
+}
+
+function QuizMatchingHelpModal({ onClose }: { onClose: () => void }) {
+  const { t } = useLanguage();
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="quiz-help-title"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white border border-surface-container-highest shadow-xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 md:p-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="flex items-center gap-2">
+            <Icon name="help_outline" className="text-primary text-[28px]" />
+            <h2 id="quiz-help-title" className="font-headline text-headline-md uppercase text-primary">
+              {t("admin.quizzes.helpTitle")}
+            </h2>
+          </div>
+          <button type="button" onClick={onClose} className="text-2xl leading-none text-secondary hover:text-primary" aria-label={t("admin.quizzes.helpClose")}>
+            ×
+          </button>
+        </div>
+        <p className="font-body text-body-md text-secondary mb-6">{t("admin.quizzes.helpIntro")}</p>
+        <ol className="flex flex-col gap-5 list-none p-0 m-0">
+          {HELP_BLOCKS.map((block) => (
+            <li key={block.title}>
+              <h3 className="font-headline text-headline-md text-primary uppercase mb-1">{t(block.title)}</h3>
+              <p className="font-body text-body-md text-secondary leading-relaxed">{t(block.body)}</p>
+            </li>
+          ))}
+        </ol>
+        <div className="mt-8 flex justify-end">
+          <PrimaryButton onClick={onClose}>{t("admin.quizzes.helpClose")}</PrimaryButton>
+        </div>
       </div>
     </div>
   );
