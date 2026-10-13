@@ -214,8 +214,11 @@ export default function QuizzesTab() {
                     {t("admin.delete")}
                   </DangerButton>
                 ) : null}
-                <PrimaryButton onClick={() => saveMutation.mutate(draft)} disabled={!draft.slug || !draft.title}>
-                  {t("admin.save")}
+                <PrimaryButton
+                  onClick={() => saveMutation.mutate(draft)}
+                  disabled={!draft.slug || !draft.title || saveMutation.isPending}
+                >
+                  {saveMutation.isPending ? t("admin.saving") : t("admin.save")}
                 </PrimaryButton>
               </div>
             </div>

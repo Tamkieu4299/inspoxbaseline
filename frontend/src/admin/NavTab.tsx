@@ -130,8 +130,8 @@ export default function NavTab() {
     <div className="bg-white border border-surface-container-highest p-6 flex flex-col gap-6 max-w-3xl">
       <div className="flex items-center justify-between">
         <h3 className="font-headline text-headline-md text-primary uppercase">{t("admin.tab.nav")}</h3>
-        <PrimaryButton onClick={() => saveMutation.mutate(items)} disabled={!draft}>
-          {t("admin.save")}
+        <PrimaryButton onClick={() => saveMutation.mutate(items)} disabled={!draft || saveMutation.isPending}>
+          {saveMutation.isPending ? t("admin.saving") : t("admin.save")}
         </PrimaryButton>
       </div>
 
