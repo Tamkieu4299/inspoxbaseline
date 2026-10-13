@@ -1,4 +1,4 @@
-import type { Product } from "../types";
+import type { Product, ProductFinderProfile } from "../types";
 
 export interface ProductDraft {
   id?: number;
@@ -23,6 +23,7 @@ export interface ProductDraft {
   is_featured: boolean;
   is_bestseller: boolean;
   images: { media_id?: number; url: string; alt: string; color_name?: string; position: number; enabled: boolean }[];
+  finder_profile: ProductFinderProfile;
 }
 
 export const PRODUCT_BADGES = ["", "NEW", "LIMITED", "BESTSELLER", "NEW ARRIVAL"];
@@ -50,6 +51,7 @@ export function blankProductDraft(): ProductDraft {
     is_featured: false,
     is_bestseller: false,
     images: [],
+    finder_profile: { enabled: false, vectors: {}, specs: {}, tags: [] },
   };
 }
 
@@ -90,6 +92,14 @@ export function productToDraft(p: Product): ProductDraft {
     is_active: p.is_active,
     is_featured: p.is_featured,
     is_bestseller: p.is_bestseller,
+    finder_profile: p.finder_profile
+      ? {
+          enabled: Boolean(p.finder_profile.enabled),
+          vectors: { ...(p.finder_profile.vectors || {}) },
+          specs: { ...(p.finder_profile.specs || {}) },
+          tags: [...(p.finder_profile.tags || [])],
+        }
+      : { enabled: false, vectors: {}, specs: {}, tags: [] },
     images: (p.images || []).map((i) => ({
       media_id: i.media_id || undefined,
       url: i.url,

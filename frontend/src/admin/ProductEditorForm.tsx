@@ -19,6 +19,7 @@ import { useLanguage } from "../i18n";
 import { formatMoney } from "../money";
 import { PRODUCT_BADGES, type ProductDraft } from "./productDraft";
 import { getProductVariantOptions, variantStorefrontSummaryKey } from "../productDisplay";
+import { QUIZ_DIMENSIONS } from "../quiz/score";
 import { StudioModule, StudioToggle, studioInputClass } from "./studioUi";
 
 export type ProductStudioTab = "general" | "media" | "story" | "variants";
@@ -293,6 +294,72 @@ export function ProductEditorForm({
               <TextArea rows={3} value={draft.description} onChange={(e) => set("description", e.target.value)} />
             </Field>
             <ViArea label={t("admin.description")} rows={3} value={draft.description_vi} onChange={(e) => set("description_vi", e.target.value)} placeholder="Mô tả tiếng Việt" />
+
+            <div className="border border-surface-container-highest p-4 bg-surface-container-lowest">
+              <h4 className="font-headline text-headline-md uppercase text-primary mb-1">{t("admin.productFinder")}</h4>
+              <p className="font-body text-body-sm text-secondary mb-3">{t("admin.productFinderHint")}</p>
+              <StudioToggle
+                label={t("admin.productFinderEnabled")}
+                checked={Boolean(draft.finder_profile?.enabled)}
+                onChange={(v) =>
+                  set("finder_profile", {
+                    ...draft.finder_profile,
+                    enabled: v,
+                  })
+                }
+              />
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-3">
+                {QUIZ_DIMENSIONS.map((dim) => (
+                  <Field key={dim} label={dim}>
+                    <TextInput
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={String(draft.finder_profile?.vectors?.[dim] ?? "")}
+                      onChange={(e) => {
+                        const n = e.target.value === "" ? undefined : Number(e.target.value);
+                        set("finder_profile", {
+                          ...draft.finder_profile,
+                          vectors: { ...draft.finder_profile.vectors, [dim]: n },
+                        });
+                      }}
+                    />
+                  </Field>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <Field label="RA">
+                  <TextInput
+                    type="number"
+                    value={String(draft.finder_profile?.specs?.ra ?? "")}
+                    onChange={(e) =>
+                      set("finder_profile", {
+                        ...draft.finder_profile,
+                        specs: {
+                          ...draft.finder_profile.specs,
+                          ra: e.target.value === "" ? undefined : Number(e.target.value),
+                        },
+                      })
+                    }
+                  />
+                </Field>
+                <Field label="Weight (g)">
+                  <TextInput
+                    type="number"
+                    value={String(draft.finder_profile?.specs?.weight_g ?? "")}
+                    onChange={(e) =>
+                      set("finder_profile", {
+                        ...draft.finder_profile,
+                        specs: {
+                          ...draft.finder_profile.specs,
+                          weight_g: e.target.value === "" ? undefined : Number(e.target.value),
+                        },
+                      })
+                    }
+                  />
+                </Field>
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <StudioToggle

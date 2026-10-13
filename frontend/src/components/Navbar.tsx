@@ -36,8 +36,14 @@ export default function Navbar() {
     queryFn: api.getSite,
     staleTime: 60_000,
   });
+  const { data: quizzes } = useQuery({
+    queryKey: ["quizzes", lang],
+    queryFn: () => api.getQuizzes(lang),
+    staleTime: 60_000,
+  });
 
   const pageBySlug = new Map((pages || []).map((p) => [p.slug, p]));
+  const quizBySlug = new Map((quizzes || []).map((q) => [q.slug, q]));
 
   function buildItem(item: NavItem): BuiltLink | null {
     switch (item.type) {
@@ -66,6 +72,15 @@ export default function Navbar() {
           key: `page:${page.slug}`,
           label: page.nav_label || page.title,
           to: page.slug === "blogs" ? "/blogs" : `/pages/${page.slug}`,
+        };
+      }
+      case "quiz": {
+        const quiz = item.ref ? quizBySlug.get(item.ref) : undefined;
+        if (!quiz) return null;
+        return {
+          key: `quiz:${quiz.slug}`,
+          label: quiz.nav_label || quiz.title,
+          to: `/quizzes/${quiz.slug}`,
         };
       }
       default:

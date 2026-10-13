@@ -155,6 +155,7 @@ class Product(Base, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_featured: Mapped[bool] = mapped_column(Boolean, default=False)
     is_bestseller: Mapped[bool] = mapped_column(Boolean, default=False)
+    finder_profile: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     category: Mapped["Category | None"] = relationship(foreign_keys=[category_id])
     categories: Mapped[list["Category"]] = relationship(
@@ -317,6 +318,30 @@ class BlogPost(Base, TimestampMixin):
     content: Mapped[list] = mapped_column(JSON, default=list)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     published_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class ShopQuiz(Base, TimestampMixin):
+    __tablename__ = "shop_quizzes"
+    __table_args__ = (UniqueConstraint("tenant_id", "slug", name="uq_quiz_tenant_slug"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True)
+    slug: Mapped[str] = mapped_column(String(200))
+    title: Mapped[str] = mapped_column(String(300))
+    title_vi: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    subtitle: Mapped[str | None] = mapped_column(Text, nullable=True)
+    subtitle_vi: Mapped[str | None] = mapped_column(Text, nullable=True)
+    nav_label: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    nav_label_vi: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    show_in_nav: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_published: Mapped[bool] = mapped_column(Boolean, default=False)
+    hero_kicker: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    hero_kicker_vi: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    hero_badges: Mapped[list] = mapped_column(JSON, default=list)
+    faq: Mapped[list] = mapped_column(JSON, default=list)
+    dimension_weights: Mapped[dict] = mapped_column(JSON, default=dict)
+    steps: Mapped[list] = mapped_column(JSON, default=list)
+    product_filter: Mapped[dict] = mapped_column(JSON, default=dict)
 
 
 class SiteSettings(Base, TimestampMixin):

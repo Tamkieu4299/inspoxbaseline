@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,400;0,700;0,800;1,400&amp;family=Hanken+Grotesk:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-high": "#e8e8e8", "on-tertiary-fixed-variant": "#454747", "on-secondary-fixed-variant": "#454747", "on-primary-fixed-variant": "#474747", "tertiary-fixed-dim": "#c6c6c6", "error-container": "#ffdad6", "on-primary-fixed": "#1b1b1b", "inverse-on-surface": "#f0f1f1", "surface-container-low": "#f3f3f4", "background": "#f9f9f9", "tertiary": "#000000", "on-secondary-container": "#5f6161", "on-tertiary-fixed": "#1a1c1c", "on-tertiary": "#ffffff", "secondary-fixed": "#e2e2e2", "primary-fixed-dim": "#c6c6c6", "inverse-primary": "#c6c6c6", "tertiary-container": "#1a1c1c", "on-secondary-fixed": "#1a1c1c", "on-tertiary-container": "#838484", "on-secondary": "#ffffff", "on-error-container": "#93000a", "on-surface-variant": "#4c4546", "primary": "#000000", "on-primary": "#ffffff", "primary-container": "#1b1b1b", "surface-dim": "#dadada", "on-surface": "#1a1c1c", "surface-container": "#eeeeee", "surface-variant": "#e2e2e2", "error": "#ba1a1a", "surface-container-lowest": "#ffffff", "tertiary-fixed": "#e2e2e2", "surface-bright": "#f9f9f9", "outline": "#7e7576", "secondary": "#5d5f5f", "on-background": "#1a1c1c", "on-error": "#ffffff", "secondary-container": "#dcdddd", "outline-variant": "#cfc4c5", "on-primary-container": "#848484", "surface": "#f9f9f9", "primary-fixed": "#e2e2e2", "secondary-fixed-dim": "#c6c6c7", "inverse-surface": "#2f3131", "surface-container-highest": "#e2e2e2", "surface-tint": "#5e5e5e" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "stack-lg": "2rem", "stack-sm": "0.5rem", "gutter": "1.5rem", "stack-xxl": "8rem", "stack-xs": "0.25rem", "margin-mobile": "1rem", "stack-md": "1rem", "margin-desktop": "5rem", "stack-xl": "4rem" }, "fontFamily": { "headline-lg-mobile": [ "Chivo" ], "body-md": [ "Hanken Grotesk" ], "display-lg": [ "Chivo" ], "label-caps": [ "Hanken Grotesk" ], "display-lg-mobile": [ "Chivo" ], "body-lg": [ "Hanken Grotesk" ], "headline-md": [ "Chivo" ], "headline-lg": [ "Chivo" ] }, "fontSize": { "headline-lg-mobile": [ "32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700" } ], "body-md": [ "16px", { "lineHeight": "1.6", "fontWeight": "400" } ], "display-lg": [ "72px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "800" } ], "label-caps": [ "12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700" } ], "display-lg-mobile": [ "48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" } ], "body-lg": [ "18px", { "lineHeight": "1.6", "fontWeight": "400" } ], "headline-md": [ "24px", { "lineHeight": "1.3", "fontWeight": "700" } ], "headline-lg": [ "40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" } ] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased selection:bg-primary selection:text-on-primary"><header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)]"><div class="h-20 max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop flex items-center justify-between"><div class="flex items-center gap-12"><a class="font-headline-md text-headline-md uppercase tracking-tight text-on-surface flex items-center gap-2" data-path="collections" href="#">APEX ATHLETIC</a><nav class="hidden lg:flex items-center gap-8" data-active-classes="text-on-surface underline underline-offset-8 decoration-1"><a class="font-label-caps text-label-caps uppercase text-on-surface-variant hover:text-on-surface transition-colors py-2" data-path="collections" href="#">COLLECTIONS</a><a class="font-label-caps text-label-caps uppercase text-on-surface-variant hover:text-on-surface transition-colors py-2" data-path="performance" href="#">PERFORMANCE</a><a aria-current="page" class="font-label-caps uppercase transition-colors py-2 text-on-surface underline underline-offset-8 decoration-1" data-path="racquet-finder" href="#">RACQUET FINDER</a><a class="font-label-caps text-label-caps uppercase text-on-surface-variant hover:text-on-surface transition-colors py-2" data-path="the-club-lab" href="#">THE CLUB LAB</a><a class="font-label-caps text-label-caps uppercase text-on-surface-variant hover:text-on-surface transition-colors py-2" data-path="about" href="#">ABOUT</a></nav></div><div class="flex items-center gap-6"><button aria-label="Search" class="text-on-surface-variant hover:text-on-surface transition-colors flex items-center justify-center" type="button"><span class="material-symbols-outlined text-[20px]">search</span></button><button aria-label="Shopping Bag" class="text-on-surface-variant hover:text-on-surface transition-colors flex items-center justify-center relative" type="button"><span class="material-symbols-outlined text-[20px]">shopping_bag</span><span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-primary"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-surface"><div class="flex flex-col w-full">
+<!-- Top Progress Bar (Global View Indicator) -->
+<div class="w-full bg-surface-container-high h-1">
+<div class="h-full bg-primary transition-all duration-500 ease-out" style="width: 60%;"></div>
+</div>
+<!-- Hero / Introduction Section -->
+<section class="w-full bg-surface py-stack-xl px-margin-mobile md:px-margin-desktop">
+<div class="max-w-[1440px] mx-auto flex flex-col items-start">
+<div class="flex items-center gap-3 mb-stack-sm">
+<span class="inline-block w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">
+          APEX ATHLETIC LAB · FITTING &amp; PRECISION DYNAMICS
+        </span>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-end w-full pb-stack-lg">
+<div class="lg:col-span-8 flex flex-col">
+<h1 class="font-display-lg text-display-lg uppercase text-on-surface tracking-tight leading-none mb-stack-sm">
+            FIND YOUR BESPOKE RACQUET
+          </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+            A sartorial and kinematic interview engineered to analyze your swing speed, contact point, physical arm comfort needs, and court strategy — curating your exact 98%+ tournament match.
+          </p>
+</div>
+<div class="lg:col-span-4 flex flex-col lg:items-end justify-end">
+<div class="bg-surface-container-low p-stack-sm rounded-DEFAULT flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-[20px]">verified</span>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps uppercase text-on-surface">SW19 LAB TESTED</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-xs">Accredited Racquet Kinematics</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Refined Metric Badges -->
+<div class="flex flex-wrap items-center gap-3 pt-stack-xs w-full">
+<div class="bg-surface-container-lowest px-4 py-2.5 rounded-full flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">data_object</span>
+<span class="font-label-caps text-label-caps uppercase text-on-surface">1,100+ Racquet Data Points Analyzed</span>
+</div>
+<div class="bg-surface-container-lowest px-4 py-2.5 rounded-full flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">shield_with_heart</span>
+<span class="font-label-caps text-label-caps uppercase text-on-surface">Arm-Safe RA Flex Ratings</span>
+</div>
+<div class="bg-surface-container-lowest px-4 py-2.5 rounded-full flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">sports_tennis</span>
+<span class="font-label-caps text-label-caps uppercase text-on-surface">Wimbledon Grass &amp; Clay Surface Tuned</span>
+</div>
+<div class="bg-surface-container-lowest px-4 py-2.5 rounded-full flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">handshake</span>
+<span class="font-label-caps text-label-caps uppercase text-on-surface">Complimentary Pro Stringing Included</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Multi-step Interactive Container -->
+<section class="w-full bg-surface-container-low py-stack-xl px-margin-mobile md:px-margin-desktop">
+<div class="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Stepper Column / Left Panel -->
+<div class="lg:col-span-12 mb-stack-md">
+<!-- Interactive Stepper Progress Bar -->
+<div class="bg-surface-container-lowest p-stack-md rounded-DEFAULT shadow-sm flex flex-col gap-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-wider">
+              ALGORITHM INTERVIEW · QUESTIONNAIRE
+            </span>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-caps text-label-caps uppercase text-on-surface">
+                STEP 03 OF 05 · 60% COMPLETED
+              </span>
+</div>
+</div>
+<!-- Stepper Track -->
+<div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+<!-- Step 1 -->
+<div class="flex items-center gap-3 p-3 bg-surface-container-low rounded-DEFAULT opacity-80 cursor-pointer">
+<div class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-caps text-[10px] tracking-wider text-on-surface-variant uppercase">01 / SKILL</span>
+<span class="font-body-md text-body-md text-on-surface text-xs font-semibold truncate">Game Style</span>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="flex items-center gap-3 p-3 bg-surface-container-low rounded-DEFAULT opacity-80 cursor-pointer">
+<div class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-caps text-[10px] tracking-wider text-on-surface-variant uppercase">02 / SWING</span>
+<span class="font-body-md text-body-md text-on-surface text-xs font-semibold truncate">Kinematics</span>
+</div>
+</div>
+<!-- Step 3 (Active) -->
+<div class="flex items-center gap-3 p-3 bg-primary text-on-primary rounded-DEFAULT shadow-sm cursor-pointer relative overflow-hidden">
+<div class="w-6 h-6 rounded-full bg-on-primary text-primary flex items-center justify-center shrink-0 font-bold text-xs">
+                3
+              </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-caps text-[10px] tracking-wider text-on-primary-container uppercase">03 / COMFORT</span>
+<span class="font-body-md text-body-md text-on-primary text-xs font-bold truncate">Arm Sensitivities</span>
+</div>
+<div class="absolute right-0 top-0 bottom-0 w-1 bg-surface-container-highest"></div>
+</div>
+<!-- Step 4 -->
+<div class="flex items-center gap-3 p-3 bg-surface-container rounded-DEFAULT opacity-50 cursor-not-allowed">
+<div class="w-6 h-6 rounded-full bg-surface-dim text-on-surface-variant flex items-center justify-center shrink-0 text-xs">
+                4
+              </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-caps text-[10px] tracking-wider text-on-surface-variant uppercase">04 / BALANCE</span>
+<span class="font-body-md text-body-md text-on-surface text-xs truncate">Weight &amp; Swing</span>
+</div>
+</div>
+<!-- Step 5 -->
+<div class="flex items-center gap-3 p-3 bg-surface-container rounded-DEFAULT opacity-50 cursor-not-allowed">
+<div class="w-6 h-6 rounded-full bg-surface-dim text-on-surface-variant flex items-center justify-center shrink-0 text-xs">
+                5
+              </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-caps text-[10px] tracking-wider text-on-surface-variant uppercase">05 / STRINGS</span>
+<span class="font-body-md text-body-md text-on-surface text-xs truncate">Tension Lab</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Step Active Question Panel (Left 8 Cols) -->
+<div class="lg:col-span-8 flex flex-col gap-stack-md">
+<div class="bg-surface-container-lowest p-stack-lg rounded-DEFAULT shadow-sm flex flex-col">
+<!-- Step Question Header -->
+<div class="flex flex-col mb-stack-md">
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant mb-1">
+              QUESTION 03 · BIOMECHANICAL SHOCK DISPERSAL
+            </span>
+<h2 class="font-headline-lg text-headline-lg uppercase text-on-surface tracking-tight mb-2">
+              Do you experience arm discomfort, wrist fatigue, or tennis elbow?
+            </h2>
+<p class="font-body-md text-body-md text-on-surface-variant italic mb-4">
+              Bạn có gặp vấn đề đau khuỷu tay (tennis elbow), mỏi cổ tay hoặc cần độ êm tối đa khi tiếp xúc bóng?
+            </p>
+<!-- Explanatory note -->
+<div class="bg-surface-container p-4 rounded-DEFAULT flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[22px] shrink-0 mt-0.5">info</span>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm leading-relaxed">
+<strong class="text-on-surface font-semibold">Laboratory Note:</strong> We analyze frame stiffness (<span class="text-on-surface font-bold">RA rating below 63</span>) and vibrational damping technology to ensure effortless play without shock impact on joints.
+              </p>
+</div>
+</div>
+<!-- 4 Rich Selection Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-stack-lg" id="selection-group">
+<!-- Card 1 (Active/Selected) -->
+<div class="racquet-choice group relative flex flex-col justify-between p-6 rounded-DEFAULT bg-surface-container transition-all cursor-pointer shadow-sm ring-2 ring-primary">
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-3">
+<span class="bg-primary text-on-primary font-label-caps text-[10px] uppercase px-2.5 py-1 rounded-full">
+                    ARM-SAFE FOCUS
+                  </span>
+<div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-[14px]">check</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1 text-lg">
+                  Active Tennis Elbow / Sensitive Joint
+                </h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-xs italic mb-3">
+                  Đang đau cổ tay / Viêm gân (Cần độ êm tuyệt đối)
+                </p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm leading-relaxed mb-4">
+                  Prioritize ultra-flexible frames (&lt;62 RA) with integrated Auxetic foam and shock-absorbing dampening rings for joint preservation.
+                </p>
+</div>
+<div class="pt-3 bg-surface-container-low px-3 py-2 rounded-DEFAULT flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">tune</span>
+<span class="font-label-caps text-[11px] uppercase text-on-surface font-semibold">
+                  Max RA 62 · Soft Poly / Multifilament Setup
+                </span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="racquet-choice group relative flex flex-col justify-between p-6 rounded-DEFAULT bg-surface-container hover:bg-surface-container-high transition-all cursor-pointer">
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-3">
+<span class="bg-surface-container-high text-on-surface-variant font-label-caps text-[10px] uppercase px-2.5 py-1 rounded-full">
+                    BALANCED
+                  </span>
+<div class="w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center"></div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1 text-lg">
+                  Occasional Fatigue After Long Matches
+                </h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-xs italic mb-3">
+                  Thỉnh thoảng mỏi cơ sau set 3
+                </p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm leading-relaxed mb-4">
+                  Mid-flex frames with head-light balance to minimize forearm rotational inertia during extended rallies.
+                </p>
+</div>
+<div class="pt-3 bg-surface-container-low px-3 py-2 rounded-DEFAULT flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">tune</span>
+<span class="font-label-caps text-[11px] uppercase text-on-surface font-semibold">
+                  RA 63-65 · Hybrid Stringing
+                </span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="racquet-choice group relative flex flex-col justify-between p-6 rounded-DEFAULT bg-surface-container hover:bg-surface-container-high transition-all cursor-pointer">
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-3">
+<span class="bg-surface-container-high text-on-surface-variant font-label-caps text-[10px] uppercase px-2.5 py-1 rounded-full">
+                    PERFORMANCE
+                  </span>
+<div class="w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center"></div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1 text-lg">
+                  100% Healthy · Prioritize Surgical Control
+                </h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-xs italic mb-3">
+                  Không đau · Ưu tiên cảm giác và kiểm soát chính xác
+                </p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm leading-relaxed mb-4">
+                  Thinner beam boxes, dense 18x20 or 16x19 patterns, providing crisp, direct feedback from sweetspot impact.
+                </p>
+</div>
+<div class="pt-3 bg-surface-container-low px-3 py-2 rounded-DEFAULT flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">tune</span>
+<span class="font-label-caps text-[11px] uppercase text-on-surface font-semibold">
+                  Tour Flex · High Torsional Stability
+                </span>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="racquet-choice group relative flex flex-col justify-between p-6 rounded-DEFAULT bg-surface-container hover:bg-surface-container-high transition-all cursor-pointer">
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-3">
+<span class="bg-surface-container-high text-on-surface-variant font-label-caps text-[10px] uppercase px-2.5 py-1 rounded-full">
+                    POWER EXPLOSIVE
+                  </span>
+<div class="w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center"></div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1 text-lg">
+                  100% Healthy · Prioritize Free Easy Power
+                </h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-xs italic mb-3">
+                  Không đau · Ưu tiên trợ lực mạnh mẽ
+                </p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm leading-relaxed mb-4">
+                  Stiffer aerodynamic graphite for explosive groundstrokes, deep penetration, and generous forgiveness.
+                </p>
+</div>
+<div class="pt-3 bg-surface-container-low px-3 py-2 rounded-DEFAULT flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">tune</span>
+<span class="font-label-caps text-[11px] uppercase text-on-surface font-semibold">
+                  100+ sq in Head · Open Pattern
+                </span>
+</div>
+</div>
+</div>
+<!-- Interactive Action Navigation Bar -->
+<div class="flex flex-col sm:flex-row items-center justify-between pt-stack-md gap-4">
+<button class="w-full sm:w-auto px-8 py-3.5 rounded-DEFAULT bg-surface-container-high text-on-surface font-label-caps text-label-caps uppercase hover:bg-surface-dim transition-colors flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+              Back to Step 2
+            </button>
+<div class="flex items-center gap-6 w-full sm:w-auto justify-end">
+<a class="font-label-caps text-label-caps uppercase text-on-surface-variant hover:text-on-surface transition-colors py-2 text-xs" href="#">
+                Skip Question
+              </a>
+<button class="w-full sm:w-auto px-10 py-3.5 rounded-DEFAULT bg-primary text-on-primary font-label-caps text-label-caps uppercase hover:bg-primary-container transition-colors shadow-sm flex items-center justify-center gap-2" type="button">
+<span>Continue to Weight &amp; Balance (Tiếp Tục)</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Match Shortlist Preview Drawer / Peek Panel (Right 4 Cols) -->
+<div class="lg:col-span-4 flex flex-col gap-4">
+<div class="bg-surface-container-lowest p-stack-md rounded-DEFAULT shadow-sm flex flex-col">
+<div class="flex items-center justify-between pb-3 mb-3">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+              LIVE SHORTLIST ENGINE
+            </span>
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full">
+              REAL-TIME
+            </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-xs mb-4">
+            Based on your selections so far (<span class="text-on-surface font-semibold">Intermediate · Aggressive Baseliner · Arm-Safe</span>):
+          </p>
+<!-- Match Cards Preview -->
+<div class="flex flex-col gap-4 mb-stack-md">
+<!-- Match 1 -->
+<div class="bg-surface-container p-4 rounded-DEFAULT flex flex-col gap-3 group transition-all">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-caps text-[10px] text-primary bg-surface-container-lowest px-2 py-0.5 rounded-full font-bold">
+                    98% KINEMATIC MATCH
+                  </span>
+<h4 class="font-headline-md text-headline-md text-on-surface text-base uppercase mt-1">
+                    APEX HERITAGE PRO
+                  </h4>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface font-bold text-sm">$280.00</span>
+</div>
+<!-- Racquet Image Placeholder with 50-100 word prompt -->
+<div class="w-full h-32 rounded-DEFAULT overflow-hidden relative bg-surface-container-high">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Studio catalog shot of the APEX Heritage Pro luxury tennis racquet resting on deep British green velvet. Matte carbon fiber frame with polished cream-white typography and subtle British racing green hairline graphics. Pristine studio lighting highlighting clean racquet throat engineering, precise natural gut stringing, and bespoke leather grip." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLgE6V5T1ySUvqfuZygsImuRm16Wqfm6v_qGC_qQQW5hib_9Ix44SbuhvZmbvHnczS9eKTmGwtqF_5SU6lfdjHybrcDpNpHyn9smApvPoe6wtyQcc5hQy2Nty1VlNlr0aBzPNvkRZJzQvDP9x4PdirXdHFCHaWmlxofApHTH8RHeJe6sguNutSByHyCCKcUYsvX29xUF1toyiI8Wdod-iYa1mhEEYa370XWUILyGE5M1Ei__4Zuvde"/>
+<div class="absolute bottom-2 left-2 bg-primary/90 text-on-primary px-2 py-0.5 rounded text-[10px] font-label-caps uppercase">
+                  Wimbledon Spec
+                </div>
+</div>
+<!-- Technical Specs Matrix -->
+<div class="grid grid-cols-3 gap-2 bg-surface-container-lowest p-2 rounded-DEFAULT text-center">
+<div class="flex flex-col">
+<span class="font-label-caps text-[9px] uppercase text-on-surface-variant">Weight</span>
+<span class="font-body-md text-xs font-semibold text-on-surface">305g</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[9px] uppercase text-on-surface-variant">Flexibility</span>
+<span class="font-body-md text-xs font-semibold text-primary">61 RA</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[9px] uppercase text-on-surface-variant">Pattern</span>
+<span class="font-body-md text-xs font-semibold text-on-surface">16x19</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-xs font-body-md text-on-surface-variant">
+<span>Integrated Auxetic 2.0 Weave</span>
+<span class="text-primary font-bold">Ultra Damped</span>
+</div>
+</div>
+<!-- Match 2 -->
+<div class="bg-surface-container p-4 rounded-DEFAULT flex flex-col gap-3 group transition-all">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-caps text-[10px] text-primary bg-surface-container-lowest px-2 py-0.5 rounded-full font-bold">
+                    95% KINEMATIC MATCH
+                  </span>
+<h4 class="font-headline-md text-headline-md text-on-surface text-base uppercase mt-1">
+                    HEAD SPEED MPL APEX CUSTOM
+                  </h4>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface font-bold text-sm">$250.00</span>
+</div>
+<!-- Racquet Image Placeholder with 50-100 word prompt -->
+<div class="w-full h-32 rounded-DEFAULT overflow-hidden relative bg-surface-container-high">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="High-end studio photography of the custom limited edition tennis racquet in matte charcoal and chalk white detailing. Balanced horizontally on an architectural pedestal against a minimalist gallery background. Crisp softbox reflections along the aerodynamic beam, showcasing ergonomic handle wrap and tournament-ready frame balance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBACZMgDk4AbuI2meH_SGmd39Fmgx0w8o2saq-npxFd2NUWm2wSqqU2q1wMSOEkDQE7uH5tEpdf58RcfOu3_WhNza_syMCV2HZAqni3x7MZo-L5Qm9OQ-T2UXEdWyl0nhW8I0sl_9XUXiRR8UA1DESx887LQsK48davWIljfNMz3LF_EoRuHa1yFHX22ifdHGywOWjhNyGjaSiN5bwTFWZBczPO3jtvlx9F9srpsPmGpOGlWZ9LCe-n"/>
+<div class="absolute bottom-2 left-2 bg-primary/90 text-on-primary px-2 py-0.5 rounded text-[10px] font-label-caps uppercase">
+                  Arm Guard Spec
+                </div>
+</div>
+<!-- Technical Specs Matrix -->
+<div class="grid grid-cols-3 gap-2 bg-surface-container-lowest p-2 rounded-DEFAULT text-center">
+<div class="flex flex-col">
+<span class="font-label-caps text-[9px] uppercase text-on-surface-variant">Weight</span>
+<span class="font-body-md text-xs font-semibold text-on-surface">280g</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[9px] uppercase text-on-surface-variant">Flexibility</span>
+<span class="font-body-md text-xs font-semibold text-primary">62 RA</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[9px] uppercase text-on-surface-variant">Head Size</span>
+<span class="font-body-md text-xs font-semibold text-on-surface">100 in²</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-xs font-body-md text-on-surface-variant">
+<span>Optimized Graphene Core</span>
+<span class="text-primary font-bold">Fast Head Speed</span>
+</div>
+</div>
+</div>
+<!-- Bottom Lock Status -->
+<div class="p-4 bg-surface-container-high rounded-DEFAULT flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">lock</span>
+<span class="font-label-caps text-[11px] uppercase text-on-surface font-semibold">
+                Unlock Full 3-Racquet Report after Step 5
+              </span>
+</div>
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant">2 Steps Left</span>
+</div>
+</div>
+<!-- Telemetry Infographic / Polar Flex Chart (Inline SVG Visual) -->
+<div class="bg-surface-container-lowest p-stack-md rounded-DEFAULT shadow-sm flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-on-surface">FLEX COMFORT MATRIX</span>
+<span class="material-symbols-outlined text-primary text-[18px]">analytics</span>
+</div>
+<div class="relative w-full h-36 flex items-center justify-center bg-surface-container-low rounded-DEFAULT p-2">
+<!-- Inline SVG Polar / Radar Chart -->
+<svg class="w-full h-full text-primary" fill="none" viewbox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+<!-- Grid levels -->
+<polygon points="100,20 160,50 140,105 60,105 40,50" stroke="currentColor" stroke-opacity="0.15" stroke-width="1"></polygon>
+<polygon points="100,40 140,60 126,95 74,95 60,60" stroke="currentColor" stroke-opacity="0.1" stroke-width="1"></polygon>
+<!-- Data Polygon -->
+<polygon fill="currentColor" fill-opacity="0.12" points="100,25 155,55 130,98 68,96 46,54" stroke="currentColor" stroke-width="2"></polygon>
+<!-- Axis points -->
+<circle cx="100" cy="25" fill="currentColor" r="3"></circle>
+<circle cx="155" cy="55" fill="currentColor" r="3"></circle>
+<circle cx="130" cy="98" fill="currentColor" r="3"></circle>
+<circle cx="68" cy="96" fill="currentColor" r="3"></circle>
+<circle cx="46" cy="54" fill="currentColor" r="3"></circle>
+<!-- Labels -->
+<text fill="currentColor" font-size="8" font-weight="700" text-anchor="middle" x="100" y="14">DAMPING</text>
+<text fill="currentColor" font-size="8" font-weight="700" text-anchor="start" x="168" y="55">CONTROL</text>
+<text fill="currentColor" font-size="8" font-weight="700" text-anchor="middle" x="135" y="115">STABILITY</text>
+<text fill="currentColor" font-size="8" font-weight="700" text-anchor="middle" x="60" y="115">COMFORT</text>
+<text fill="currentColor" font-size="8" font-weight="700" text-anchor="end" x="32" y="55">MANEUVER</text>
+</svg>
+</div>
+<span class="font-body-md text-xs text-on-surface-variant text-center">
+            Calculated target profile for arm-protective baseline play.
+          </span>
+</div>
+</div>
+</div>
+</section>
+<!-- Educational FAQ Section -->
+<section class="w-full bg-surface py-stack-xl px-margin-mobile md:px-margin-desktop">
+<div class="max-w-[1440px] mx-auto">
+<div class="flex flex-col md:flex-row md:items-end justify-between pb-stack-lg mb-stack-md">
+<div>
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant block mb-2">
+            SW19 CONSULTATIVE KNOWLEDGE BASE
+          </span>
+<h2 class="font-headline-lg text-headline-lg uppercase text-on-surface tracking-tight">
+            RACQUET DYNAMICS &amp; FITTING ADVICE
+          </h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md mt-4 md:mt-0">
+          Essential kinematic insights from our master stringers and certified club physiologists on optimizing arm health and peak court execution.
+        </p>
+</div>
+<!-- FAQ Accordion Matrix -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="faq-container">
+<!-- FAQ 1 -->
+<div class="bg-surface-container-low p-6 rounded-DEFAULT shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-4 mb-3">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">01 / JOINT HEALTH</span>
+<span class="material-symbols-outlined text-primary text-[20px]">healing</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg mb-2">
+              Which racquets are best for tennis elbow &amp; wrist pain?
+            </h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm leading-relaxed mb-4">
+              Frames with a stiffness rating (Babolat RDC RA) under 63 transmit substantially fewer high-frequency vibrational shocks to the extensor carpi radialis brevis tendon. Pairing an arm-safe frame with natural gut or soft multifilament strings strung at lower tensions (48-52 lbs) prevents over 70% of peak elbow impact shocks.
+            </p>
+</div>
+<div class="pt-3 bg-surface-container px-3 py-2 rounded-DEFAULT flex items-center justify-between text-xs">
+<span class="font-label-caps uppercase text-on-surface font-semibold">Recommended Spec</span>
+<span class="text-primary font-bold">RA &lt; 62 · Soft Multi</span>
+</div>
+</div>
+<!-- FAQ 2 -->
+<div class="bg-surface-container-low p-6 rounded-DEFAULT shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-4 mb-3">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">02 / SWINGWEIGHT</span>
+<span class="material-symbols-outlined text-primary text-[20px]">fitness_center</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg mb-2">
+              How does frame weight affect swing fatigue?
+            </h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm leading-relaxed mb-4">
+              Static weight (grams) and dynamic swingweight (kg·cm²) dictate forearm stress. A heavier static frame (300g+) with a head-light balance (4-7 pts HL) absorbs ball collision better, protecting your arm. Conversely, an excessively light racquet with head-heavy balance forces muscles to work harder upon heavy ball impacts.
+            </p>
+</div>
+<div class="pt-3 bg-surface-container px-3 py-2 rounded-DEFAULT flex items-center justify-between text-xs">
+<span class="font-label-caps uppercase text-on-surface font-semibold">Recommended Spec</span>
+<span class="text-primary font-bold">300-310g · 315-320 Swingweight</span>
+</div>
+</div>
+<!-- FAQ 3 -->
+<div class="bg-surface-container-low p-6 rounded-DEFAULT shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-4 mb-3">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">03 / STRING CALIBRATION</span>
+<span class="material-symbols-outlined text-primary text-[20px]">straighten</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg mb-2">
+              What string tension and hybrid setups are recommended with APEX frames?
+            </h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm leading-relaxed mb-4">
+              We recommend our signature Lawn Hybrid: Babolat Touch VS Natural Gut mains (52 lbs) with luxilon ALU Power Feel crosses (49 lbs). This setup produces superior dwell time, surgical touch around the grass-court net, and minimizes arm shock on off-center mishits.
+            </p>
+</div>
+<div class="pt-3 bg-surface-container px-3 py-2 rounded-DEFAULT flex items-center justify-between text-xs">
+<span class="font-label-caps uppercase text-on-surface font-semibold">Tension Recommendation</span>
+<span class="text-primary font-bold">50 / 48 LBS (Custom Pre-Stretch)</span>
+</div>
+</div>
+<!-- FAQ 4 -->
+<div class="bg-surface-container-low p-6 rounded-DEFAULT shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-4 mb-3">
+<span class="font-label-caps text-label-caps uppercase text-primary font-bold">04 / WHITE-GLOVE SERVICE</span>
+<span class="material-symbols-outlined text-primary text-[20px]">local_shipping</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg mb-2">
+              Can I demo or customize grip sizes before shipping?
+            </h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm leading-relaxed mb-4">
+              Every APEX racquet includes complimentary bespoke weight customization, swingweight pairing down to ±1g, and precision grip sizing. Our concierge dispatch also offers an at-home Demo Casket with two matched models to trial on your local club court for 14 days.
+            </p>
+</div>
+<div class="pt-3 bg-surface-container px-3 py-2 rounded-DEFAULT flex items-center justify-between text-xs">
+<span class="font-label-caps uppercase text-on-surface font-semibold">Complimentary Benefit</span>
+<span class="text-primary font-bold">14-Day Club Demo Included</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Editorial Brand Banner / Concierge Assist -->
+<section class="w-full bg-surface-container-lowest py-stack-lg px-margin-mobile md:px-margin-desktop">
+<div class="max-w-[1440px] mx-auto bg-surface-container-low p-stack-lg rounded-DEFAULT flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[28px]">sports</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-headline-md text-headline-md text-on-surface uppercase text-lg">
+            Prefer a direct consultation with our Master Racquet Technician?
+          </h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">
+            Book a 15-minute 1-on-1 video kinematic review with our Wimbledon SW19 team.
+          </p>
+</div>
+</div>
+<button class="whitespace-nowrap px-8 py-3.5 rounded-DEFAULT bg-surface-container-high text-on-surface font-label-caps text-label-caps uppercase hover:bg-surface-dim transition-colors shadow-sm" type="button">
+        Book Private Lab Video Call
+      </button>
+</div>
+</section>
+</div>
+<script>
+  // Simple interactive card selection logic
+  document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.racquet-choice');
+    cards.forEach((card) => {
+      card.addEventListener('click', () => {
+        cards.forEach((c) => {
+          c.classList.remove('ring-2', 'ring-primary');
+          const badge = c.querySelector('.font-label-caps');
+          const circle = c.querySelector('.w-5.h-5');
+          if (circle) {
+            circle.className = 'w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center';
+            circle.innerHTML = '';
+          }
+          if (badge) {
+            badge.className = 'bg-surface-container-high text-on-surface-variant font-label-caps text-[10px] uppercase px-2.5 py-1 rounded-full';
+          }
+        });
+        
+        card.classList.add('ring-2', 'ring-primary');
+        const activeBadge = card.querySelector('.font-label-caps');
+        const activeCircle = card.querySelector('.w-5.h-5');
+        if (activeCircle) {
+          activeCircle.className = 'w-5 h-5 rounded-full bg-primary flex items-center justify-center';
+          activeCircle.innerHTML = '<span class="material-symbols-outlined text-on-primary text-[14px]">check</span>';
+        }
+        if (activeBadge) {
+          activeBadge.className = 'bg-primary text-on-primary font-label-caps text-[10px] uppercase px-2.5 py-1 rounded-full';
+        }
+      });
+    });
+  });
+</script></main><footer class="w-full bg-surface-container-low text-on-surface"><div class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop pt-stack-xl pb-stack-lg"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-gutter pb-stack-xl"><div class="lg:col-span-2 flex flex-col pr-0 lg:pr-12"><span class="font-headline-md text-headline-md uppercase tracking-tight text-on-surface mb-stack-sm">APEX ATHLETIC</span><p class="font-body-md text-body-md text-on-surface-variant mb-stack-md max-w-sm">Precision racquet engineering and curated lawn tennis attire. Designed with disciplined luxury for championship play.</p><form class="flex flex-col gap-stack-sm"><span class="font-label-caps text-label-caps uppercase text-on-surface">THE WIMBLEDON DISPATCH</span><div class="flex items-center bg-surface-container-lowest"><input class="w-full bg-transparent px-4 py-3 font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none" placeholder="ENTER YOUR EMAIL" type="email"/><button class="bg-primary text-on-primary px-6 py-3 font-label-caps text-label-caps uppercase tracking-wider hover:bg-surface-container-highest hover:text-on-surface transition-colors" type="button">JOIN</button></div></form></div><div class="flex flex-col gap-stack-sm"><span class="font-label-caps text-label-caps uppercase text-on-surface">COLLECTIONS</span><div class="flex flex-col gap-stack-xs"><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="collections" href="#">Lawn Championship 2025</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="performance" href="#">Apex Pro Tour Frames</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="collections" href="#">Cashmere Court Knitwear</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="collections" href="#">Leather Holdalls &amp; Bags</a></div></div><div class="flex flex-col gap-stack-sm"><span class="font-label-caps text-label-caps uppercase text-on-surface">LAB &amp; FITTING</span><div class="flex flex-col gap-stack-xs"><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="racquet-finder" href="#">Racquet Matching Engine</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="the-club-lab" href="#">Custom Swing Weighting</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="the-club-lab" href="#">Natural Gut Stringing</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="the-club-lab" href="#">Virtual Grip Fitting</a></div></div><div class="flex flex-col gap-stack-sm"><span class="font-label-caps text-label-caps uppercase text-on-surface">HERITAGE &amp; CLUB</span><div class="flex flex-col gap-stack-xs"><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="about" href="#">The Apex Archive</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="about" href="#">Grass Court Philosophy</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="concierge" href="#">Wimbledon Concierge</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="about" href="#">Patron Invitations</a></div></div><div class="flex flex-col gap-stack-sm"><span class="font-label-caps text-label-caps uppercase text-on-surface">CONCIERGE &amp; CARE</span><div class="flex flex-col gap-stack-xs"><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="concierge" href="#">Private Appointments</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="concierge" href="#">Global Shipping &amp; Duties</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="concierge" href="#">Frame Restringing Portal</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="concierge" href="#">Care &amp; Maintenance</a></div></div></div><div class="pt-stack-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4"><p class="font-label-caps text-label-caps uppercase text-on-surface-variant">© 2025 APEX ATHLETIC TENNIS CLUB LTD. ALL RIGHTS RESERVED. SW19, LONDON.</p><div class="flex items-center gap-6"><a class="font-label-caps text-label-caps uppercase text-on-surface-variant hover:text-on-surface transition-colors" href="#">PRIVACY CHARTER</a><a class="font-label-caps text-label-caps uppercase text-on-surface-variant hover:text-on-surface transition-colors" href="#">TERMS OF SERVICE</a><a class="font-label-caps text-label-caps uppercase text-on-surface-variant hover:text-on-surface transition-colors" href="#">ACCESSIBILITY</a></div></div></div></footer></body></html>

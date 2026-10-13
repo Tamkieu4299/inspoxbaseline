@@ -53,6 +53,92 @@ export interface Product {
   category?: Category | null;
   categories?: Category[];
   collection?: CollectionSummary | null;
+  finder_profile?: ProductFinderProfile | null;
+}
+
+export type ProductFinderProfile = {
+  enabled?: boolean;
+  vectors?: {
+    power?: number;
+    control?: number;
+    comfort?: number;
+    spin?: number;
+    maneuver?: number;
+  };
+  specs?: { ra?: number; weight_g?: number; head_sq_in?: number; pattern?: string };
+  tags?: string[];
+};
+
+export type QuizStepOption = {
+  id: string;
+  icon?: string;
+  badge?: string;
+  title: string;
+  title_vi?: string;
+  subtitle?: string;
+  subtitle_vi?: string;
+  deltas?: ProductFinderProfile["vectors"];
+  guardrails?: {
+    max_ra?: number;
+    min_ra?: number;
+    max_weight_g?: number;
+    min_weight_g?: number;
+    exclude_tags?: string[];
+  };
+};
+
+export type QuizStep = {
+  id: string;
+  step_key?: string;
+  title: string;
+  title_vi?: string;
+  subtitle?: string;
+  subtitle_vi?: string;
+  note?: string;
+  note_vi?: string;
+  required?: boolean;
+  options: QuizStepOption[];
+};
+
+export interface ShopQuiz {
+  id: number;
+  slug: string;
+  title: string;
+  title_vi?: string | null;
+  subtitle?: string | null;
+  subtitle_vi?: string | null;
+  nav_label?: string | null;
+  nav_label_vi?: string | null;
+  show_in_nav: boolean;
+  is_published: boolean;
+  hero_kicker?: string | null;
+  hero_kicker_vi?: string | null;
+  hero_badges: { icon?: string; label: string; label_vi?: string }[];
+  faq: { q: string; q_vi?: string; a: string; a_vi?: string }[];
+  dimension_weights: Record<string, number>;
+  steps: QuizStep[];
+  product_filter: { category_slugs?: string[]; require_finder_profile?: boolean };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ShopQuizPublic extends Omit<ShopQuiz, "created_at" | "updated_at" | "is_published"> {
+  match_products: QuizMatchProduct[];
+}
+
+export interface QuizMatchProduct {
+  id: number;
+  slug: string;
+  name: string;
+  price: number;
+  image_url?: string | null;
+  finder_profile?: ProductFinderProfile | null;
+}
+
+export interface QuizNavItem {
+  slug: string;
+  title: string;
+  nav_label?: string | null;
 }
 
 export interface CollectionSummary {
@@ -240,7 +326,7 @@ export interface BlogPost {
 }
 
 export interface NavItem {
-  type: "home" | "collections" | "new_arrivals" | "brand" | "categories" | "page";
+  type: "home" | "collections" | "new_arrivals" | "brand" | "categories" | "page" | "quiz";
   ref?: string | null;
   enabled: boolean;
 }

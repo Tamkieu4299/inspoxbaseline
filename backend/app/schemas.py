@@ -151,6 +151,7 @@ class ProductBase(BaseModel):
     is_active: bool = True
     is_featured: bool = False
     is_bestseller: bool = False
+    finder_profile: dict[str, Any] | None = None
 
 
 class ProductIn(ProductBase):
@@ -389,6 +390,55 @@ class SitePublic(BaseModel):
     currency_code: str = "VND"
     usd_to_vnd_rate: float = 24500.0
     supported_currencies: list[str] = Field(default_factory=lambda: ["VND"])
+
+
+class ShopQuizBase(BaseModel):
+    slug: str
+    title: str
+    title_vi: str | None = None
+    subtitle: str | None = None
+    subtitle_vi: str | None = None
+    nav_label: str | None = None
+    nav_label_vi: str | None = None
+    show_in_nav: bool = False
+    is_published: bool = False
+    hero_kicker: str | None = None
+    hero_kicker_vi: str | None = None
+    hero_badges: list[Any] = Field(default_factory=list)
+    faq: list[Any] = Field(default_factory=list)
+    dimension_weights: dict[str, Any] = Field(default_factory=dict)
+    steps: list[Any] = Field(default_factory=list)
+    product_filter: dict[str, Any] = Field(default_factory=dict)
+
+
+class ShopQuizIn(ShopQuizBase):
+    pass
+
+
+class ShopQuizOut(ShopQuizBase, ORMModel):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+
+class QuizNavOut(BaseModel):
+    slug: str
+    title: str
+    nav_label: str | None = None
+
+
+class QuizMatchProductOut(BaseModel):
+    id: int
+    slug: str
+    name: str
+    price: float
+    image_url: str | None = None
+    finder_profile: dict[str, Any] | None = None
+
+
+class ShopQuizPublicOut(ShopQuizBase):
+    id: int
+    match_products: list[QuizMatchProductOut] = Field(default_factory=list)
 
 
 from pydantic import model_validator

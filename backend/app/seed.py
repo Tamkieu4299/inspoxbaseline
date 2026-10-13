@@ -16,6 +16,7 @@ from .models import (
     Media,
     Page,
     Product,
+    ShopQuiz,
     Tenant,
     User,
     UserTenantMembership,
@@ -31,9 +32,10 @@ TENANTED_TABLES = [
     "pages",
     "blog_posts",
     "site_settings",
+    "shop_quizzes",
 ]
 
-SLUG_UNIQUE_MODELS = [Category, Collection, Product, Page, BlogPost]
+SLUG_UNIQUE_MODELS = [Category, Collection, Product, Page, BlogPost, ShopQuiz]
 
 # Canonical shop1 SKUs (real INSPO catalog — see deploy/backup)
 from .seed_inspo import INSPO_PRODUCT_SLUGS as SHOP1_CATALOG_SLUGS  # noqa: E402
@@ -112,6 +114,7 @@ def _migrate_existing(db, tenant_id: int):
     db.execute(text("UPDATE site_settings SET usd_to_vnd_rate=24500 WHERE usd_to_vnd_rate IS NULL OR usd_to_vnd_rate<=0"))
     db.commit()
     _add_column_if_missing(db, "product_images", "color_name", "VARCHAR(200)")
+    _add_column_if_missing(db, "products", "finder_profile", "JSON")
     db.commit()
     _migrate_product_categories(db)
     _backfill_media_tenant(db, tenant_id)
@@ -318,6 +321,9 @@ def run():
         run_baseline_club()
     except (SystemExit, FileNotFoundError) as exc:
         print(f"Baseline Club seed skipped: {exc}")
+    from .seed_quizzes import ensure_default_quizzes
+
+    ensure_default_quizzes()
     print("Bootstrap complete (migrations + optional INSPO catalog).")
 
 

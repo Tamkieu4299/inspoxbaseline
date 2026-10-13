@@ -10,6 +10,7 @@ export type AdminTab =
   | "brand"
   | "pages"
   | "journal"
+  | "quizzes"
   | "categories"
   | "nav"
   | "site"
@@ -43,6 +44,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { tab: "journal", icon: "menu_book", labelKey: "admin.tab.journal" },
       { tab: "pages", icon: "newspaper", labelKey: "admin.tab.pages" },
+      { tab: "quizzes", icon: "tune", labelKey: "admin.tab.quizzes" },
       { tab: "nav", icon: "menu", labelKey: "admin.tab.nav" },
     ],
   },
@@ -73,6 +75,7 @@ const SCREEN_SUBTITLE: Record<AdminTab, string> = {
   brand: "admin.screen.brand",
   pages: "admin.screen.pages",
   journal: "admin.screen.journal",
+  quizzes: "admin.screen.quizzes",
   nav: "admin.screen.nav",
   site: "admin.screen.site",
   users: "admin.screen.users",

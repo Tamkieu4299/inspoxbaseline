@@ -12,6 +12,7 @@ from ..models import (
     Media,
     Page,
     Product,
+    ShopQuiz,
     SiteSettings,
     Tenant,
 )
@@ -28,6 +29,9 @@ from ..schemas import (
     PageOut,
     ProductImageOut,
     ProductOut,
+    QuizMatchProductOut,
+    QuizNavOut,
+    ShopQuizPublicOut,
     SitePublic,
 )
 from ..home_sections import latest_drops_fetch_limit, normalize_home_sections
@@ -653,6 +657,145 @@ def get_blog_post(
             content.append(b)
         data["content"] = content
     return BlogPostOut.model_validate(data)
+
+
+def _localize_quiz(data: dict, lang: str) -> dict:
+    if lang != "vi":
+        return data
+    for key in ("title", "subtitle", "nav_label", "hero_kicker"):
+        if data.get(f"{key}_vi"):
+            data[key] = data[f"{key}_vi"]
+    badges = []
+    for b in data.get("hero_badges") or []:
+        bb = dict(b)
+        if bb.get("label_vi"):
+            bb["label"] = bb["label_vi"]
+        badges.append(bb)
+    data["hero_badges"] = badges
+    faq = []
+    for item in data.get("faq") or []:
+        fi = dict(item)
+        if fi.get("q_vi"):
+            fi["q"] = fi["q_vi"]
+        if fi.get("a_vi"):
+            fi["a"] = fi["a_vi"]
+        faq.append(fi)
+    data["faq"] = faq
+    steps = []
+    for step in data.get("steps") or []:
+        st = dict(step)
+        for key in ("title", "subtitle", "note"):
+            if st.get(f"{key}_vi"):
+                st[key] = st[f"{key}_vi"]
+        opts = []
+        for opt in st.get("options") or []:
+            o = dict(opt)
+            for key in ("title", "subtitle", "badge"):
+                if o.get(f"{key}_vi"):
+                    o[key] = o[f"{key}_vi"]
+            opts.append(o)
+        st["options"] = opts
+        steps.append(st)
+    data["steps"] = steps
+    return data
+
+
+def _quiz_match_products(db: Session, tenant_id: int, product_filter: dict | None) -> list[QuizMatchProductOut]:
+    pf = product_filter or {}
+    category_slugs = [str(s).strip() for s in (pf.get("category_slugs") or []) if str(s).strip()]
+    require_profile = bool(pf.get("require_finder_profile", True))
+
+    q = (
+        select(Product)
+        .where(Product.tenant_id == tenant_id, Product.is_active.is_(True))
+        .options(selectinload(Product.images), selectinload(Product.categories))
+        .order_by(Product.name)
+    )
+    products = db.execute(q).scalars().all()
+    out: list[QuizMatchProductOut] = []
+    slug_set = set(category_slugs)
+    for p in products:
+        profile = p.finder_profile or {}
+        if require_profile and not profile.get("enabled"):
+            continue
+        if slug_set:
+            cat_slugs = {c.slug for c in (p.categories or [])}
+            if not cat_slugs.intersection(slug_set):
+                continue
+        image_url = None
+        for img in p.images or []:
+            if img.enabled:
+                image_url = img.url
+                break
+        if not image_url and p.images:
+            image_url = p.images[0].url
+        out.append(
+            QuizMatchProductOut(
+                id=p.id,
+                slug=p.slug,
+                name=p.name,
+                price=float(p.price or 0),
+                image_url=image_url,
+                finder_profile=profile if profile else None,
+            )
+        )
+    return out
+
+
+@router.get("/quizzes", response_model=list[QuizNavOut])
+def list_quizzes_nav(
+    lang: str = "en",
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
+    rows = (
+        db.execute(
+            select(ShopQuiz)
+            .where(
+                ShopQuiz.tenant_id == tenant.id,
+                ShopQuiz.is_published.is_(True),
+            )
+            .order_by(ShopQuiz.slug)
+        )
+        .scalars()
+        .all()
+    )
+    out = []
+    for q in rows:
+        data = QuizNavOut(
+            slug=q.slug,
+            title=q.title,
+            nav_label=q.nav_label or q.title,
+        ).model_dump()
+        if lang == "vi":
+            if q.title_vi:
+                data["title"] = q.title_vi
+            if q.nav_label_vi:
+                data["nav_label"] = q.nav_label_vi
+        out.append(QuizNavOut.model_validate(data))
+    return out
+
+
+@router.get("/quizzes/{slug}", response_model=ShopQuizPublicOut)
+def get_quiz(
+    slug: str,
+    lang: str = "en",
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
+    quiz = db.scalar(
+        select(ShopQuiz).where(
+            ShopQuiz.tenant_id == tenant.id,
+            ShopQuiz.slug == slug,
+            ShopQuiz.is_published.is_(True),
+        )
+    )
+    if quiz is None:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+    data = ShopQuizPublicOut.model_validate(quiz).model_dump()
+    data = _localize_quiz(data, lang)
+    data["match_products"] = _quiz_match_products(db, tenant.id, quiz.product_filter)
+    return ShopQuizPublicOut.model_validate(data)
 
 
 @router.get("/site", response_model=SitePublic)

@@ -10,6 +10,7 @@ import BrandExperience from "./pages/BrandExperience";
 import PageView from "./pages/PageView";
 import BlogsPage from "./pages/BlogsPage";
 import BlogPostPage from "./pages/BlogPostPage";
+import QuizRunner from "./pages/QuizRunner";
 import Admin from "./admin/Admin";
 import SiteBranding from "./components/SiteBranding";
 import { LanguageProvider } from "./i18n";
@@ -44,6 +45,7 @@ export default function App() {
                     <Route path="/pages/:slug" element={<PageView />} />
                     <Route path="/blogs" element={<BlogsPage />} />
                     <Route path="/blogs/:slug" element={<BlogPostPage />} />
+                    <Route path="/quizzes/:slug" element={<QuizRunner />} />
                     <Route path="*" element={<Home />} />
                   </Routes>
                 </div>

@@ -14,6 +14,7 @@ from ..models import (
     PageBlock,
     Product,
     ProductImage,
+    ShopQuiz,
     SiteSettings,
     Tenant,
 )
@@ -33,6 +34,8 @@ from ..schemas import (
     PageOut,
     ProductIn,
     ProductOut,
+    ShopQuizIn,
+    ShopQuizOut,
     SiteSettingsIn,
     SiteSettingsOut,
 )
@@ -587,3 +590,73 @@ def update_site_settings(
     db.commit()
     db.refresh(site)
     return SiteSettingsOut.model_validate(site)
+
+
+# ---------------- Shop quizzes ----------------
+@router.get("/quizzes", response_model=list[ShopQuizOut])
+def list_quizzes(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    rows = (
+        db.execute(
+            select(ShopQuiz)
+            .where(ShopQuiz.tenant_id == tenant.id)
+            .order_by(ShopQuiz.slug)
+        )
+        .scalars()
+        .all()
+    )
+    return [ShopQuizOut.model_validate(q) for q in rows]
+
+
+@router.post("/quizzes", response_model=ShopQuizOut)
+def create_quiz(payload: ShopQuizIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    exists = db.scalar(
+        select(ShopQuiz.id).where(
+            ShopQuiz.tenant_id == tenant.id,
+            ShopQuiz.slug == payload.slug,
+        )
+    )
+    if exists:
+        raise HTTPException(status_code=400, detail="Quiz slug already exists")
+    quiz = ShopQuiz(**payload.model_dump(), tenant_id=tenant.id)
+    db.add(quiz)
+    db.commit()
+    db.refresh(quiz)
+    return ShopQuizOut.model_validate(quiz)
+
+
+@router.put("/quizzes/{quiz_id}", response_model=ShopQuizOut)
+def update_quiz(
+    quiz_id: int, payload: ShopQuizIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep
+):
+    quiz = db.scalar(
+        select(ShopQuiz).where(ShopQuiz.id == quiz_id, ShopQuiz.tenant_id == tenant.id)
+    )
+    if quiz is None:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+    if payload.slug != quiz.slug:
+        clash = db.scalar(
+            select(ShopQuiz.id).where(
+                ShopQuiz.tenant_id == tenant.id,
+                ShopQuiz.slug == payload.slug,
+                ShopQuiz.id != quiz_id,
+            )
+        )
+        if clash:
+            raise HTTPException(status_code=400, detail="Quiz slug already exists")
+    for field, value in payload.model_dump().items():
+        setattr(quiz, field, value)
+    db.commit()
+    db.refresh(quiz)
+    return ShopQuizOut.model_validate(quiz)
+
+
+@router.delete("/quizzes/{quiz_id}")
+def delete_quiz(quiz_id: int, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    quiz = db.scalar(
+        select(ShopQuiz).where(ShopQuiz.id == quiz_id, ShopQuiz.tenant_id == tenant.id)
+    )
+    if quiz is None:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+    db.delete(quiz)
+    db.commit()
+    return {"ok": True}

@@ -19,6 +19,8 @@ function navTypeKey(type: NavItem["type"]): string {
       return "admin.navTypeCategories";
     case "page":
       return "admin.navTypePage";
+    case "quiz":
+      return "admin.navTypeQuiz";
   }
 }
 
@@ -29,9 +31,11 @@ export default function NavTab() {
   const { t } = useLanguage();
   const { data: site, isLoading } = useQuery({ queryKey: ["admin-site"], queryFn: adminApi.getSite });
   const { data: pages } = useQuery({ queryKey: ["admin-pages"], queryFn: adminApi.getPages });
+  const { data: quizzes } = useQuery({ queryKey: ["admin-quizzes"], queryFn: adminApi.getQuizzes });
 
   const [draft, setDraft] = useState<NavItem[] | null>(null);
   const [pageToAdd, setPageToAdd] = useState("");
+  const [quizToAdd, setQuizToAdd] = useState("");
 
   const items = draft ?? site?.nav_items ?? [];
 
@@ -49,6 +53,10 @@ export default function NavTab() {
     if (item.type === "page") {
       const page = pages?.find((p) => p.slug === item.ref);
       return page ? page.nav_label || page.title : item.ref || "?";
+    }
+    if (item.type === "quiz") {
+      const quiz = quizzes?.find((q) => q.slug === item.ref);
+      return quiz ? quiz.nav_label || quiz.title : item.ref || "?";
     }
     return t(navTypeKey(item.type));
   }
@@ -92,8 +100,26 @@ export default function NavTab() {
     setPageToAdd("");
   }
 
+  function addQuiz() {
+    if (!quizToAdd) return;
+    const exists = (draft ?? site?.nav_items ?? []).some(
+      (i) => i.type === "quiz" && i.ref === quizToAdd
+    );
+    if (exists) {
+      setQuizToAdd("");
+      return;
+    }
+    setDraft((d) => [...(d ?? site?.nav_items ?? []), { type: "quiz", ref: quizToAdd, enabled: true }]);
+    setQuizToAdd("");
+  }
+
   const addablePages = (pages || []).filter(
     (p) => !(draft ?? site?.nav_items ?? []).some((i) => i.type === "page" && i.ref === p.slug)
+  );
+  const addableQuizzes = (quizzes || []).filter(
+    (q) =>
+      q.is_published &&
+      !(draft ?? site?.nav_items ?? []).some((i) => i.type === "quiz" && i.ref === q.slug)
   );
 
   if (isLoading || !site) {
@@ -133,7 +159,7 @@ export default function NavTab() {
                 </span>
                 <span className="font-label text-label-caps text-secondary uppercase">
                   {t(navTypeKey(item.type))}
-                  {item.type === "page" && item.ref ? ` · ${item.ref}` : ""}
+                  {(item.type === "page" || item.type === "quiz") && item.ref ? ` · ${item.ref}` : ""}
                 </span>
               </span>
               <span className="flex items-center gap-1 shrink-0">
@@ -184,6 +210,19 @@ export default function NavTab() {
           </Select>
           <SecondaryButton onClick={addPage} disabled={!pageToAdd}>
             {t("admin.navAddPage")}
+          </SecondaryButton>
+        </div>
+        <div className="flex items-center gap-2">
+          <Select value={quizToAdd} onChange={(e) => setQuizToAdd(e.target.value)} className="flex-1">
+            <option value="">{t("admin.navSelectQuiz")}</option>
+            {addableQuizzes.map((q) => (
+              <option key={q.id} value={q.slug}>
+                {q.nav_label || q.title} ({q.slug})
+              </option>
+            ))}
+          </Select>
+          <SecondaryButton onClick={addQuiz} disabled={!quizToAdd}>
+            {t("admin.navAddQuiz")}
           </SecondaryButton>
         </div>
       </div>

@@ -10,6 +10,9 @@ import type {
   Page,
   PageNav,
   Product,
+  QuizNavItem,
+  ShopQuiz,
+  ShopQuizPublic,
   SitePublic,
   SiteSettings,
   TenantAdmin,
@@ -64,6 +67,9 @@ export const api = {
   getBlogPost: (slug: string, lang?: string) =>
     request<BlogPost>(`/api/blog-posts/${slug}?${langQ(lang)}`),
   getSite: () => request<SitePublic>("/api/site"),
+  getQuizzes: (lang?: string) => request<QuizNavItem[]>(`/api/quizzes?${langQ(lang)}`),
+  getQuiz: (slug: string, lang?: string) =>
+    request<ShopQuizPublic>(`/api/quizzes/${encodeURIComponent(slug)}?${langQ(lang)}`),
 };
 
 const adminToken = () => sessionStorage.getItem("inspo_admin_token") || "";
@@ -264,6 +270,22 @@ export const adminApi = {
     }),
   deletePage: (id: number) =>
     request(`/api/admin/pages/${id}`, { method: "DELETE", headers: adminHeaders() }),
+
+  getQuizzes: () => request<ShopQuiz[]>(`/api/admin/quizzes`, { headers: adminHeaders() }),
+  createQuiz: (body: unknown) =>
+    request<ShopQuiz>(`/api/admin/quizzes`, {
+      method: "POST",
+      headers: adminHeaders(),
+      body: JSON.stringify(body),
+    }),
+  updateQuiz: (id: number, body: unknown) =>
+    request<ShopQuiz>(`/api/admin/quizzes/${id}`, {
+      method: "PUT",
+      headers: adminHeaders(),
+      body: JSON.stringify(body),
+    }),
+  deleteQuiz: (id: number) =>
+    request(`/api/admin/quizzes/${id}`, { method: "DELETE", headers: adminHeaders() }),
 
   getBlogPosts: () => request<BlogPost[]>(`/api/admin/blog-posts`, { headers: adminHeaders() }),
   createBlogPost: (body: unknown) =>

@@ -14,6 +14,7 @@ import SiteTab from "./SiteTab";
 import UsersTab from "./UsersTab";
 import { getAdminProfile } from "../api";
 import NavTab from "./NavTab";
+import QuizzesTab from "./QuizzesTab";
 import TenantPicker from "./TenantPicker";
 import AdminShell, { AdminAuthFrame, type AdminTab } from "./AdminShell";
 import { useLanguage } from "../i18n";
@@ -159,6 +160,7 @@ export default function Admin() {
       {tab === "home" && <HomeTab />}
       {tab === "brand" && <BrandTab />}
       {tab === "pages" && <PagesTab />}
+      {tab === "quizzes" && <QuizzesTab />}
       {tab === "site" && <SiteTab />}
       {tab === "users" && isSuperAdmin && <UsersTab />}
       {tab === "categories" && <CategoriesTab />}

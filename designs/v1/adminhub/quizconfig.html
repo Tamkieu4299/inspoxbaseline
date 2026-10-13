@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Chivo:wght@700;800&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-high":"#e8e8e8","on-tertiary-fixed-variant":"#454747","on-secondary-fixed-variant":"#454747","on-primary-fixed-variant":"#474747","tertiary-fixed-dim":"#c6c6c6","error-container":"#ffdad6","on-primary-fixed":"#1b1b1b","inverse-on-surface":"#f0f1f1","surface-container-low":"#f3f3f4","background":"#f9f9f9","tertiary":"#000000","on-secondary-container":"#5f6161","on-tertiary-fixed":"#1a1c1c","on-tertiary":"#ffffff","secondary-fixed":"#e2e2e2","primary-fixed-dim":"#c6c6c6","inverse-primary":"#c6c6c6","tertiary-container":"#1a1c1c","on-secondary-fixed":"#1a1c1c","on-tertiary-container":"#838484","on-secondary":"#ffffff","on-error-container":"#93000a","on-surface-variant":"#4c4546","primary":"#000000","on-primary":"#ffffff","primary-container":"#1b1b1b","surface-dim":"#dadada","on-surface":"#1a1c1c","surface-container":"#eeeeee","surface-variant":"#e2e2e2","error":"#ba1a1a","surface-container-lowest":"#ffffff","tertiary-fixed":"#e2e2e2","surface-bright":"#f9f9f9","outline":"#7e7576","secondary":"#5d5f5f","on-background":"#1a1c1c","on-error":"#ffffff","secondary-container":"#dcdddd","outline-variant":"#cfc4c5","on-primary-container":"#848484","surface":"#f9f9f9","primary-fixed":"#e2e2e2","secondary-fixed-dim":"#c6c6c7","inverse-surface":"#2f3131","surface-container-highest":"#e2e2e2","surface-tint":"#5e5e5e"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{"stack-lg":"2rem","stack-sm":"0.5rem",gutter:"1.5rem","stack-xxl":"8rem","stack-xs":"0.25rem","margin-mobile":"1rem","stack-md":"1rem","margin-desktop":"5rem","stack-xl":"4rem"},fontFamily:{"headline-lg-mobile":["Chivo"],"body-md":["Hanken Grotesk"],"display-lg":["Chivo"],"label-caps":["Hanken Grotesk"],"display-lg-mobile":["Chivo"],"body-lg":["Hanken Grotesk"],"headline-md":["Chivo"],"headline-lg":["Chivo"]},fontSize:{"headline-lg-mobile":["32px",{lineHeight:"1.2",letterSpacing:"-0.01em",fontWeight:"700"}],"body-md":["16px",{lineHeight:"1.6",fontWeight:"400"}],"display-lg":["72px",{lineHeight:"1.1",letterSpacing:"-0.04em",fontWeight:"800"}],"label-caps":["12px",{lineHeight:"1.0",letterSpacing:"0.1em",fontWeight:"700"}],"display-lg-mobile":["48px",{lineHeight:"1.1",letterSpacing:"-0.02em",fontWeight:"800"}],"body-lg":["18px",{lineHeight:"1.6",fontWeight:"400"}],"headline-md":["24px",{lineHeight:"1.3",fontWeight:"700"}],"headline-lg":["40px",{lineHeight:"1.2",letterSpacing:"-0.02em",fontWeight:"700"}]}}}};</script></head><body class="bg-surface text-on-surface font-body-md antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest border-r border-surface-variant z-50 flex flex-col justify-between"><div class="flex flex-col flex-1"><div class="h-16 px-6 flex items-center justify-between border-b border-surface-variant"><div class="flex flex-col"><span class="font-headline-md text-primary tracking-tight font-bold text-lg leading-tight uppercase">APEX ATHLETIC</span><span class="font-label-caps text-on-surface-variant text-[10px] tracking-widest uppercase mt-0.5">Performance OS // Admin</span></div><span class="w-2 h-2 rounded-full bg-primary"></span></div><div class="px-6 py-4 border-b border-surface-variant"><div class="flex items-center justify-between text-xs font-label-caps text-on-surface-variant uppercase tracking-wider mb-1.5"><span>Division Context</span><span class="text-[10px] text-primary font-bold">PRO</span></div><div class="flex items-center justify-between px-3 py-2 bg-surface-container-low rounded border border-surface-variant"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-primary">sports_tennis</span><span class="font-label-caps text-xs text-on-surface uppercase">Pro Tennis</span></div><span class="material-symbols-outlined text-xs text-on-surface-variant">unfold_more</span></div></div><nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto" data-active-classes="bg-primary text-on-primary font-bold shadow-sm"><a class="flex items-center gap-3 px-3.5 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="overview" href="#"><span class="material-symbols-outlined text-base">dashboard</span><span class="font-label-caps text-xs uppercase">Overview</span></a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="catalog-and-products" href="#"><span class="material-symbols-outlined text-base">category</span><span class="font-label-caps text-xs uppercase">Catalog &amp; Products</span></a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="inventory-and-drops" href="#"><span class="material-symbols-outlined text-base">inventory_2</span><span class="font-label-caps text-xs uppercase">Inventory &amp; Drops</span></a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="media-and-assets" href="#"><span class="material-symbols-outlined text-base">perm_media</span><span class="font-label-caps text-xs uppercase">Media &amp; Assets</span></a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="the-club-journal" href="#"><span class="material-symbols-outlined text-base">article</span><span class="font-label-caps text-xs uppercase">The Club Journal</span></a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="homepage-and-studio" href="#"><span class="material-symbols-outlined text-base">layers</span><span class="font-label-caps text-xs uppercase">Homepage &amp; Studio</span></a><a aria-current="page" class="flex items-center gap-3 px-3.5 py-2.5 rounded transition-colors bg-primary text-on-primary font-bold shadow-sm" data-path="racquet-finder-studio" href="#"><span class="material-symbols-outlined text-base">tune</span><span class="font-label-caps text-xs uppercase">Racquet Finder Studio</span><span class="ml-auto w-1.5 h-1.5 rounded-full bg-primary"></span></a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="system-configuration" href="#"><span class="material-symbols-outlined text-base">settings</span><span class="font-label-caps text-xs uppercase">System Configuration</span></a></nav></div><div class="p-4 border-t border-surface-variant bg-surface-container-low"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col min-w-0 flex-1"><span class="font-label-caps text-xs text-on-surface truncate uppercase">HQ-AUTH-901</span><span class="text-[11px] text-on-surface-variant truncate font-mono">PRO TENNIS DIRECTOR</span></div><span class="material-symbols-outlined text-xs text-on-surface-variant">lock</span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md border-b border-surface-variant z-40 px-8 flex items-center justify-between gap-6"><div class="flex items-center gap-4 flex-1 max-w-xl"><div class="relative w-full"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-base">search</span><input class="w-full pl-9 pr-4 py-2 bg-surface-container-low border border-surface-variant rounded text-xs font-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-colors" placeholder="Search global SKU, product, drop ID, or article..." type="search"/></div></div><div class="flex items-center gap-6"><div class="flex items-center gap-2 border-r border-surface-variant pr-6"><button aria-label="Help &amp; Guides" class="w-9 h-9 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" type="button"><span class="material-symbols-outlined text-lg">help_outline</span></button><button aria-label="Notifications" class="relative w-9 h-9 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" type="button"><span class="material-symbols-outlined text-lg">notifications</span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary ring-2 ring-surface-container-lowest"></span></button></div><div class="flex items-center gap-3"><div class="text-right"><span class="block font-label-caps text-xs text-on-surface uppercase">ADMIN CONSOLE</span><span class="block font-mono text-[11px] text-on-surface-variant">HQ-AUTH-901</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><div class="fixed top-16 left-72 right-0 h-14 bg-surface-container-lowest border-b border-surface-variant z-30 px-8 flex items-center justify-between"><div class="flex items-center gap-3"><div class="flex items-center gap-2 font-label-caps text-xs text-on-surface-variant uppercase tracking-wider"><span class="text-on-surface-variant">HQ ADMIN SUITE</span><span class="material-symbols-outlined text-xs">chevron_right</span><span class="text-on-surface-variant">TENNIS LAB &amp; FIT ENGINES</span><span class="material-symbols-outlined text-xs">chevron_right</span><span class="text-on-surface font-bold">RACQUET FINDER STUDIO V1.0</span></div><div class="h-4 w-[1px] bg-surface-variant mx-2"></div><div class="flex items-center gap-2 text-xs font-label-caps text-on-surface-variant"><span class="w-2 h-2 rounded-full bg-[#004225]"></span><span class="tracking-wider uppercase text-[11px]">Draft Auto-Saved 12:44:02 GMT</span></div></div><div class="flex items-center gap-3"><button class="px-4 py-2 border border-primary text-primary hover:bg-surface-container-high transition-colors font-label-caps text-xs tracking-wider uppercase rounded" type="button">PREVIEW STOREFRONT FINDER</button><button class="px-5 py-2 bg-[#004225] hover:bg-[#00331d] text-white font-label-caps text-xs tracking-wider uppercase rounded font-bold shadow-sm flex items-center gap-2 transition-colors" type="button"><span class="material-symbols-outlined text-sm">rocket_launch</span><span>PUBLISH FINDER (XUẤT BẢN)</span></button></div></div><main class="relative pt-30 min-h-screen bg-surface px-8 pb-12"><div class="flex flex-col w-full">
+<!-- Top Viewport Control & Context -->
+<header class="mb-10">
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6">
+<div class="space-y-3 max-w-3xl">
+<div class="flex flex-wrap items-center gap-3">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-surface-container-high text-on-surface font-label-caps text-label-caps uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+            LIVE V1.2 · ACTIVE ON STOREFRONT
+          </span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest font-mono">
+            1,420 COMPLETIONS THIS WEEK
+          </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight uppercase">
+          RACQUET FINDER STUDIO · QUIZ &amp; SCORING LOGIC
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+          Configure player interview questionnaires, visual option cards, bilingual copy (EN/VI), and multi-dimensional attribute scoring matrices that map quiz answers directly to racquet catalogue SKUs.
+        </p>
+</div>
+<!-- Quick Action Buttons -->
+<div class="flex flex-wrap items-center gap-3">
+<button class="px-5 py-3 rounded bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps uppercase tracking-wider flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-base">tune</span>
+<span>WEIGHTS CONFIG</span>
+</button>
+<button class="px-5 py-3 rounded bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps uppercase tracking-wider flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-base">data_object</span>
+<span>EXPORT SCHEMA (JSON)</span>
+</button>
+<button class="px-6 py-3 rounded bg-primary text-on-primary hover:bg-surface-container-highest hover:text-on-surface transition-colors font-label-caps text-label-caps uppercase tracking-wider flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-base">add</span>
+<span>+ ADD QUESTION</span>
+</button>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex items-center gap-8 bg-surface-container-low px-6 py-2 rounded">
+<button class="py-3 font-label-caps text-label-caps text-primary uppercase font-bold relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary" type="button">
+        01. QUESTION STEPS &amp; INTERVIEW FLOW
+      </button>
+<button class="py-3 font-label-caps text-label-caps text-on-surface-variant uppercase hover:text-on-surface transition-colors" type="button">
+        02. SCORING ENGINE &amp; ATTRIBUTE WEIGHTS
+      </button>
+<button class="py-3 font-label-caps text-label-caps text-on-surface-variant uppercase hover:text-on-surface transition-colors" type="button">
+        03. SKU CATALOGUE MATCH MATRIX
+      </button>
+<button class="py-3 font-label-caps text-label-caps text-on-surface-variant uppercase hover:text-on-surface transition-colors" type="button">
+        04. ANALYTICS &amp; CONVERSION FUNNEL
+      </button>
+</nav>
+</header>
+<!-- 12-Column Main Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-8">
+<!-- LEFT & CENTER COLUMN (8 cols): Question Builder & Logic Flow -->
+<main class="col-span-12 xl:col-span-8 space-y-10">
+<!-- SECTION A: Recommended Multi-Dimensional Scoring Architecture Overview -->
+<section class="bg-surface-container-lowest p-8 rounded shadow-sm relative overflow-hidden">
+<div class="flex items-start justify-between gap-4 mb-6">
+<div>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wider mb-1">
+<span class="material-symbols-outlined text-base text-primary">hub</span>
+<span>SCORING MECHANISM ARCHITECTURE</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface tracking-tight uppercase">
+              Weighted Multi-Vector Scoring (0–100 Match %)
+            </h2>
+</div>
+<span class="px-3 py-1 bg-surface-container text-on-surface font-label-caps text-[11px] rounded uppercase font-mono">
+            V1.2 ENGINE CORE
+          </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">
+          Every questionnaire choice contributes deterministic vector weights across 5 physical and anatomical racquet dimensions. The match calculation applies non-linear penalties and veto guardrails against player injury parameters before rendering ranked SKUs.
+        </p>
+<!-- 5 Dimension Vector Cards -->
+<div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+<!-- Vector 1: Power -->
+<div class="bg-surface-container-low p-4 rounded flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-caps text-[11px] uppercase tracking-wider text-on-surface font-bold">01. POWER</span>
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+</div>
+<p class="font-label-caps text-[11px] text-on-surface-variant mb-3">Lực Đánh</p>
+<p class="font-body-md text-xs text-on-surface-variant leading-snug">
+                Stiff frames, larger head sizes (100–105 sq in), beam &gt; 24mm.
+              </p>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between font-mono text-[11px] text-on-surface-variant">
+<span>BASE WEIGHT</span>
+<span class="font-bold text-on-surface">20%</span>
+</div>
+</div>
+<!-- Vector 2: Control -->
+<div class="bg-surface-container-low p-4 rounded flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-caps text-[11px] uppercase tracking-wider text-on-surface font-bold">02. CONTROL</span>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<p class="font-label-caps text-[11px] text-on-surface-variant mb-3">Kiểm Soát</p>
+<p class="font-body-md text-xs text-on-surface-variant leading-snug">
+                Flexible frames (RA &lt; 64), dense stringing (18x20, 16x19), 97–98 sq in.
+              </p>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between font-mono text-[11px] text-on-surface-variant">
+<span>BASE WEIGHT</span>
+<span class="font-bold text-on-surface">20%</span>
+</div>
+</div>
+<!-- Vector 3: Arm Comfort -->
+<div class="bg-surface-container-low p-4 rounded flex flex-col justify-between ring-1 ring-primary/20">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-caps text-[11px] uppercase tracking-wider text-on-surface font-bold">03. COMFORT</span>
+<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+</div>
+<p class="font-label-caps text-[11px] text-on-surface-variant mb-3">Độ Êm &amp; Chống Đau</p>
+<p class="font-body-md text-xs text-on-surface-variant leading-snug">
+                RA &lt; 63, Auxetic weave &amp; foam-fill tech. Active elbow defense.
+              </p>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between font-mono text-[11px] text-on-surface-variant">
+<span>GUARDRAIL</span>
+<span class="font-bold text-on-surface">VETO 35%</span>
+</div>
+</div>
+<!-- Vector 4: Spin -->
+<div class="bg-surface-container-low p-4 rounded flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-caps text-[11px] uppercase tracking-wider text-on-surface font-bold">04. SPIN</span>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<p class="font-label-caps text-[11px] text-on-surface-variant mb-3">Độ Xoáy</p>
+<p class="font-body-md text-xs text-on-surface-variant leading-snug">
+                Open string patterns (16x19, 16x20), aerodynamic beam curves.
+              </p>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between font-mono text-[11px] text-on-surface-variant">
+<span>BASE WEIGHT</span>
+<span class="font-bold text-on-surface">15%</span>
+</div>
+</div>
+<!-- Vector 5: Maneuverability -->
+<div class="bg-surface-container-low p-4 rounded flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-caps text-[11px] uppercase tracking-wider text-on-surface font-bold">05. MANEUVER</span>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<p class="font-label-caps text-[11px] text-on-surface-variant mb-3">Tốc Độ Vung</p>
+<p class="font-body-md text-xs text-on-surface-variant leading-snug">
+                Unstrung weight 280–300g, 4–7 pts Head-Light static balance.
+              </p>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between font-mono text-[11px] text-on-surface-variant">
+<span>BASE WEIGHT</span>
+<span class="font-bold text-on-surface">10%</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION B: Interactive Question Builder (Active: Step 03 of 05) -->
+<section class="bg-surface-container-lowest p-8 rounded shadow-sm">
+<!-- Step Meta & Actions Bar -->
+<div class="flex flex-wrap items-center justify-between gap-4 pb-6 mb-8">
+<div class="flex items-center gap-3">
+<span class="px-3.5 py-1.5 rounded bg-primary text-on-primary font-label-caps text-label-caps tracking-widest uppercase">
+              STEP 03 / 05
+            </span>
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-wider">
+              TYPE: SINGLE CHOICE W/ ICON BADGES
+            </span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-mono text-xs uppercase">
+              ID: Q_ARM_COMFORT_03
+            </span>
+</div>
+<div class="flex items-center gap-3">
+<label class="flex items-center gap-2 cursor-pointer pr-4">
+<input checked="" class="w-4 h-4 accent-primary rounded cursor-pointer" type="checkbox"/>
+<span class="font-label-caps text-label-caps uppercase text-on-surface font-bold">REQUIRED</span>
+</label>
+<div class="flex items-center gap-1">
+<button aria-label="Move Step Up" class="w-8 h-8 rounded bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">arrow_upward</span>
+</button>
+<button aria-label="Move Step Down" class="w-8 h-8 rounded bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">arrow_downward</span>
+</button>
+<button aria-label="Delete Step" class="w-8 h-8 rounded bg-surface-container hover:bg-error hover:text-on-error flex items-center justify-center text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Dual-Language Question Title & Subtitle Configuration -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded bg-surface-container-low mb-8">
+<!-- English Configuration -->
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-on-surface font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">language</span>
+                ENGLISH COPY (PRIMARY)
+              </span>
+<span class="font-mono text-xs text-on-surface-variant">LOC: EN-US</span>
+</div>
+<div>
+<label class="block font-label-caps text-[11px] uppercase tracking-wider text-on-surface-variant mb-1">
+                QUESTION TITLE
+              </label>
+<input class="w-full bg-surface-container-lowest p-3 rounded font-body-md text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary" type="text" value="Do you experience any arm discomfort, wrist stiffness, or tennis elbow?"/>
+</div>
+<div>
+<label class="block font-label-caps text-[11px] uppercase tracking-wider text-on-surface-variant mb-1">
+                EXPLANATORY SUBTITLE
+              </label>
+<textarea class="w-full bg-surface-container-lowest p-3 rounded font-body-md text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary" rows="2">We use frame flex (RA index) and Auxetic dampening to eliminate harsh vibrations.</textarea>
+</div>
+</div>
+<!-- Vietnamese Configuration -->
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-on-surface font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">translate</span>
+                VIETNAMESE COPY (TIẾNG VIỆT)
+              </span>
+<span class="font-mono text-xs text-on-surface-variant">LOC: VI-VN</span>
+</div>
+<div>
+<label class="block font-label-caps text-[11px] uppercase tracking-wider text-on-surface-variant mb-1">
+                TIÊU ĐỀ CÂU HỎI
+              </label>
+<input class="w-full bg-surface-container-lowest p-3 rounded font-body-md text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary" type="text" value="Bạn có gặp vấn đề đau khuỷu tay (tennis elbow), mỏi cổ tay hoặc chấn thương khớp không?"/>
+</div>
+<div>
+<label class="block font-label-caps text-[11px] uppercase tracking-wider text-on-surface-variant mb-1">
+                MÔ TẢ KỸ THUẬT BỔ TRỢ
+              </label>
+<textarea class="w-full bg-surface-container-lowest p-3 rounded font-body-md text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary" rows="2">Hệ thống sẽ lọc các khung vợt có chỉ số uốn cong RA thấp và lớp đệm Auxetic êm ái.</textarea>
+</div>
+</div>
+</div>
+<!-- Section Header for Options -->
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-md text-sm text-on-surface uppercase tracking-wider font-bold">
+              CONFIGURED ANSWER OPTIONS (4 OF 4 TILES)
+            </h3>
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+</div>
+<span class="font-label-caps text-xs text-on-surface-variant uppercase">
+            CARDS EMIT VECTOR DELTAS DIRECTLY
+          </span>
+</div>
+<!-- Visual Answer Options Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+<!-- OPTION 1: Active Tennis Elbow -->
+<div class="p-5 rounded bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between group">
+<div>
+<div class="flex items-start justify-between gap-3 mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">healing</span>
+</div>
+<div>
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase font-mono">OPTION 01 · GUARDRAIL ACTIVE</span>
+<h4 class="font-headline-md text-base text-on-surface leading-tight">
+                      Active Tennis Elbow / Sensitive Arm
+                    </h4>
+<p class="font-body-md text-xs text-on-surface-variant">
+                      Đang bị viêm gân khuỷu / Cần êm tối đa
+                    </p>
+</div>
+</div>
+<button aria-label="Option Settings" class="text-on-surface-variant hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</div>
+<!-- Tagged Score Boosts -->
+<div class="flex flex-wrap gap-1.5 my-3">
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px] uppercase font-bold">
+                  COMFORT +35 PTS
+                </span>
+<span class="px-2.5 py-1 rounded bg-primary text-on-primary font-label-caps text-[10px] uppercase font-bold">
+                  RA TARGET &lt; 63
+                </span>
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px] uppercase">
+                  VIBRATION -40%
+                </span>
+</div>
+<!-- Matched Archetype -->
+<div class="bg-surface-container-lowest p-3 rounded my-2">
+<span class="font-label-caps text-[10px] uppercase tracking-wider text-on-surface-variant block mb-1">
+                  MATCHED RACQUET ARCHETYPES
+                </span>
+<p class="font-mono text-xs text-on-surface font-bold">
+                  Wilson Clash 100 V2 · Head Gravity MP · Apex Court-V1 Soft
+                </p>
+</div>
+</div>
+<!-- Card Actions -->
+<div class="flex items-center justify-between pt-3 font-label-caps text-xs">
+<button class="text-primary hover:underline uppercase font-bold flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-sm">tune</span> SCORE MATRIX EDIT
+              </button>
+<button class="text-on-surface-variant hover:text-on-surface uppercase flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-sm">add</span> ADD TAG
+              </button>
+</div>
+</div>
+<!-- OPTION 2: Occasional Fatigue -->
+<div class="p-5 rounded bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between group">
+<div>
+<div class="flex items-start justify-between gap-3 mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-surface-container-high text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">sports_gymnastics</span>
+</div>
+<div>
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase font-mono">OPTION 02</span>
+<h4 class="font-headline-md text-base text-on-surface leading-tight">
+                      Occasional Wrist / Shoulder Fatigue
+                    </h4>
+<p class="font-body-md text-xs text-on-surface-variant">
+                      Thỉnh thoảng mỏi cổ tay hoặc vai
+                    </p>
+</div>
+</div>
+<button aria-label="Option Settings" class="text-on-surface-variant hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</div>
+<!-- Tagged Score Boosts -->
+<div class="flex flex-wrap gap-1.5 my-3">
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px] uppercase font-bold">
+                  COMFORT +15 PTS
+                </span>
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px] uppercase font-bold">
+                  MANEUVER +15 PTS
+                </span>
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px] uppercase">
+                  WEIGHT 285–300G
+                </span>
+</div>
+<!-- Matched Archetype -->
+<div class="bg-surface-container-lowest p-3 rounded my-2">
+<span class="font-label-caps text-[10px] uppercase tracking-wider text-on-surface-variant block mb-1">
+                  MATCHED RACQUET ARCHETYPES
+                </span>
+<p class="font-mono text-xs text-on-surface font-bold">
+                  Head Speed MPL · Yonex Ezone 98L · Apex Aero-V1 Light
+                </p>
+</div>
+</div>
+<!-- Card Actions -->
+<div class="flex items-center justify-between pt-3 font-label-caps text-xs">
+<button class="text-primary hover:underline uppercase font-bold flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-sm">tune</span> SCORE MATRIX EDIT
+              </button>
+<button class="text-on-surface-variant hover:text-on-surface uppercase flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-sm">add</span> ADD TAG
+              </button>
+</div>
+</div>
+<!-- OPTION 3: No Pain / Control -->
+<div class="p-5 rounded bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between group">
+<div>
+<div class="flex items-start justify-between gap-3 mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-surface-container-high text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">gps_fixed</span>
+</div>
+<div>
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase font-mono">OPTION 03</span>
+<h4 class="font-headline-md text-base text-on-surface leading-tight">
+                      No Pain · Prioritize Maximum Control
+                    </h4>
+<p class="font-body-md text-xs text-on-surface-variant">
+                      Khỏe hoàn toàn · Cần cảm giác bóng &amp; chính xác
+                    </p>
+</div>
+</div>
+<button aria-label="Option Settings" class="text-on-surface-variant hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</div>
+<!-- Tagged Score Boosts -->
+<div class="flex flex-wrap gap-1.5 my-3">
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px] uppercase font-bold">
+                  CONTROL +30 PTS
+                </span>
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px] uppercase font-bold">
+                  PRECISION +25 PTS
+                </span>
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px] uppercase">
+                  RA 64–68 ALLOWED
+                </span>
+</div>
+<!-- Matched Archetype -->
+<div class="bg-surface-container-lowest p-3 rounded my-2">
+<span class="font-label-caps text-[10px] uppercase tracking-wider text-on-surface-variant block mb-1">
+                  MATCHED RACQUET ARCHETYPES
+                </span>
+<p class="font-mono text-xs text-on-surface font-bold">
+                  Wilson Pro Staff 97 · Head Prestige Pro · Apex Heritage Pro
+                </p>
+</div>
+</div>
+<!-- Card Actions -->
+<div class="flex items-center justify-between pt-3 font-label-caps text-xs">
+<button class="text-primary hover:underline uppercase font-bold flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-sm">tune</span> SCORE MATRIX EDIT
+              </button>
+<button class="text-on-surface-variant hover:text-on-surface uppercase flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-sm">add</span> ADD TAG
+              </button>
+</div>
+</div>
+<!-- OPTION 4: No Pain / Power -->
+<div class="p-5 rounded bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between group">
+<div>
+<div class="flex items-start justify-between gap-3 mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-surface-container-high text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">bolt</span>
+</div>
+<div>
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase font-mono">OPTION 04</span>
+<h4 class="font-headline-md text-base text-on-surface leading-tight">
+                      No Pain · Prioritize Explosive Power
+                    </h4>
+<p class="font-body-md text-xs text-on-surface-variant">
+                      Khỏe hoàn toàn · Cần lực đánh uy lực tối đa
+                    </p>
+</div>
+</div>
+<button aria-label="Option Settings" class="text-on-surface-variant hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</div>
+<!-- Tagged Score Boosts -->
+<div class="flex flex-wrap gap-1.5 my-3">
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px] uppercase font-bold">
+                  POWER +35 PTS
+                </span>
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px] uppercase font-bold">
+                  SWEETSPOT +20 PTS
+                </span>
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-caps text-[10px] uppercase">
+                  STIFF BEAM OK
+                </span>
+</div>
+<!-- Matched Archetype -->
+<div class="bg-surface-container-lowest p-3 rounded my-2">
+<span class="font-label-caps text-[10px] uppercase tracking-wider text-on-surface-variant block mb-1">
+                  MATCHED RACQUET ARCHETYPES
+                </span>
+<p class="font-mono text-xs text-on-surface font-bold">
+                  Babolat Pure Drive 2024 · Wilson Ultra 100 · Apex Tour Power
+                </p>
+</div>
+</div>
+<!-- Card Actions -->
+<div class="flex items-center justify-between pt-3 font-label-caps text-xs">
+<button class="text-primary hover:underline uppercase font-bold flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-sm">tune</span> SCORE MATRIX EDIT
+              </button>
+<button class="text-on-surface-variant hover:text-on-surface uppercase flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-sm">add</span> ADD TAG
+              </button>
+</div>
+</div>
+</div>
+<!-- Add Option Callout Button -->
+<button class="w-full py-4 rounded bg-surface-container-low hover:bg-surface-container-high transition-colors font-label-caps text-label-caps uppercase text-on-surface tracking-wider flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+<span>+ ADD ANSWER OPTION CARD</span>
+</button>
+</section>
+<!-- SECTION C: Question Sequence Timeline / Rail (Collapsed Steps) -->
+<section class="bg-surface-container-lowest p-8 rounded shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider block mb-1">
+              ORCHESTRATION PIPELINE
+            </span>
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">
+              FULL INTERVIEW SEQUENCE RAIL (5 STEPS)
+            </h3>
+</div>
+<button class="px-4 py-2 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-caps text-label-caps uppercase tracking-wider transition-colors" type="button">
+            REORDER STEPS
+          </button>
+</div>
+<div class="space-y-3">
+<!-- Step 01 -->
+<div class="p-4 rounded bg-surface-container-low flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<span class="font-mono text-xs font-bold text-on-surface-variant px-2 py-1 bg-surface-container rounded">01</span>
+<div>
+<h4 class="font-headline-md text-sm text-on-surface uppercase font-bold">
+                  Player Skill Level &amp; Experience
+                </h4>
+<p class="font-body-md text-xs text-on-surface-variant">
+                  Beginner (1.0–2.5) · Intermediate (3.0–4.0) · Advanced / Pro (4.5+)
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-2.5 py-1 rounded bg-surface-container-high font-mono text-[11px] text-on-surface uppercase">
+                4 OPTIONS
+              </span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-on-surface">expand_more</span>
+</div>
+</div>
+<!-- Step 02 -->
+<div class="p-4 rounded bg-surface-container-low flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<span class="font-mono text-xs font-bold text-on-surface-variant px-2 py-1 bg-surface-container rounded">02</span>
+<div>
+<h4 class="font-headline-md text-sm text-on-surface uppercase font-bold">
+                  Primary Playing Style &amp; Baseline Tendency
+                </h4>
+<p class="font-body-md text-xs text-on-surface-variant">
+                  Aggressive Baseliner · All-Court Craft · Counter-Puncher · Serve &amp; Volley
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-2.5 py-1 rounded bg-surface-container-high font-mono text-[11px] text-on-surface uppercase">
+                4 OPTIONS
+              </span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-on-surface">expand_more</span>
+</div>
+</div>
+<!-- Step 03 (Active Indicator) -->
+<div class="p-4 rounded bg-primary text-on-primary flex items-center justify-between">
+<div class="flex items-center gap-4">
+<span class="font-mono text-xs font-bold text-on-primary px-2 py-1 bg-surface-container-highest/20 rounded">03</span>
+<div>
+<div class="flex items-center gap-2">
+<h4 class="font-headline-md text-sm text-on-primary uppercase font-bold">
+                    Arm Comfort &amp; Physical Sensitivities
+                  </h4>
+<span class="px-2 py-0.5 rounded bg-surface-container-lowest text-primary font-label-caps text-[9px] uppercase font-bold">
+                    CURRENTLY EDITING
+                  </span>
+</div>
+<p class="font-body-md text-xs text-on-primary/80">
+                  Tennis elbow protection · RA stiffness filters · Auxetic vibration absorption
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-2.5 py-1 rounded bg-surface-container-highest/20 font-mono text-[11px] text-on-primary uppercase">
+                4 OPTIONS CONFIGURED
+              </span>
+<span class="material-symbols-outlined text-sm text-on-primary">check_circle</span>
+</div>
+</div>
+<!-- Step 04 -->
+<div class="p-4 rounded bg-surface-container-low flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<span class="font-mono text-xs font-bold text-on-surface-variant px-2 py-1 bg-surface-container rounded">04</span>
+<div>
+<h4 class="font-headline-md text-sm text-on-surface uppercase font-bold">
+                  Swing Speed &amp; Power Generation
+                </h4>
+<p class="font-body-md text-xs text-on-surface-variant">
+                  Fast &amp; Full Loose Swing · Moderate Compact Loop · Short Pushed Stroke
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-2.5 py-1 rounded bg-surface-container-high font-mono text-[11px] text-on-surface uppercase">
+                3 OPTIONS
+              </span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-on-surface">expand_more</span>
+</div>
+</div>
+<!-- Step 05 -->
+<div class="p-4 rounded bg-surface-container-low flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<span class="font-mono text-xs font-bold text-on-surface-variant px-2 py-1 bg-surface-container rounded">05</span>
+<div>
+<h4 class="font-headline-md text-sm text-on-surface uppercase font-bold">
+                  Desired Frame Weight &amp; Solid Feel
+                </h4>
+<p class="font-body-md text-xs text-on-surface-variant">
+                  Tour Heavy (310g+) · Standard Club (300g) · Lightweight Maneuver (280g)
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-2.5 py-1 rounded bg-surface-container-high font-mono text-[11px] text-on-surface uppercase">
+                3 OPTIONS
+              </span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-on-surface">expand_more</span>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-4 flex justify-end">
+<button class="px-5 py-2.5 rounded bg-surface-container-low hover:bg-surface-container-high text-on-surface transition-colors font-label-caps text-label-caps uppercase tracking-wider flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-sm">playlist_add</span>
+<span>+ INSERT STEP / QUESTION</span>
+</button>
+</div>
+</section>
+</main>
+<!-- RIGHT OPERATIONAL & SIMULATION RAIL (4 cols) -->
+<aside class="col-span-12 xl:col-span-4 space-y-8">
+<!-- WIDGET 1: Live Racquet Match Simulator -->
+<section class="bg-surface-container-lowest p-6 rounded shadow-sm">
+<div class="flex items-center justify-between pb-4 mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">science</span>
+<h3 class="font-headline-md text-xs text-on-surface uppercase tracking-wider font-bold">
+              LIVE QUIZ MATCH SIMULATOR
+            </h3>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-mono text-[10px] uppercase">
+            LIVE ENGINE
+          </span>
+</div>
+<!-- Test Scenario Context Card -->
+<div class="bg-surface-container-low p-4 rounded mb-5 space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant tracking-wider">
+              ACTIVE TEST PROFILE:
+            </span>
+<button class="font-mono text-[11px] text-primary hover:underline uppercase font-bold" type="button">
+              RESET PARAMS
+            </button>
+</div>
+<p class="font-mono text-xs text-on-surface font-bold leading-relaxed">
+            Intermediate + Aggressive + Sensitive Arm + Moderate Swing
+          </p>
+<div class="pt-2 flex items-center gap-2 text-[11px] text-on-surface-variant font-mono">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>Calculated over 38 SKUs in database</span>
+</div>
+</div>
+<!-- Real-Time Top Matches -->
+<div class="space-y-3">
+<!-- Match 1 (Top Rank) -->
+<div class="bg-surface-container-low p-4 rounded group hover:bg-surface-container transition-colors">
+<div class="flex items-start justify-between gap-2 mb-2">
+<div>
+<span class="px-2 py-0.5 rounded bg-primary text-on-primary font-mono text-[10px] font-bold uppercase tracking-wider">
+                  #1 BEST FIT · 98% MATCH
+                </span>
+<h4 class="font-headline-md text-sm text-on-surface uppercase font-bold mt-1.5">
+                  APEX HERITAGE PRO RACQUET
+                </h4>
+</div>
+<span class="font-mono text-xs font-bold text-primary">SKU-APX-880</span>
+</div>
+<!-- Specs Grid -->
+<div class="grid grid-cols-4 gap-1.5 py-2 font-mono text-[11px] text-on-surface-variant">
+<div class="bg-surface-container-lowest p-1.5 rounded text-center">
+<span class="block text-[9px] text-on-surface-variant uppercase">HEAD</span>
+<span class="text-on-surface font-bold">98 sq in</span>
+</div>
+<div class="bg-surface-container-lowest p-1.5 rounded text-center">
+<span class="block text-[9px] text-on-surface-variant uppercase">WEIGHT</span>
+<span class="text-on-surface font-bold">300g</span>
+</div>
+<div class="bg-surface-container-lowest p-1.5 rounded text-center">
+<span class="block text-[9px] text-on-surface-variant uppercase">STIFF</span>
+<span class="text-primary font-bold">RA 60</span>
+</div>
+<div class="bg-surface-container-lowest p-1.5 rounded text-center">
+<span class="block text-[9px] text-on-surface-variant uppercase">TECH</span>
+<span class="text-on-surface font-bold">Auxetic</span>
+</div>
+</div>
+<p class="font-body-md text-xs text-on-surface-variant mt-2 leading-relaxed">
+              Passed comfort veto: Low RA stiffness eliminates shockwave impact at wrist articulation.
+            </p>
+</div>
+<!-- Match 2 -->
+<div class="bg-surface-container-low p-4 rounded group hover:bg-surface-container transition-colors">
+<div class="flex items-start justify-between gap-2 mb-2">
+<div>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-mono text-[10px] font-bold uppercase tracking-wider">
+                  #2 FIT · 94% MATCH
+                </span>
+<h4 class="font-headline-md text-sm text-on-surface uppercase font-bold mt-1.5">
+                  HEAD SPEED MPL CUSTOM
+                </h4>
+</div>
+<span class="font-mono text-xs text-on-surface-variant">SKU-HED-302</span>
+</div>
+<div class="grid grid-cols-3 gap-1.5 py-1.5 font-mono text-[11px] text-on-surface-variant">
+<div class="bg-surface-container-lowest p-1.5 rounded text-center">
+<span class="block text-[9px] text-on-surface-variant uppercase">WEIGHT</span>
+<span class="text-on-surface font-bold">280g</span>
+</div>
+<div class="bg-surface-container-lowest p-1.5 rounded text-center">
+<span class="block text-[9px] text-on-surface-variant uppercase">STIFFNESS</span>
+<span class="text-primary font-bold">RA 62</span>
+</div>
+<div class="bg-surface-container-lowest p-1.5 rounded text-center">
+<span class="block text-[9px] text-on-surface-variant uppercase">BALANCE</span>
+<span class="text-on-surface font-bold">330mm</span>
+</div>
+</div>
+</div>
+<!-- Match 3 -->
+<div class="bg-surface-container-low p-4 rounded group hover:bg-surface-container transition-colors">
+<div class="flex items-start justify-between gap-2 mb-1">
+<div>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-mono text-[10px] font-bold uppercase tracking-wider">
+                  #3 FIT · 89% MATCH
+                </span>
+<h4 class="font-headline-md text-sm text-on-surface uppercase font-bold mt-1.5">
+                  APEX COURT-V1 PRIME
+                </h4>
+</div>
+<span class="font-mono text-xs text-on-surface-variant">SKU-APX-771</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-4 py-2.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors font-label-caps text-xs uppercase tracking-wider font-bold" type="button">
+          OPEN FULL 38-SKU SIMULATION LOG
+        </button>
+</section>
+<!-- WIDGET 2: Algorithm Weight & Guardrail Sliders -->
+<section class="bg-surface-container-lowest p-6 rounded shadow-sm">
+<div class="flex items-center justify-between pb-4 mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">tune</span>
+<h3 class="font-headline-md text-xs text-on-surface uppercase tracking-wider font-bold">
+              WEIGHT CALIBRATION SLIDERS
+            </h3>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-base cursor-pointer">lock_reset</span>
+</div>
+<div class="space-y-5">
+<!-- Slider 1 -->
+<div>
+<div class="flex justify-between items-center mb-1.5">
+<span class="font-label-caps text-xs uppercase text-on-surface font-bold">
+                PLAYER SKILL WEIGHTING
+              </span>
+<span class="font-mono text-xs font-bold text-on-surface">25%</span>
+</div>
+<input class="w-full accent-primary bg-surface-container h-1 rounded appearance-none cursor-pointer" max="100" min="0" type="range" value="25"/>
+<span class="font-mono text-[10px] text-on-surface-variant block mt-1">Filters high swingweight frames for beginners</span>
+</div>
+<!-- Slider 2: Guardrail Active -->
+<div class="p-3 rounded bg-surface-container-low">
+<div class="flex justify-between items-center mb-1.5">
+<span class="font-label-caps text-xs uppercase text-on-surface font-bold flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                ARM COMFORT GUARDRAIL
+              </span>
+<span class="font-mono text-xs font-bold text-on-surface">35%</span>
+</div>
+<input class="w-full accent-primary bg-surface-container-high h-1.5 rounded appearance-none cursor-pointer" max="100" min="0" type="range" value="35"/>
+<div class="mt-2 text-[10px] font-mono text-on-surface bg-surface-container p-2 rounded">
+<span class="font-bold">HARD VETO ACTIVE:</span> Will never suggest RA &gt; 67 for players indicating sensitive arm/elbow.
+            </div>
+</div>
+<!-- Slider 3 -->
+<div>
+<div class="flex justify-between items-center mb-1.5">
+<span class="font-label-caps text-xs uppercase text-on-surface font-bold">
+                SWINGWEIGHT CALIBRATION
+              </span>
+<span class="font-mono text-xs font-bold text-on-surface">20%</span>
+</div>
+<input class="w-full accent-primary bg-surface-container h-1 rounded appearance-none cursor-pointer" max="100" min="0" type="range" value="20"/>
+<span class="font-mono text-[10px] text-on-surface-variant block mt-1">Calibrates inertia against player swing speed</span>
+</div>
+<!-- Slider 4 -->
+<div>
+<div class="flex justify-between items-center mb-1.5">
+<span class="font-label-caps text-xs uppercase text-on-surface font-bold">
+                SPIN VECTOR MULTIPLIER
+              </span>
+<span class="font-mono text-xs font-bold text-on-surface">20%</span>
+</div>
+<input class="w-full accent-primary bg-surface-container h-1 rounded appearance-none cursor-pointer" max="100" min="0" type="range" value="20"/>
+<span class="font-mono text-[10px] text-on-surface-variant block mt-1">Correlates baseline spin stroke with open 16x19 pattern</span>
+</div>
+</div>
+<button class="w-full mt-6 py-2.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors font-label-caps text-xs uppercase tracking-wider font-bold" type="button">
+          APPLY CALIBRATION COEFFICIENTS
+        </button>
+</section>
+<!-- WIDGET 3: CDN Staging & Publish Status -->
+<section class="bg-surface-container-lowest p-6 rounded shadow-sm">
+<div class="flex items-center justify-between pb-3 mb-3">
+<span class="font-label-caps text-xs uppercase tracking-wider text-on-surface font-bold">
+            STOREFRONT CDN DEPLOYMENT
+          </span>
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+</div>
+<div class="space-y-3 font-mono text-xs">
+<div class="flex items-center justify-between py-1.5">
+<span class="text-on-surface-variant">STOREFRONT ROUTE</span>
+<span class="font-bold text-on-surface">/racquet-finder</span>
+</div>
+<div class="flex items-center justify-between py-1.5">
+<span class="text-on-surface-variant">EDGE CDN NODE</span>
+<span class="text-on-surface">SIN-01 (Singapore)</span>
+</div>
+<div class="flex items-center justify-between py-1.5">
+<span class="text-on-surface-variant">EDGE LATENCY</span>
+<span class="text-on-surface font-bold">12ms TTFB</span>
+</div>
+<div class="flex items-center justify-between py-1.5">
+<span class="text-on-surface-variant">CACHE STATUS</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-bold uppercase text-[10px]">
+              WARM · TTL 86400s
+            </span>
+</div>
+</div>
+<div class="mt-5 pt-4">
+<button class="w-full py-3 bg-surface-container hover:bg-surface-container-high text-on-surface rounded font-label-caps text-xs uppercase tracking-wider transition-colors font-bold flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-sm">cached</span>
+<span>PURGE CDN CACHE ON PUBLISH</span>
+</button>
+</div>
+</section>
+</aside>
+</div>
+</div></main></div></body></html>
