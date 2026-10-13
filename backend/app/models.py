@@ -339,6 +339,7 @@ class ShopQuiz(Base, TimestampMixin):
     hero_kicker_vi: Mapped[str | None] = mapped_column(String(200), nullable=True)
     hero_badges: Mapped[list] = mapped_column(JSON, default=list)
     faq: Mapped[list] = mapped_column(JSON, default=list)
+    dimensions: Mapped[list] = mapped_column(JSON, default=list)
     dimension_weights: Mapped[dict] = mapped_column(JSON, default=dict)
     steps: Mapped[list] = mapped_column(JSON, default=list)
     product_filter: Mapped[dict] = mapped_column(JSON, default=dict)

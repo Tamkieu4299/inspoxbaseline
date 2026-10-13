@@ -406,6 +406,7 @@ class ShopQuizBase(BaseModel):
     hero_kicker_vi: str | None = None
     hero_badges: list[Any] = Field(default_factory=list)
     faq: list[Any] = Field(default_factory=list)
+    dimensions: list[Any] = Field(default_factory=list)
     dimension_weights: dict[str, Any] = Field(default_factory=dict)
     steps: list[Any] = Field(default_factory=list)
     product_filter: dict[str, Any] = Field(default_factory=dict)

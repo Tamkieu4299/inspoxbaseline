@@ -8,6 +8,14 @@ DEFAULT_DIMENSION_WEIGHTS = {
     "maneuver": 0.2,
 }
 
+DEFAULT_DIMENSIONS = [
+    {"id": "power", "label": "Power", "label_vi": "Lực", "default_weight": 0.2},
+    {"id": "control", "label": "Control", "label_vi": "Kiểm soát", "default_weight": 0.2},
+    {"id": "comfort", "label": "Comfort", "label_vi": "Êm tay", "default_weight": 0.2},
+    {"id": "spin", "label": "Spin", "label_vi": "Spin", "default_weight": 0.2},
+    {"id": "maneuver", "label": "Maneuver", "label_vi": "Linh hoạt", "default_weight": 0.2},
+]
+
 DEFAULT_RACQUET_FINDER = {
     "slug": "racquet-finder",
     "title": "Find your bespoke racquet",
@@ -33,6 +41,7 @@ DEFAULT_RACQUET_FINDER = {
             "a_vi": "RA thấp thường êm tay hơn. Khi bạn báo đau khuỷu, hệ thống lọc các khung quá cứng.",
         },
     ],
+    "dimensions": DEFAULT_DIMENSIONS,
     "dimension_weights": DEFAULT_DIMENSION_WEIGHTS,
     "product_filter": {"category_slugs": [], "require_finder_profile": True},
     "steps": [

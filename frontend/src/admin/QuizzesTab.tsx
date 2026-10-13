@@ -6,15 +6,20 @@ import { useLanguage } from "../i18n";
 import type { Media, Product, QuizStep, ShopQuiz } from "../types";
 import { ImageField } from "./MediaLibrary";
 import {
+  mergeDimensionWeights,
+  resolveQuizDimensions,
+  slugifyDimensionId,
+  type QuizDimensionDef,
+} from "../quiz/dimensions";
+import {
   applyOptions,
   emptyProfile,
   mergeGuardrails,
-  QUIZ_DIMENSIONS,
   rankProducts,
   type MatchProduct,
   type QuizOptionDef,
 } from "../quiz/score";
-import { blankQuiz, racquetFinderTemplate } from "../quiz/template";
+import { blankQuiz, racquetFinderTemplate, tennisWarehouseReviewTemplate } from "../quiz/template";
 import Icon from "../components/Icon";
 import { Checkbox, DangerButton, Field, PrimaryButton, SecondaryButton, TextArea, TextInput } from "./ui";
 
@@ -47,7 +52,11 @@ function quizPayload(d: Partial<ShopQuiz>): unknown {
     hero_kicker_vi: d.hero_kicker_vi || null,
     hero_badges: d.hero_badges || [],
     faq: d.faq || [],
-    dimension_weights: d.dimension_weights || {},
+    dimensions: d.dimensions?.length ? d.dimensions : resolveQuizDimensions(d as ShopQuiz),
+    dimension_weights: mergeDimensionWeights(
+      resolveQuizDimensions(d as ShopQuiz),
+      d.dimension_weights || {}
+    ),
     steps: d.steps || [],
     product_filter: d.product_filter || { category_slugs: [], require_finder_profile: true },
   };
@@ -111,6 +120,12 @@ export default function QuizzesTab() {
     return productPool(products, draft.product_filter || {}, categories || []);
   }, [draft, products, categories]);
 
+  const dimensionDefs = useMemo(
+    () => (draft ? resolveQuizDimensions(draft as ShopQuiz) : []),
+    [draft?.dimensions, draft?.dimension_weights]
+  );
+  const dimensionIds = useMemo(() => dimensionDefs.map((d) => d.id), [dimensionDefs]);
+
   const simRanked = useMemo(() => {
     if (!draft?.steps) return [];
     const opts: QuizOptionDef[] = [];
@@ -119,8 +134,8 @@ export default function QuizzesTab() {
       const o = step.options.find((x) => x.id === id);
       if (o) opts.push(o as QuizOptionDef);
     }
-    let profile = emptyProfile();
-    profile = applyOptions(profile, opts);
+    let profile = emptyProfile(dimensionIds);
+    profile = applyOptions(profile, opts, dimensionIds);
     const guardrails = mergeGuardrails(opts);
     const matchProducts: MatchProduct[] = pool.map((p) => ({
       slug: p.slug,
@@ -129,8 +144,8 @@ export default function QuizzesTab() {
       image_url: p.images?.find((i) => i.enabled !== false)?.url || p.images?.[0]?.url,
       finder_profile: p.finder_profile,
     }));
-    return rankProducts(profile, matchProducts, draft.dimension_weights, guardrails).slice(0, 5);
-  }, [draft, simAnswers, pool]);
+    return rankProducts(profile, matchProducts, draft.dimension_weights, guardrails, dimensionIds).slice(0, 5);
+  }, [draft, simAnswers, pool, dimensionIds]);
 
   if (isLoading) {
     return <p className="font-body text-body-md text-secondary">{t("admin.loading")}</p>;
@@ -175,13 +190,21 @@ export default function QuizzesTab() {
           </div>
         </div>
         <SecondaryButton onClick={() => setDraft(racquetFinderTemplate())}>{t("admin.quizzes.fromTemplate")}</SecondaryButton>
+        <SecondaryButton onClick={() => setDraft(tennisWarehouseReviewTemplate())}>
+          {t("admin.quizzes.fromTwTemplate")}
+        </SecondaryButton>
         <ul className="flex flex-col gap-1 max-h-[480px] overflow-y-auto">
           {(quizzes || []).map((q) => (
             <button
               key={q.id}
               type="button"
               onClick={() => {
-                setDraft({ ...q });
+                const defs = resolveQuizDimensions(q);
+                setDraft({
+                  ...q,
+                  dimensions: q.dimensions?.length ? q.dimensions : defs,
+                  dimension_weights: mergeDimensionWeights(defs, q.dimension_weights),
+                });
                 setSimAnswers({});
               }}
               className={`text-left px-3 py-2 border font-body text-body-md ${
@@ -311,6 +334,7 @@ export default function QuizzesTab() {
                 <StepEditor
                   key={step.id}
                   step={step}
+                  dimensionDefs={dimensionDefs}
                   mediaById={mediaById}
                   onChange={(next) => {
                     const steps = [...(draft.steps || [])];
@@ -331,21 +355,36 @@ export default function QuizzesTab() {
               ))}
             </div>
 
+            <DimensionEditor
+              defs={dimensionDefs}
+              onChange={(nextDefs) => {
+                setDraft((d) => {
+                  const base = { ...(d || blankQuiz()) };
+                  return {
+                    ...base,
+                    dimensions: nextDefs,
+                    dimension_weights: mergeDimensionWeights(nextDefs, base.dimension_weights),
+                  };
+                });
+              }}
+            />
+
             <Field label={t("admin.quizzes.weights")}>
-              <div className="grid grid-cols-5 gap-2">
-                {QUIZ_DIMENSIONS.map((d) => (
-                  <label key={d} className="flex flex-col gap-1 font-label text-[10px] uppercase">
-                    {d}
+              <p className="text-xs text-secondary mb-2">{t("admin.quizzes.weightsHint")}</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                {dimensionDefs.map((d) => (
+                  <label key={d.id} className="flex flex-col gap-1 font-label text-[10px] uppercase">
+                    {d.label}
                     <TextInput
                       type="number"
                       step="0.05"
                       min="0"
                       max="1"
-                      value={String(draft.dimension_weights?.[d] ?? 0.2)}
+                      value={String(draft.dimension_weights?.[d.id] ?? d.default_weight ?? 0.2)}
                       onChange={(e) =>
                         set("dimension_weights", {
                           ...draft.dimension_weights,
-                          [d]: Number(e.target.value),
+                          [d.id]: Number(e.target.value),
                         })
                       }
                     />
@@ -489,8 +528,82 @@ function QuizMatchingHelpModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+function DimensionEditor({
+  defs,
+  onChange,
+}: {
+  defs: QuizDimensionDef[];
+  onChange: (next: QuizDimensionDef[]) => void;
+}) {
+  const { t } = useLanguage();
+  const [newLabel, setNewLabel] = useState("");
+
+  function updateRow(i: number, patch: Partial<QuizDimensionDef>) {
+    onChange(defs.map((d, j) => (j === i ? { ...d, ...patch } : d)));
+  }
+
+  return (
+    <div className="border border-surface-container-highest p-4 bg-surface-container-lowest">
+      <h4 className="font-headline text-headline-md uppercase text-primary mb-1">{t("admin.quizzes.dimensions")}</h4>
+      <p className="font-body text-body-sm text-secondary mb-3">{t("admin.quizzes.dimensionsHint")}</p>
+      <div className="flex flex-col gap-2 mb-3">
+        {defs.map((d, i) => (
+          <div key={d.id + i} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-end">
+            <div className="md:col-span-3">
+              <span className="font-label text-[10px] uppercase text-secondary">{t("admin.quizzes.dimId")}</span>
+              <TextInput value={d.id} readOnly className="font-mono text-xs bg-surface-container-low" />
+            </div>
+            <div className="md:col-span-4">
+              <span className="font-label text-[10px] uppercase text-secondary">{t("admin.quizzes.dimLabel")}</span>
+              <TextInput value={d.label} onChange={(e) => updateRow(i, { label: e.target.value })} />
+            </div>
+            <div className="md:col-span-4">
+              <span className="font-label text-[10px] uppercase text-secondary">{t("admin.quizzes.dimLabelVi")}</span>
+              <TextInput
+                value={d.label_vi || ""}
+                onChange={(e) => updateRow(i, { label_vi: e.target.value })}
+              />
+            </div>
+            <div className="md:col-span-1">
+              <DangerButton
+                type="button"
+                onClick={() => onChange(defs.filter((_, j) => j !== i))}
+                disabled={defs.length <= 1}
+              >
+                ×
+              </DangerButton>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <TextInput
+          value={newLabel}
+          placeholder={t("admin.quizzes.dimNewPlaceholder")}
+          onChange={(e) => setNewLabel(e.target.value)}
+          className="flex-1"
+        />
+        <SecondaryButton
+          type="button"
+          onClick={() => {
+            const label = newLabel.trim();
+            if (!label) return;
+            const id = slugifyDimensionId(label);
+            if (!id || defs.some((d) => d.id === id)) return;
+            onChange([...defs, { id, label, default_weight: 1 / (defs.length + 1) }]);
+            setNewLabel("");
+          }}
+        >
+          {t("admin.quizzes.dimAdd")}
+        </SecondaryButton>
+      </div>
+    </div>
+  );
+}
+
 function StepEditor({
   step,
+  dimensionDefs,
   mediaById,
   onChange,
   onRemove,
@@ -499,6 +612,7 @@ function StepEditor({
   canMoveDown,
 }: {
   step: QuizStep;
+  dimensionDefs: QuizDimensionDef[];
   mediaById: Map<number, Media>;
   onChange: (s: QuizStep) => void;
   onRemove: () => void;
@@ -550,38 +664,84 @@ function StepEditor({
         />
       </Field>
       {step.options.map((opt, oi) => (
-        <div key={opt.id} className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2 pl-2 border-l-2 border-primary/30">
-          <TextInput
-            value={opt.title}
-            placeholder="Option EN"
-            onChange={(e) => {
-              const options = [...step.options];
-              options[oi] = { ...opt, title: e.target.value };
-              onChange({ ...step, options });
-            }}
-          />
-          <TextInput
-            value={opt.title_vi || ""}
-            placeholder="Option VI"
-            onChange={(e) => {
-              const options = [...step.options];
-              options[oi] = { ...opt, title_vi: e.target.value };
-              onChange({ ...step, options });
-            }}
-          />
-          <TextInput
-            value={String(opt.deltas?.comfort ?? "")}
-            placeholder="comfort +35"
-            onChange={(e) => {
-              const n = Number(e.target.value);
-              const options = [...step.options];
-              options[oi] = {
-                ...opt,
-                deltas: { ...opt.deltas, comfort: Number.isFinite(n) ? n : undefined },
-              };
-              onChange({ ...step, options });
-            }}
-          />
+        <div key={opt.id} className="mb-3 pl-2 border-l-2 border-primary/30 space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <TextInput
+              value={opt.title}
+              placeholder="Option EN"
+              onChange={(e) => {
+                const options = [...step.options];
+                options[oi] = { ...opt, title: e.target.value };
+                onChange({ ...step, options });
+              }}
+            />
+            <TextInput
+              value={opt.title_vi || ""}
+              placeholder="Option VI"
+              onChange={(e) => {
+                const options = [...step.options];
+                options[oi] = { ...opt, title_vi: e.target.value };
+                onChange({ ...step, options });
+              }}
+            />
+          </div>
+          <p className="font-label text-[10px] uppercase text-secondary">{t("admin.quizzes.optionDeltas")}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            {dimensionDefs.map((dim) => (
+              <label key={dim.id} className="flex flex-col gap-0.5 font-label text-[10px]">
+                {dim.label}
+                <TextInput
+                  type="number"
+                  placeholder="0"
+                  value={opt.deltas?.[dim.id] != null ? String(opt.deltas[dim.id]) : ""}
+                  onChange={(e) => {
+                    const n = e.target.value === "" ? undefined : Number(e.target.value);
+                    const options = [...step.options];
+                    options[oi] = {
+                      ...opt,
+                      deltas: { ...opt.deltas, [dim.id]: Number.isFinite(n as number) ? n : undefined },
+                    };
+                    onChange({ ...step, options });
+                  }}
+                />
+              </label>
+            ))}
+          </div>
+          <p className="font-label text-[10px] uppercase text-secondary">{t("admin.quizzes.optionFilters")}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {(
+              [
+                ["max_ra", t("admin.quizzes.filterMaxRa")],
+                ["min_ra", t("admin.quizzes.filterMinRa")],
+                ["max_weight_g", t("admin.quizzes.filterMaxWeight")],
+                ["min_weight_g", t("admin.quizzes.filterMinWeight")],
+                ["max_swing_weight", t("admin.quizzes.filterMaxSwing")],
+                ["min_swing_weight", t("admin.quizzes.filterMinSwing")],
+              ] as const
+            ).map(([key, label]) => (
+              <label key={key} className="flex flex-col gap-0.5 font-label text-[10px]">
+                {label}
+                <TextInput
+                  type="number"
+                  value={
+                    opt.guardrails?.[key] != null ? String(opt.guardrails[key]) : ""
+                  }
+                  onChange={(e) => {
+                    const n = e.target.value === "" ? undefined : Number(e.target.value);
+                    const options = [...step.options];
+                    options[oi] = {
+                      ...opt,
+                      guardrails: {
+                        ...opt.guardrails,
+                        [key]: Number.isFinite(n as number) ? n : undefined,
+                      },
+                    };
+                    onChange({ ...step, options });
+                  }}
+                />
+              </label>
+            ))}
+          </div>
         </div>
       ))}
       <SecondaryButton

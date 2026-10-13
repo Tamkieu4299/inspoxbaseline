@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { QueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { adminApi } from "../api";
 import type { Category, CollectionSummary } from "../types";
 import ProductGallery from "../components/ProductGallery";
 import {
@@ -19,7 +21,7 @@ import { useLanguage } from "../i18n";
 import { formatMoney } from "../money";
 import { PRODUCT_BADGES, type ProductDraft } from "./productDraft";
 import { getProductVariantOptions, variantStorefrontSummaryKey } from "../productDisplay";
-import { QUIZ_DIMENSIONS } from "../quiz/score";
+import { collectDimensionsFromQuizzes, legacyDimensionDefs } from "../quiz/dimensions";
 import { StudioModule, StudioToggle, studioInputClass } from "./studioUi";
 
 export type ProductStudioTab = "general" | "media" | "story" | "variants";
@@ -161,6 +163,11 @@ export function ProductEditorForm({
   studioTab?: ProductStudioTab;
 }) {
   const { t, lang } = useLanguage();
+  const { data: shopQuizzes } = useQuery({ queryKey: ["admin-quizzes"], queryFn: adminApi.getQuizzes });
+  const quizDimensions = useMemo(() => {
+    const fromQuizzes = shopQuizzes?.length ? collectDimensionsFromQuizzes(shopQuizzes) : [];
+    return fromQuizzes.length ? fromQuizzes : legacyDimensionDefs();
+  }, [shopQuizzes]);
   const currency = "VND";
   const locale = "vi-VN";
   const storefrontVariants = useMemo(
@@ -308,27 +315,28 @@ export function ProductEditorForm({
                   })
                 }
               />
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-3">
-                {QUIZ_DIMENSIONS.map((dim) => (
-                  <Field key={dim} label={dim}>
+              <p className="font-body text-body-sm text-secondary mb-2">{t("admin.productFinderScoresHint")}</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 mt-2">
+                {quizDimensions.map((dim) => (
+                  <Field key={dim.id} label={lang === "vi" && dim.label_vi ? dim.label_vi : dim.label}>
                     <TextInput
                       type="number"
                       min={0}
                       max={100}
-                      value={String(draft.finder_profile?.vectors?.[dim] ?? "")}
+                      value={String(draft.finder_profile?.vectors?.[dim.id] ?? "")}
                       onChange={(e) => {
                         const n = e.target.value === "" ? undefined : Number(e.target.value);
                         set("finder_profile", {
                           ...draft.finder_profile,
-                          vectors: { ...draft.finder_profile.vectors, [dim]: n },
+                          vectors: { ...draft.finder_profile.vectors, [dim.id]: n },
                         });
                       }}
                     />
                   </Field>
                 ))}
               </div>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                <Field label="RA">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+                <Field label={t("admin.productSpecRa")}>
                   <TextInput
                     type="number"
                     value={String(draft.finder_profile?.specs?.ra ?? "")}
@@ -343,7 +351,7 @@ export function ProductEditorForm({
                     }
                   />
                 </Field>
-                <Field label="Weight (g)">
+                <Field label={t("admin.productSpecWeight")}>
                   <TextInput
                     type="number"
                     value={String(draft.finder_profile?.specs?.weight_g ?? "")}
@@ -353,6 +361,21 @@ export function ProductEditorForm({
                         specs: {
                           ...draft.finder_profile.specs,
                           weight_g: e.target.value === "" ? undefined : Number(e.target.value),
+                        },
+                      })
+                    }
+                  />
+                </Field>
+                <Field label={t("admin.productSpecSwing")}>
+                  <TextInput
+                    type="number"
+                    value={String(draft.finder_profile?.specs?.swing_weight ?? "")}
+                    onChange={(e) =>
+                      set("finder_profile", {
+                        ...draft.finder_profile,
+                        specs: {
+                          ...draft.finder_profile.specs,
+                          swing_weight: e.target.value === "" ? undefined : Number(e.target.value),
                         },
                       })
                     }

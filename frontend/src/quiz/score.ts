@@ -1,18 +1,20 @@
-export const QUIZ_DIMENSIONS = ["power", "control", "comfort", "spin", "maneuver"] as const;
-export type QuizDimension = (typeof QUIZ_DIMENSIONS)[number];
-export type VectorProfile = Record<QuizDimension, number>;
+import { LEGACY_QUIZ_DIMENSIONS, type QuizDimensionDef } from "./dimensions";
+
+export type VectorProfile = Record<string, number>;
 
 export type QuizGuardrails = {
   max_ra?: number;
   min_ra?: number;
   max_weight_g?: number;
   min_weight_g?: number;
+  min_swing_weight?: number;
+  max_swing_weight?: number;
   exclude_tags?: string[];
 };
 
 export type QuizOptionDef = {
   id: string;
-  deltas?: Partial<VectorProfile>;
+  deltas?: Partial<VectorProfile> & Record<string, number | undefined>;
   guardrails?: QuizGuardrails;
 };
 
@@ -23,49 +25,76 @@ export type MatchProduct = {
   image_url?: string | null;
   finder_profile?: {
     enabled?: boolean;
-    vectors?: Partial<VectorProfile>;
-    specs?: { ra?: number; weight_g?: number; [k: string]: unknown };
+    vectors?: Record<string, number | undefined>;
+    specs?: {
+      ra?: number;
+      weight_g?: number;
+      swing_weight?: number;
+      head_sq_in?: number;
+      pattern?: string;
+      [k: string]: unknown;
+    };
     tags?: string[];
   } | null;
 };
 
-const DEFAULT_WEIGHTS: VectorProfile = {
-  power: 0.2,
-  control: 0.2,
-  comfort: 0.2,
-  spin: 0.2,
-  maneuver: 0.2,
-};
+const LEGACY_DEFAULT_WEIGHT = 0.2;
 
 function clamp(n: number, lo: number, hi: number) {
   return Math.max(lo, Math.min(hi, n));
 }
 
-export function emptyProfile(): VectorProfile {
-  return { power: 50, control: 50, comfort: 50, spin: 50, maneuver: 50 };
+export function resolveDimensionIds(
+  dimensions: QuizDimensionDef[] | undefined,
+  dimensionWeights: Record<string, number> | undefined
+): string[] {
+  if (dimensions?.length) return dimensions.map((d) => d.id).filter(Boolean);
+  const keys = Object.keys(dimensionWeights || {}).filter(Boolean);
+  if (keys.length) return keys;
+  return [...LEGACY_QUIZ_DIMENSIONS];
 }
 
-export function normalizeWeights(raw: Partial<VectorProfile> | Record<string, number> | undefined): VectorProfile {
-  const w = { ...DEFAULT_WEIGHTS };
-  if (!raw) return w;
+export function emptyProfile(dimensionIds: string[]): VectorProfile {
+  const p: VectorProfile = {};
+  for (const d of dimensionIds) p[d] = 50;
+  return p;
+}
+
+export function normalizeWeights(
+  raw: Record<string, number> | undefined,
+  dimensionIds: string[]
+): Record<string, number> {
+  const w: Record<string, number> = {};
   let sum = 0;
-  for (const d of QUIZ_DIMENSIONS) {
-    const v = Number(raw[d]);
+  for (const d of dimensionIds) {
+    const v = Number(raw?.[d]);
     if (Number.isFinite(v) && v > 0) {
       w[d] = v;
       sum += v;
+    } else {
+      w[d] = LEGACY_DEFAULT_WEIGHT;
+      sum += LEGACY_DEFAULT_WEIGHT;
     }
   }
-  if (sum <= 0) return DEFAULT_WEIGHTS;
-  for (const d of QUIZ_DIMENSIONS) w[d] = w[d] / sum;
+  if (sum <= 0 || !dimensionIds.length) {
+    const n = dimensionIds.length || LEGACY_QUIZ_DIMENSIONS.length;
+    const each = 1 / n;
+    for (const d of dimensionIds.length ? dimensionIds : [...LEGACY_QUIZ_DIMENSIONS]) w[d] = each;
+    return w;
+  }
+  for (const d of dimensionIds) w[d] = w[d] / sum;
   return w;
 }
 
-export function applyOptions(profile: VectorProfile, options: QuizOptionDef[]): VectorProfile {
-  let next = { ...profile };
+export function applyOptions(
+  profile: VectorProfile,
+  options: QuizOptionDef[],
+  dimensionIds: string[]
+): VectorProfile {
+  const next = { ...profile };
   for (const opt of options) {
     const d = opt.deltas || {};
-    for (const dim of QUIZ_DIMENSIONS) {
+    for (const dim of dimensionIds) {
       if (d[dim] != null) next[dim] = clamp(next[dim] + Number(d[dim]), 0, 100);
     }
   }
@@ -85,6 +114,12 @@ export function mergeGuardrails(options: QuizOptionDef[]): QuizGuardrails {
     if (g.min_weight_g != null)
       merged.min_weight_g =
         merged.min_weight_g == null ? g.min_weight_g : Math.max(merged.min_weight_g, g.min_weight_g);
+    if (g.max_swing_weight != null)
+      merged.max_swing_weight =
+        merged.max_swing_weight == null ? g.max_swing_weight : Math.min(merged.max_swing_weight, g.max_swing_weight);
+    if (g.min_swing_weight != null)
+      merged.min_swing_weight =
+        merged.min_swing_weight == null ? g.min_swing_weight : Math.max(merged.min_swing_weight, g.min_swing_weight);
     if (g.exclude_tags?.length) {
       merged.exclude_tags = [...(merged.exclude_tags || []), ...g.exclude_tags];
     }
@@ -101,6 +136,18 @@ function passesGuardrails(product: MatchProduct, guardrails: QuizGuardrails): bo
     return false;
   if (guardrails.min_weight_g != null && specs.weight_g != null && Number(specs.weight_g) < guardrails.min_weight_g)
     return false;
+  if (
+    guardrails.max_swing_weight != null &&
+    specs.swing_weight != null &&
+    Number(specs.swing_weight) > guardrails.max_swing_weight
+  )
+    return false;
+  if (
+    guardrails.min_swing_weight != null &&
+    specs.swing_weight != null &&
+    Number(specs.swing_weight) < guardrails.min_swing_weight
+  )
+    return false;
   for (const t of guardrails.exclude_tags || []) {
     if (tags.has(t)) return false;
   }
@@ -110,12 +157,14 @@ function passesGuardrails(product: MatchProduct, guardrails: QuizGuardrails): bo
 export function rankProducts(
   profile: VectorProfile,
   products: MatchProduct[],
-  weights: Partial<VectorProfile> | undefined,
-  guardrails: QuizGuardrails
+  weights: Record<string, number> | undefined,
+  guardrails: QuizGuardrails,
+  dimensionIds: string[]
 ): { slug: string; match: number; product: MatchProduct }[] {
-  const w = normalizeWeights(weights);
+  const ids = dimensionIds.length ? dimensionIds : [...LEGACY_QUIZ_DIMENSIONS];
+  const w = normalizeWeights(weights, ids);
   let maxDist = 0;
-  for (const d of QUIZ_DIMENSIONS) maxDist += w[d] * 100 * 100;
+  for (const d of ids) maxDist += w[d] * 100 * 100;
   maxDist = Math.sqrt(maxDist) || 1;
 
   const ranked: { slug: string; match: number; product: MatchProduct }[] = [];
@@ -123,8 +172,8 @@ export function rankProducts(
     if (!passesGuardrails(product, guardrails)) continue;
     const rv = product.finder_profile?.vectors || {};
     let distSq = 0;
-    for (const d of QUIZ_DIMENSIONS) {
-      const pVal = profile[d];
+    for (const d of ids) {
+      const pVal = profile[d] ?? 50;
       const rVal = clamp(Number(rv[d] ?? 50), 0, 100);
       const diff = pVal - rVal;
       distSq += w[d] * diff * diff;
@@ -136,3 +185,6 @@ export function rankProducts(
   ranked.sort((a, b) => b.match - a.match);
   return ranked;
 }
+
+/** @deprecated use LEGACY_QUIZ_DIMENSIONS from ./dimensions */
+export const QUIZ_DIMENSIONS = LEGACY_QUIZ_DIMENSIONS;

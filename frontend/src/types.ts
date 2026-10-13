@@ -58,15 +58,25 @@ export interface Product {
 
 export type ProductFinderProfile = {
   enabled?: boolean;
-  vectors?: {
-    power?: number;
-    control?: number;
-    comfort?: number;
-    spin?: number;
-    maneuver?: number;
+  vectors?: Record<string, number | undefined>;
+  specs?: {
+    ra?: number;
+    weight_g?: number;
+    swing_weight?: number;
+    head_sq_in?: number;
+    pattern?: string;
+    balance_in?: number;
+    length_in?: number;
+    [k: string]: unknown;
   };
-  specs?: { ra?: number; weight_g?: number; head_sq_in?: number; pattern?: string };
   tags?: string[];
+};
+
+export type QuizDimensionDef = {
+  id: string;
+  label: string;
+  label_vi?: string;
+  default_weight?: number;
 };
 
 export type QuizStepOption = {
@@ -78,12 +88,14 @@ export type QuizStepOption = {
   title_vi?: string;
   subtitle?: string;
   subtitle_vi?: string;
-  deltas?: ProductFinderProfile["vectors"];
+  deltas?: Record<string, number | undefined>;
   guardrails?: {
     max_ra?: number;
     min_ra?: number;
     max_weight_g?: number;
     min_weight_g?: number;
+    min_swing_weight?: number;
+    max_swing_weight?: number;
     exclude_tags?: string[];
   };
 };
@@ -118,6 +130,7 @@ export interface ShopQuiz {
   hero_kicker_vi?: string | null;
   hero_badges: { icon?: string; label: string; label_vi?: string }[];
   faq: { q: string; q_vi?: string; a: string; a_vi?: string }[];
+  dimensions?: QuizDimensionDef[];
   dimension_weights: Record<string, number>;
   steps: QuizStep[];
   product_filter: { category_slugs?: string[]; require_finder_profile?: boolean };

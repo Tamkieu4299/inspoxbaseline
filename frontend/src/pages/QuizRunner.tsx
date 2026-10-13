@@ -5,6 +5,7 @@ import { api } from "../api";
 import Icon from "../components/Icon";
 import { useLanguage } from "../i18n";
 import { useStoreCurrency } from "../useStoreCurrency";
+import { dimensionIdsFromQuiz } from "../quiz/dimensions";
 import {
   applyOptions,
   emptyProfile,
@@ -54,8 +55,9 @@ export default function QuizRunner() {
 
   const ranked = useMemo(() => {
     if (!quiz) return [];
-    let profile = emptyProfile();
-    profile = applyOptions(profile, selectedOptions);
+    const dimIds = dimensionIdsFromQuiz(quiz);
+    let profile = emptyProfile(dimIds);
+    profile = applyOptions(profile, selectedOptions, dimIds);
     const guardrails = mergeGuardrails(selectedOptions);
     const pool: MatchProduct[] = (quiz.match_products || []).map((p) => ({
       slug: p.slug,
@@ -64,7 +66,7 @@ export default function QuizRunner() {
       image_url: p.image_url,
       finder_profile: p.finder_profile,
     }));
-    return rankProducts(profile, pool, quiz.dimension_weights, guardrails);
+    return rankProducts(profile, pool, quiz.dimension_weights, guardrails, dimIds);
   }, [quiz, selectedOptions]);
 
   const topMatches = ranked.slice(0, 5);
