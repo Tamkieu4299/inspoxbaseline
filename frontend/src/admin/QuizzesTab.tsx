@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
-import type { Product, QuizStep, ShopQuiz } from "../types";
+import type { Media, Product, QuizStep, ShopQuiz } from "../types";
+import { ImageField } from "./MediaLibrary";
 import {
   applyOptions,
   emptyProfile,
@@ -59,9 +60,12 @@ export default function QuizzesTab() {
   const { data: quizzes, isLoading } = useQuery({ queryKey: ["admin-quizzes"], queryFn: adminApi.getQuizzes });
   const { data: products } = useQuery({ queryKey: ["admin-products"], queryFn: adminApi.getProducts });
   const { data: categories } = useQuery({ queryKey: ["admin-categories"], queryFn: adminApi.getCategories });
+  const { data: media } = useQuery({ queryKey: ["admin-media"], queryFn: adminApi.getMedia });
+  const mediaById = useMemo(() => new Map((media || []).map((m) => [m.id, m])), [media]);
 
   const [draft, setDraft] = useState<Partial<ShopQuiz> | null>(null);
   const [simAnswers, setSimAnswers] = useState<Record<string, string>>({});
+  const [simStepIndex, setSimStepIndex] = useState(0);
 
   const saveMutation = useMutation({
     mutationFn: (d: Partial<ShopQuiz>) =>
@@ -251,6 +255,7 @@ export default function QuizzesTab() {
                 <StepEditor
                   key={step.id}
                   step={step}
+                  mediaById={mediaById}
                   onChange={(next) => {
                     const steps = [...(draft.steps || [])];
                     steps[si] = next;
@@ -302,23 +307,59 @@ export default function QuizzesTab() {
           <p className="text-secondary text-sm">{t("admin.quizzes.simEmpty")}</p>
         ) : (
           <>
-            {draft.steps.map((step) => (
-              <div key={step.id} className="mb-4">
-                <p className="font-label text-label-caps text-xs uppercase mb-1">{step.title}</p>
-                <select
-                  className="w-full border p-2 text-sm"
-                  value={simAnswers[step.id] || ""}
-                  onChange={(e) => setSimAnswers((a) => ({ ...a, [step.id]: e.target.value }))}
-                >
-                  <option value="">—</option>
-                  {step.options.map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {o.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ))}
+            {(() => {
+              const step = draft.steps![Math.min(simStepIndex, draft.steps!.length - 1)];
+              if (!step) return null;
+              return (
+                <div className="mb-4">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <p className="font-label text-label-caps text-xs uppercase">{step.title}</p>
+                    <span className="text-xs text-secondary">
+                      {simStepIndex + 1}/{draft.steps!.length}
+                    </span>
+                  </div>
+                  {step.image_url ? (
+                    <img src={step.image_url} alt="" className="w-full h-24 object-cover mb-2 border" />
+                  ) : null}
+                  <div className="flex flex-col gap-2">
+                    {step.options.map((o) => {
+                      const active = simAnswers[step.id] === o.id;
+                      return (
+                        <button
+                          key={o.id}
+                          type="button"
+                          onClick={() => {
+                            setSimAnswers((a) => ({ ...a, [step.id]: o.id }));
+                            if (simStepIndex < draft.steps!.length - 1) {
+                              setSimStepIndex((i) => i + 1);
+                            }
+                          }}
+                          className={`text-left px-3 py-2 border text-sm ${
+                            active ? "border-primary bg-surface-container-low" : "border-outline-variant"
+                          }`}
+                        >
+                          {o.title}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <SecondaryButton
+                      onClick={() => setSimStepIndex((i) => Math.max(0, i - 1))}
+                      disabled={simStepIndex === 0}
+                    >
+                      ↑
+                    </SecondaryButton>
+                    <SecondaryButton
+                      onClick={() => setSimStepIndex((i) => Math.min(draft.steps!.length - 1, i + 1))}
+                      disabled={simStepIndex >= draft.steps!.length - 1}
+                    >
+                      ↓
+                    </SecondaryButton>
+                  </div>
+                </div>
+              );
+            })()}
             <p className="font-label text-label-caps text-xs uppercase text-secondary mb-2">
               {t("admin.quizzes.poolCount", { count: String(pool.length) })}
             </p>
@@ -339,6 +380,7 @@ export default function QuizzesTab() {
 
 function StepEditor({
   step,
+  mediaById,
   onChange,
   onRemove,
   onMove,
@@ -346,6 +388,7 @@ function StepEditor({
   canMoveDown,
 }: {
   step: QuizStep;
+  mediaById: Map<number, Media>;
   onChange: (s: QuizStep) => void;
   onRemove: () => void;
   onMove: (dir: -1 | 1) => void;
@@ -376,6 +419,25 @@ function StepEditor({
           onChange={(e) => onChange({ ...step, title_vi: e.target.value })}
         />
       </div>
+      <Field label={t("admin.quizzes.stepImage")}>
+        <TextInput
+          value={step.image_url || ""}
+          placeholder="https://…"
+          onChange={(e) => onChange({ ...step, image_url: e.target.value })}
+        />
+        <p className="text-xs text-secondary mt-1">{t("admin.quizzes.stepImageHint")}</p>
+        <ImageField
+          label={t("admin.quizzes.pickFromMedia")}
+          value={step.image_media_id ? mediaById.get(step.image_media_id) ?? null : null}
+          onChange={(m) => {
+            onChange({
+              ...step,
+              image_media_id: m?.id ?? null,
+              image_url: m?.url || step.image_url,
+            });
+          }}
+        />
+      </Field>
       {step.options.map((opt, oi) => (
         <div key={opt.id} className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2 pl-2 border-l-2 border-primary/30">
           <TextInput

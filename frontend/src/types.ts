@@ -72,6 +72,7 @@ export type ProductFinderProfile = {
 export type QuizStepOption = {
   id: string;
   icon?: string;
+  image_url?: string;
   badge?: string;
   title: string;
   title_vi?: string;
@@ -96,6 +97,8 @@ export type QuizStep = {
   subtitle_vi?: string;
   note?: string;
   note_vi?: string;
+  image_url?: string;
+  image_media_id?: number | null;
   required?: boolean;
   options: QuizStepOption[];
 };

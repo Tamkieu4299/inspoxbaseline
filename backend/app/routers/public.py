@@ -31,6 +31,7 @@ from ..schemas import (
     ProductOut,
     QuizMatchProductOut,
     QuizNavOut,
+    ShopQuizOut,
     ShopQuizPublicOut,
     SitePublic,
 )
@@ -792,7 +793,7 @@ def get_quiz(
     )
     if quiz is None:
         raise HTTPException(status_code=404, detail="Quiz not found")
-    data = ShopQuizPublicOut.model_validate(quiz).model_dump()
+    data = ShopQuizOut.model_validate(quiz).model_dump()
     data = _localize_quiz(data, lang)
     data["match_products"] = _quiz_match_products(db, tenant.id, quiz.product_filter)
     return ShopQuizPublicOut.model_validate(data)
