@@ -279,7 +279,10 @@ def list_categories(
     categories = (
         db.execute(
             select(Category)
-            .where(Category.tenant_id == tenant.id)
+            .where(
+                Category.tenant_id == tenant.id,
+                ~Category.slug.like("brand-%"),
+            )
             .order_by(Category.name)
         )
         .scalars()

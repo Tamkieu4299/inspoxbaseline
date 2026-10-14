@@ -5,16 +5,13 @@ import { api } from "../api";
 import ProductCard from "../components/ProductCard";
 import { useLanguage } from "../i18n";
 import type { Product } from "../types";
+import { navCategories } from "../categoryNav";
 
 const ALL_COLORS: { name: string; hex: string }[] = [
   { name: "BLUE", hex: "#2f5d8a" },
   { name: "GREEN", hex: "#3a6b4f" },
   { name: "PINK", hex: "#d98a96" },
 ];
-
-function isBrandCategorySlug(slug: string) {
-  return slug.startsWith("brand-");
-}
 
 function formatBrandLabel(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -44,10 +41,7 @@ export default function Collection() {
     queryKey: ["categories", lang],
     queryFn: () => api.getCategories(lang),
   });
-  const navCategories = useMemo(
-    () => (categories || []).filter((c) => !isBrandCategorySlug(c.slug)),
-    [categories]
-  );
+  const categoryNav = useMemo(() => navCategories(categories), [categories]);
   const brandCategory = category || undefined;
   const { data: brands } = useQuery({
     queryKey: ["product-brands", brandCategory],
@@ -68,7 +62,7 @@ export default function Collection() {
   });
 
   const currentCollection = collections?.find((c) => c.slug === activeCollection);
-  const currentCategory = navCategories.find((c) => c.slug === category);
+  const currentCategory = categoryNav.find((c) => c.slug === category);
 
   const allSizes = useMemo(() => {
     const set = new Set<string>();
@@ -139,7 +133,7 @@ export default function Collection() {
                     <span className={!category ? "text-forest-green font-bold" : ""}>{t("collection.all")}</span>
                   </label>
                 </li>
-                {navCategories.map((cat) => (
+                {categoryNav.map((cat) => (
                   <li key={cat.id}>
                     <label className="flex items-center gap-1 cursor-pointer hover:text-forest-green transition-colors">
                       <input

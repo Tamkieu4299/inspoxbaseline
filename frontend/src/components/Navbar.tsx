@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import Icon from "./Icon";
 import { useLanguage } from "../i18n";
+import { navCategories } from "../categoryNav";
 import type { NavItem } from "../types";
 
 interface BuiltLink {
@@ -60,7 +61,7 @@ export default function Navbar() {
           key: "categories",
           label: t("nav.categories"),
           to: "/collections",
-          children: (categories || []).map((c) => ({
+          children: navCategories(categories).map((c) => ({
             label: c.name,
             to: `/products?category=${c.slug}`,
           })),
