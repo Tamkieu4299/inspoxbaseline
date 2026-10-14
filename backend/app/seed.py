@@ -115,6 +115,7 @@ def _migrate_existing(db, tenant_id: int):
     db.commit()
     _add_column_if_missing(db, "product_images", "color_name", "VARCHAR(200)")
     _add_column_if_missing(db, "products", "finder_profile", "JSON")
+    _add_column_if_missing(db, "products", "brand", "VARCHAR(80)")
     _add_column_if_missing(db, "shop_quizzes", "dimensions", "JSON")
     db.execute(text("UPDATE shop_quizzes SET dimensions='[]' WHERE dimensions IS NULL"))
     db.commit()

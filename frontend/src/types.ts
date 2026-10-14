@@ -40,6 +40,7 @@ export interface Product {
   category_ids?: number[];
   collection_id?: number | null;
   badge?: string | null;
+  brand?: string | null;
   gallery_layout?: string;
   colors: { name?: string; hex?: string; name_vi?: string }[] | string[];
   sizes: string[];

@@ -12,13 +12,24 @@ const ALL_COLORS: { name: string; hex: string }[] = [
   { name: "PINK", hex: "#d98a96" },
 ];
 
+function isBrandCategorySlug(slug: string) {
+  return slug.startsWith("brand-");
+}
+
+function formatBrandLabel(slug: string) {
+  return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export default function Collection() {
   const { lang, t } = useLanguage();
   const { slug } = useParams();
   const [params, setParams] = useSearchParams();
 
   const activeCollection = slug || params.get("collection") || "";
+  const collectionFilter =
+    activeCollection === "new-arrivals" ? undefined : activeCollection || undefined;
   const category = params.get("category") || "";
+  const brand = params.get("brand") || "";
   const size = params.get("size") || "";
   const color = params.get("color") || "";
   const sort = params.get("sort") || "newest";
@@ -33,12 +44,22 @@ export default function Collection() {
     queryKey: ["categories", lang],
     queryFn: () => api.getCategories(lang),
   });
+  const navCategories = useMemo(
+    () => (categories || []).filter((c) => !isBrandCategorySlug(c.slug)),
+    [categories]
+  );
+  const brandCategory = category || undefined;
+  const { data: brands } = useQuery({
+    queryKey: ["product-brands", brandCategory],
+    queryFn: () => api.getProductBrands(brandCategory ? { category: brandCategory } : undefined),
+  });
   const { data: products, isLoading } = useQuery({
-    queryKey: ["products", activeCollection, category, size, color, sort, lang],
+    queryKey: ["products", activeCollection, category, brand, size, color, sort, lang],
     queryFn: () =>
       api.getProducts({
         collection: collectionFilter,
         category: category || undefined,
+        brand: brand || undefined,
         size: size || undefined,
         color: color || undefined,
         sort,
@@ -47,16 +68,13 @@ export default function Collection() {
   });
 
   const currentCollection = collections?.find((c) => c.slug === activeCollection);
-  const currentCategory = categories?.find((c) => c.slug === category);
+  const currentCategory = navCategories.find((c) => c.slug === category);
 
   const allSizes = useMemo(() => {
     const set = new Set<string>();
     (products || []).forEach((p: Product) => (p.sizes || []).forEach((s) => set.add(s)));
     return Array.from(set);
   }, [products]);
-
-  const collectionFilter =
-    activeCollection === "new-arrivals" ? undefined : activeCollection || undefined;
 
   function update(key: string, value: string) {
     const next = new URLSearchParams(params);
@@ -69,7 +87,6 @@ export default function Collection() {
 
   return (
     <main className="flex-grow pt-24 px-4 md:px-8 lg:px-16 w-full max-w-[1920px] mx-auto pb-16">
-      {/* Page Header */}
       <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between border-b border-surface-container-high pb-4">
         <div>
           <h1 className="font-headline text-headline-lg text-primary uppercase">
@@ -81,6 +98,7 @@ export default function Collection() {
           </h1>
           <p className="font-label text-label-caps text-secondary mt-1">
             {itemCount} {itemCount === 1 ? t("collection.itemFound") : t("collection.itemsFound")}
+            {brand ? ` · ${formatBrandLabel(brand)}` : ""}
           </p>
         </div>
         <div className="mt-4 md:mt-0 flex items-center gap-2">
@@ -102,11 +120,9 @@ export default function Collection() {
         </div>
       </header>
 
-      {/* Layout: Sidebar + Grid */}
       <div className="grid grid-cols-12 gap-6 relative">
         <aside className={`${showFilters ? "block" : "hidden"} lg:block col-span-12 lg:col-span-2`}>
           <div className="flex flex-col gap-8">
-            {/* Category */}
             <div>
               <h3 className="font-headline text-headline-md text-primary mb-2 uppercase border-b border-surface-container-high pb-1">
                 {t("collection.category")}
@@ -123,13 +139,16 @@ export default function Collection() {
                     <span className={!category ? "text-forest-green font-bold" : ""}>{t("collection.all")}</span>
                   </label>
                 </li>
-                {(categories || []).map((cat) => (
+                {navCategories.map((cat) => (
                   <li key={cat.id}>
                     <label className="flex items-center gap-1 cursor-pointer hover:text-forest-green transition-colors">
                       <input
                         type="checkbox"
                         checked={category === cat.slug}
-                        onChange={() => update("category", category === cat.slug ? "" : cat.slug)}
+                        onChange={() => {
+                          update("category", category === cat.slug ? "" : cat.slug);
+                          if (category !== cat.slug) update("brand", "");
+                        }}
                         className="form-checkbox bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4"
                       />
                       <span className={category === cat.slug ? "text-forest-green font-bold" : ""}>
@@ -141,7 +160,40 @@ export default function Collection() {
               </ul>
             </div>
 
-            {/* Size */}
+            {(brands || []).length > 0 ? (
+              <div>
+                <h3 className="font-headline text-headline-md text-primary mb-2 uppercase border-b border-surface-container-high pb-1">
+                  {t("collection.brand")}
+                </h3>
+                <ul className="flex flex-col gap-1 font-label text-label-caps text-secondary">
+                  <li>
+                    <label className="flex items-center gap-1 cursor-pointer hover:text-forest-green transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={!brand}
+                        onChange={() => update("brand", "")}
+                        className="form-checkbox bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4"
+                      />
+                      <span className={!brand ? "text-forest-green font-bold" : ""}>{t("collection.all")}</span>
+                    </label>
+                  </li>
+                  {(brands || []).map((b) => (
+                    <li key={b}>
+                      <label className="flex items-center gap-1 cursor-pointer hover:text-forest-green transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={brand === b}
+                          onChange={() => update("brand", brand === b ? "" : b)}
+                          className="form-checkbox bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4"
+                        />
+                        <span className={brand === b ? "text-forest-green font-bold" : ""}>{formatBrandLabel(b)}</span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             <div>
               <h3 className="font-headline text-headline-md text-primary mb-2 uppercase border-b border-surface-container-high pb-1">
                 {t("collection.size")}
@@ -163,7 +215,6 @@ export default function Collection() {
               </div>
             </div>
 
-            {/* Color */}
             <div>
               <h3 className="font-headline text-headline-md text-primary mb-2 uppercase border-b border-surface-container-high pb-1">
                 {t("collection.color")}
@@ -195,7 +246,6 @@ export default function Collection() {
           </div>
         </aside>
 
-        {/* Product Grid */}
         <div className="col-span-12 lg:col-span-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading ? (
             <p className="col-span-full font-body text-body-md text-secondary py-16 text-center">{t("loading")}</p>

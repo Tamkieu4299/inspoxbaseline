@@ -145,6 +145,7 @@ class Product(Base, TimestampMixin):
         ForeignKey("collections.id"), nullable=True
     )
     badge: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    brand: Mapped[str | None] = mapped_column(String(80), nullable=True, index=True)
     gallery_layout: Mapped[str] = mapped_column(
         String(20), default="collage"
     )  # collage | grid | masonry | slideshow

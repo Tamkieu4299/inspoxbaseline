@@ -341,10 +341,43 @@ def get_collection(
     return _load_collection(db, collection, lang)
 
 
+@router.get("/products/brands", response_model=list[str])
+def list_product_brands(
+    category: str | None = None,
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
+    stmt = (
+        select(Product.brand)
+        .where(
+            Product.tenant_id == tenant.id,
+            Product.is_active.is_(True),
+            Product.brand.isnot(None),
+            Product.brand != "",
+        )
+        .distinct()
+    )
+    if category:
+        cat = db.execute(
+            select(Category).where(
+                Category.tenant_id == tenant.id, Category.slug == category
+            )
+        ).scalar_one_or_none()
+        if cat is None:
+            raise HTTPException(status_code=404, detail="Category not found")
+        stmt = stmt.where(
+            (Product.category_id == cat.id)
+            | Product.categories.any(Category.id == cat.id)
+        )
+    brands = db.execute(stmt.order_by(Product.brand)).scalars().all()
+    return [b for b in brands if b]
+
+
 @router.get("/products", response_model=list[ProductOut])
 def list_products(
     collection: str | None = None,
     category: str | None = None,
+    brand: str | None = None,
     size: str | None = None,
     color: str | None = None,
     sort: str = "newest",
@@ -385,6 +418,8 @@ def list_products(
         )
     if q:
         stmt = stmt.where(Product.name.ilike(f"%{q}%"))
+    if brand:
+        stmt = stmt.where(Product.brand == brand.strip().lower())
 
     products = db.execute(stmt).scalars().all()
 

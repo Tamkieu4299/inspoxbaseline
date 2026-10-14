@@ -13,6 +13,7 @@ Options:
     --skip-forheads     Thu Sports only
     --max-pages N       Thu Sports listing pages (default: all)
     --inactive          import with is_active=False (review in admin)
+    --restructure-catalog   rackets category only + product.brand (Wilson/Head filters)
 
 Re-run is idempotent per product slug (updates name, price, specs, replaces images).
 """
@@ -33,6 +34,7 @@ from urllib.parse import urljoin, urlparse
 
 import httpx
 from sqlalchemy import delete, select
+from sqlalchemy.orm import selectinload
 
 from .database import SessionLocal
 from .minio_client import save_file
@@ -204,13 +206,6 @@ def _infer_brand(name: str, vendor: str | None = None) -> str:
         if b in blob:
             return b
     return "other"
-
-
-def _brand_category_slug(brand: str) -> str:
-    b = brand.lower()
-    if b in ("wilson", "head", "babolat", "yonex", "prince", "dunlop"):
-        return f"brand-{b}"
-    return "brand-other"
 
 
 def _finder_from_specs(specs: list[dict[str, str]]) -> dict[str, Any]:
@@ -436,15 +431,30 @@ def _get_or_create_category(db, tenant_id: int, slug: str, name: str) -> Categor
     return cat
 
 
-def _ensure_categories(db, tenant_id: int, brand: str) -> list[Category]:
-    rackets = _get_or_create_category(db, tenant_id, "rackets", "RACKETS")
-    brand_cat = _get_or_create_category(
-        db,
-        tenant_id,
-        _brand_category_slug(brand),
-        brand.replace("-", " ").upper() if brand != "other" else "OTHER BRANDS",
-    )
-    return [rackets, brand_cat]
+def _rackets_category(db, tenant_id: int) -> Category:
+    return _get_or_create_category(db, tenant_id, "rackets", "RACKETS")
+
+
+def _normalize_brand(brand: str) -> str | None:
+    b = (brand or "").strip().lower()
+    if not b or b == "other":
+        return None
+    return b
+
+
+def _brand_from_product_row(product: Product) -> str | None:
+    if product.brand:
+        return product.brand.strip().lower()
+    for c in product.categories or []:
+        if c.slug.startswith("brand-"):
+            legacy = c.slug.removeprefix("brand-")
+            normalized = _normalize_brand(legacy)
+            if normalized:
+                return normalized
+    sub = (product.subtitle or "").split("·")[0].strip().lower()
+    if sub and sub not in RETAILER_LABELS:
+        return sub
+    return _normalize_brand(_infer_brand(product.name or "", None))
 
 
 def _replace_images(db, client: httpx.Client, tenant_id: int, product: Product, urls: list[str]) -> None:
@@ -483,9 +493,9 @@ def _upsert_racquet(
 ) -> str:
     if dry_run:
         return "dry-run"
-    cats = _ensure_categories(db, tenant_id, item.brand)
-    cat_ids = [c.id for c in cats]
+    rackets = _rackets_category(db, tenant_id)
     product = db.scalar(select(Product).where(Product.tenant_id == tenant_id, Product.slug == item.slug))
+    product_brand = _normalize_brand(item.brand)
     subtitle = item.brand.upper()
     if item.sku:
         subtitle = f"{subtitle} · {item.sku}"
@@ -508,7 +518,8 @@ def _upsert_racquet(
             description=item.description_html,
             description_vi=item.description_html,
             price=item.price_vnd,
-            category_id=cat_ids[0],
+            category_id=rackets.id,
+            brand=product_brand,
             collection_id=collection_id,
             badge=item.badge,
             gallery_layout="slideshow",
@@ -531,16 +542,65 @@ def _upsert_racquet(
         product.description = item.description_html
         product.description_vi = item.description_html
         product.price = item.price_vnd
-        product.category_id = cat_ids[0]
+        product.category_id = rackets.id
+        product.brand = product_brand
         product.collection_id = collection_id
         product.badge = item.badge
         product.tech_specs = item.tech_specs
         product.finder_profile = finder
         product.is_active = active
 
-    product.categories = cats
+    product.categories = [rackets]
     _replace_images(db, client, tenant_id, product, item.image_urls)
     return product
+
+
+def restructure_racquet_catalog(*, tenant_slug: str = "baseline", dry_run: bool = False) -> None:
+    """One category (rackets) + product.brand for Wilson/Head filters; drop brand-* categories from products."""
+    db = SessionLocal()
+    try:
+        tenant = db.scalar(select(Tenant).where(Tenant.slug == tenant_slug))
+        if tenant is None:
+            raise SystemExit(f"Tenant not found: {tenant_slug}")
+        rackets = _rackets_category(db, tenant.id)
+        products = db.scalars(
+            select(Product)
+            .options(selectinload(Product.categories))
+            .where(Product.tenant_id == tenant.id)
+        ).all()
+        updated = 0
+        for p in products:
+            is_imported = p.slug.startswith("ts-") or p.slug.startswith("fh-")
+            cats = p.categories or []
+            is_racket = (
+                is_imported
+                or p.category_id == rackets.id
+                or any(c.slug == "rackets" for c in cats)
+                or any(c.slug.startswith("brand-") for c in cats)
+            )
+            if not is_racket and not is_imported:
+                continue
+            brand = _brand_from_product_row(p)
+            new_cats = [rackets]
+            if (
+                p.category_id != rackets.id
+                or [c.id for c in p.categories] != [rackets.id]
+                or p.brand != brand
+            ):
+                if dry_run:
+                    print(f"would restructure: {p.slug} brand={brand}")
+                else:
+                    p.category_id = rackets.id
+                    p.categories = new_cats
+                    p.brand = brand
+                updated += 1
+        if dry_run:
+            print(f"Dry run: {updated} racquet product(s) would be updated.")
+            return
+        db.commit()
+        print(f"Restructured {updated} racquet product(s) on tenant '{tenant_slug}' (category=rackets, brand field set).")
+    finally:
+        db.close()
 
 
 def cleanup_retailer_references(*, tenant_slug: str = "baseline", dry_run: bool = False) -> None:
@@ -705,9 +765,17 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="remove Thu Sports/Forheads URLs and labels from existing products (no crawl)",
     )
+    p.add_argument(
+        "--restructure-catalog",
+        action="store_true",
+        help="assign racquets to rackets category only and set brand field for filtering",
+    )
     args = p.parse_args(argv)
     if args.cleanup_references:
         cleanup_retailer_references(tenant_slug=args.tenant, dry_run=args.dry_run)
+        return
+    if args.restructure_catalog:
+        restructure_racquet_catalog(tenant_slug=args.tenant, dry_run=args.dry_run)
         return
     run(
         tenant_slug=args.tenant,

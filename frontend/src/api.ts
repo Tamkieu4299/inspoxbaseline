@@ -56,6 +56,10 @@ export const api = {
     const qs = params ? `?${new URLSearchParams(Object.entries(params).filter(([, v]) => v).map(([k, v]) => [k, v as string])).toString()}` : "";
     return request<Product[]>(`/api/products${qs}`);
   },
+  getProductBrands: (params?: { category?: string }) => {
+    const qs = params?.category ? `?category=${encodeURIComponent(params.category)}` : "";
+    return request<string[]>(`/api/products/brands${qs}`);
+  },
   getProduct: (slug: string, lang?: string) =>
     request<Product>(`/api/products/${slug}?${langQ(lang)}`),
   getCategories: (lang?: string) => request<Category[]>(`/api/categories?${langQ(lang)}`),

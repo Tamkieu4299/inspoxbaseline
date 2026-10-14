@@ -143,6 +143,7 @@ class ProductBase(BaseModel):
     category_id: int | None = None
     collection_id: int | None = None
     badge: str | None = None
+    brand: str | None = None
     gallery_layout: str = "collage"
     colors: list[Any] = Field(default_factory=list)
     sizes: list[Any] = Field(default_factory=list)
