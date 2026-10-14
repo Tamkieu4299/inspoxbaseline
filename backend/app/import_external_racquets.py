@@ -28,7 +28,6 @@ import time
 import unicodedata
 from dataclasses import dataclass, field
 from html import unescape
-from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import urljoin, urlparse
 
@@ -80,37 +79,18 @@ class ImportedRacquet:
     finder_specs: dict[str, Any] = field(default_factory=dict)
 
 
-class _TableSpecParser(HTMLParser):
-    def __init__(self) -> None:
-        super().__init__()
-        self.in_table = False
-        self.in_cell = False
-        self.cell_buf: list[str] = []
-        self.row: list[str] = []
-        self.pairs: list[tuple[str, str]] = []
-
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag == "table":
-            classes = dict(attrs).get("class") or ""
-            if "table_responsive" in classes or self.in_table:
-                self.in_table = True
-        if self.in_table and tag in ("td", "th"):
-            self.in_cell = True
-            self.cell_buf = []
-
-    def handle_endtag(self, tag: str) -> None:
-        if tag in ("td", "th") and self.in_cell:
-            text = " ".join(self.cell_buf).strip()
-            self.row.append(text)
-            self.in_cell = False
-        if tag == "tr" and self.row:
-            if len(self.row) >= 2:
-                self.pairs.append((self.row[0], self.row[1]))
-            elif len(self.row) == 1 and self.row[0]:
-                self.pairs.append(("Spec", self.row[0]))
-            self.row = []
-        if tag == "table":
-            self.in_table = False
+_SPEC_SECTION_SPLIT = re.compile(
+    r"<p[^>]*>\s*(?:<[^>]+>\s*)*Thông\s+số\s+kỹ\s+thuật",
+    re.I | re.S,
+)
+_JUNK_SPEC_LABELS = frozenset(
+    {
+        "chi tiết sản phẩm",
+        "nhận xét đánh giá",
+        "thông số kỹ thuật",
+        "thông số kỹ thuật:",
+    }
+)
 
 
 def _slugify(text: str, *, prefix: str, max_len: int = 180) -> str:
@@ -157,20 +137,52 @@ def _strip_html(html: str) -> str:
     return text
 
 
-def _specs_from_html(html: str) -> list[dict[str, str]]:
-    specs: list[dict[str, str]] = []
-    parser = _TableSpecParser()
-    try:
-        parser.feed(html or "")
-    except Exception:
-        pass
-    for label, value in parser.pairs:
-        if not value:
+def _table_spec_pairs(html: str) -> list[tuple[str, str]]:
+    pairs: list[tuple[str, str]] = []
+    for table in re.findall(r"<table[^>]*>(.*?)</table>", html or "", re.S | re.I):
+        for row in re.findall(r"<tr[^>]*>(.*?)</tr>", table, re.S | re.I):
+            cells = re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", row, re.S | re.I)
+            texts = [_strip_html(c).strip() for c in cells]
+            texts = [t for t in texts if t]
+            if len(texts) >= 2:
+                pairs.append((texts[0], texts[1]))
+    return pairs
+
+
+def _paragraph_spec_pairs(html: str) -> list[tuple[str, str]]:
+    pairs: list[tuple[str, str]] = []
+    for block in re.findall(r"<p[^>]*>(.*?)</p>", html or "", re.S | re.I):
+        text = _strip_html(block).strip()
+        if not text or ":" not in text:
             continue
-        label = label.strip().rstrip(":")
+        label, _, value = text.partition(":")
+        label, value = label.strip(), value.strip()
+        if label and value:
+            pairs.append((label, value))
+    return pairs
+
+
+def _spec_pairs_from_html(html: str) -> list[tuple[str, str]]:
+    seen: set[str] = set()
+    out: list[tuple[str, str]] = []
+    for label, value in _table_spec_pairs(html) + _paragraph_spec_pairs(html):
+        label = label.strip().rstrip(":").strip()
         value = value.strip()
+        if not label or not value:
+            continue
+        key = label.lower()
+        if key in _JUNK_SPEC_LABELS or key in seen:
+            continue
         if len(label) > 80 or len(value) > 300:
             continue
+        seen.add(key)
+        out.append((label, value))
+    return out
+
+
+def _pairs_to_specs(pairs: list[tuple[str, str]]) -> list[dict[str, str]]:
+    specs: list[dict[str, str]] = []
+    for label, value in pairs[:32]:
         specs.append(
             {
                 "label": label[:60].upper(),
@@ -179,25 +191,52 @@ def _specs_from_html(html: str) -> list[dict[str, str]]:
                 "value_vi": value[:200],
             }
         )
-    if specs:
-        return specs
-    plain = _strip_html(html)
-    for line in plain.split("\n"):
-        line = line.strip(" •\t")
-        if not line or len(line) < 4:
-            continue
-        if ":" in line:
-            k, _, v = line.partition(":")
-            if v.strip():
-                specs.append(
-                    {
-                        "label": k.strip()[:60].upper(),
-                        "value": v.strip()[:200],
-                        "label_vi": k.strip()[:60],
-                        "value_vi": v.strip()[:200],
-                    }
-                )
-    return specs[:24]
+    return specs
+
+
+def _specs_from_html(html: str) -> list[dict[str, str]]:
+    return _pairs_to_specs(_spec_pairs_from_html(html))
+
+
+def _thusports_detail_tab_html(html: str) -> str:
+    m = re.search(
+        r'<div class="ppconttabpro"\s+id="iitab1">(.*?)<div class="ppconttabpro"\s+id="iitab',
+        html or "",
+        re.S | re.I,
+    )
+    return m.group(1) if m else ""
+
+
+def _thusports_desc_inner_html(detail_html: str) -> str:
+    m = re.search(r'<div class="desc">(.*?)</div>', detail_html or "", re.S | re.I)
+    if m:
+        return m.group(1)
+    m = re.search(r'<div class="ppcont">(.*)', detail_html or "", re.S | re.I)
+    return m.group(1) if m else detail_html
+
+
+def _split_thusports_story_and_specs(desc_html: str) -> tuple[str, str]:
+    if not desc_html:
+        return "", ""
+    m = _SPEC_SECTION_SPLIT.search(desc_html)
+    if m:
+        return desc_html[: m.start()], desc_html[m.start() :]
+    m2 = re.search(r"Thông\s+số\s+kỹ\s+thuật", desc_html, re.I)
+    if m2:
+        return desc_html[: m2.start()], desc_html[m2.start() :]
+    return desc_html, ""
+
+
+def _parse_thusports_product_body(html: str) -> tuple[str, list[dict[str, str]]]:
+    detail = _thusports_detail_tab_html(html)
+    inner = _thusports_desc_inner_html(detail)
+    story_html, spec_html = _split_thusports_story_and_specs(inner)
+    description = clean_retailer_text(_strip_html(story_html))
+    spec_source = spec_html or inner or detail
+    specs = _specs_from_html(spec_source)
+    if not description and detail:
+        description = clean_retailer_text(_strip_html(story_html or inner))
+    return description, specs
 
 
 def _infer_brand(name: str, vendor: str | None = None) -> str:
@@ -331,11 +370,7 @@ def enrich_thusports_product(client: httpx.Client, stub: dict[str, str]) -> Impo
             seen.add(u)
             deduped.append(u)
 
-    desc_block = ""
-    m_desc = re.search(r'class="contentDetail[^"]*".*?</div>\s*</div>', html, re.S | re.I)
-    if m_desc:
-        desc_block = m_desc.group(0)
-    specs = _specs_from_html(html)
+    description, specs = _parse_thusports_product_body(html)
     path = urlparse(stub["url"]).path.strip("/").replace(".html", "")
     slug = _slugify(path, prefix="ts")
 
@@ -347,7 +382,7 @@ def enrich_thusports_product(client: httpx.Client, stub: dict[str, str]) -> Impo
         price_vnd=price,
         brand=brand,
         sku=sku,
-        description_html=clean_retailer_text(_strip_html(desc_block)),
+        description_html=description,
         image_urls=deduped[:8],
         tech_specs=specs,
         badge="NEW" if re.search(r"\bnew\b", html[:8000], re.I) else None,
@@ -376,7 +411,14 @@ def crawl_forheads(client: httpx.Client) -> list[ImportedRacquet]:
             price = float(variants[0].get("price") or 0) if variants else 0.0
             sku = str(variants[0].get("sku") or "").strip() or None
             body = p.get("body_html") or ""
-            specs = _specs_from_html(body)
+            body_lower = body.lower()
+            spec_html = body
+            if "thông số" in body_lower:
+                idx = body_lower.find("thông số")
+                spec_html = body[idx:]
+                body = body[:idx]
+            description_body = clean_retailer_text(_strip_html(body))
+            specs = _specs_from_html(spec_html)
             images = [img.get("src") for img in (p.get("images") or []) if img.get("src")]
             tags = p.get("tags") or ""
             badge = "NEW" if "mới" in tags.lower() or "new" in tags.lower() else None
@@ -391,7 +433,7 @@ def crawl_forheads(client: httpx.Client) -> list[ImportedRacquet]:
                     price_vnd=price,
                     brand=brand,
                     sku=sku,
-                    description_html=clean_retailer_text(_strip_html(body)),
+                    description_html=description_body,
                     image_urls=images[:8],
                     tech_specs=specs,
                     badge=badge,
@@ -490,6 +532,7 @@ def _upsert_racquet(
     collection_id: int | None,
     active: bool,
     dry_run: bool,
+    replace_images: bool = True,
 ) -> str:
     if dry_run:
         return "dry-run"
@@ -551,7 +594,8 @@ def _upsert_racquet(
         product.is_active = active
 
     product.categories = [rackets]
-    _replace_images(db, client, tenant_id, product, item.image_urls)
+    if replace_images:
+        _replace_images(db, client, tenant_id, product, item.image_urls)
     return product
 
 
@@ -673,6 +717,7 @@ def run(
     skip_forheads: bool = False,
     max_pages: int | None = None,
     active: bool = True,
+    replace_images: bool = True,
 ) -> None:
     headers = {"User-Agent": USER_AGENT, "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8"}
     items: list[ImportedRacquet] = []
@@ -733,6 +778,7 @@ def run(
                         collection_id=collection_id,
                         active=active,
                         dry_run=False,
+                        replace_images=replace_images,
                     )
                     if existed:
                         updated += 1
@@ -770,6 +816,11 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="assign racquets to rackets category only and set brand field for filtering",
     )
+    p.add_argument(
+        "--refresh-content",
+        action="store_true",
+        help="re-crawl listings and update descriptions/specs/prices (keep existing images)",
+    )
     args = p.parse_args(argv)
     if args.cleanup_references:
         cleanup_retailer_references(tenant_slug=args.tenant, dry_run=args.dry_run)
@@ -784,6 +835,7 @@ def main(argv: list[str] | None = None) -> None:
         skip_forheads=args.skip_forheads,
         max_pages=args.max_pages,
         active=not args.inactive,
+        replace_images=not args.refresh_content,
     )
 
 

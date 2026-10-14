@@ -189,12 +189,18 @@ export default function ProductDetail() {
               <div className="border-t border-outline-variant pt-4 mt-1">
                 <h3 className="font-label text-label-caps text-primary uppercase mb-2">{t("product.techSpecs")}</h3>
                 <ul className="flex flex-col gap-2">
-                  {product.tech_specs.map((spec, index) => (
-                    <li key={index} className="flex justify-between border-b border-surface-container-high pb-2 gap-4">
-                      <span className="font-body text-body-md text-secondary">{spec.label}</span>
-                      <span className="font-label text-label-caps text-primary text-right">{spec.value}</span>
-                    </li>
-                  ))}
+                  {product.tech_specs.map((spec, index) => {
+                    const specLabel =
+                      lang === "vi" ? spec.label_vi || spec.label : spec.label || spec.label_vi;
+                    const specValue =
+                      lang === "vi" ? spec.value_vi || spec.value : spec.value || spec.value_vi;
+                    return (
+                      <li key={index} className="flex justify-between border-b border-surface-container-high pb-2 gap-4">
+                        <span className="font-body text-body-md text-secondary">{specLabel}</span>
+                        <span className="font-label text-label-caps text-primary text-right">{specValue}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
