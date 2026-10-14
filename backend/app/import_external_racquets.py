@@ -49,6 +49,18 @@ SKIP_NAME_FRAGMENTS = (
     "chon vot",
 )
 
+RETAILER_HOSTS = ("thusports.vn", "forheads.vn")
+RETAILER_LABELS = frozenset({"thusports", "forheads", "thu sports", "for heads"})
+
+_REFERENCE_FOOTER_RE = re.compile(
+    r"\n*—?\n*Reference listing:\s*https?://(?:www\.)?(?:thusports\.vn|forheads\.vn)\S*\s*",
+    re.I,
+)
+_RETAILER_URL_RE = re.compile(
+    r"https?://(?:www\.)?(?:thusports\.vn|forheads\.vn)\S*",
+    re.I,
+)
+
 
 @dataclass
 class ImportedRacquet:
@@ -112,6 +124,25 @@ def _slugify(text: str, *, prefix: str, max_len: int = 180) -> str:
 def _parse_vnd_price(raw: str) -> float:
     digits = re.sub(r"[^\d]", "", raw or "")
     return float(digits) if digits else 0.0
+
+
+def clean_retailer_text(text: str | None) -> str:
+    """Remove reference footers and retailer URLs from storefront copy."""
+    if not text:
+        return ""
+    out = _REFERENCE_FOOTER_RE.sub("", text)
+    out = _RETAILER_URL_RE.sub("", out)
+    out = re.sub(r"[ \t]+\n", "\n", out)
+    out = re.sub(r"\n{3,}", "\n\n", out).strip()
+    return out
+
+
+def clean_retailer_subtitle(subtitle: str | None) -> str:
+    if not subtitle:
+        return ""
+    parts = [p.strip() for p in subtitle.split("·") if p.strip()]
+    kept = [p for p in parts if p.lower() not in RETAILER_LABELS]
+    return " · ".join(kept)
 
 
 def _strip_html(html: str) -> str:
@@ -313,7 +344,6 @@ def enrich_thusports_product(client: httpx.Client, stub: dict[str, str]) -> Impo
     path = urlparse(stub["url"]).path.strip("/").replace(".html", "")
     slug = _slugify(path, prefix="ts")
 
-    footer = f"\n\n—\nReference listing: {stub['url']}"
     return ImportedRacquet(
         source="thusports",
         source_url=stub["url"],
@@ -322,7 +352,7 @@ def enrich_thusports_product(client: httpx.Client, stub: dict[str, str]) -> Impo
         price_vnd=price,
         brand=brand,
         sku=sku,
-        description_html=_strip_html(desc_block) + footer,
+        description_html=clean_retailer_text(_strip_html(desc_block)),
         image_urls=deduped[:8],
         tech_specs=specs,
         badge="NEW" if re.search(r"\bnew\b", html[:8000], re.I) else None,
@@ -357,7 +387,6 @@ def crawl_forheads(client: httpx.Client) -> list[ImportedRacquet]:
             badge = "NEW" if "mới" in tags.lower() or "new" in tags.lower() else None
             product_url = f"https://forheads.vn/products/{handle}"
             slug = _slugify(handle, prefix="fh")
-            footer = f"\n\n—\nReference listing: {product_url}"
             out.append(
                 ImportedRacquet(
                     source="forheads",
@@ -367,7 +396,7 @@ def crawl_forheads(client: httpx.Client) -> list[ImportedRacquet]:
                     price_vnd=price,
                     brand=brand,
                     sku=sku,
-                    description_html=_strip_html(body) + footer,
+                    description_html=clean_retailer_text(_strip_html(body)),
                     image_urls=images[:8],
                     tech_specs=specs,
                     badge=badge,
@@ -457,7 +486,7 @@ def _upsert_racquet(
     cats = _ensure_categories(db, tenant_id, item.brand)
     cat_ids = [c.id for c in cats]
     product = db.scalar(select(Product).where(Product.tenant_id == tenant_id, Product.slug == item.slug))
-    subtitle = f"{item.brand.upper()} · {item.source.upper()}"
+    subtitle = item.brand.upper()
     if item.sku:
         subtitle = f"{subtitle} · {item.sku}"
 
@@ -465,7 +494,7 @@ def _upsert_racquet(
         "enabled": False,
         "vectors": {},
         "specs": item.finder_specs,
-        "tags": [item.source, item.brand],
+        "tags": [item.brand] if item.brand else [],
     }
 
     if product is None:
@@ -512,6 +541,68 @@ def _upsert_racquet(
     product.categories = cats
     _replace_images(db, client, tenant_id, product, item.image_urls)
     return product
+
+
+def cleanup_retailer_references(*, tenant_slug: str = "baseline", dry_run: bool = False) -> None:
+    """Strip Thu Sports / Forheads URLs and labels from existing imported products."""
+    db = SessionLocal()
+    try:
+        tenant = db.scalar(select(Tenant).where(Tenant.slug == tenant_slug))
+        if tenant is None:
+            raise SystemExit(f"Tenant not found: {tenant_slug}")
+        products = db.scalars(select(Product).where(Product.tenant_id == tenant.id)).all()
+        changed = 0
+        for p in products:
+            touched = False
+            for field in ("description", "description_vi"):
+                raw = getattr(p, field) or ""
+                cleaned = clean_retailer_text(raw)
+                if cleaned != raw:
+                    setattr(p, field, cleaned or None)
+                    touched = True
+            for field in ("subtitle", "subtitle_vi"):
+                raw = getattr(p, field) or ""
+                cleaned = clean_retailer_subtitle(raw)
+                if cleaned != raw:
+                    setattr(p, field, cleaned or None)
+                    touched = True
+            fp = dict(p.finder_profile) if p.finder_profile else None
+            if fp and isinstance(fp.get("tags"), list):
+                tags = [t for t in fp["tags"] if str(t).lower() not in RETAILER_LABELS]
+                if tags != fp["tags"]:
+                    fp["tags"] = tags
+                    p.finder_profile = fp
+                    touched = True
+            specs = p.tech_specs or []
+            if specs:
+                new_specs = []
+                specs_changed = False
+                for row in specs:
+                    if not isinstance(row, dict):
+                        new_specs.append(row)
+                        continue
+                    row = dict(row)
+                    for key in ("value", "value_vi", "label", "label_vi"):
+                        if key in row and row[key]:
+                            cleaned = clean_retailer_text(str(row[key]))
+                            if cleaned != row[key]:
+                                row[key] = cleaned
+                                specs_changed = True
+                    new_specs.append(row)
+                if specs_changed:
+                    p.tech_specs = new_specs
+                    touched = True
+            if touched:
+                changed += 1
+                if dry_run:
+                    print(f"would clean: {p.slug}")
+        if dry_run:
+            print(f"Dry run: {changed} product(s) would be updated.")
+            return
+        db.commit()
+        print(f"Cleaned retailer references on {changed} product(s) for tenant '{tenant_slug}'.")
+    finally:
+        db.close()
 
 
 def run(
@@ -609,7 +700,15 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--skip-forheads", action="store_true")
     p.add_argument("--max-pages", type=int, default=None)
     p.add_argument("--inactive", action="store_true", help="import as is_active=False")
+    p.add_argument(
+        "--cleanup-references",
+        action="store_true",
+        help="remove Thu Sports/Forheads URLs and labels from existing products (no crawl)",
+    )
     args = p.parse_args(argv)
+    if args.cleanup_references:
+        cleanup_retailer_references(tenant_slug=args.tenant, dry_run=args.dry_run)
+        return
     run(
         tenant_slug=args.tenant,
         dry_run=args.dry_run,
