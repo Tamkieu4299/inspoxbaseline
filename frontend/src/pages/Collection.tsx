@@ -71,9 +71,16 @@ export default function Collection() {
   }, [products]);
 
   function update(key: string, value: string) {
+    patchParams({ [key]: value || null });
+  }
+
+  /** Apply several query keys in one update (avoids stale params when clearing brand + changing category). */
+  function patchParams(patch: Record<string, string | null>) {
     const next = new URLSearchParams(params);
-    if (value) next.set(key, value);
-    else next.delete(key);
+    for (const [key, value] of Object.entries(patch)) {
+      if (value) next.set(key, value);
+      else next.delete(key);
+    }
     setParams(next, { replace: true });
   }
 
@@ -125,10 +132,11 @@ export default function Collection() {
                 <li>
                   <label className="flex items-center gap-1 cursor-pointer hover:text-forest-green transition-colors">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="shop-category"
                       checked={!category}
-                      onChange={() => update("category", "")}
-                      className="form-checkbox bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4"
+                      onChange={() => patchParams({ category: null, brand: null })}
+                      className="form-radio bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4"
                     />
                     <span className={!category ? "text-forest-green font-bold" : ""}>{t("collection.all")}</span>
                   </label>
@@ -137,13 +145,17 @@ export default function Collection() {
                   <li key={cat.id}>
                     <label className="flex items-center gap-1 cursor-pointer hover:text-forest-green transition-colors">
                       <input
-                        type="checkbox"
+                        type="radio"
+                        name="shop-category"
                         checked={category === cat.slug}
                         onChange={() => {
-                          update("category", category === cat.slug ? "" : cat.slug);
-                          if (category !== cat.slug) update("brand", "");
+                          if (category === cat.slug) {
+                            patchParams({ category: null, brand: null });
+                          } else {
+                            patchParams({ category: cat.slug, brand: null });
+                          }
                         }}
-                        className="form-checkbox bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4"
+                        className="form-radio bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4"
                       />
                       <span className={category === cat.slug ? "text-forest-green font-bold" : ""}>
                         {cat.name}
@@ -163,10 +175,11 @@ export default function Collection() {
                   <li>
                     <label className="flex items-center gap-1 cursor-pointer hover:text-forest-green transition-colors">
                       <input
-                        type="checkbox"
+                        type="radio"
+                        name="shop-brand"
                         checked={!brand}
-                        onChange={() => update("brand", "")}
-                        className="form-checkbox bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4"
+                        onChange={() => patchParams({ brand: null })}
+                        className="form-radio bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4"
                       />
                       <span className={!brand ? "text-forest-green font-bold" : ""}>{t("collection.all")}</span>
                     </label>
@@ -175,10 +188,11 @@ export default function Collection() {
                     <li key={b}>
                       <label className="flex items-center gap-1 cursor-pointer hover:text-forest-green transition-colors">
                         <input
-                          type="checkbox"
+                          type="radio"
+                          name="shop-brand"
                           checked={brand === b}
-                          onChange={() => update("brand", brand === b ? "" : b)}
-                          className="form-checkbox bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4"
+                          onChange={() => patchParams({ brand: b })}
+                          className="form-radio bg-background border-surface-container-highest text-forest-green focus:ring-forest-green h-4 w-4"
                         />
                         <span className={brand === b ? "text-forest-green font-bold" : ""}>{formatBrandLabel(b)}</span>
                       </label>
