@@ -315,8 +315,17 @@ def _product_story_description(story_html: str, product_name: str = "") -> str:
     return clean_retailer_text(desc)
 
 
+_CORE_SPEC_LABEL_RE = re.compile(
+    r"^(?:thương hiệu|brand|mã sku|sku|trọng lượng|cấu trúc dây|mật độ dây|diện tích|"
+    r"điểm cân bằng|độ dài|vành vợt|công nghệ|tên sản phẩm|kích thước|chất liệu|thiết kế khung)",
+    re.I,
+)
+
+
 def _looks_like_feature_title(title: str) -> bool:
     t = title.strip()
+    if _CORE_SPEC_LABEL_RE.match(t):
+        return False
     if len(t) < 6:
         return False
     letters = re.sub(r"[^A-Za-z]", "", t)
