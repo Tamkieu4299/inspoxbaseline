@@ -316,25 +316,44 @@ def _product_story_description(story_html: str, product_name: str = "") -> str:
 
 
 _CORE_SPEC_LABEL_RE = re.compile(
-    r"^(?:thương hiệu|brand|mã sku|sku|trọng lượng|cấu trúc dây|mật độ dây|diện tích|"
-    r"điểm cân bằng|độ dài|vành vợt|công nghệ|tên sản phẩm|kích thước|chất liệu|thiết kế khung)",
+    r"(?:thương hiệu|brand|mã sku|sku|trọng lượng|cấu trúc dây|mật độ dây|diện tích|"
+    r"điểm cân bằng|độ dài|vành vợt|tên sản phẩm|kích thước|chất liệu|độ dày khung|"
+    r"chiều dài\s*\(|balance|string pattern|head size|weight|beam)",
+    re.I,
+)
+_MEASUREMENT_VALUE_RE = re.compile(
+    r"\d|(?:\d+\s*/\s*\d+)|(?:\d+\s*x\s*\d+)|(?:\d+\s*g\b)|(?:\d+\s*mm\b)|(?:\d+\s*cm)|in²|(?:\d+\s*oz\b)",
     re.I,
 )
 
 
+def _looks_like_measurement_spec(label: str, value: str) -> bool:
+    label = label.strip()
+    value = value.strip()
+    if not label or not value:
+        return False
+    if _CORE_SPEC_LABEL_RE.search(label):
+        return True
+    return bool(_MEASUREMENT_VALUE_RE.search(value))
+
+
 def _looks_like_feature_title(title: str) -> bool:
     t = title.strip()
-    if _CORE_SPEC_LABEL_RE.match(t):
+    if _CORE_SPEC_LABEL_RE.search(t):
         return False
     if len(t) < 6:
         return False
     letters = re.sub(r"[^A-Za-z]", "", t)
-    if len(letters) < 4:
-        return False
-    if t == t.upper() and re.search(r"[A-Z]{4,}", t):
+    if len(letters) >= 4:
+        if t == t.upper() and re.search(r"[A-Z]{4,}", t):
+            return True
+        upper = sum(1 for c in letters if c.isupper())
+        if upper / len(letters) >= 0.75:
+            return True
+    # Vietnamese marketing headings (mixed case, no leading digits)
+    if re.search(r"[\u00c0-\u1ef9]", t) and not re.match(r"^\d", t):
         return True
-    upper = sum(1 for c in letters if c.isupper())
-    return upper / len(letters) >= 0.75
+    return False
 
 
 def _feature_icon(title: str) -> str:
@@ -353,34 +372,63 @@ def _feature_icon(title: str) -> str:
 
 
 def _feature_row(title: str, description: str) -> dict[str, str]:
-    title_clean = title.strip().upper()[:80]
+    title_clean = title.strip()[:80]
     desc = description.strip()[:500]
+    display_en = title_clean.upper() if title_clean.isascii() else title_clean
     return {
         "icon": _feature_icon(title_clean),
-        "title": title_clean,
+        "title": display_en,
         "description": desc,
         "title_vi": title_clean,
         "description_vi": desc,
     }
 
 
-def _features_from_bullet_html(html: str) -> list[dict[str, str]]:
-    out: list[dict[str, str]] = []
-    seen: set[str] = set()
+def _colon_bullet_pairs(html: str) -> list[tuple[str, str]]:
+    pairs: list[tuple[str, str]] = []
     for block in re.findall(r"<li[^>]*>(.*?)</li>", html or "", re.S | re.I):
         text = _strip_html(block).strip()
         if ":" not in text:
             continue
         title, _, desc = text.partition(":")
         title, desc = title.strip(), desc.strip()
-        if not desc or not _looks_like_feature_title(title):
+        if title and desc:
+            pairs.append((title, desc))
+    return pairs
+
+
+def _features_from_bullet_html(html: str) -> list[dict[str, str]]:
+    out: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for title, desc in _colon_bullet_pairs(html):
+        if _looks_like_measurement_spec(title, desc):
             continue
-        key = title.upper()
+        if not _looks_like_feature_title(title):
+            continue
+        key = title.casefold()
         if key in seen:
             continue
         seen.add(key)
         out.append(_feature_row(title, desc))
     return out[:12]
+
+
+def _measurement_specs_from_html(html: str) -> list[dict[str, str]]:
+    pairs: list[tuple[str, str]] = []
+    for title, desc in _colon_bullet_pairs(html):
+        if _looks_like_measurement_spec(title, desc):
+            pairs.append((title, desc))
+    pairs.extend(_table_spec_pairs(html))
+    # de-dupe by label
+    seen: set[str] = set()
+    unique: list[tuple[str, str]] = []
+    for label, value in pairs:
+        key = label.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append((label, value))
+    return _pairs_to_specs(unique)
 
 
 def _split_specs_and_features(specs: list[dict[str, str]]) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
@@ -390,14 +438,33 @@ def _split_specs_and_features(specs: list[dict[str, str]]) -> tuple[list[dict[st
     for row in specs:
         label = (row.get("label_vi") or row.get("label") or "").strip()
         value = (row.get("value_vi") or row.get("value") or "").strip()
+        if _looks_like_measurement_spec(label, value):
+            kept.append(row)
+            continue
         if _looks_like_feature_title(label):
-            key = label.upper()
+            key = label.casefold()
             if key not in seen_feat:
                 seen_feat.add(key)
                 features.append(_feature_row(label, value))
         else:
             kept.append(row)
     return kept, features
+
+
+def _intro_description(intro_html: str, product_name: str) -> str:
+    parts: list[str] = []
+    for block in re.findall(r"<p[^>]*>(.*?)</p>", intro_html or "", re.S | re.I):
+        text = _strip_html(block).strip()
+        if not text:
+            continue
+        if re.search(r"thông\s+số\s+kỹ\s+thuật", text, re.I):
+            continue
+        if _is_disclaimer_paragraph(text) or _is_title_duplicate(text, product_name):
+            continue
+        parts.append(text)
+    if parts:
+        return clean_retailer_text(" ".join(parts[:2]))
+    return clean_retailer_text(_strip_html(intro_html))
 
 
 def _forheads_tagline(story_html: str, product_name: str) -> str:
@@ -423,9 +490,42 @@ def _parse_forheads_product_body(
         story_html = body[mo_ta.start() :]
         description = _forheads_tagline(story_html, product_name)
         features = _features_from_bullet_html(story_html)
-        specs = _specs_from_html(spec_html)
-        specs, extra = _split_specs_and_features(specs)
-        features.extend(extra)
+        specs = _measurement_specs_from_html(spec_html)
+        if not specs:
+            specs_raw = _specs_from_html(spec_html)
+            specs, extra = _split_specs_and_features(specs_raw)
+            features.extend(extra)
+        return description, specs, features
+
+    spec_m = re.search(r"Thông\s+số\s+kỹ\s+thuật", body, re.I)
+    hi_m = re.search(r"Điểm\s+Nổi\s+Bật", body, re.I)
+    tech_m = re.search(
+        r"CÔNG\s+NGHỆ\s+NỔI\s+BẬT|KEY\s+TECHNOLOGIES|Công\s+nghệ\s+nổi\s+bật",
+        body,
+        re.I,
+    )
+    if spec_m:
+        intro = body[: spec_m.start()]
+        spec_end = len(body)
+        for m in (hi_m, tech_m):
+            if m and spec_m.start() < m.start() < spec_end:
+                spec_end = m.start()
+        spec_html = body[spec_m.start() : spec_end]
+        description = _intro_description(intro, product_name)
+        specs = _measurement_specs_from_html(spec_html)
+        features: list[dict[str, str]] = []
+        if hi_m:
+            hi_end = tech_m.start() if tech_m and tech_m.start() > hi_m.start() else len(body)
+            features.extend(_features_from_bullet_html(body[hi_m.start() : hi_end]))
+        if tech_m:
+            features.extend(_features_from_bullet_html(body[tech_m.start() :]))
+        if not specs:
+            specs_raw = _specs_from_html(spec_html)
+            specs, extra = _split_specs_and_features(specs_raw)
+            for row in extra:
+                key = (row.get("title_vi") or row.get("title") or "").casefold()
+                if key and key not in {f.get("title_vi", "").casefold() for f in features}:
+                    features.append(row)
         return description, specs, features
 
     description, specs = _parse_rich_product_body(html, product_name)
