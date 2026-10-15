@@ -14,6 +14,7 @@ Options:
     --max-pages N       Thu Sports listing pages (default: all)
     --inactive          import with is_active=False (review in admin)
     --restructure-catalog   rackets category only + product.brand (Wilson/Head filters)
+    --refresh-content       re-crawl and refresh copy/specs/prices (keep images)
 
 Re-run is idempotent per product slug (updates name, price, specs, replaces images).
 """
@@ -89,8 +90,20 @@ _JUNK_SPEC_LABELS = frozenset(
         "nhận xét đánh giá",
         "thông số kỹ thuật",
         "thông số kỹ thuật:",
+        "thông số",
+        "chi tiết",
+        "công nghệ nổi bật",
     }
 )
+_THUSPORTS_SPEC_START_PATTERNS = (
+    re.compile(r"<p[^>]*>\s*<strong>\s*Công\s+nghệ\s+nổi\s+bật", re.I | re.S),
+    re.compile(
+        r"<table[^>]*>\s*<thead>\s*<tr>\s*<th[^>]*>\s*<strong>\s*Thông\s+số\s*</strong>",
+        re.I | re.S,
+    ),
+    _SPEC_SECTION_SPLIT,
+)
+_THUSPORTS_DESC_MAX_LEN = 720
 
 
 def _slugify(text: str, *, prefix: str, max_len: int = 180) -> str:
@@ -227,15 +240,77 @@ def _split_thusports_story_and_specs(desc_html: str) -> tuple[str, str]:
     return desc_html, ""
 
 
-def _parse_thusports_product_body(html: str) -> tuple[str, list[dict[str, str]]]:
+def _thusports_spec_section_start(inner: str) -> int | None:
+    starts: list[int] = []
+    for pat in _THUSPORTS_SPEC_START_PATTERNS:
+        m = pat.search(inner)
+        if m:
+            starts.append(m.start())
+    return min(starts) if starts else None
+
+
+def _normalize_cmp_text(text: str) -> str:
+    s = unicodedata.normalize("NFKD", text)
+    s = s.encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"[^a-z0-9]+", "", s.lower())
+
+
+def _is_disclaimer_paragraph(text: str) -> bool:
+    low = text.lower()
+    return "vui lòng liên hệ" in low and (
+        "kiểm tra" in low or "hàng trước" in low or "size" in low
+    )
+
+
+def _is_title_duplicate(text: str, product_name: str) -> bool:
+    if not product_name or len(text) < 20:
+        return False
+    a, b = _normalize_cmp_text(text), _normalize_cmp_text(product_name)
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    shorter, longer = (a, b) if len(a) <= len(b) else (b, a)
+    return len(shorter) >= 30 and shorter in longer
+
+
+def _thusports_story_description(story_html: str, product_name: str = "") -> str:
+    """Short intro copy like Thu Sports product tab — not tech blocks or spec tables."""
+    parts: list[str] = []
+    for block in re.findall(r"<p[^>]*>(.*?)</p>", story_html or "", re.S | re.I):
+        text = _strip_html(block).strip()
+        if not text:
+            continue
+        low = text.lower().strip().rstrip(":")
+        if low in ("mô tả sản phẩm",):
+            continue
+        if _is_disclaimer_paragraph(text):
+            continue
+        if _is_title_duplicate(text, product_name):
+            continue
+        parts.append(text)
+    desc = " ".join(parts) if parts else _strip_html(story_html)
+    desc = clean_retailer_text(desc)
+    if len(desc) > _THUSPORTS_DESC_MAX_LEN:
+        desc = desc[: _THUSPORTS_DESC_MAX_LEN - 1].rsplit(" ", 1)[0] + "…"
+    return desc
+
+
+def _parse_thusports_product_body(html: str, product_name: str = "") -> tuple[str, list[dict[str, str]]]:
     detail = _thusports_detail_tab_html(html)
     inner = _thusports_desc_inner_html(detail)
-    story_html, spec_html = _split_thusports_story_and_specs(inner)
-    description = clean_retailer_text(_strip_html(story_html))
-    spec_source = spec_html or inner or detail
+    if not inner:
+        return "", []
+    cut = _thusports_spec_section_start(inner)
+    if cut is not None:
+        story_html, spec_html = inner[:cut], inner[cut:]
+    else:
+        story_html, spec_html = _split_thusports_story_and_specs(inner)
+    description = _thusports_story_description(story_html, product_name)
+    spec_source = spec_html or inner
     specs = _specs_from_html(spec_source)
-    if not description and detail:
-        description = clean_retailer_text(_strip_html(story_html or inner))
+    if not specs:
+        specs = _specs_from_html(inner)
     return description, specs
 
 
@@ -370,7 +445,7 @@ def enrich_thusports_product(client: httpx.Client, stub: dict[str, str]) -> Impo
             seen.add(u)
             deduped.append(u)
 
-    description, specs = _parse_thusports_product_body(html)
+    description, specs = _parse_thusports_product_body(html, name)
     path = urlparse(stub["url"]).path.strip("/").replace(".html", "")
     slug = _slugify(path, prefix="ts")
 

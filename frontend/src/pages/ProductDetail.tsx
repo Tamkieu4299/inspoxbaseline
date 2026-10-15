@@ -116,7 +116,9 @@ export default function ProductDetail() {
             )}
             <p className="font-headline text-headline-md text-primary mb-4">{formatPrice(Number(product.price) || 0)}</p>
             {product.description && (
-              <p className="font-body text-body-md text-on-background opacity-80 mb-6 max-w-md">{product.description}</p>
+              <p className="font-body text-body-md text-on-background opacity-80 mb-6 max-w-md line-clamp-6">
+                {product.description}
+              </p>
             )}
 
             {hasColors && (
