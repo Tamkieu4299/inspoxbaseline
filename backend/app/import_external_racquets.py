@@ -397,13 +397,15 @@ def _colon_bullet_pairs(html: str) -> list[tuple[str, str]]:
     return pairs
 
 
-def _features_from_bullet_html(html: str) -> list[dict[str, str]]:
+def _features_from_bullet_html(html: str, *, strict: bool = False) -> list[dict[str, str]]:
     out: list[dict[str, str]] = []
     seen: set[str] = set()
     for title, desc in _colon_bullet_pairs(html):
         if _looks_like_measurement_spec(title, desc):
             continue
-        if not _looks_like_feature_title(title):
+        if strict and not _looks_like_feature_title(title):
+            continue
+        if len(title) < 4 or len(desc) < 8:
             continue
         key = title.casefold()
         if key in seen:
@@ -489,7 +491,7 @@ def _parse_forheads_product_body(
         spec_html = body[: mo_ta.start()]
         story_html = body[mo_ta.start() :]
         description = _forheads_tagline(story_html, product_name)
-        features = _features_from_bullet_html(story_html)
+        features = _features_from_bullet_html(story_html, strict=True)
         specs = _measurement_specs_from_html(spec_html)
         if not specs:
             specs_raw = _specs_from_html(spec_html)
@@ -516,9 +518,9 @@ def _parse_forheads_product_body(
         features: list[dict[str, str]] = []
         if hi_m:
             hi_end = tech_m.start() if tech_m and tech_m.start() > hi_m.start() else len(body)
-            features.extend(_features_from_bullet_html(body[hi_m.start() : hi_end]))
+            features.extend(_features_from_bullet_html(body[hi_m.start() : hi_end], strict=False))
         if tech_m:
-            features.extend(_features_from_bullet_html(body[tech_m.start() :]))
+            features.extend(_features_from_bullet_html(body[tech_m.start() :], strict=False))
         if not specs:
             specs_raw = _specs_from_html(spec_html)
             specs, extra = _split_specs_and_features(specs_raw)
