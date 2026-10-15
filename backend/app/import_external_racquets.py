@@ -334,6 +334,9 @@ def _looks_like_measurement_spec(label: str, value: str) -> bool:
         return False
     if _CORE_SPEC_LABEL_RE.search(label):
         return True
+    # Long copy with embedded numbers (e.g. "690 cm² giúp mở rộng...") is a feature blurb, not a spec row.
+    if len(value) > 48:
+        return False
     return bool(_MEASUREMENT_VALUE_RE.search(value))
 
 
