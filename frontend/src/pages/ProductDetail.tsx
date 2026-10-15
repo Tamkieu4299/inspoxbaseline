@@ -116,7 +116,7 @@ export default function ProductDetail() {
               <p className="font-body text-body-md text-secondary max-w-2xl leading-relaxed mb-2">{product.subtitle}</p>
             )}
             <p className="font-headline text-headline-md text-primary mb-4">{formatPrice(Number(product.price) || 0)}</p>
-            <ProductDescription description={product.description} />
+            <ProductDescription description={product.description} title={product.name} />
 
             {hasColors && (
               <div className="mb-8">

@@ -104,7 +104,6 @@ _SPEC_SECTION_START_PATTERNS = (
     _SPEC_SECTION_SPLIT,
     re.compile(r"Thông\s+số\s+kỹ\s+thuật", re.I),
 )
-_PRODUCT_DESC_MAX_LEN = 720
 
 
 def _slugify(text: str, *, prefix: str, max_len: int = 180) -> str:
@@ -312,10 +311,7 @@ def _product_story_description(story_html: str, product_name: str = "") -> str:
             continue
         parts.append(text)
     desc = " ".join(parts) if parts else _strip_html(story_html)
-    desc = clean_retailer_text(desc)
-    if len(desc) > _PRODUCT_DESC_MAX_LEN:
-        desc = desc[: _PRODUCT_DESC_MAX_LEN - 1].rsplit(" ", 1)[0] + "…"
-    return desc
+    return clean_retailer_text(desc)
 
 
 def _parse_rich_product_body(html: str, product_name: str = "") -> tuple[str, list[dict[str, str]]]:
@@ -376,8 +372,6 @@ def _finalize_product_detail(
     sku: str | None = None,
 ) -> tuple[str, list[dict[str, str]]]:
     desc = clean_retailer_text(description or "")
-    if len(desc) > _PRODUCT_DESC_MAX_LEN:
-        desc = desc[: _PRODUCT_DESC_MAX_LEN - 1].rsplit(" ", 1)[0] + "…"
     merged = _merge_core_specs(specs or [], brand=brand, sku=sku)
     return desc, merged
 
