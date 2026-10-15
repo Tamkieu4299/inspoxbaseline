@@ -76,6 +76,7 @@ class ImportedRacquet:
     description_html: str
     image_urls: list[str]
     tech_specs: list[dict[str, str]]
+    features: list[dict[str, str]] = field(default_factory=list)
     badge: str | None = None
     finder_specs: dict[str, Any] = field(default_factory=dict)
 
@@ -314,8 +315,117 @@ def _product_story_description(story_html: str, product_name: str = "") -> str:
     return clean_retailer_text(desc)
 
 
+def _looks_like_feature_title(title: str) -> bool:
+    t = title.strip()
+    if len(t) < 6:
+        return False
+    letters = re.sub(r"[^A-Za-z]", "", t)
+    if len(letters) < 4:
+        return False
+    if t == t.upper() and re.search(r"[A-Z]{4,}", t):
+        return True
+    upper = sum(1 for c in letters if c.isupper())
+    return upper / len(letters) >= 0.75
+
+
+def _feature_icon(title: str) -> str:
+    low = title.lower()
+    if "power" in low:
+        return "bolt"
+    if "control" in low:
+        return "tune"
+    if "design" in low:
+        return "palette"
+    if "shock" in low or "stop" in low:
+        return "shield"
+    if "length" in low or "oversized" in low:
+        return "straighten"
+    return "auto_awesome"
+
+
+def _feature_row(title: str, description: str) -> dict[str, str]:
+    title_clean = title.strip().upper()[:80]
+    desc = description.strip()[:500]
+    return {
+        "icon": _feature_icon(title_clean),
+        "title": title_clean,
+        "description": desc,
+        "title_vi": title_clean,
+        "description_vi": desc,
+    }
+
+
+def _features_from_bullet_html(html: str) -> list[dict[str, str]]:
+    out: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for block in re.findall(r"<li[^>]*>(.*?)</li>", html or "", re.S | re.I):
+        text = _strip_html(block).strip()
+        if ":" not in text:
+            continue
+        title, _, desc = text.partition(":")
+        title, desc = title.strip(), desc.strip()
+        if not desc or not _looks_like_feature_title(title):
+            continue
+        key = title.upper()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(_feature_row(title, desc))
+    return out[:12]
+
+
+def _split_specs_and_features(specs: list[dict[str, str]]) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    kept: list[dict[str, str]] = []
+    features: list[dict[str, str]] = []
+    seen_feat: set[str] = set()
+    for row in specs:
+        label = (row.get("label_vi") or row.get("label") or "").strip()
+        value = (row.get("value_vi") or row.get("value") or "").strip()
+        if _looks_like_feature_title(label):
+            key = label.upper()
+            if key not in seen_feat:
+                seen_feat.add(key)
+                features.append(_feature_row(label, value))
+        else:
+            kept.append(row)
+    return kept, features
+
+
+def _forheads_tagline(story_html: str, product_name: str) -> str:
+    for block in re.findall(r"<p[^>]*>(.*?)</p>", story_html or "", re.S | re.I):
+        text = _strip_html(block).strip()
+        if not text:
+            continue
+        if re.fullmatch(r"mô tả\s*:?", text, flags=re.I):
+            continue
+        if _is_disclaimer_paragraph(text) or _is_title_duplicate(text, product_name):
+            continue
+        return clean_retailer_text(text)
+    return ""
+
+
+def _parse_forheads_product_body(
+    html: str, product_name: str = ""
+) -> tuple[str, list[dict[str, str]], list[dict[str, str]]]:
+    body = html or ""
+    mo_ta = re.search(r"MÔ\s+TẢ\s*:", body, re.I)
+    if mo_ta:
+        spec_html = body[: mo_ta.start()]
+        story_html = body[mo_ta.start() :]
+        description = _forheads_tagline(story_html, product_name)
+        features = _features_from_bullet_html(story_html)
+        specs = _specs_from_html(spec_html)
+        specs, extra = _split_specs_and_features(specs)
+        features.extend(extra)
+        return description, specs, features
+
+    description, specs = _parse_rich_product_body(html, product_name)
+    specs, features = _split_specs_and_features(specs)
+    return description, specs, features
+
+
 def _parse_rich_product_body(html: str, product_name: str = "") -> tuple[str, list[dict[str, str]]]:
-    """Split retailer HTML into capped intro description + structured tech_specs."""
+    """Split retailer HTML into intro description + structured tech_specs."""
     if not html:
         return "", []
     cut = _spec_section_start(html)
@@ -370,10 +480,20 @@ def _finalize_product_detail(
     *,
     brand: str | None = None,
     sku: str | None = None,
-) -> tuple[str, list[dict[str, str]]]:
+    features: list[dict[str, str]] | None = None,
+) -> tuple[str, list[dict[str, str]], list[dict[str, str]]]:
     desc = clean_retailer_text(description or "")
     merged = _merge_core_specs(specs or [], brand=brand, sku=sku)
-    return desc, merged
+    specs_only, from_specs = _split_specs_and_features(merged)
+    out_features: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for row in (features or []) + from_specs:
+        key = (row.get("title") or "").upper()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out_features.append(row)
+    return desc, specs_only, out_features[:12]
 
 
 def _parse_thusports_product_body(html: str, product_name: str = "") -> tuple[str, list[dict[str, str]]]:
@@ -516,7 +636,7 @@ def enrich_thusports_product(client: httpx.Client, stub: dict[str, str]) -> Impo
             deduped.append(u)
 
     description, specs = _parse_thusports_product_body(html, name)
-    description, specs = _finalize_product_detail(
+    description, specs, features = _finalize_product_detail(
         name, description, specs, brand=_normalize_brand(brand), sku=sku
     )
     path = urlparse(stub["url"]).path.strip("/").replace(".html", "")
@@ -533,6 +653,7 @@ def enrich_thusports_product(client: httpx.Client, stub: dict[str, str]) -> Impo
         description_html=description,
         image_urls=deduped[:8],
         tech_specs=specs,
+        features=features,
         badge="NEW" if re.search(r"\bnew\b", html[:8000], re.I) else None,
         finder_specs=_finder_from_specs(specs),
     )
@@ -559,9 +680,14 @@ def crawl_forheads(client: httpx.Client) -> list[ImportedRacquet]:
             price = float(variants[0].get("price") or 0) if variants else 0.0
             sku = str(variants[0].get("sku") or "").strip() or None
             body = p.get("body_html") or ""
-            description_body, specs = _parse_rich_product_body(body, title)
-            description_body, specs = _finalize_product_detail(
-                title, description_body, specs, brand=_normalize_brand(brand), sku=sku
+            description_body, specs, features = _parse_forheads_product_body(body, title)
+            description_body, specs, features = _finalize_product_detail(
+                title,
+                description_body,
+                specs,
+                brand=_normalize_brand(brand),
+                sku=sku,
+                features=features,
             )
             images = [img.get("src") for img in (p.get("images") or []) if img.get("src")]
             tags = p.get("tags") or ""
@@ -580,6 +706,7 @@ def crawl_forheads(client: httpx.Client) -> list[ImportedRacquet]:
                     description_html=description_body,
                     image_urls=images[:8],
                     tech_specs=specs,
+                    features=features,
                     badge=badge,
                     finder_specs=_finder_from_specs(specs),
                 )
@@ -683,12 +810,13 @@ def _upsert_racquet(
     rackets = _rackets_category(db, tenant_id)
     product = db.scalar(select(Product).where(Product.tenant_id == tenant_id, Product.slug == item.slug))
     product_brand = _normalize_brand(item.brand)
-    desc, specs = _finalize_product_detail(
+    desc, specs, features = _finalize_product_detail(
         item.name,
         item.description_html,
         item.tech_specs,
         brand=product_brand,
         sku=item.sku,
+        features=item.features,
     )
     subtitle = item.brand.upper()
     if item.sku:
@@ -720,7 +848,7 @@ def _upsert_racquet(
             colors=[],
             sizes=["ONE SIZE"],
             tech_specs=specs,
-            features=[],
+            features=features,
             is_active=active,
             is_featured=False,
             is_bestseller=False,
@@ -741,6 +869,7 @@ def _upsert_racquet(
         product.collection_id = collection_id
         product.badge = item.badge
         product.tech_specs = specs
+        product.features = features
         product.finder_profile = finder
         product.is_active = active
 

@@ -5,6 +5,7 @@ import { api } from "../api";
 import Icon from "../components/Icon";
 import Lightbox from "../components/Lightbox";
 import ProductGallery, { isGalleryLayout } from "../components/ProductGallery";
+import ProductFeatureGrid from "../components/ProductFeatureGrid";
 import { ProductDescription, ProductTechSpecList } from "../components/ProductStoryAndSpecs";
 import { useLanguage } from "../i18n";
 import { useStoreCurrency } from "../useStoreCurrency";
@@ -188,25 +189,7 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {product.features?.length > 0 && (
-          <section className="py-16 my-16 border-t border-outline-variant">
-            <h2 className="font-headline text-headline-lg-mobile md:text-headline-lg text-primary uppercase text-center mb-16 tracking-tighter">
-              {t("product.engineered")}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {product.features.map((feature, index) => (
-                <div
-                  key={index}
-                  className="bg-surface p-8 flex flex-col border border-transparent hover:border-outline-variant transition-colors duration-300"
-                >
-                  {feature.icon && <Icon name={feature.icon} className="text-[48px] text-primary mb-4" />}
-                  <h4 className="font-headline text-headline-md text-primary uppercase mb-2">{feature.title}</h4>
-                  <p className="font-body text-body-md text-secondary">{feature.description}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        <ProductFeatureGrid features={product.features} />
       </main>
       {lightboxIndex !== null && (
         <Lightbox
