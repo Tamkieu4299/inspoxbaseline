@@ -5,6 +5,7 @@ import { api } from "../api";
 import Icon from "../components/Icon";
 import Lightbox from "../components/Lightbox";
 import ProductGallery, { isGalleryLayout } from "../components/ProductGallery";
+import { ProductDescription, ProductTechSpecList } from "../components/ProductStoryAndSpecs";
 import { useLanguage } from "../i18n";
 import { useStoreCurrency } from "../useStoreCurrency";
 import {
@@ -115,11 +116,7 @@ export default function ProductDetail() {
               <p className="font-body text-body-md text-secondary max-w-2xl leading-relaxed mb-2">{product.subtitle}</p>
             )}
             <p className="font-headline text-headline-md text-primary mb-4">{formatPrice(Number(product.price) || 0)}</p>
-            {product.description && (
-              <p className="font-body text-body-md text-on-background opacity-80 mb-6 max-w-md line-clamp-6">
-                {product.description}
-              </p>
-            )}
+            <ProductDescription description={product.description} />
 
             {hasColors && (
               <div className="mb-8">
@@ -187,25 +184,7 @@ export default function ProductDetail() {
               {t("product.addToCart")} <Icon name="arrow_forward" className="text-[20px]" />
             </button>
 
-            {product.tech_specs?.length > 0 && (
-              <div className="border-t border-outline-variant pt-4 mt-1">
-                <h3 className="font-label text-label-caps text-primary uppercase mb-2">{t("product.techSpecs")}</h3>
-                <ul className="flex flex-col gap-2">
-                  {product.tech_specs.map((spec, index) => {
-                    const specLabel =
-                      lang === "vi" ? spec.label_vi || spec.label : spec.label || spec.label_vi;
-                    const specValue =
-                      lang === "vi" ? spec.value_vi || spec.value : spec.value || spec.value_vi;
-                    return (
-                      <li key={index} className="flex justify-between border-b border-surface-container-high pb-2 gap-4">
-                        <span className="font-body text-body-md text-secondary">{specLabel}</span>
-                        <span className="font-label text-label-caps text-primary text-right">{specValue}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
+            <ProductTechSpecList techSpecs={product.tech_specs} />
           </div>
         </div>
 

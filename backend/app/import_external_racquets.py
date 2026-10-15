@@ -95,15 +95,16 @@ _JUNK_SPEC_LABELS = frozenset(
         "công nghệ nổi bật",
     }
 )
-_THUSPORTS_SPEC_START_PATTERNS = (
+_SPEC_SECTION_START_PATTERNS = (
     re.compile(r"<p[^>]*>\s*<strong>\s*Công\s+nghệ\s+nổi\s+bật", re.I | re.S),
     re.compile(
         r"<table[^>]*>\s*<thead>\s*<tr>\s*<th[^>]*>\s*<strong>\s*Thông\s+số\s*</strong>",
         re.I | re.S,
     ),
     _SPEC_SECTION_SPLIT,
+    re.compile(r"Thông\s+số\s+kỹ\s+thuật", re.I),
 )
-_THUSPORTS_DESC_MAX_LEN = 720
+_PRODUCT_DESC_MAX_LEN = 720
 
 
 def _slugify(text: str, *, prefix: str, max_len: int = 180) -> str:
@@ -175,10 +176,31 @@ def _paragraph_spec_pairs(html: str) -> list[tuple[str, str]]:
     return pairs
 
 
+def _list_spec_pairs(html: str) -> list[tuple[str, str]]:
+    pairs: list[tuple[str, str]] = []
+    for block in re.findall(r"<li[^>]*>(.*?)</li>", html or "", re.S | re.I):
+        text = _strip_html(block).strip()
+        if not text or len(text) < 3:
+            continue
+        low = text.lower()
+        if low.startswith("thông số kỹ thuật"):
+            continue
+        if ":" in text:
+            label, _, value = text.partition(":")
+            label, value = label.strip(), value.strip()
+            if label and value:
+                pairs.append((label, value))
+    return pairs
+
+
 def _spec_pairs_from_html(html: str) -> list[tuple[str, str]]:
     seen: set[str] = set()
     out: list[tuple[str, str]] = []
-    for label, value in _table_spec_pairs(html) + _paragraph_spec_pairs(html):
+    for label, value in (
+        _table_spec_pairs(html)
+        + _paragraph_spec_pairs(html)
+        + _list_spec_pairs(html)
+    ):
         label = label.strip().rstrip(":").strip()
         value = value.strip()
         if not label or not value:
@@ -240,10 +262,10 @@ def _split_thusports_story_and_specs(desc_html: str) -> tuple[str, str]:
     return desc_html, ""
 
 
-def _thusports_spec_section_start(inner: str) -> int | None:
+def _spec_section_start(html: str) -> int | None:
     starts: list[int] = []
-    for pat in _THUSPORTS_SPEC_START_PATTERNS:
-        m = pat.search(inner)
+    for pat in _SPEC_SECTION_START_PATTERNS:
+        m = pat.search(html)
         if m:
             starts.append(m.start())
     return min(starts) if starts else None
@@ -274,8 +296,8 @@ def _is_title_duplicate(text: str, product_name: str) -> bool:
     return len(shorter) >= 30 and shorter in longer
 
 
-def _thusports_story_description(story_html: str, product_name: str = "") -> str:
-    """Short intro copy like Thu Sports product tab — not tech blocks or spec tables."""
+def _product_story_description(story_html: str, product_name: str = "") -> str:
+    """Short intro copy — not tech blocks, spec tables, or bullet spec lists."""
     parts: list[str] = []
     for block in re.findall(r"<p[^>]*>(.*?)</p>", story_html or "", re.S | re.I):
         text = _strip_html(block).strip()
@@ -291,9 +313,73 @@ def _thusports_story_description(story_html: str, product_name: str = "") -> str
         parts.append(text)
     desc = " ".join(parts) if parts else _strip_html(story_html)
     desc = clean_retailer_text(desc)
-    if len(desc) > _THUSPORTS_DESC_MAX_LEN:
-        desc = desc[: _THUSPORTS_DESC_MAX_LEN - 1].rsplit(" ", 1)[0] + "…"
+    if len(desc) > _PRODUCT_DESC_MAX_LEN:
+        desc = desc[: _PRODUCT_DESC_MAX_LEN - 1].rsplit(" ", 1)[0] + "…"
     return desc
+
+
+def _parse_rich_product_body(html: str, product_name: str = "") -> tuple[str, list[dict[str, str]]]:
+    """Split retailer HTML into capped intro description + structured tech_specs."""
+    if not html:
+        return "", []
+    cut = _spec_section_start(html)
+    if cut is not None:
+        story_html, spec_html = html[:cut], html[cut:]
+    else:
+        story_html, spec_html = _split_thusports_story_and_specs(html)
+    description = _product_story_description(story_html, product_name)
+    spec_source = spec_html or html
+    specs = _specs_from_html(spec_source)
+    if not specs and spec_html:
+        specs = _specs_from_html(html)
+    return description, specs
+
+
+def _merge_core_specs(
+    specs: list[dict[str, str]],
+    *,
+    brand: str | None,
+    sku: str | None,
+) -> list[dict[str, str]]:
+    """Ensure brand/SKU appear in tech_specs when imports provide them."""
+    keys = {(s.get("label_vi") or s.get("label") or "").strip().lower() for s in specs}
+    out = list(specs)
+    if brand and "thương hiệu" not in keys and "brand" not in keys:
+        b = brand.replace("-", " ").title()
+        out.insert(
+            0,
+            {
+                "label": "BRAND",
+                "value": b[:200],
+                "label_vi": "Thương hiệu",
+                "value_vi": b[:200],
+            },
+        )
+    if sku and "mã sku" not in keys and "sku" not in keys:
+        out.append(
+            {
+                "label": "SKU",
+                "value": sku[:200],
+                "label_vi": "Mã SKU",
+                "value_vi": sku[:200],
+            }
+        )
+    return out[:32]
+
+
+def _finalize_product_detail(
+    product_name: str,
+    description: str,
+    specs: list[dict[str, str]],
+    *,
+    brand: str | None = None,
+    sku: str | None = None,
+) -> tuple[str, list[dict[str, str]]]:
+    desc = clean_retailer_text(description or "")
+    if len(desc) > _PRODUCT_DESC_MAX_LEN:
+        desc = desc[: _PRODUCT_DESC_MAX_LEN - 1].rsplit(" ", 1)[0] + "…"
+    merged = _merge_core_specs(specs or [], brand=brand, sku=sku)
+    return desc, merged
 
 
 def _parse_thusports_product_body(html: str, product_name: str = "") -> tuple[str, list[dict[str, str]]]:
@@ -301,17 +387,7 @@ def _parse_thusports_product_body(html: str, product_name: str = "") -> tuple[st
     inner = _thusports_desc_inner_html(detail)
     if not inner:
         return "", []
-    cut = _thusports_spec_section_start(inner)
-    if cut is not None:
-        story_html, spec_html = inner[:cut], inner[cut:]
-    else:
-        story_html, spec_html = _split_thusports_story_and_specs(inner)
-    description = _thusports_story_description(story_html, product_name)
-    spec_source = spec_html or inner
-    specs = _specs_from_html(spec_source)
-    if not specs:
-        specs = _specs_from_html(inner)
-    return description, specs
+    return _parse_rich_product_body(inner, product_name)
 
 
 def _infer_brand(name: str, vendor: str | None = None) -> str:
@@ -446,6 +522,9 @@ def enrich_thusports_product(client: httpx.Client, stub: dict[str, str]) -> Impo
             deduped.append(u)
 
     description, specs = _parse_thusports_product_body(html, name)
+    description, specs = _finalize_product_detail(
+        name, description, specs, brand=_normalize_brand(brand), sku=sku
+    )
     path = urlparse(stub["url"]).path.strip("/").replace(".html", "")
     slug = _slugify(path, prefix="ts")
 
@@ -486,14 +565,10 @@ def crawl_forheads(client: httpx.Client) -> list[ImportedRacquet]:
             price = float(variants[0].get("price") or 0) if variants else 0.0
             sku = str(variants[0].get("sku") or "").strip() or None
             body = p.get("body_html") or ""
-            body_lower = body.lower()
-            spec_html = body
-            if "thông số" in body_lower:
-                idx = body_lower.find("thông số")
-                spec_html = body[idx:]
-                body = body[:idx]
-            description_body = clean_retailer_text(_strip_html(body))
-            specs = _specs_from_html(spec_html)
+            description_body, specs = _parse_rich_product_body(body, title)
+            description_body, specs = _finalize_product_detail(
+                title, description_body, specs, brand=_normalize_brand(brand), sku=sku
+            )
             images = [img.get("src") for img in (p.get("images") or []) if img.get("src")]
             tags = p.get("tags") or ""
             badge = "NEW" if "mới" in tags.lower() or "new" in tags.lower() else None
@@ -614,6 +689,13 @@ def _upsert_racquet(
     rackets = _rackets_category(db, tenant_id)
     product = db.scalar(select(Product).where(Product.tenant_id == tenant_id, Product.slug == item.slug))
     product_brand = _normalize_brand(item.brand)
+    desc, specs = _finalize_product_detail(
+        item.name,
+        item.description_html,
+        item.tech_specs,
+        brand=product_brand,
+        sku=item.sku,
+    )
     subtitle = item.brand.upper()
     if item.sku:
         subtitle = f"{subtitle} · {item.sku}"
@@ -621,7 +703,7 @@ def _upsert_racquet(
     finder = {
         "enabled": False,
         "vectors": {},
-        "specs": item.finder_specs,
+        "specs": _finder_from_specs(specs) or item.finder_specs,
         "tags": [item.brand] if item.brand else [],
     }
 
@@ -633,8 +715,8 @@ def _upsert_racquet(
             name_vi=item.name,
             subtitle=subtitle,
             subtitle_vi=subtitle,
-            description=item.description_html,
-            description_vi=item.description_html,
+            description=desc,
+            description_vi=desc,
             price=item.price_vnd,
             category_id=rackets.id,
             brand=product_brand,
@@ -643,7 +725,7 @@ def _upsert_racquet(
             gallery_layout="slideshow",
             colors=[],
             sizes=["ONE SIZE"],
-            tech_specs=item.tech_specs,
+            tech_specs=specs,
             features=[],
             is_active=active,
             is_featured=False,
@@ -657,14 +739,14 @@ def _upsert_racquet(
         product.name_vi = item.name
         product.subtitle = subtitle
         product.subtitle_vi = subtitle
-        product.description = item.description_html
-        product.description_vi = item.description_html
+        product.description = desc
+        product.description_vi = desc
         product.price = item.price_vnd
         product.category_id = rackets.id
         product.brand = product_brand
         product.collection_id = collection_id
         product.badge = item.badge
-        product.tech_specs = item.tech_specs
+        product.tech_specs = specs
         product.finder_profile = finder
         product.is_active = active
 
