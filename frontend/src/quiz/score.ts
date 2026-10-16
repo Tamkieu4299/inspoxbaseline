@@ -222,5 +222,23 @@ export function rankProducts(
   return ranked;
 }
 
+/** If hard filters remove every SKU, fall back to best vector matches (filters still returned for UI). */
+export function rankProductsWithFallback(
+  profile: VectorProfile,
+  products: MatchProduct[],
+  weights: Record<string, number> | undefined,
+  guardrails: QuizGuardrails,
+  dimensionIds: string[]
+): { ranked: ReturnType<typeof rankProducts>; guardrailsApplied: boolean } {
+  const filtered = rankProducts(profile, products, weights, guardrails, dimensionIds);
+  if (filtered.length > 0 || !Object.keys(guardrails).length) {
+    return { ranked: filtered, guardrailsApplied: true };
+  }
+  return {
+    ranked: rankProducts(profile, products, weights, {}, dimensionIds),
+    guardrailsApplied: false,
+  };
+}
+
 /** @deprecated use LEGACY_QUIZ_DIMENSIONS from ./dimensions */
 export const QUIZ_DIMENSIONS = LEGACY_QUIZ_DIMENSIONS;

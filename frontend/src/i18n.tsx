@@ -57,6 +57,10 @@ const en: Record<string, string> = {
   "quiz.match": "match",
   "quiz.viewProduct": "View product",
   "quiz.noMatches": "No matching products yet. Enable quiz profiles on racquet SKUs in Products.",
+  "quiz.noPool":
+    "No racquets in the quiz catalog yet. Use the baseline shop (port 3001) or enable “Include in quiz matching” on racquet products for this tenant.",
+  "quiz.filtersRelaxed":
+    "No frame matched every filter (weight, RA, head size, string pattern). Showing closest fits by play style — open a product to confirm specs.",
   "quiz.retake": "Retake interview",
   "quiz.liveShortlist": "Live shortlist",
   "quiz.answerToSee": "Answer questions to see matches.",
@@ -802,7 +806,11 @@ const vi: Record<string, string> = {
   "quiz.yourMatches": "Vợt phù hợp",
   "quiz.match": "phù hợp",
   "quiz.viewProduct": "Xem sản phẩm",
-  "quiz.noMatches": "Chưa có sản phẩm khớp. Bật hồ sơ quiz trên SKU vợt trong Products.",
+  "quiz.noMatches": "Chưa có vợt phù hợp sau khi lọc. Thử làm lại với câu trả lời ít giới hạn hơn (mặt cước, RA, trọng lượng).",
+  "quiz.noPool":
+    "Chưa có vợt trong catalog quiz. Dùng shop baseline (cổng 3001) hoặc bật “Tham gia ghép quiz” trên từng vợt trong Products.",
+  "quiz.filtersRelaxed":
+    "Không có vợt nào thỏa mọi bộ lọc (cân nặng, RA, mặt vợt, mặt cước). Đang xếp hạng theo phong cách chơi — mở sản phẩm để xem thông số.",
   "quiz.retake": "Làm lại",
   "quiz.liveShortlist": "Gợi ý trực tiếp",
   "quiz.answerToSee": "Trả lời câu hỏi để xem gợi ý.",

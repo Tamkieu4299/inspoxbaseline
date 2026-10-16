@@ -10,7 +10,7 @@ import {
   applyOptions,
   emptyProfile,
   mergeGuardrails,
-  rankProducts,
+  rankProductsWithFallback,
   type MatchProduct,
   type QuizOptionDef,
 } from "../quiz/score";
@@ -54,8 +54,8 @@ export default function QuizRunner() {
     return opts;
   }, [quiz, answers]);
 
-  const ranked = useMemo(() => {
-    if (!quiz) return [];
+  const { ranked, guardrailsApplied, poolEmpty } = useMemo(() => {
+    if (!quiz) return { ranked: [], guardrailsApplied: true, poolEmpty: false };
     const dimIds = dimensionIdsFromQuiz(quiz);
     let profile = emptyProfile(dimIds);
     profile = applyOptions(profile, selectedOptions, dimIds);
@@ -67,7 +67,17 @@ export default function QuizRunner() {
       image_url: p.image_url,
       finder_profile: p.finder_profile,
     }));
-    return rankProducts(profile, pool, quiz.dimension_weights, guardrails, dimIds);
+    if (!pool.length) {
+      return { ranked: [], guardrailsApplied: true, poolEmpty: true };
+    }
+    const { ranked: rows, guardrailsApplied: applied } = rankProductsWithFallback(
+      profile,
+      pool,
+      quiz.dimension_weights,
+      guardrails,
+      dimIds
+    );
+    return { ranked: rows, guardrailsApplied: applied, poolEmpty: false };
   }, [quiz, selectedOptions]);
 
   const displayMatches = useMemo(
@@ -265,6 +275,12 @@ export default function QuizRunner() {
       {phase === "results" ? (
         <section className="flex-1 py-12 px-6 md:px-margin-desktop max-w-[1440px] mx-auto w-full">
           <h2 className="font-headline text-headline-lg uppercase text-primary mb-8">{t("quiz.yourMatches")}</h2>
+          {poolEmpty ? (
+            <p className="font-body text-body-md text-secondary mb-6 max-w-2xl">{t("quiz.noPool")}</p>
+          ) : null}
+          {!guardrailsApplied && displayMatches.length > 0 ? (
+            <p className="font-body text-body-md text-secondary mb-6 max-w-2xl">{t("quiz.filtersRelaxed")}</p>
+          ) : null}
           <ul className="flex flex-col gap-4 max-w-3xl">
             {displayMatches.map((row, index) => (
               <li
