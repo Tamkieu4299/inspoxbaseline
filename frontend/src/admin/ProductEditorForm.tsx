@@ -23,6 +23,7 @@ import { PRODUCT_BADGES, type ProductDraft } from "./productDraft";
 import { getProductVariantOptions, variantStorefrontSummaryKey } from "../productDisplay";
 import { collectDimensionsFromQuizzes, legacyDimensionDefs } from "../quiz/dimensions";
 import { StudioModule, StudioToggle, studioInputClass } from "./studioUi";
+import { sanitizeMaterialIcon } from "../materialIcon";
 
 export type ProductStudioTab = "general" | "media" | "story" | "variants";
 
@@ -923,6 +924,12 @@ function FeatureList({
                 value={item.icon}
                 placeholder="Icon name (e.g. balance, straighten, air)"
                 onChange={(e) => (item.icon = e.target.value)}
+                onBlur={(e) => {
+                  const fixed = sanitizeMaterialIcon(e.target.value) ?? e.target.value.trim();
+                  if (fixed === item.icon) return;
+                  const next = values.map((row, i) => (i === index ? { ...row, icon: fixed } : row));
+                  onChange(next);
+                }}
               />
               <TextInput
                 value={item.title}

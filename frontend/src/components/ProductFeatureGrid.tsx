@@ -1,5 +1,6 @@
 import Icon from "./Icon";
 import { useLanguage } from "../i18n";
+import { sanitizeMaterialIcon } from "../materialIcon";
 import type { Product } from "../types";
 
 type Feature = NonNullable<Product["features"]>[number];
@@ -24,13 +25,14 @@ export default function ProductFeatureGrid({ features }: { features?: Feature[] 
             lang === "vi"
               ? feature.description_vi || feature.description
               : feature.description || feature.description_vi;
+          const iconName = sanitizeMaterialIcon(feature.icon);
           return (
             <div
               key={index}
               className="bg-surface p-8 flex flex-col border border-transparent hover:border-outline-variant transition-colors duration-300"
             >
-              {feature.icon ? (
-                <Icon name={feature.icon} className="text-[48px] text-primary mb-4" />
+              {iconName ? (
+                <Icon name={iconName} className="text-[48px] text-primary mb-4" />
               ) : null}
               <h4 className="font-headline text-headline-md text-primary uppercase mb-2">{title}</h4>
               <p className="font-body text-body-md text-secondary">{description}</p>
