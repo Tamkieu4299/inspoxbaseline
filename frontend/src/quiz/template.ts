@@ -4,6 +4,7 @@ import {
   mergeDimensionWeights,
   tennisWarehouseReviewDimensions,
 } from "./dimensions";
+import { twRacquetFinderSteps } from "./racquetFinderSteps";
 
 /** Starter racquet-finder quiz (matches backend quiz_defaults). */
 export function blankQuiz(): Partial<ShopQuiz> {
@@ -30,13 +31,13 @@ export function blankQuiz(): Partial<ShopQuiz> {
 }
 
 export function racquetFinderTemplate(): Partial<ShopQuiz> {
-  const dimensions = legacyDimensionDefs();
+  const dimensions = tennisWarehouseReviewDimensions();
   return {
     slug: "racquet-finder",
     title: "Find your bespoke racquet",
     title_vi: "Tìm cây vợt phù hợp",
-    subtitle: "Interview-style matching against your catalog.",
-    subtitle_vi: "Ghép vợt theo phong cách chơi và nhu cầu êm tay.",
+    subtitle: "Ten questions tuned to Tennis Warehouse playtest scores in our catalog.",
+    subtitle_vi: "Mười câu hỏi ghép với điểm playtest kiểu Tennis Warehouse trong catalog.",
     nav_label: "RACQUET FINDER",
     nav_label_vi: "TÌM VỢT",
     show_in_nav: false,
@@ -44,107 +45,25 @@ export function racquetFinderTemplate(): Partial<ShopQuiz> {
     hero_kicker: "FITTING LAB",
     hero_kicker_vi: "PHÒNG FIT",
     hero_badges: [
-      { icon: "data_object", label: "Data-driven matching", label_vi: "Ghép theo dữ liệu" },
-      { icon: "shield_with_heart", label: "Arm-safe RA filters", label_vi: "Lọc RA êm tay" },
+      { icon: "data_object", label: "TW review matching", label_vi: "Ghép theo điểm TW" },
+      { icon: "shield_with_heart", label: "RA & weight filters", label_vi: "Lọc RA & trọng lượng" },
     ],
     faq: [],
     dimensions,
     dimension_weights: mergeDimensionWeights(dimensions, {}),
     product_filter: { category_slugs: [], require_finder_profile: true },
-    steps: [
-      {
-        id: "comfort",
-        step_key: "01_COMFORT",
-        title: "Arm comfort",
-        title_vi: "Độ êm tay",
-        subtitle: "",
-        subtitle_vi: "",
-        required: true,
-        options: [
-          {
-            id: "elbow",
-            icon: "healing",
-            title: "Sensitive arm / tennis elbow",
-            title_vi: "Đau khuỷu / cần êm",
-            deltas: { comfort: 35 },
-            guardrails: { max_ra: 63 },
-          },
-          {
-            id: "ok",
-            title: "No issues",
-            title_vi: "Không vấn đề",
-            deltas: { control: 10 },
-          },
-        ],
-      },
-    ],
+    steps: twRacquetFinderSteps(),
   };
 }
 
-/** Quiz using Tennis Warehouse–style review axes (scores 0–100 on products). */
+/** Alias for TW-axis racquet finder (same as racquetFinderTemplate). */
 export function tennisWarehouseReviewTemplate(): Partial<ShopQuiz> {
-  const dimensions = tennisWarehouseReviewDimensions();
   return {
     ...racquetFinderTemplate(),
     slug: "racquet-review-match",
     title: "Match by TW-style review scores",
     title_vi: "Ghép theo điểm review kiểu TW",
-    subtitle: "Define products with Groundstrokes, Volleys, Power, etc. Questions nudge those axes.",
-    subtitle_vi: "Nhập điểm Groundstrokes, Volleys, Power… trên sản phẩm; câu trả lời điều chỉnh trục tương ứng.",
     nav_label: "RACQUET MATCH",
     nav_label_vi: "GHÉP VỢT",
-    dimensions,
-    dimension_weights: mergeDimensionWeights(dimensions, {}),
-    steps: [
-      {
-        id: "style",
-        step_key: "01_STYLE",
-        title: "Where do you win most points?",
-        title_vi: "Bạn ghi điểm chủ yếu ở đâu?",
-        required: true,
-        options: [
-          {
-            id: "baseline",
-            title: "Baseline",
-            title_vi: "Baseline",
-            deltas: { groundstrokes: 25, topspin: 15 },
-          },
-          {
-            id: "net",
-            title: "Net / volleys",
-            title_vi: "Lên lưới",
-            deltas: { volleys: 25, touch: 10 },
-          },
-          {
-            id: "serve",
-            title: "Serve + first strike",
-            title_vi: "Giao bóng / tấn công",
-            deltas: { serves: 25, power: 10 },
-          },
-        ],
-      },
-      {
-        id: "comfort",
-        step_key: "02_COMFORT",
-        title: "Arm comfort",
-        title_vi: "Độ êm tay",
-        required: true,
-        options: [
-          {
-            id: "elbow",
-            title: "Need arm-friendly frame",
-            title_vi: "Cần vợt êm tay",
-            deltas: { comfort: 30 },
-            guardrails: { max_ra: 63 },
-          },
-          {
-            id: "ok",
-            title: "No arm issues",
-            title_vi: "Không vấn đề",
-            deltas: { control: 10 },
-          },
-        ],
-      },
-    ],
   };
 }

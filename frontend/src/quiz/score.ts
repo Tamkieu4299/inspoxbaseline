@@ -9,6 +9,8 @@ export type QuizGuardrails = {
   min_weight_g?: number;
   min_swing_weight?: number;
   max_swing_weight?: number;
+  min_head_sq_in?: number;
+  max_head_sq_in?: number;
   exclude_tags?: string[];
 };
 
@@ -120,6 +122,12 @@ export function mergeGuardrails(options: QuizOptionDef[]): QuizGuardrails {
     if (g.min_swing_weight != null)
       merged.min_swing_weight =
         merged.min_swing_weight == null ? g.min_swing_weight : Math.max(merged.min_swing_weight, g.min_swing_weight);
+    if (g.min_head_sq_in != null)
+      merged.min_head_sq_in =
+        merged.min_head_sq_in == null ? g.min_head_sq_in : Math.max(merged.min_head_sq_in, g.min_head_sq_in);
+    if (g.max_head_sq_in != null)
+      merged.max_head_sq_in =
+        merged.max_head_sq_in == null ? g.max_head_sq_in : Math.min(merged.max_head_sq_in, g.max_head_sq_in);
     if (g.exclude_tags?.length) {
       merged.exclude_tags = [...(merged.exclude_tags || []), ...g.exclude_tags];
     }
@@ -146,6 +154,18 @@ function passesGuardrails(product: MatchProduct, guardrails: QuizGuardrails): bo
     guardrails.min_swing_weight != null &&
     specs.swing_weight != null &&
     Number(specs.swing_weight) < guardrails.min_swing_weight
+  )
+    return false;
+  if (
+    guardrails.min_head_sq_in != null &&
+    specs.head_sq_in != null &&
+    Number(specs.head_sq_in) < guardrails.min_head_sq_in
+  )
+    return false;
+  if (
+    guardrails.max_head_sq_in != null &&
+    specs.head_sq_in != null &&
+    Number(specs.head_sq_in) > guardrails.max_head_sq_in
   )
     return false;
   for (const t of guardrails.exclude_tags || []) {
