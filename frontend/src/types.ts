@@ -71,6 +71,15 @@ export type ProductFinderProfile = {
     [k: string]: unknown;
   };
   tags?: string[];
+  /** Tennis Warehouse review source (import_tennis_warehouse_profiles). */
+  tw?: {
+    code?: string;
+    name?: string;
+    review_url?: string;
+    verdict?: number;
+    breakdown_0_10?: Record<string, number>;
+    lab?: Record<string, { score?: string; grade?: string }>;
+  };
 };
 
 export type QuizDimensionDef = {

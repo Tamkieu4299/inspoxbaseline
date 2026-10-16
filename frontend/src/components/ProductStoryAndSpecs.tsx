@@ -5,8 +5,6 @@ import type { Product } from "../types";
 
 type Spec = NonNullable<Product["tech_specs"]>[number];
 
-const CLAMP_LINES = 6;
-
 function looksTruncatedAtImport(text: string) {
   const t = text.trim();
   return t.endsWith("…") || t.endsWith("...");
