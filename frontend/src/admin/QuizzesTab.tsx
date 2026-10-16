@@ -19,6 +19,7 @@ import {
   type MatchProduct,
   type QuizOptionDef,
 } from "../quiz/score";
+import { diversifyRankedMatches, formatQuizProductName } from "../quiz/productDisplay";
 import { blankQuiz, racquetFinderTemplate, tennisWarehouseReviewTemplate } from "../quiz/template";
 import Icon from "../components/Icon";
 import { Checkbox, DangerButton, Field, PrimaryButton, SecondaryButton, TextArea, TextInput } from "./ui";
@@ -145,7 +146,8 @@ export default function QuizzesTab() {
       image_url: p.images?.find((i) => i.enabled !== false)?.url || p.images?.[0]?.url,
       finder_profile: p.finder_profile,
     }));
-    return rankProducts(profile, matchProducts, draft.dimension_weights, guardrails, dimensionIds).slice(0, 5);
+    const ranked = rankProducts(profile, matchProducts, draft.dimension_weights, guardrails, dimensionIds);
+    return diversifyRankedMatches(ranked, 5, 1);
   }, [draft, simAnswers, pool, dimensionIds]);
 
   if (isLoading) {

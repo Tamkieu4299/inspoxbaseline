@@ -14,6 +14,7 @@ import {
   type MatchProduct,
   type QuizOptionDef,
 } from "../quiz/score";
+import { diversifyRankedMatches, formatQuizProductName } from "../quiz/productDisplay";
 import type { QuizStep, QuizStepOption } from "../types";
 
 function pickText(lang: string, en?: string | null, vi?: string | null) {
@@ -69,7 +70,10 @@ export default function QuizRunner() {
     return rankProducts(profile, pool, quiz.dimension_weights, guardrails, dimIds);
   }, [quiz, selectedOptions]);
 
-  const topMatches = ranked.slice(0, 5);
+  const displayMatches = useMemo(
+    () => diversifyRankedMatches(ranked, 8, 1),
+    [ranked]
+  );
 
   if (isLoading) {
     return (
@@ -255,18 +259,6 @@ export default function QuizRunner() {
             </button>
           </div>
 
-          {topMatches.length > 0 ? (
-            <div className="mt-8 p-4 bg-surface-container-low border border-outline-variant">
-              <p className="font-label text-label-caps text-xs uppercase text-secondary mb-2">{t("quiz.liveShortlist")}</p>
-              <div className="flex flex-wrap gap-4">
-                {topMatches.map((row) => (
-                  <span key={row.slug} className="font-body text-body-sm">
-                    <span className="font-label text-primary">{row.match}%</span> {row.product.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : null}
         </section>
       ) : null}
 
@@ -274,7 +266,7 @@ export default function QuizRunner() {
         <section className="flex-1 py-12 px-6 md:px-margin-desktop max-w-[1440px] mx-auto w-full">
           <h2 className="font-headline text-headline-lg uppercase text-primary mb-8">{t("quiz.yourMatches")}</h2>
           <ul className="flex flex-col gap-4 max-w-3xl">
-            {ranked.slice(0, 10).map((row) => (
+            {displayMatches.map((row, index) => (
               <li
                 key={row.slug}
                 className="flex items-center gap-4 border border-outline-variant p-4 bg-surface-container-lowest"
@@ -285,8 +277,12 @@ export default function QuizRunner() {
                   <div className="w-20 h-24 bg-surface-container shrink-0" />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="font-label text-label-caps text-primary">{row.match}% {t("quiz.match")}</p>
-                  <p className="font-headline text-headline-md uppercase truncate">{row.product.name}</p>
+                  <p className="font-label text-label-caps text-secondary">
+                    #{index + 1} · {row.match}% {t("quiz.match")}
+                  </p>
+                  <p className="font-headline text-headline-md uppercase truncate">
+                    {formatQuizProductName(row.product.name, lang)}
+                  </p>
                   <p className="font-body text-body-md text-secondary">{formatPrice(row.product.price)}</p>
                 </div>
                 <Link
@@ -297,7 +293,7 @@ export default function QuizRunner() {
                 </Link>
               </li>
             ))}
-            {ranked.length === 0 ? (
+            {displayMatches.length === 0 ? (
               <p className="font-body text-body-md text-secondary">{t("quiz.noMatches")}</p>
             ) : null}
           </ul>
