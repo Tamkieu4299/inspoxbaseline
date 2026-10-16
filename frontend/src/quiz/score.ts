@@ -11,6 +11,8 @@ export type QuizGuardrails = {
   max_swing_weight?: number;
   min_head_sq_in?: number;
   max_head_sq_in?: number;
+  /** Product specs.pattern must contain one of these (e.g. 16x19, 18x20). Skipped if pattern unknown. */
+  pattern_any?: string[];
   exclude_tags?: string[];
 };
 
@@ -128,11 +130,18 @@ export function mergeGuardrails(options: QuizOptionDef[]): QuizGuardrails {
     if (g.max_head_sq_in != null)
       merged.max_head_sq_in =
         merged.max_head_sq_in == null ? g.max_head_sq_in : Math.min(merged.max_head_sq_in, g.max_head_sq_in);
+    if (g.pattern_any?.length) {
+      merged.pattern_any = [...(merged.pattern_any || []), ...g.pattern_any];
+    }
     if (g.exclude_tags?.length) {
       merged.exclude_tags = [...(merged.exclude_tags || []), ...g.exclude_tags];
     }
   }
   return merged;
+}
+
+function normalizePattern(raw: string): string {
+  return raw.replace(/\s/g, "").toLowerCase();
 }
 
 function passesGuardrails(product: MatchProduct, guardrails: QuizGuardrails): boolean {
@@ -168,6 +177,13 @@ function passesGuardrails(product: MatchProduct, guardrails: QuizGuardrails): bo
     Number(specs.head_sq_in) > guardrails.max_head_sq_in
   )
     return false;
+  if (guardrails.pattern_any?.length) {
+    const pat = normalizePattern(String(specs.pattern || ""));
+    if (pat) {
+      const needles = guardrails.pattern_any.map(normalizePattern);
+      if (!needles.some((n) => pat.includes(n))) return false;
+    }
+  }
   for (const t of guardrails.exclude_tags || []) {
     if (tags.has(t)) return false;
   }

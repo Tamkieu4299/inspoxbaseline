@@ -108,6 +108,7 @@ export type QuizStepOption = {
     max_swing_weight?: number;
     min_head_sq_in?: number;
     max_head_sq_in?: number;
+    pattern_any?: string[];
     exclude_tags?: string[];
   };
 };
