@@ -51,18 +51,30 @@ HONGAN_TENNIS_LIST = "https://hongansports.com/quan-vot/vot-tennis/"
 HONGAN_SKIP_URL_PARTS = ("__trashed", "/feed/", "pro-last", "syn-gut", "200m")
 
 HONGAN_SPEC_LABEL_EN: dict[str, str] = {
+    "Kích cỡ đầu vợt": "HEAD SIZE",
     "Kích thước đầu": "HEAD SIZE",
     "Chiều dài": "LENGTH",
     "Trọng lượng (chưa căng dây)": "WEIGHT (UNSTRUNG)",
+    "Trọng lượng (loại không xỏ dây)": "WEIGHT (UNSTRUNG)",
     "Cân bằng (không dây)": "BALANCE (UNSTRUNG)",
+    "Thăng bằng (loại không xỏ dây)": "BALANCE (UNSTRUNG)",
     "Trọng lượng đu đưa": "SWING WEIGHT",
+    "Trọng lượng khi swing": "SWING WEIGHT",
     "Mẫu dây": "STRING PATTERN",
+    "Stringing Pattern": "STRING PATTERN",
     "Độ cứng (RA)": "STIFFNESS (RA)",
+    "Stiffness (RA)": "STIFFNESS (RA)",
     "Phần": "BEAM WIDTH",
+    "Section": "BEAM WIDTH",
     "Bố cục": "COMPOSITION",
+    "Thành phần": "COMPOSITION",
     "Chuỗi được đề xuất": "RECOMMENDED STRING",
     "Độ căng được khuyến nghị": "RECOMMENDED TENSION",
     "Tay cầm được khuyến nghị": "RECOMMENDED GRIP",
+    "Khuyến khích cán vợt": "RECOMMENDED GRIP",
+    "Khuyến khích dây đan": "RECOMMENDED STRING",
+    "Khuyến khích chịu lực": "RECOMMENDED TENSION",
+    "Xỏ dây / Không xỏ dây": "STRUNG / UNSTRUNG",
     "Đã căng dây / Chưa căng dây": "STRUNG / UNSTRUNG",
 }
 
@@ -722,22 +734,33 @@ def _normalize_hongan_product_url(raw: str) -> str | None:
     return u
 
 
-def _parse_hongan_technical_specs(html: str) -> list[tuple[str, str]]:
+def _hongan_normalize_spec_value(value: str) -> str:
+    value = unescape(value.strip())
+    value = value.replace("×", "x").replace("&#215;", "x")
+    value = re.sub(r"(\d+)\s*/\s*(\d+)", r"\1x\2", value)
+    return value
+
+
+def _parse_hongan_tech_grid(html: str) -> list[tuple[str, str]]:
     idx = html.find("m-product-detail__tech-characteristics")
     if idx < 0:
         return []
     chunk = html[idx : idx + 25000]
     pairs: list[tuple[str, str]] = []
     seen: set[str] = set()
-    row_re = re.compile(
-        r"m-product-detail__tech-characteristics-label[^>]*>(.*?)<"
-        r".*?m-product-detail__tech-characteristics-value[^>]*>(.*?)<",
-        re.S | re.I,
-    )
-    for m in row_re.finditer(chunk):
-        label = _strip_html(m.group(1)).strip().rstrip(":").strip()
-        value = unescape(_strip_html(m.group(2)).strip())
-        value = value.replace("×", "x").replace("&#215;", "x")
+    body_re = re.compile(r"m-product-detail__tech-characteristics-body(.*?)</div>\s*</div>", re.S | re.I)
+    for body in body_re.finditer(chunk):
+        fragment = body.group(1)
+        lab_m = re.search(
+            r"m-product-detail__tech-characteristics-label(.*?)m-product-detail__tech-characteristics-value",
+            fragment,
+            re.S | re.I,
+        )
+        val_m = re.search(r"m-product-detail__tech-characteristics-value(.*)", fragment, re.S | re.I)
+        if not lab_m or not val_m:
+            continue
+        label = _strip_html(lab_m.group(1)).strip().rstrip(":").strip()
+        value = _hongan_normalize_spec_value(_strip_html(val_m.group(1)))
         if not label or not value:
             continue
         key = label.lower()
@@ -746,6 +769,40 @@ def _parse_hongan_technical_specs(html: str) -> list[tuple[str, str]]:
         seen.add(key)
         pairs.append((label, value))
     return pairs
+
+
+def _parse_hongan_wc_attributes(html: str) -> list[tuple[str, str]]:
+    table_m = re.search(
+        r'woocommerce-product-attributes shop_attributes(.*?)</table>',
+        html,
+        re.S | re.I,
+    )
+    if not table_m:
+        return []
+    pairs: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for row in re.finditer(r"<tr[^>]*>(.*?)</tr>", table_m.group(1), re.S | re.I):
+        lab_m = re.search(r"woocommerce-product-attributes-item__label[^>]*>(.*?)</th>", row.group(1), re.S | re.I)
+        val_m = re.search(r"woocommerce-product-attributes-item__value[^>]*>(.*?)</td>", row.group(1), re.S | re.I)
+        if not lab_m or not val_m:
+            continue
+        label = _strip_html(lab_m.group(1)).strip().rstrip(":").strip()
+        value = _hongan_normalize_spec_value(_strip_html(val_m.group(1)))
+        if not label or not value:
+            continue
+        key = label.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        pairs.append((label, value))
+    return pairs
+
+
+def _parse_hongan_technical_specs(html: str) -> list[tuple[str, str]]:
+    grid = _parse_hongan_tech_grid(html)
+    if grid:
+        return grid
+    return _parse_hongan_wc_attributes(html)
 
 
 def _hongan_specs_rows(pairs: list[tuple[str, str]]) -> list[dict[str, str]]:
@@ -764,9 +821,11 @@ def _hongan_specs_rows(pairs: list[tuple[str, str]]) -> list[dict[str, str]]:
 
 
 def _hongan_description(html: str, product_name: str) -> str:
+    desc_m = re.search(r'id="collapsible-description-1"(.*?)</div>\s*</div>\s*</div>', html, re.S | re.I)
+    if desc_m:
+        return _product_story_description(desc_m.group(1), product_name)
     idx = html.find("m-product-detail__tech-characteristics")
     chunk = html[:idx] if idx > 0 else html
-    # Prefer long-form copy block above the specs grid.
     start = chunk.rfind('class="layout layout--with-padding"')
     if start > 0:
         chunk = chunk[start:]
