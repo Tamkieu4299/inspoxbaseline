@@ -1373,12 +1373,22 @@ def _upsert_racquet(
     if item.sku:
         subtitle = f"{subtitle} · {item.sku}"
 
-    finder = {
-        "enabled": False,
-        "vectors": {},
-        "specs": _finder_from_specs(specs) or item.finder_specs,
-        "tags": [item.brand] if item.brand else [],
-    }
+    incoming_specs = _finder_from_specs(specs) or item.finder_specs or {}
+
+    if product is None:
+        finder = {
+            "enabled": False,
+            "vectors": {},
+            "specs": incoming_specs,
+            "tags": [item.brand] if item.brand else [],
+        }
+    else:
+        finder = dict(product.finder_profile or {})
+        finder["specs"] = {**(finder.get("specs") or {}), **incoming_specs}
+        tags = list(finder.get("tags") or [])
+        if item.brand and item.brand not in tags:
+            tags.append(item.brand)
+        finder["tags"] = tags
 
     if product is None:
         product = Product(
@@ -1421,7 +1431,8 @@ def _upsert_racquet(
         product.badge = item.badge
         product.tech_specs = specs
         product.features = features
-        product.finder_profile = finder
+        if product.finder_profile != finder:
+            product.finder_profile = finder
         product.is_active = active
 
     product.categories = [rackets]
@@ -1633,7 +1644,15 @@ def run(
                     print(f"  … saved {i}/{len(items)}")
             db.commit()
         print(f"Done for tenant '{tenant_slug}': {created} created, {updated} updated.")
-        print("Tip: enable quiz matching + scores in admin; review prices and descriptions before publish.")
+        from .quiz_racquet_pool import sync_quiz_racquet_pool
+
+        pool_stats = sync_quiz_racquet_pool(tenant_slug=tenant_slug, dry_run=False)
+        print(
+            f"Quiz pool: {pool_stats['total_active']} active racquets, "
+            f"{pool_stats['newly_enabled']} newly enabled, "
+            f"{pool_stats['vectors_inferred']} with heuristic vectors."
+        )
+        print("Tip: run import_tennis_warehouse_profiles --apply for TW review scores where available.")
     finally:
         db.close()
 

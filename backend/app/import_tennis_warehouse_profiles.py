@@ -606,6 +606,10 @@ def run(
                     product.finder_profile = fp
 
                 db.commit()
+                from .quiz_racquet_pool import sync_quiz_racquet_pool
+
+                pool_stats = sync_quiz_racquet_pool(tenant_slug=tenant_slug, dry_run=False)
+                report["quiz_pool_sync"] = pool_stats
         finally:
             db.close()
 
