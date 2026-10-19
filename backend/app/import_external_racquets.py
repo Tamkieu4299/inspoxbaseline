@@ -636,8 +636,14 @@ def _finalize_product_detail(
     specs_only, from_specs = _split_specs_and_features(merged)
     out_features: list[dict[str, str]] = []
     seen: set[str] = set()
-    for row in (features or []) + from_specs:
-        key = (row.get("title") or "").upper()
+    # Retailer pages that supply marketing feature cards should not promote spec rows.
+    spec_feature_rows = from_specs if not features else []
+    for row in (features or []) + spec_feature_rows:
+        title = row.get("title_vi") or row.get("title") or ""
+        desc = row.get("description_vi") or row.get("description") or ""
+        if "<" in title or "<" in desc or "class=" in title.casefold():
+            continue
+        key = title.upper()
         if not key or key in seen:
             continue
         seen.add(key)
@@ -741,6 +747,16 @@ def _hongan_normalize_spec_value(value: str) -> str:
     return value
 
 
+def _hongan_dir_auto_text(html_fragment: str) -> str:
+    """Text inside Babolat ``<span dir=\"auto\">`` (avoids broken tags in truncated fragments)."""
+    parts: list[str] = []
+    for m in re.finditer(r'dir="auto"[^>]*>(.*?)</span>', html_fragment or "", re.S | re.I):
+        parts.append(_strip_html(m.group(1)).strip())
+    if parts:
+        return " ".join(parts).strip()
+    return _strip_html(html_fragment).strip()
+
+
 def _parse_hongan_tech_grid(html: str) -> list[tuple[str, str]]:
     idx = html.find("m-product-detail__tech-characteristics")
     if idx < 0:
@@ -759,8 +775,8 @@ def _parse_hongan_tech_grid(html: str) -> list[tuple[str, str]]:
         val_m = re.search(r"m-product-detail__tech-characteristics-value(.*)", fragment, re.S | re.I)
         if not lab_m or not val_m:
             continue
-        label = _strip_html(lab_m.group(1)).strip().rstrip(":").strip()
-        value = _hongan_normalize_spec_value(_strip_html(val_m.group(1)))
+        label = _hongan_dir_auto_text(lab_m.group(1)).rstrip(":").strip()
+        value = _hongan_normalize_spec_value(_hongan_dir_auto_text(val_m.group(1)))
         if not label or not value:
             continue
         key = label.lower()
@@ -820,16 +836,111 @@ def _hongan_specs_rows(pairs: list[tuple[str, str]]) -> list[dict[str, str]]:
     return rows
 
 
-def _hongan_description(html: str, product_name: str) -> str:
+def _hongan_mo_ta_description(html: str, product_name: str) -> str:
+    """Marketing copy under the «Mô tả» heading (before Đặc tính kỹ thuật)."""
+    m = re.search(
+        r"<h2>\s*<strong>\s*Mô tả\s*</strong>\s*</h2>(.*?)(?=<div class=\"layout layout--with-padding\">|m-product-detail__tech-characteristics)",
+        html,
+        re.S | re.I,
+    )
+    if m:
+        return _product_story_description(m.group(1), product_name)
     desc_m = re.search(r'id="collapsible-description-1"(.*?)</div>\s*</div>\s*</div>', html, re.S | re.I)
     if desc_m:
         return _product_story_description(desc_m.group(1), product_name)
+    tab_m = re.search(
+        r'm-product-detail__short-desc-title.*?Miêu tả.*?<div[^>]*id="collapsible-description-1"[^>]*>(.*?)</div>',
+        html,
+        re.S | re.I,
+    )
+    if tab_m:
+        return _product_story_description(tab_m.group(1), product_name)
     idx = html.find("m-product-detail__tech-characteristics")
     chunk = html[:idx] if idx > 0 else html
     start = chunk.rfind('class="layout layout--with-padding"')
     if start > 0:
         chunk = chunk[start:]
     return _product_story_description(chunk, product_name)
+
+
+def _hongan_benefit_features(html: str) -> list[dict[str, str]]:
+    """«Những lợi ích» cards (title + body)."""
+    out: list[dict[str, str]] = []
+    seen: set[str] = set()
+
+    def add(title: str, body: str) -> None:
+        title = title.strip()
+        body = body.strip()
+        if not title or not body or len(body) < 20:
+            return
+        key = title.upper()
+        if key in seen:
+            return
+        seen.add(key)
+        out.append(_feature_row(title, body))
+
+    for m in re.finditer(
+        r'class="m-product-detail__benefit-title"[^>]*>(.*?)</h3>\s*'
+        r'(?:<div class="m-product-detail__benefit-body"[^>]*>(.*?)</div>'
+        r'|<p class="m-product-detail__benefit-body"[^>]*>(.*?)</p>)',
+        html,
+        re.S | re.I,
+    ):
+        add(_strip_html(m.group(1)), _strip_html(m.group(2) or m.group(3) or ""))
+
+    for m in re.finditer(
+        r'class="m-product-detail__benefit-body"[^>]*>\s*<strong[^>]*>(.*?)</strong>\s*</h3>\s*'
+        r'<p class="m-product-detail__benefit-body"[^>]*>(.*?)</p>',
+        html,
+        re.S | re.I,
+    ):
+        add(_strip_html(m.group(1)), _strip_html(m.group(2)))
+
+    for m in re.finditer(
+        r"<h3 class=\"m-product-detail__benefit-title\">(.*?)</h3>\s*"
+        r"<div class=\"m-product-detail__benefit-body\">(.*?)</div>",
+        html,
+        re.S | re.I,
+    ):
+        add(_strip_html(m.group(1)), _strip_html(m.group(2)))
+
+    return out
+
+
+def _hongan_technology_features(html: str) -> list[dict[str, str]]:
+    """Babolat technology blocks (AEROMODULAR4, NF²-TECH, …)."""
+    out: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for m in re.finditer(
+        r'class="m-product-detail__technology-title"[^>]*>(.*?)</h4>.*?'
+        r'class="m-product-detail__technology-paragraph"[^>]*>(.*?)</p>',
+        html,
+        re.S | re.I,
+    ):
+        title = _strip_html(m.group(1)).strip()
+        body = _strip_html(m.group(2)).strip()
+        if not title or not body:
+            continue
+        key = title.upper()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(_feature_row(title, body))
+    return out
+
+
+def _parse_hongan_marketing(html: str, product_name: str) -> tuple[str, list[dict[str, str]]]:
+    description = _hongan_mo_ta_description(html, product_name)
+    features = _hongan_benefit_features(html) + _hongan_technology_features(html)
+    merged: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for row in features:
+        key = (row.get("title_vi") or row.get("title") or "").upper()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        merged.append(row)
+    return description, merged[:12]
 
 
 def _hongan_price_vnd(html: str) -> float:
@@ -944,10 +1055,15 @@ def enrich_hongan_product(
         return None
     if brand_filter == "babolat":
         brand = "babolat"
-    description = _hongan_description(html, title)
+    description, marketing_features = _parse_hongan_marketing(html, title)
     specs = _hongan_specs_rows(pairs)
     description, specs, features = _finalize_product_detail(
-        title, description, specs, brand=_normalize_brand(brand), sku=sku
+        title,
+        description,
+        specs,
+        brand=_normalize_brand(brand),
+        sku=sku,
+        features=marketing_features,
     )
     price = _hongan_price_vnd(html)
     images = _hongan_gallery_urls(html)
