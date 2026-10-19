@@ -11,7 +11,10 @@ Options:
     --dry-run           crawl only, no DB writes
     --skip-thusports    Forheads only
     --skip-forheads     Thu Sports only
-    --max-pages N       Thu Sports listing pages (default: all)
+    --hongan            crawl Hồng Ân Sports tennis racquets (see --hongan-brand)
+    --hongan-brand NAME default: babolat (use "all" for every racquet on category)
+    --skip-hongan       skip Hồng Ân when other sources run
+    --max-pages N       Thu Sports / Hồng Ân listing pages (default: all)
     --inactive          import with is_active=False (review in admin)
     --restructure-catalog   rackets category only + product.brand (Wilson/Head filters)
     --refresh-content       re-crawl and refresh copy/specs/prices (keep images)
@@ -43,6 +46,25 @@ from .models import Category, Collection, Product, ProductImage, Tenant
 USER_AGENT = "inspo-baseline-import/1.0 (+local one-time catalog)"
 THUSPORTS_LIST = "https://thusports.vn/vot-tennis.html"
 FORHEADS_COLLECTION = "https://forheads.vn/collections/vot-tennis-1"
+HONGAN_TENNIS_LIST = "https://hongansports.com/quan-vot/vot-tennis/"
+
+HONGAN_SKIP_URL_PARTS = ("__trashed", "/feed/", "pro-last", "syn-gut", "200m")
+
+HONGAN_SPEC_LABEL_EN: dict[str, str] = {
+    "Kích thước đầu": "HEAD SIZE",
+    "Chiều dài": "LENGTH",
+    "Trọng lượng (chưa căng dây)": "WEIGHT (UNSTRUNG)",
+    "Cân bằng (không dây)": "BALANCE (UNSTRUNG)",
+    "Trọng lượng đu đưa": "SWING WEIGHT",
+    "Mẫu dây": "STRING PATTERN",
+    "Độ cứng (RA)": "STIFFNESS (RA)",
+    "Phần": "BEAM WIDTH",
+    "Bố cục": "COMPOSITION",
+    "Chuỗi được đề xuất": "RECOMMENDED STRING",
+    "Độ căng được khuyến nghị": "RECOMMENDED TENSION",
+    "Tay cầm được khuyến nghị": "RECOMMENDED GRIP",
+    "Đã căng dây / Chưa căng dây": "STRUNG / UNSTRUNG",
+}
 
 SKIP_NAME_FRAGMENTS = (
     "chọn vợt",
@@ -51,8 +73,8 @@ SKIP_NAME_FRAGMENTS = (
     "chon vot",
 )
 
-RETAILER_HOSTS = ("thusports.vn", "forheads.vn")
-RETAILER_LABELS = frozenset({"thusports", "forheads", "thu sports", "for heads"})
+RETAILER_HOSTS = ("thusports.vn", "forheads.vn", "hongansports.com")
+RETAILER_LABELS = frozenset({"thusports", "forheads", "thu sports", "for heads", "hong an", "hồng ân"})
 
 _REFERENCE_FOOTER_RE = re.compile(
     r"\n*—?\n*Reference listing:\s*https?://(?:www\.)?(?:thusports\.vn|forheads\.vn)\S*\s*",
@@ -318,7 +340,8 @@ def _product_story_description(story_html: str, product_name: str = "") -> str:
 _CORE_SPEC_LABEL_RE = re.compile(
     r"(?:thương hiệu|brand|mã sku|sku|trọng lượng|cấu trúc dây|mật độ dây|diện tích|"
     r"điểm cân bằng|độ dài|vành vợt|tên sản phẩm|kích thước|chất liệu|độ dày khung|"
-    r"chiều dài\s*\(|balance|string pattern|head size|weight|beam)",
+    r"chiều dài\s*\(|balance|string pattern|head size|weight|beam|"
+    r"kích thước đầu|mẫu dây|độ cứng|trọng lượng đu đưa|phần|bố cục|cân bằng)",
     re.I,
 )
 _MEASUREMENT_VALUE_RE = re.compile(
@@ -629,6 +652,21 @@ def _infer_brand(name: str, vendor: str | None = None) -> str:
 def _finder_from_specs(specs: list[dict[str, str]]) -> dict[str, Any]:
     blob = " ".join(f"{s.get('label_vi','')} {s.get('value_vi','')}" for s in specs).lower()
     out: dict[str, Any] = {}
+    for row in specs:
+        lab = (row.get("label_vi") or row.get("label") or "").lower()
+        val = (row.get("value_vi") or row.get("value") or "").strip()
+        if "đu đưa" in lab or "swing weight" in lab:
+            m = re.search(r"(\d{2,3})", val)
+            if m:
+                sw = int(m.group(1))
+                if 250 < sw < 400:
+                    out["swing_weight"] = sw
+        if "độ cứng" in lab or "(ra)" in lab:
+            m = re.search(r"(\d{2,3})", val)
+            if m:
+                ra = int(m.group(1))
+                if 40 < ra < 85:
+                    out["ra"] = ra
     m = re.search(r"(\d{2,3}(?:[.,]\d+)?)\s*g", blob)
     if m:
         g = float(m.group(1).replace(",", "."))
@@ -670,6 +708,230 @@ def _json_ld_product(html: str) -> dict[str, Any] | None:
         if isinstance(data, dict) and data.get("@type") == "Product":
             return data
     return None
+
+
+def _normalize_hongan_product_url(raw: str) -> str | None:
+    u = (raw or "").split("&")[0].split("#")[0].strip()
+    if not u.startswith("https://hongansports.com/san-pham/"):
+        return None
+    low = u.lower()
+    if any(part in low for part in HONGAN_SKIP_URL_PARTS):
+        return None
+    if not u.endswith("/"):
+        u += "/"
+    return u
+
+
+def _parse_hongan_technical_specs(html: str) -> list[tuple[str, str]]:
+    idx = html.find("m-product-detail__tech-characteristics")
+    if idx < 0:
+        return []
+    chunk = html[idx : idx + 25000]
+    pairs: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    row_re = re.compile(
+        r"m-product-detail__tech-characteristics-label[^>]*>(.*?)<"
+        r".*?m-product-detail__tech-characteristics-value[^>]*>(.*?)<",
+        re.S | re.I,
+    )
+    for m in row_re.finditer(chunk):
+        label = _strip_html(m.group(1)).strip().rstrip(":").strip()
+        value = unescape(_strip_html(m.group(2)).strip())
+        value = value.replace("×", "x").replace("&#215;", "x")
+        if not label or not value:
+            continue
+        key = label.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        pairs.append((label, value))
+    return pairs
+
+
+def _hongan_specs_rows(pairs: list[tuple[str, str]]) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    for label, value in pairs[:24]:
+        en = HONGAN_SPEC_LABEL_EN.get(label, label[:60].upper())
+        rows.append(
+            {
+                "label": en[:60],
+                "value": value[:200],
+                "label_vi": label[:60],
+                "value_vi": value[:200],
+            }
+        )
+    return rows
+
+
+def _hongan_description(html: str, product_name: str) -> str:
+    idx = html.find("m-product-detail__tech-characteristics")
+    chunk = html[:idx] if idx > 0 else html
+    # Prefer long-form copy block above the specs grid.
+    start = chunk.rfind('class="layout layout--with-padding"')
+    if start > 0:
+        chunk = chunk[start:]
+    return _product_story_description(chunk, product_name)
+
+
+def _hongan_price_vnd(html: str) -> float:
+    m = re.search(
+        r'class="woocommerce-Price-amount amount"[^>]*>\s*<bdi>([\d.,]+)',
+        html,
+        re.I,
+    )
+    if m:
+        return _parse_vnd_price(m.group(1))
+    m = re.search(r'"display_price"\s*:\s*(\d+(?:\.\d+)?)', html)
+    return float(m.group(1)) if m else 0.0
+
+
+def _hongan_sku(html: str) -> str | None:
+    for m in re.finditer(r'"sku"\s*:\s*"([^"]+)"', html):
+        sku = m.group(1).strip()
+        if sku and sku.upper() not in ("N/A", "NA"):
+            return sku
+    m = re.search(r'class="sku">([^<]+)<', html, re.I)
+    if m:
+        sku = m.group(1).strip()
+        if sku and sku.upper() not in ("N/A", "NA"):
+            return sku
+    return None
+
+
+def _hongan_gallery_urls(html: str) -> list[str]:
+    urls: list[str] = []
+    for key in ("data-large_image", "data-src", "src"):
+        for u in re.findall(rf'{key}="(https://hongansports\.com/wp-content/uploads/[^"]+)"', html):
+            if "-300x300" in u or "-100x100" in u or "-50x50" in u:
+                continue
+            urls.append(u)
+    seen: set[str] = set()
+    out: list[str] = []
+    for u in urls:
+        if u not in seen:
+            seen.add(u)
+            out.append(u)
+    return out[:8]
+
+
+def _hongan_is_babolat(name: str, sku: str | None, html: str) -> bool:
+    if sku and sku.upper().startswith("BAB"):
+        return True
+    low = name.lower()
+    tokens = (
+        "pure aero",
+        "pure drive",
+        "pure strike",
+        "evo aero",
+        "evo drive",
+        "evo strike",
+        "boost aero",
+        "boost drive",
+        "boost strike",
+        "pulsion",
+        "ballfighter",
+        "b-fly",
+        "aero damp",
+        "carlitos",
+        "drive junior",
+        "aero junior",
+    )
+    if any(t in low for t in tokens):
+        return True
+    return "babolat" in html.lower()[:120000]
+
+
+def crawl_hongan_tennis_urls(client: httpx.Client, max_pages: int | None) -> list[str]:
+    urls: set[str] = set()
+    page = 1
+    while True:
+        list_url = HONGAN_TENNIS_LIST if page == 1 else f"{HONGAN_TENNIS_LIST}page/{page}/"
+        html = _fetch(client, list_url)
+        for raw in re.findall(r'href="(https://hongansports\.com/san-pham/[^"]+)"', html):
+            norm = _normalize_hongan_product_url(raw)
+            if norm:
+                urls.add(norm)
+        has_next = 'rel="next"' in html or f"/page/{page + 1}/" in html
+        if not has_next:
+            break
+        page += 1
+        if max_pages is not None and page > max_pages:
+            break
+        time.sleep(0.25)
+    return sorted(urls)
+
+
+def enrich_hongan_product(
+    client: httpx.Client,
+    product_url: str,
+    *,
+    brand_filter: str = "babolat",
+) -> ImportedRacquet | None:
+    html = _fetch(client, product_url)
+    title_m = re.search(r'class="page-title--title">([^<]+)<', html) or re.search(
+        r'class="product_title">([^<]+)<', html
+    )
+    title = unescape(title_m.group(1)).strip() if title_m else ""
+    if not title:
+        return None
+    pairs = _parse_hongan_technical_specs(html)
+    if not pairs:
+        return None
+    sku = _hongan_sku(html)
+    if brand_filter == "babolat" and not _hongan_is_babolat(title, sku, html):
+        return None
+    brand = _infer_brand(title, "Babolat" if brand_filter == "babolat" else None)
+    if brand_filter not in ("all", "babolat") and brand != brand_filter:
+        return None
+    if brand_filter == "babolat":
+        brand = "babolat"
+    description = _hongan_description(html, title)
+    specs = _hongan_specs_rows(pairs)
+    description, specs, features = _finalize_product_detail(
+        title, description, specs, brand=_normalize_brand(brand), sku=sku
+    )
+    price = _hongan_price_vnd(html)
+    images = _hongan_gallery_urls(html)
+    path = urlparse(product_url).path.strip("/").replace("san-pham/", "")
+    slug = _slugify(path, prefix="ha")
+    display = title if re.search(r"vợt", title, re.I) else f"Vợt Tennis {title}"
+    return ImportedRacquet(
+        source="hongan",
+        source_url=product_url,
+        slug=slug,
+        name=display,
+        price_vnd=price,
+        brand=brand,
+        sku=sku,
+        description_html=description,
+        image_urls=images,
+        tech_specs=specs,
+        features=features,
+        badge="NEW" if re.search(r"sản phẩm mới|product-new", html[:10000], re.I) else None,
+        finder_specs=_finder_from_specs(specs),
+    )
+
+
+def crawl_hongan(
+    client: httpx.Client,
+    *,
+    max_pages: int | None,
+    brand_filter: str = "babolat",
+) -> list[ImportedRacquet]:
+    urls = crawl_hongan_tennis_urls(client, max_pages)
+    out: list[ImportedRacquet] = []
+    for i, url in enumerate(urls, 1):
+        try:
+            item = enrich_hongan_product(client, url, brand_filter=brand_filter)
+        except Exception as exc:
+            print(f"  ! [{i}] {url}: {exc}")
+            continue
+        if item:
+            out.append(item)
+        time.sleep(0.35)
+        if i % 10 == 0:
+            print(f"  … Hồng Ân {i}/{len(urls)} ({len(out)} matched)")
+    return out
 
 
 def crawl_thusports_list(client: httpx.Client, max_pages: int | None) -> list[dict[str, str]]:
@@ -1109,6 +1371,9 @@ def run(
     dry_run: bool = False,
     skip_thusports: bool = False,
     skip_forheads: bool = False,
+    skip_hongan: bool = False,
+    hongan: bool = False,
+    hongan_brand: str = "babolat",
     max_pages: int | None = None,
     active: bool = True,
     replace_images: bool = True,
@@ -1117,6 +1382,12 @@ def run(
     items: list[ImportedRacquet] = []
 
     with httpx.Client(headers=headers, follow_redirects=True) as client:
+        if hongan and not skip_hongan:
+            print(f"Crawling Hồng Ân tennis ({hongan_brand})…")
+            ha = crawl_hongan(client, max_pages=max_pages, brand_filter=hongan_brand)
+            print(f"  {len(ha)} racquets with Đặc tính kỹ thuật")
+            items.extend(ha)
+
         if not skip_thusports:
             print("Crawling Thu Sports listing…")
             stubs = crawl_thusports_list(client, max_pages)
@@ -1198,6 +1469,13 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--skip-thusports", action="store_true")
     p.add_argument("--skip-forheads", action="store_true")
+    p.add_argument("--hongan", action="store_true", help="import from hongansports.com/quan-vot/vot-tennis/")
+    p.add_argument(
+        "--hongan-brand",
+        default="babolat",
+        help="brand filter for Hồng Ân crawl (babolat | all | wilson | head | …)",
+    )
+    p.add_argument("--skip-hongan", action="store_true")
     p.add_argument("--max-pages", type=int, default=None)
     p.add_argument("--inactive", action="store_true", help="import as is_active=False")
     p.add_argument(
@@ -1227,6 +1505,9 @@ def main(argv: list[str] | None = None) -> None:
         dry_run=args.dry_run,
         skip_thusports=args.skip_thusports,
         skip_forheads=args.skip_forheads,
+        skip_hongan=args.skip_hongan,
+        hongan=args.hongan,
+        hongan_brand=args.hongan_brand,
         max_pages=args.max_pages,
         active=not args.inactive,
         replace_images=not args.refresh_content,
