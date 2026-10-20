@@ -60,9 +60,19 @@ COLLECTION_DEFS: tuple[dict, ...] = (
         "brand": "babolat",
         "display_order": 3,
     },
+    {
+        "slug": "tecnifibre-rackets",
+        "name": "Tecnifibre Rackets",
+        "name_vi": "Vợt Tecnifibre",
+        "tagline": "T-Fight, TF40, and tour-level control.",
+        "tagline_vi": "T-Fight, TF40 và kiểm soát đỉnh cao.",
+        "brand": "tecnifibre",
+        "display_order": 4,
+    },
 )
 
 CUSTOM_PRODUCT_SLUGS = ("head-speed-mpl-pretty-fast",)
+GEAR_ONLY_COLLECTION_SLUGS = ("baseline-gear",)
 UNFEATURE_COLLECTION_SLUGS = ("oncourt", "baseline-gear")
 TRENDING_LIMIT = 4
 
@@ -124,6 +134,45 @@ def _hero_from_product(db, product: Product | None) -> int | None:
     return None
 
 
+def _effective_racket_brand(product: Product) -> str | None:
+    brand = _brand_from_product_row(product)
+    if brand and brand not in ("other",):
+        return brand
+    name = (product.name or "").lower()
+    if "tecnifibre" in name or "tecnigibre" in name or "t-fight" in name or "tf40" in name:
+        return "tecnifibre"
+    if "yonex" in name:
+        return "yonex"
+    if "prince" in name:
+        return "prince"
+    if "dunlop" in name:
+        return "dunlop"
+    return brand if brand and brand != "other" else None
+
+
+def _strip_rackets_from_gear_collections(
+    db, tenant_id: int, rackets_category_id: int, gear_slugs: tuple[str, ...]
+) -> int:
+    removed = 0
+    gear_cols = db.scalars(
+        select(Collection).where(Collection.tenant_id == tenant_id, Collection.slug.in_(gear_slugs))
+    ).all()
+    gear_ids = [c.id for c in gear_cols]
+    if not gear_ids:
+        return 0
+    racquets_in_gear = db.scalars(
+        select(Product).where(
+            Product.collection_id.in_(gear_ids),
+            Product.category_id == rackets_category_id,
+            Product.is_active.is_(True),
+        )
+    ).all()
+    for product in racquets_in_gear:
+        product.collection_id = None
+        removed += 1
+    return removed
+
+
 def _hero_from_first_file(db, tenant_id: int, paths: list[Path]) -> int | None:
     if not paths:
         return None
@@ -145,7 +194,9 @@ def setup_merchandising_collections(
         "wilson": 0,
         "head": 0,
         "babolat": 0,
+        "tecnifibre": 0,
         "custom": 0,
+        "removed_from_gear": 0,
         "images_replaced": 0,
     }
     db = SessionLocal()
@@ -179,6 +230,8 @@ def setup_merchandising_collections(
             "wilson": by_slug["wilson-rackets"],
             "head": by_slug["head-rackets"],
             "babolat": by_slug["babolat-rackets"],
+            "tecnifibre": by_slug["tecnifibre-rackets"],
+            "technifibre": by_slug["tecnifibre-rackets"],
         }
 
         speed_mpl = db.scalar(
@@ -202,13 +255,21 @@ def setup_merchandising_collections(
         for product in products:
             if product.slug in custom_slugs:
                 continue
-            brand = _brand_from_product_row(product)
+            brand = _effective_racket_brand(product)
             col = brand_cols.get(brand or "")
             if col is None:
                 continue
             product.collection_id = col.id
-            key = brand
-            stats[key] = int(stats[key]) + 1
+            if brand in ("tecnifibre", "technifibre") and (not product.brand or product.brand == "other"):
+                product.brand = "tecnifibre"
+            key = "tecnifibre" if brand in ("tecnifibre", "technifibre") else brand
+            if key in stats:
+                stats[key] = int(stats[key]) + 1
+
+        if not dry_run:
+            stats["removed_from_gear"] = _strip_rackets_from_gear_collections(
+                db, tenant.id, rackets.id, GEAR_ONLY_COLLECTION_SLUGS
+            )
 
         if not dry_run:
             for spec in COLLECTION_DEFS:
@@ -218,7 +279,11 @@ def setup_merchandising_collections(
                 brand = spec.get("brand")
                 if brand:
                     sample = next(
-                        (p for p in products if _brand_from_product_row(p) == brand and p.slug not in custom_slugs),
+                        (
+                            p
+                            for p in products
+                            if _effective_racket_brand(p) == brand and p.slug not in custom_slugs
+                        ),
                         None,
                     )
                     hero_id = _hero_from_product(db, sample)

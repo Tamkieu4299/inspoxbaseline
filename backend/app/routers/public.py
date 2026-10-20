@@ -118,20 +118,23 @@ def _localize_block_data(data: dict | None, block_type: str | None = None):
 
 
 def _load_collection(db: Session, collection: Collection, lang: str = "en") -> CollectionOut:
-    products = (
-        db.execute(
-            select(Product)
-            .options(
-                selectinload(Product.images),
-                selectinload(Product.category),
-                selectinload(Product.categories),
-            )
-            .where(Product.collection_id == collection.id, Product.is_active.is_(True))
-            .order_by(Product.created_at.desc())
+    stmt = (
+        select(Product)
+        .options(
+            selectinload(Product.images),
+            selectinload(Product.category),
+            selectinload(Product.categories),
         )
-        .scalars()
-        .all()
+        .where(Product.collection_id == collection.id, Product.is_active.is_(True))
+        .order_by(Product.created_at.desc())
     )
+    if collection.slug in ("baseline-gear",):
+        rackets = db.scalar(
+            select(Category).where(Category.tenant_id == collection.tenant_id, Category.slug == "rackets")
+        )
+        if rackets is not None:
+            stmt = stmt.where(Product.category_id != rackets.id)
+    products = db.execute(stmt).scalars().all()
     data = CollectionOut.model_validate(collection).model_dump()
     if lang == "vi":
         data["name"] = data["name_vi"] or data["name"]
@@ -421,6 +424,12 @@ def list_products(
         if col is None:
             raise HTTPException(status_code=404, detail="Collection not found")
         stmt = stmt.where(Product.collection_id == col.id)
+        if col.slug in ("baseline-gear",):
+            rackets = db.scalar(
+                select(Category).where(Category.tenant_id == tenant.id, Category.slug == "rackets")
+            )
+            if rackets is not None:
+                stmt = stmt.where(Product.category_id != rackets.id)
     if category:
         cat = db.execute(
             select(Category).where(
