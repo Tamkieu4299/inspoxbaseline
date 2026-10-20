@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
@@ -65,6 +65,31 @@ export default function CollectionsTab() {
 
   const [selectedId, setSelectedId] = useState<number | "new">();
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [dragId, setDragId] = useState<number | null>(null);
+  const [dropTargetId, setDropTargetId] = useState<number | null>(null);
+
+  const sortedCollections = useMemo(
+    () =>
+      [...(collections || [])].sort(
+        (a, b) => a.display_order - b.display_order || a.name.localeCompare(b.name),
+      ),
+    [collections],
+  );
+
+  const reorderMutation = useMutation({
+    mutationFn: async (ordered: Collection[]) => {
+      await Promise.all(
+        ordered.map((c, index) =>
+          adminApi.updateCollection(c.id, { ...toDraft(c), display_order: index * 10 }),
+        ),
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-collections"] });
+      queryClient.invalidateQueries({ queryKey: ["collections"] });
+      queryClient.invalidateQueries({ queryKey: ["home"] });
+    },
+  });
 
   const saveMutation = useMutation({
     mutationFn: (d: Draft) =>
@@ -93,26 +118,83 @@ export default function CollectionsTab() {
     setDraft((d) => (d ? { ...d, [key]: value } : d));
   }
 
+  function reorderCollections(dragged: number, target: number) {
+    if (dragged === target) return;
+    const list = [...sortedCollections];
+    const from = list.findIndex((c) => c.id === dragged);
+    const to = list.findIndex((c) => c.id === target);
+    if (from < 0 || to < 0) return;
+    const [item] = list.splice(from, 1);
+    list.splice(to, 0, item);
+    reorderMutation.mutate(list);
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <div className="lg:col-span-3 flex flex-col gap-2 max-h-[70vh] overflow-auto pr-2">
         <PrimaryButton onClick={() => { setDraft(blankDraft()); setSelectedId("new"); }}>{t("admin.newCollection")}</PrimaryButton>
+        {!isLoading && sortedCollections.length > 0 ? (
+          <p className="font-body text-body-sm text-secondary px-1">{t("admin.collectionsDragHint")}</p>
+        ) : null}
         {isLoading ? (
           <p className="font-body text-body-md text-secondary">{t("admin.loading")}</p>
         ) : (
-          collections?.map((c) => (
-            <button
+          sortedCollections.map((c) => (
+            <div
               key={c.id}
-              onClick={() => { setDraft(toDraft(c)); setSelectedId(c.id); }}
-              className={`text-left border p-2 transition-colors ${
+              draggable
+              onDragStart={() => setDragId(c.id)}
+              onDragEnd={() => {
+                setDragId(null);
+                setDropTargetId(null);
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDropTargetId(c.id);
+              }}
+              onDragLeave={() => {
+                if (dropTargetId === c.id) setDropTargetId(null);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (dragId != null) reorderCollections(dragId, c.id);
+                setDragId(null);
+                setDropTargetId(null);
+              }}
+              className={`flex items-stretch gap-1 border transition-colors ${
                 selectedId === c.id ? "border-forest-green bg-white" : "border-transparent hover:border-surface-container-highest"
+              } ${dropTargetId === c.id && dragId !== c.id ? "border-forest-green ring-1 ring-forest-green/30" : ""} ${
+                dragId === c.id ? "opacity-50" : ""
               }`}
             >
-              <span className="font-headline text-headline-md text-primary uppercase block truncate">{c.name}</span>
-              <span className="font-label text-label-caps text-secondary">{c.is_featured ? t("admin.featured") : ""}</span>
-            </button>
+              <button
+                type="button"
+                aria-label={t("admin.dragToReorder")}
+                className="shrink-0 px-2 cursor-grab active:cursor-grabbing text-secondary hover:text-primary touch-none"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span className="material-symbols-outlined text-[20px]">drag_indicator</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setDraft(toDraft(c));
+                  setSelectedId(c.id);
+                }}
+                className="flex-1 text-left p-2 min-w-0"
+              >
+                <span className="font-headline text-headline-md text-primary uppercase block truncate">{c.name}</span>
+                <span className="font-label text-label-caps text-secondary">
+                  #{c.display_order}
+                  {c.is_featured ? ` · ${t("admin.featured")}` : ""}
+                </span>
+              </button>
+            </div>
           ))
         )}
+        {reorderMutation.isPending ? (
+          <p className="font-label text-label-caps text-secondary">{t("admin.savingOrder")}</p>
+        ) : null}
       </div>
 
       <div className="lg:col-span-9 bg-white border border-surface-container-highest p-6">
