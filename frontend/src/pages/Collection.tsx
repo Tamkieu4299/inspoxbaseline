@@ -29,7 +29,7 @@ export default function Collection() {
   const brand = params.get("brand") || "";
   const size = params.get("size") || "";
   const color = params.get("color") || "";
-  const sort = params.get("sort") || "newest";
+  const sort = params.get("sort") || "recommended";
   const page = Math.max(1, parseInt(params.get("page") || "1", 10) || 1);
   const pageSize = 24;
 
@@ -129,6 +129,7 @@ export default function Collection() {
             onChange={(e) => update("sort", e.target.value)}
             className="bg-background text-primary border border-surface-container-highest font-label text-label-caps py-1.5 px-2 focus:border-primary focus:ring-0 outline-none cursor-pointer"
           >
+            <option value="recommended">{t("collection.recommended")}</option>
             <option value="newest">{t("collection.newest")}</option>
             <option value="name">{t("collection.name")}</option>
           </select>

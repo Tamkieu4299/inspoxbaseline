@@ -22,6 +22,7 @@ export interface ProductDraft {
   is_active: boolean;
   is_featured: boolean;
   is_bestseller: boolean;
+  list_order: number;
   images: { media_id?: number; url: string; alt: string; color_name?: string; position: number; enabled: boolean }[];
   finder_profile: ProductFinderProfile;
 }
@@ -50,6 +51,7 @@ export function blankProductDraft(): ProductDraft {
     is_active: true,
     is_featured: false,
     is_bestseller: false,
+    list_order: 0,
     images: [],
     finder_profile: { enabled: false, vectors: {}, specs: {}, tags: [] },
   };
@@ -92,6 +94,7 @@ export function productToDraft(p: Product): ProductDraft {
     is_active: p.is_active,
     is_featured: p.is_featured,
     is_bestseller: p.is_bestseller,
+    list_order: p.list_order ?? 0,
     finder_profile: p.finder_profile
       ? {
           enabled: Boolean(p.finder_profile.enabled),

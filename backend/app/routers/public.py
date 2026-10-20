@@ -135,6 +135,7 @@ def _load_collection(db: Session, collection: Collection, lang: str = "en") -> C
         if rackets is not None:
             stmt = stmt.where(Product.category_id != rackets.id)
     products = db.execute(stmt).scalars().all()
+    products = sorted(products, key=_product_hot_rank)
     data = CollectionOut.model_validate(collection).model_dump()
     if lang == "vi":
         data["name"] = data["name_vi"] or data["name"]
@@ -377,6 +378,42 @@ def list_product_brands(
     return [b for b in brands if b]
 
 
+def _product_hot_rank(product: Product) -> tuple:
+    """Hot (featured) and bestseller first; lower list_order = higher in list."""
+    created_ts = product.created_at.timestamp() if product.created_at else 0.0
+    order = int(getattr(product, "list_order", 0) or 0)
+    return (
+        0 if product.is_featured else 1,
+        0 if product.is_bestseller else 1,
+        order,
+        -created_ts,
+    )
+
+
+def _sort_products(products: list[Product], sort: str) -> list[Product]:
+    hot = _product_hot_rank
+
+    def with_hot(tail_key):
+        def key(p: Product):
+            h = hot(p)
+            tail = tail_key(p)
+            if isinstance(tail, tuple):
+                return h + tail
+            return h + (tail,)
+
+        return key
+
+    sort_map = {
+        "recommended": hot,
+        "newest": with_hot(lambda p: (p.created_at,)),
+        "price_asc": with_hot(lambda p: (p.price, p.name.upper())),
+        "price_desc": with_hot(lambda p: (-p.price, p.name.upper())),
+        "name": with_hot(lambda p: (p.name.upper(),)),
+    }
+    key_fn = sort_map.get(sort) or sort_map["recommended"]
+    return sorted(products, key=key_fn)
+
+
 def _media_kind(media: Media | None) -> str | None:
     if media is None:
         return None
@@ -457,13 +494,7 @@ def list_products(
             for c in (p.colors or [])
         )]
 
-    sort_map = {
-        "newest": lambda p: (p.created_at,),
-        "price_asc": lambda p: (p.price,),
-        "price_desc": lambda p: (-p.price,),
-        "name": lambda p: (p.name.upper(),),
-    }
-    products = sorted(products, key=sort_map.get(sort, sort_map["newest"]))
+    products = _sort_products(products, sort)
 
     page = max(1, page)
     page_size = max(1, min(48, page_size))

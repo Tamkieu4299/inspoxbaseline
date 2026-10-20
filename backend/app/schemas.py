@@ -152,6 +152,7 @@ class ProductBase(BaseModel):
     is_active: bool = True
     is_featured: bool = False
     is_bestseller: bool = False
+    list_order: int = 0
     finder_profile: dict[str, Any] | None = None
 
 

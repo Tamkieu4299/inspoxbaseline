@@ -392,7 +392,7 @@ export function ProductEditorForm({
                 onChange={(v) => set("is_active", v)}
               />
               <StudioToggle
-                label={t("admin.featuredHome")}
+                label={t("admin.hotProduct")}
                 checked={draft.is_featured}
                 onChange={(v) => set("is_featured", v)}
               />
@@ -402,6 +402,14 @@ export function ProductEditorForm({
                 onChange={(v) => set("is_bestseller", v)}
               />
             </div>
+            <Field label={t("admin.listOrder")}>
+              <TextInput
+                type="number"
+                value={draft.list_order ?? 0}
+                onChange={(e) => set("list_order", Number(e.target.value) || 0)}
+              />
+              <p className="font-body text-body-sm text-secondary mt-1">{t("admin.listOrderHint")}</p>
+            </Field>
         </StudioModule>
       ) : null}
 

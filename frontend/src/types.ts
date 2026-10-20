@@ -49,6 +49,8 @@ export interface Product {
   is_active: boolean;
   is_featured: boolean;
   is_bestseller: boolean;
+  /** Lower = higher in catalog lists (after hot/bestseller). */
+  list_order?: number;
   created_at: string;
   images: ProductImage[];
   category?: Category | null;

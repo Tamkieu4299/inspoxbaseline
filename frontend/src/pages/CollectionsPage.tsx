@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
@@ -17,6 +18,14 @@ export default function CollectionsPage() {
 
   const totalProducts = newArrivalsPage?.total ?? 0;
 
+  const sortedCollections = useMemo(
+    () =>
+      [...(collections || [])].sort(
+        (a, b) => a.display_order - b.display_order || a.name.localeCompare(b.name),
+      ),
+    [collections],
+  );
+
   return (
     <main className="flex-grow pt-24 px-4 md:px-8 lg:px-16 w-full max-w-[1920px] mx-auto pb-16">
       <header className="mb-10 border-b border-surface-container-high pb-4">
@@ -34,7 +43,7 @@ export default function CollectionsPage() {
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {collections.map((c) => {
+          {sortedCollections.map((c) => {
             const count = c.slug === "new-arrivals" ? totalProducts : (c.products || []).length;
             return (
               <Link

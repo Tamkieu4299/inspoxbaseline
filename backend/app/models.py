@@ -156,6 +156,7 @@ class Product(Base, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_featured: Mapped[bool] = mapped_column(Boolean, default=False)
     is_bestseller: Mapped[bool] = mapped_column(Boolean, default=False)
+    list_order: Mapped[int] = mapped_column(Integer, default=0, index=True)
     finder_profile: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     category: Mapped["Category | None"] = relationship(foreign_keys=[category_id])

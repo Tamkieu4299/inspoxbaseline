@@ -141,6 +141,7 @@ export default function CollectionsTab() {
               </Field>
               <Field label={t("admin.displayOrder")}>
                 <TextInput type="number" value={draft.display_order} onChange={(e) => set("display_order", Number(e.target.value))} />
+                <p className="font-body text-body-sm text-secondary mt-1">{t("admin.collectionOrderHint")}</p>
               </Field>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
