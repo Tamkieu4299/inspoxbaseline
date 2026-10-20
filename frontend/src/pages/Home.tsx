@@ -6,6 +6,8 @@ import Icon from "../components/Icon";
 import ProductCard from "../components/ProductCard";
 import { useLanguage } from "../i18n";
 import { normalizeHomeSections, type HomeSectionConfig } from "../homeSections";
+import CoverMedia from "../components/CoverMedia";
+import type { HeroSlide } from "../mediaUtils";
 import type { Collection, HomeData } from "../types";
 
 export default function Home() {
@@ -151,18 +153,8 @@ function MasterMediaPanel({
 
   return (
     <div className="relative bg-surface-container-low h-full min-h-[400px] overflow-hidden">
-      {url && isVideo ? (
-        <video
-          className="absolute inset-0 w-full h-full object-cover"
-          src={url}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-        />
-      ) : url ? (
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${url}')` }} />
+      {url ? (
+        <CoverMedia slide={{ url, media_type: mediaType ?? undefined }} />
       ) : null}
       <div className="absolute inset-0 bg-white/10 pointer-events-none" />
       {!isVideo && url ? (
@@ -177,8 +169,16 @@ function MasterMediaPanel({
 }
 
 function HomeHero({ hero }: { hero: HomeData["hero"] }) {
+  const heroSlides: HeroSlide[] = (hero.slides || []).filter((s): s is HeroSlide => Boolean(s?.url));
   const slideUrls = (hero.images || []).filter((u): u is string => Boolean(u));
-  const heroImages: string[] = slideUrls.length > 0 ? slideUrls : hero.image ? [hero.image] : [];
+  const fallbackSlides: HeroSlide[] =
+    slideUrls.length > 0
+      ? slideUrls.map((url) => ({ url }))
+      : hero.image
+        ? [{ url: hero.image }]
+        : [];
+  const slides = heroSlides.length > 0 ? heroSlides : fallbackSlides;
+  const heroImages = slides.map((s) => s.url);
   const autoCarousel = Boolean(hero.carousel) && heroImages.length > 1;
   const [slide, setSlide] = useState(0);
   const intervalMs = Math.max(1000, (hero.interval ?? 5) * 1000);
@@ -201,22 +201,17 @@ function HomeHero({ hero }: { hero: HomeData["hero"] }) {
   return (
     <section className="relative w-full h-[870px] min-h-[600px] flex items-end pb-16 px-8 max-w-[1440px] mx-auto overflow-hidden">
       <div className="absolute inset-0 z-0 bg-surface-container-low">
-        {heroImages.length > 0 ? (
-          heroImages.map((url, i) => (
+        {slides.length > 0 ? (
+          slides.map((slide, i) => (
             <div
-              key={url}
-              className="absolute inset-0 bg-cover bg-center transition-opacity duration-700"
-              style={{
-                backgroundImage: `url('${url}')`,
-                opacity: i === activeSlide ? 1 : 0,
-              }}
-            />
+              key={`${slide.url}-${i}`}
+              className="absolute inset-0 transition-opacity duration-700"
+              style={{ opacity: i === activeSlide ? 1 : 0 }}
+            >
+              <CoverMedia slide={slide} />
+            </div>
           ))
-        ) : (
-          hero.image && (
-            <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url('${hero.image}')` }} />
-          )
-        )}
+        ) : null}
         {hero.gradient !== false && (
           <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/70 to-transparent" />
         )}
@@ -310,19 +305,17 @@ function BentoCard({
   large: boolean;
   fullWidth?: boolean;
 }) {
-  const image = collection.hero_media?.url;
   const span = fullWidth ? "md:col-span-12" : large ? "md:col-span-8" : "md:col-span-4";
   return (
     <Link
       to={`/collections/${collection.slug}`}
       className={`${span} relative group overflow-hidden bg-surface-container-low cursor-pointer`}
     >
-      {image && (
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-all duration-700 scale-100 group-hover:scale-105 origin-center"
-          style={{ backgroundImage: `url('${image}')` }}
-        />
-      )}
+      {collection.hero_media ? (
+        <div className="absolute inset-0 transition-all duration-700 scale-100 group-hover:scale-105 origin-center">
+          <CoverMedia media={collection.hero_media} />
+        </div>
+      ) : null}
       <div className="absolute inset-0 bg-white/20 group-hover:bg-transparent transition-all duration-500" />
       <div
         className={`absolute bottom-0 left-0 w-full bg-gradient-to-t from-surface-container-lowest to-transparent ${large ? "p-8" : "p-6"}`}

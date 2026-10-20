@@ -57,6 +57,14 @@ export interface Product {
   finder_profile?: ProductFinderProfile | null;
 }
 
+export interface ProductListPage {
+  items: Product[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
 export type ProductFinderProfile = {
   enabled?: boolean;
   vectors?: Record<string, number | undefined>;
@@ -201,6 +209,7 @@ export interface HomeData {
     text_color?: string | null;
     carousel?: boolean;
     images?: (string | null)[];
+    slides?: { url: string; media_type?: "image" | "video" | null }[];
     interval?: number;
     colors?: Record<string, string>;
     primary_cta: string;

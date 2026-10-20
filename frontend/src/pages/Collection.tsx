@@ -30,6 +30,8 @@ export default function Collection() {
   const size = params.get("size") || "";
   const color = params.get("color") || "";
   const sort = params.get("sort") || "newest";
+  const page = Math.max(1, parseInt(params.get("page") || "1", 10) || 1);
+  const pageSize = 24;
 
   const [showFilters, setShowFilters] = useState(false);
 
@@ -47,8 +49,8 @@ export default function Collection() {
     queryKey: ["product-brands", brandCategory],
     queryFn: () => api.getProductBrands(brandCategory ? { category: brandCategory } : undefined),
   });
-  const { data: products, isLoading } = useQuery({
-    queryKey: ["products", activeCollection, category, brand, size, color, sort, lang],
+  const { data: productPage, isLoading } = useQuery({
+    queryKey: ["products", activeCollection, category, brand, size, color, sort, page, lang],
     queryFn: () =>
       api.getProducts({
         collection: collectionFilter,
@@ -57,9 +59,14 @@ export default function Collection() {
         size: size || undefined,
         color: color || undefined,
         sort,
+        page: String(page),
+        page_size: String(pageSize),
         lang,
       }),
   });
+  const products = productPage?.items;
+  const totalItems = productPage?.total ?? 0;
+  const totalPages = productPage?.total_pages ?? 1;
 
   const currentCollection = collections?.find((c) => c.slug === activeCollection);
   const currentCategory = categoryNav.find((c) => c.slug === category);
@@ -71,7 +78,14 @@ export default function Collection() {
   }, [products]);
 
   function update(key: string, value: string) {
-    patchParams({ [key]: value || null });
+    const patch: Record<string, string | null> = { [key]: value || null };
+    if (key !== "page") patch.page = null;
+    patchParams(patch);
+  }
+
+  function setPage(next: number) {
+    patchParams({ page: next <= 1 ? null : String(next) });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   /** Apply several query keys in one update (avoids stale params when clearing brand + changing category). */
@@ -84,7 +98,7 @@ export default function Collection() {
     setParams(next, { replace: true });
   }
 
-  const itemCount = products?.length ?? 0;
+  const itemCount = totalItems;
 
   return (
     <main className="flex-grow pt-24 px-4 md:px-8 lg:px-16 w-full max-w-[1920px] mx-auto pb-16">
@@ -264,14 +278,33 @@ export default function Collection() {
           ) : (
             products.map((product) => <ProductCard key={product.id} product={product} />)
           )}
-          <div className="col-span-full flex justify-center mt-8 border-t border-surface-container-high pt-8">
-            <Link
-              to="/products"
-              className="inline-flex items-center justify-center px-6 py-2.5 bg-transparent border border-primary text-primary font-label text-label-caps uppercase rounded-none hover:bg-forest-green hover:border-forest-green hover:text-white transition-colors"
-            >
-              {t("viewAllProducts")}
-            </Link>
-          </div>
+          {totalPages > 1 ? (
+            <div className="col-span-full flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 border-t border-surface-container-high pt-8">
+              <p className="font-label text-label-caps text-secondary order-2 sm:order-1">
+                {t("collection.pageOf")
+                  .replace("{page}", String(page))
+                  .replace("{total}", String(totalPages))}
+              </p>
+              <div className="flex items-center gap-2 order-1 sm:order-2">
+                <button
+                  type="button"
+                  disabled={page <= 1}
+                  onClick={() => setPage(page - 1)}
+                  className="px-4 py-2 border border-surface-container-highest font-label text-label-caps uppercase disabled:opacity-40 hover:border-forest-green hover:text-forest-green transition-colors"
+                >
+                  {t("collection.prevPage")}
+                </button>
+                <button
+                  type="button"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage(page + 1)}
+                  className="px-4 py-2 border border-primary bg-primary text-on-primary font-label text-label-caps uppercase disabled:opacity-40 hover:bg-inverse-surface transition-colors"
+                >
+                  {t("collection.nextPage")}
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </main>

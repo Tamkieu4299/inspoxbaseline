@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
 import type { Collection, Media } from "../types";
-import { ImageField } from "./MediaLibrary";
+import { MediaField } from "./MediaLibrary";
 import { Checkbox, DangerButton, Field, PrimaryButton, SecondaryButton, Select, TextArea, TextInput, ViArea, ViInput } from "./ui";
 
 interface Draft {
@@ -164,7 +164,8 @@ export default function CollectionsTab() {
                   <option>BESTSELLER</option>
                 </Select>
               </Field>
-              <ImageField
+              <MediaField
+                allowVideo
                 label={t("admin.heroImage")}
                 value={draft.hero_image_id ? (mediaById.get(draft.hero_image_id) as Media) || null : null}
                 onChange={(m) => set("hero_image_id", m ? m.id : "")}

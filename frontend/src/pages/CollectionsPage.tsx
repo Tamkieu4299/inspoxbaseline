@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
+import CoverMedia from "../components/CoverMedia";
 import { useLanguage } from "../i18n";
 
 export default function CollectionsPage() {
@@ -9,12 +10,12 @@ export default function CollectionsPage() {
     queryKey: ["collections", lang],
     queryFn: () => api.getCollections(lang),
   });
-  const { data: products } = useQuery({
-    queryKey: ["products-all", lang],
-    queryFn: () => api.getProducts({ lang }),
+  const { data: newArrivalsPage } = useQuery({
+    queryKey: ["products-new-arrivals-count", lang],
+    queryFn: () => api.getProducts({ lang, page: "1", page_size: "1" }),
   });
 
-  const totalProducts = products?.length ?? 0;
+  const totalProducts = newArrivalsPage?.total ?? 0;
 
   return (
     <main className="flex-grow pt-24 px-4 md:px-8 lg:px-16 w-full max-w-[1920px] mx-auto pb-16">
@@ -43,12 +44,9 @@ export default function CollectionsPage() {
               >
                 <div className="relative w-full aspect-[4/5] overflow-hidden bg-surface-container-low">
                   {c.hero_media ? (
-                    <img
-                      src={c.hero_media.url}
-                      alt={c.hero_media.filename || c.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ease-out"
-                      loading="lazy"
-                    />
+                    <div className="relative w-full h-full overflow-hidden group-hover:scale-105 transition-all duration-500 ease-out">
+                      <CoverMedia media={c.hero_media} />
+                    </div>
                   ) : (
                     <div className="w-full h-full bg-surface-container-low" />
                   )}

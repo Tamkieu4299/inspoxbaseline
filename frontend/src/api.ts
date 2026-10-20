@@ -54,7 +54,7 @@ export const api = {
     request<Collection>(`/api/collections/${slug}?${langQ(lang)}`),
   getProducts: (params?: Record<string, string | undefined>) => {
     const qs = params ? `?${new URLSearchParams(Object.entries(params).filter(([, v]) => v).map(([k, v]) => [k, v as string])).toString()}` : "";
-    return request<Product[]>(`/api/products${qs}`);
+    return request<import("./types").ProductListPage>(`/api/products${qs}`);
   },
   getProductBrands: (params?: { category?: string }) => {
     const qs = params?.category ? `?category=${encodeURIComponent(params.category)}` : "";

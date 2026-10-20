@@ -269,6 +269,14 @@ class EditorialItemOut(EditorialItemIn, ORMModel):
     media: MediaOut | None = None
 
 
+class ProductListOut(BaseModel):
+    items: list[ProductOut]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+
+
 class HomeOut(BaseModel):
     hero: dict[str, Any]
     trending: list[CollectionOut]

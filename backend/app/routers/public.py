@@ -28,6 +28,7 @@ from ..schemas import (
     PageNavOut,
     PageOut,
     ProductImageOut,
+    ProductListOut,
     ProductOut,
     QuizMatchProductOut,
     QuizNavOut,
@@ -211,25 +212,21 @@ def get_home(
     hero_image = home.hero_media.url if home.hero_media else None
     master_media_obj = home.master_media
     master_image = master_media_obj.url if master_media_obj else None
-    master_media_type: str | None = None
-    if master_media_obj:
-        ct = (master_media_obj.content_type or "").lower()
-        if ct.startswith("video/"):
-            master_media_type = "video"
-        elif ct.startswith("image/"):
-            master_media_type = "image"
-        elif master_image and master_image.lower().split("?")[0].endswith((".mp4", ".webm", ".mov", ".m4v")):
-            master_media_type = "video"
+    master_media_type = _media_kind(master_media_obj)
 
     carousel_images = []
+    carousel_slides: list[dict[str, str | None]] = []
     if home.hero_image_ids:
         media_list = db.execute(
             select(Media).where(Media.id.in_(home.hero_image_ids))
         ).scalars().all()
         by_id = {m.id: m for m in media_list}
-        carousel_images = [
-            by_id[i].url for i in home.hero_image_ids if i in by_id
-        ]
+        for mid in home.hero_image_ids:
+            m = by_id.get(mid)
+            if m is None:
+                continue
+            carousel_images.append(m.url)
+            carousel_slides.append({"url": m.url, "media_type": _media_kind(m)})
 
     hero = {
         "kicker": loc(home.hero_kicker, home.hero_kicker_vi),
@@ -240,6 +237,7 @@ def get_home(
         "text_color": home.hero_text_color,
         "carousel": home.hero_carousel,
         "images": carousel_images,
+        "slides": carousel_slides,
         "interval": home.hero_carousel_interval,
         "colors": home.hero_colors or {},
         "primary_cta": loc(home.hero_primary_cta, home.hero_primary_cta_vi),
@@ -376,7 +374,21 @@ def list_product_brands(
     return [b for b in brands if b]
 
 
-@router.get("/products", response_model=list[ProductOut])
+def _media_kind(media: Media | None) -> str | None:
+    if media is None:
+        return None
+    ct = (media.content_type or "").lower()
+    if ct.startswith("video/"):
+        return "video"
+    if ct.startswith("image/"):
+        return "image"
+    url = (media.url or "").lower().split("?")[0]
+    if url.endswith((".mp4", ".webm", ".mov", ".m4v")):
+        return "video"
+    return "image"
+
+
+@router.get("/products", response_model=ProductListOut)
 def list_products(
     collection: str | None = None,
     category: str | None = None,
@@ -385,6 +397,8 @@ def list_products(
     color: str | None = None,
     sort: str = "newest",
     q: str | None = None,
+    page: int = 1,
+    page_size: int = 24,
     lang: str = "en",
     db: Session = Depends(get_db),
     tenant: Tenant = Depends(get_tenant),
@@ -442,7 +456,22 @@ def list_products(
     }
     products = sorted(products, key=sort_map.get(sort, sort_map["newest"]))
 
-    return [_load_product(db, p, lang) for p in products]
+    page = max(1, page)
+    page_size = max(1, min(48, page_size))
+    total = len(products)
+    total_pages = max(1, (total + page_size - 1) // page_size)
+    if page > total_pages:
+        page = total_pages
+    start = (page - 1) * page_size
+    page_items = products[start : start + page_size]
+
+    return ProductListOut(
+        items=[_load_product(db, p, lang) for p in page_items],
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages,
+    )
 
 
 @router.get("/products/{slug}", response_model=ProductOut)

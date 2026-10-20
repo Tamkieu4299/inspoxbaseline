@@ -10,6 +10,7 @@ import {
   type HomeSectionConfig,
   type HomeSectionId,
 } from "../homeSections";
+import { isVideoMedia } from "../mediaUtils";
 import { ImageField, MediaField, MediaPicker } from "./MediaLibrary";
 import { ColorField, PrimaryButton, SecondaryButton } from "./ui";
 
@@ -116,10 +117,11 @@ export default function HomeTab() {
   const carouselSlideUrls = (d.hero_image_ids || [])
     .map((id) => mediaById.get(id)?.url)
     .filter((u): u is string => Boolean(u));
-  const heroBg =
-    carouselSlideUrls[0] ||
-    (d.hero_image_id && mediaById.get(d.hero_image_id)?.url) ||
+  const heroPreviewMedia =
+    (d.hero_image_ids?.[0] && mediaById.get(d.hero_image_ids[0])) ||
+    (d.hero_image_id && mediaById.get(d.hero_image_id)) ||
     undefined;
+  const heroBg = heroPreviewMedia?.url || carouselSlideUrls[0] || undefined;
   const colors = d.hero_colors || {};
   const slideCount = Math.max(1, (d.hero_image_ids || []).length || (d.hero_image_id ? 1 : 0));
   const layoutSections = normalizeHomeSections(d.sections);
@@ -471,7 +473,11 @@ export default function HomeTab() {
                   return (
                     <div key={id} className="p-3 rounded-lg bg-surface-container-low flex flex-col gap-2">
                       <div className="w-full h-28 rounded overflow-hidden bg-surface-container">
-                        <img src={m.url} alt="" className="w-full h-full object-cover" />
+                        {isVideoMedia(m) ? (
+                          <video src={m.url} className="w-full h-full object-cover bg-black" muted playsInline />
+                        ) : (
+                          <img src={m.url} alt="" className="w-full h-full object-cover" />
+                        )}
                       </div>
                       <div className="flex items-center justify-between gap-2">
                         <div className="min-w-0">
@@ -701,10 +707,21 @@ export default function HomeTab() {
             </div>
             <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden shadow-lg bg-primary">
               {heroBg ? (
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url('${heroBg}')` }}
-                />
+                isVideoMedia(heroPreviewMedia ?? null) ? (
+                  <video
+                    className="absolute inset-0 w-full h-full object-cover"
+                    src={heroBg}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url('${heroBg}')` }}
+                  />
+                )
               ) : null}
               {d.hero_gradient !== false ? (
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
@@ -771,7 +788,7 @@ export default function HomeTab() {
 
           <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col gap-3">
             <span className="font-label text-label-caps uppercase text-primary font-bold tracking-widest text-xs">{t("admin.homeStudio.directIngest")}</span>
-            <input ref={ingestRef} type="file" accept="image/*" className="hidden" onChange={() => setCarouselOpen(true)} />
+            <input ref={ingestRef} type="file" accept="image/*,video/*" className="hidden" onChange={() => setCarouselOpen(true)} />
             <button
               type="button"
               onClick={() => ingestRef.current?.click()}
@@ -787,6 +804,7 @@ export default function HomeTab() {
 
       {carouselOpen && (
         <MediaPicker
+          mediaFilter={(m) => isVideoMedia(m) || (m.content_type || "").startsWith("image/")}
           onSelect={(m) => {
             const current = d.hero_image_ids || [];
             if (!current.includes(m.id)) setHeroCarouselIds([...current, m.id]);
@@ -797,6 +815,7 @@ export default function HomeTab() {
       )}
       {heroPickOpen && (
         <MediaPicker
+          mediaFilter={(m) => isVideoMedia(m) || (m.content_type || "").startsWith("image/")}
           onSelect={(m) => {
             set("hero_image_id", m.id);
             setHeroPickOpen(false);
@@ -827,7 +846,13 @@ function HeroMediaRow({
     <div className="p-4 rounded-lg bg-surface-container-low flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
       <div className="flex items-center gap-4 min-w-0">
         <div className="w-28 h-20 rounded overflow-hidden bg-surface-container shrink-0">
-          {media ? <img src={media.url} alt="" className="w-full h-full object-cover" /> : null}
+          {media ? (
+            isVideoMedia(media) ? (
+              <video src={media.url} className="w-full h-full object-cover bg-black" muted playsInline />
+            ) : (
+              <img src={media.url} alt="" className="w-full h-full object-cover" />
+            )
+          ) : null}
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
