@@ -804,6 +804,7 @@ export default function HomeTab() {
 
       {carouselOpen && (
         <MediaPicker
+          allowVideo
           mediaFilter={(m) => isVideoMedia(m) || (m.content_type || "").startsWith("image/")}
           onSelect={(m) => {
             const current = d.hero_image_ids || [];
@@ -815,6 +816,7 @@ export default function HomeTab() {
       )}
       {heroPickOpen && (
         <MediaPicker
+          allowVideo
           mediaFilter={(m) => isVideoMedia(m) || (m.content_type || "").startsWith("image/")}
           onSelect={(m) => {
             set("hero_image_id", m.id);

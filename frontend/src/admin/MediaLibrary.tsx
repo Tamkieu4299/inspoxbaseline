@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
+import { isVideoFile } from "../mediaUtils";
 import type { Media } from "../types";
 import ImageCropModal from "./ImageCropModal";
 import { DangerButton, PrimaryButton, SecondaryButton } from "./ui";
@@ -54,12 +55,15 @@ function assetCategory(m: Media): AssetTab {
 function UploadButton({
   onDone,
   label,
-  accept = "image/*",
+  accept,
+  allowVideo = false,
 }: {
   onDone: (m: Media) => void;
   label?: string;
   accept?: string;
+  allowVideo?: boolean;
 }) {
+  const acceptTypes = accept ?? (allowVideo ? "image/*,video/*,.mp4,.mov,.webm,.m4v" : "image/*");
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { t } = useLanguage();
@@ -79,17 +83,20 @@ function UploadButton({
       <input
         ref={inputRef}
         type="file"
-        accept={accept}
+        accept={acceptTypes}
         className="hidden"
         multiple
         onChange={async (e) => {
           const file = e.target.files?.[0];
           if (!file) return;
           e.target.value = "";
-          if (file.type.startsWith("video/")) {
+          if (isVideoFile(file)) {
             setUploading(true);
             try {
-              await mutation.mutateAsync(file);
+              const type = file.type || "video/mp4";
+              const named =
+                file.type ? file : new File([file], file.name || "upload.mp4", { type });
+              await mutation.mutateAsync(named);
             } finally {
               setUploading(false);
             }
@@ -105,7 +112,9 @@ function UploadButton({
         className="uppercase font-label text-label-caps px-8 py-4 flex items-center gap-2"
       >
         <span className="material-symbols-outlined text-[18px]">cloud_upload</span>
-        {uploading ? t("admin.uploading") : label || t("admin.assets.bulkUpload")}
+        {uploading
+          ? t("admin.uploading")
+          : label || (allowVideo ? t("admin.uploadImageOrVideo") : t("admin.assets.bulkUpload"))}
       </PrimaryButton>
       {pendingFile && (
         <ImageCropModal
@@ -226,7 +235,7 @@ function DigitalAssetStudio({ media }: { media: Media[] }) {
                 <span className="material-symbols-outlined text-[18px]">cached</span>
                 {t("admin.assets.purgeCdn")}
               </SecondaryButton>
-              <UploadButton onDone={(m) => selectAsset(m)} />
+              <UploadButton allowVideo onDone={(m) => selectAsset(m)} />
             </div>
           </div>
 
@@ -591,10 +600,12 @@ export function MediaLibrary({
   onSelect,
   hubLayout = false,
   mediaFilter,
+  allowVideo = false,
 }: {
   onSelect?: (m: Media) => void;
   hubLayout?: boolean;
   mediaFilter?: (m: Media) => boolean;
+  allowVideo?: boolean;
 }) {
   const { data: media, isLoading } = useMedia();
   const { t } = useLanguage();
@@ -612,7 +623,11 @@ export function MediaLibrary({
     <div>
       <div className="mb-4 flex items-center justify-between bg-white border border-surface-container-highest p-4 shadow-sm">
         <h3 className="font-headline text-headline-md text-primary uppercase">{t("admin.mediaLibrary")}</h3>
-        <UploadButton onDone={(m) => onSelect?.(m)} label={t("admin.uploadImage")} />
+        <UploadButton
+          allowVideo={allowVideo}
+          onDone={(m) => onSelect?.(m)}
+          label={allowVideo ? t("admin.uploadImageOrVideo") : t("admin.uploadImage")}
+        />
       </div>
       {list.length === 0 && <p className="font-body text-body-md text-secondary">{t("admin.noMedia")}</p>}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -640,10 +655,12 @@ export function MediaPicker({
   onSelect,
   onClose,
   mediaFilter,
+  allowVideo = false,
 }: {
   onSelect: (m: Media) => void;
   onClose: () => void;
   mediaFilter?: (m: Media) => boolean;
+  allowVideo?: boolean;
 }) {
   const { t } = useLanguage();
   return createPortal(
@@ -666,6 +683,7 @@ export function MediaPicker({
         </div>
         <div className="flex-1 overflow-y-auto p-6 min-h-0">
           <MediaLibrary
+            allowVideo={allowVideo}
             mediaFilter={mediaFilter}
             onSelect={(m) => {
               onSelect(m);
@@ -825,8 +843,15 @@ export function MediaField({
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) uploadMutation.mutate(file);
+              if (!file) return;
               e.target.value = "";
+              if (isVideoFile(file)) {
+                const type = file.type || "video/mp4";
+                const named = file.type ? file : new File([file], file.name || "upload.mp4", { type });
+                uploadMutation.mutate(named);
+                return;
+              }
+              uploadMutation.mutate(file);
             }}
           />
           <SecondaryButton type="button" onClick={() => uploadRef.current?.click()} disabled={uploadMutation.isPending}>
@@ -835,7 +860,12 @@ export function MediaField({
         </div>
       )}
       {open && (
-        <MediaPicker mediaFilter={mediaFilter} onSelect={onChange} onClose={() => setOpen(false)} />
+        <MediaPicker
+          allowVideo={allowVideo}
+          mediaFilter={mediaFilter}
+          onSelect={onChange}
+          onClose={() => setOpen(false)}
+        />
       )}
     </div>
   );
