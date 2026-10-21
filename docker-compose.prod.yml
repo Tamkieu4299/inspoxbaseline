@@ -33,6 +33,10 @@ services:
     ports: !reset []
     restart: unless-stopped
 
+  baseline-hub:
+    ports: !reset []
+    restart: unless-stopped
+
   caddy:
     image: caddy:2-alpine
     container_name: inspo-caddy

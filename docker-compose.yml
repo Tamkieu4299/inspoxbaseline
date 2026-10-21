@@ -69,6 +69,12 @@ services:
     depends_on:
       - backend
 
+  baseline-hub:
+    build: ./baseline-hub
+    container_name: inspo-baseline-hub
+    ports:
+      - "3002:80"
+
 volumes:
   minio-data:
   backend-data:
