@@ -310,6 +310,15 @@ export interface HomeContentAdmin {
   master_media_id?: number | null;
   features: { index?: string; title?: string; title_vi?: string }[];
   sections?: HomeSectionConfig[];
+  brand_hero_title?: string | null;
+  brand_hero_title_vi?: string | null;
+  brand_hero_subtitle?: string | null;
+  brand_hero_subtitle_vi?: string | null;
+  brand_hero_cta?: string | null;
+  brand_hero_cta_vi?: string | null;
+  brand_hero_image_id?: number | null;
+  brand_hero_gradient?: boolean;
+  brand_hero_text_color?: string | null;
 }
 
 export interface PageBlock {
@@ -379,6 +388,8 @@ export interface SitePublic {
   currency_code?: string;
   usd_to_vnd_rate?: number;
   supported_currencies?: string[];
+  footer_tagline?: string | null;
+  collections_subtitle?: string | null;
 }
 
 export interface SiteSettings {
@@ -391,6 +402,10 @@ export interface SiteSettings {
   nav_items: NavItem[];
   currency_code?: string;
   usd_to_vnd_rate?: number;
+  footer_tagline?: string | null;
+  footer_tagline_vi?: string | null;
+  collections_subtitle?: string | null;
+  collections_subtitle_vi?: string | null;
 }
 
 export interface TenantAdmin {

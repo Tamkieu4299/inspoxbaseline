@@ -236,12 +236,22 @@ class HomeContentIn(BaseModel):
     master_media_id: int | None = None
     features: list[Any] = Field(default_factory=list)
     sections: list[Any] = Field(default_factory=list)
+    brand_hero_title: str | None = None
+    brand_hero_title_vi: str | None = None
+    brand_hero_subtitle: str | None = None
+    brand_hero_subtitle_vi: str | None = None
+    brand_hero_cta: str | None = None
+    brand_hero_cta_vi: str | None = None
+    brand_hero_image_id: int | None = None
+    brand_hero_gradient: bool = True
+    brand_hero_text_color: str | None = None
 
 
 class HomeContentOut(HomeContentIn, ORMModel):
     id: int
     hero_media: MediaOut | None = None
     master_media: MediaOut | None = None
+    brand_hero_media: MediaOut | None = None
 
 
 class EditorialItemIn(BaseModel):
@@ -380,6 +390,10 @@ class SiteSettingsBase(BaseModel):
     nav_items: list[Any] = Field(default_factory=list)
     currency_code: str = "VND"
     usd_to_vnd_rate: float = 24500.0
+    footer_tagline: str | None = None
+    footer_tagline_vi: str | None = None
+    collections_subtitle: str | None = None
+    collections_subtitle_vi: str | None = None
 
 
 class SiteSettingsIn(SiteSettingsBase):
@@ -400,6 +414,8 @@ class SitePublic(BaseModel):
     currency_code: str = "VND"
     usd_to_vnd_rate: float = 24500.0
     supported_currencies: list[str] = Field(default_factory=lambda: ["VND"])
+    footer_tagline: str | None = None
+    collections_subtitle: str | None = None
 
 
 class ShopQuizBase(BaseModel):

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 
 export default function SiteBranding() {
-  const { data } = useQuery({ queryKey: ["site"], queryFn: api.getSite });
+  const { data } = useQuery({ queryKey: ["site"], queryFn: () => api.getSite() });
 
   useEffect(() => {
     if (!data) return;

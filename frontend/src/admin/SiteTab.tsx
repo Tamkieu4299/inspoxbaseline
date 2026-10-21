@@ -4,7 +4,7 @@ import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
 import type { Media, SiteSettings } from "../types";
 import { ImageField } from "./MediaLibrary";
-import { Field, PrimaryButton, TextInput } from "./ui";
+import { Field, PrimaryButton, TextInput, ViInput } from "./ui";
 
 export default function SiteTab() {
   const queryClient = useQueryClient();
@@ -75,6 +75,37 @@ export default function SiteTab() {
             onChange={(m) => set("favicon_media_id", m ? m.id : null)}
           />
         </div>
+      </div>
+
+      <div className="border-t border-surface-container-highest pt-6 flex flex-col gap-4">
+        <h4 className="font-headline text-headline-md text-primary uppercase">{t("admin.storefrontCopy")}</h4>
+        <p className="font-body text-body-md text-secondary -mt-2">{t("admin.storefrontCopyHint")}</p>
+        <Field label={t("admin.footerTagline")}>
+          <TextInput
+            value={draftValue.footer_tagline || ""}
+            onChange={(e) => set("footer_tagline", e.target.value || null)}
+            placeholder={t("admin.footerTaglinePlaceholder")}
+          />
+        </Field>
+        <ViInput
+          label={t("admin.footerTagline")}
+          value={draftValue.footer_tagline_vi || ""}
+          onChange={(e) => set("footer_tagline_vi", e.target.value || null)}
+          placeholder="Dòng tagline footer (tiếng Việt)"
+        />
+        <Field label={t("admin.collectionsSubtitle")}>
+          <TextInput
+            value={draftValue.collections_subtitle || ""}
+            onChange={(e) => set("collections_subtitle", e.target.value || null)}
+            placeholder={t("admin.collectionsSubtitlePlaceholder")}
+          />
+        </Field>
+        <ViInput
+          label={t("admin.collectionsSubtitle")}
+          value={draftValue.collections_subtitle_vi || ""}
+          onChange={(e) => set("collections_subtitle_vi", e.target.value || null)}
+          placeholder="Phụ đề trang /collections (tiếng Việt)"
+        />
       </div>
 
       {draftValue.logo_media && (

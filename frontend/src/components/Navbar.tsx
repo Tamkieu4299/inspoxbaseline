@@ -34,7 +34,7 @@ export default function Navbar() {
   });
   const { data: site } = useQuery({
     queryKey: ["site"],
-    queryFn: api.getSite,
+    queryFn: () => api.getSite(),
     staleTime: 60_000,
   });
   const { data: quizzes } = useQuery({

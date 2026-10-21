@@ -345,7 +345,15 @@ def delete_product(product_id: int, db: Session = Depends(get_db), tenant: Tenan
 # ---------------- Home Content ----------------
 @router.get("/home", response_model=HomeContentOut)
 def get_home(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
-    home = db.scalar(select(HomeContent).where(HomeContent.tenant_id == tenant.id))
+    home = db.scalar(
+        select(HomeContent)
+        .options(
+            selectinload(HomeContent.hero_media),
+            selectinload(HomeContent.master_media),
+            selectinload(HomeContent.brand_hero_media),
+        )
+        .where(HomeContent.tenant_id == tenant.id)
+    )
     if home is None:
         home = HomeContent(tenant_id=tenant.id)
         db.add(home)

@@ -589,30 +589,59 @@ def get_brand_experience(
     hero_subtitle_vi = EDITORIAL_HERO["subtitle_vi"]
     hero_cta = EDITORIAL_HERO["cta"]
     hero_cta_vi = EDITORIAL_HERO["cta_vi"]
+    hero_gradient = True
+    hero_text_color = "#1c1917"
 
-    home = db.scalar(select(HomeContent).where(HomeContent.tenant_id == tenant.id))
-    if home is not None and (home.hero_title or home.hero_title_vi):
+    home = db.scalar(
+        select(HomeContent)
+        .options(selectinload(HomeContent.brand_hero_media))
+        .where(HomeContent.tenant_id == tenant.id)
+    )
+
+    def loc(en, vi):
+        return (vi or en) if lang == "vi" else (en or vi or "")
+
+    brand_configured = home is not None and any(
+        [
+            home.brand_hero_title,
+            home.brand_hero_title_vi,
+            home.brand_hero_subtitle,
+            home.brand_hero_subtitle_vi,
+            home.brand_hero_image_id,
+        ]
+    )
+    if brand_configured:
+        hero_title = home.brand_hero_title or hero_title
+        hero_title_vi = home.brand_hero_title_vi or hero_title_vi
+        hero_subtitle = home.brand_hero_subtitle or hero_subtitle
+        hero_subtitle_vi = home.brand_hero_subtitle_vi or hero_subtitle_vi
+        hero_cta = home.brand_hero_cta or hero_cta
+        hero_cta_vi = home.brand_hero_cta_vi or hero_cta_vi
+        hero_gradient = home.brand_hero_gradient
+        hero_text_color = home.brand_hero_text_color or hero_text_color
+        if home.brand_hero_media is not None:
+            hero_media = home.brand_hero_media
+    elif home is not None and (home.hero_title or home.hero_title_vi):
         hero_title = home.hero_title or hero_title
         hero_title_vi = home.hero_title_vi or hero_title_vi
         hero_subtitle = home.hero_subtitle or hero_subtitle
         hero_subtitle_vi = home.hero_subtitle_vi or hero_subtitle_vi
         hero_cta = home.hero_secondary_cta or hero_cta
         hero_cta_vi = home.hero_secondary_cta_vi or hero_cta_vi
+        hero_gradient = home.hero_gradient
+        hero_text_color = home.hero_text_color or hero_text_color
         if home.hero_image_id:
             home_media = db.get(Media, home.hero_image_id)
             if home_media is not None:
                 hero_media = home_media
-
-    def loc(en, vi):
-        return (vi or en) if lang == "vi" else en
 
     return EditorialOut(
         hero_title=loc(hero_title, hero_title_vi),
         hero_subtitle=loc(hero_subtitle, hero_subtitle_vi),
         hero_cta=loc(hero_cta, hero_cta_vi),
         hero_image=hero_media.url if hero_media else None,
-        hero_gradient=home.hero_gradient if home is not None else True,
-        hero_text_color=home.hero_text_color if home is not None else "#1c1917",
+        hero_gradient=hero_gradient,
+        hero_text_color=hero_text_color,
         items=[_load_editorial(db, i, lang) for i in items],
     )
 
@@ -907,10 +936,21 @@ def get_quiz(
 
 
 @router.get("/site", response_model=SitePublic)
-def get_site(db: Session = Depends(get_db), tenant: Tenant = Depends(get_tenant)):
+def get_site(
+    lang: str = "en",
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
     from ..currency import normalize_base_currency
 
-    site = db.scalar(select(SiteSettings).where(SiteSettings.tenant_id == tenant.id))
+    site = db.scalar(
+        select(SiteSettings)
+        .options(
+            selectinload(SiteSettings.logo_media),
+            selectinload(SiteSettings.favicon_media),
+        )
+        .where(SiteSettings.tenant_id == tenant.id)
+    )
     if site is None:
         site = SiteSettings(tenant_id=tenant.id)
         db.add(site)
@@ -919,6 +959,15 @@ def get_site(db: Session = Depends(get_db), tenant: Tenant = Depends(get_tenant)
     rate = float(site.usd_to_vnd_rate or 24500)
     if rate <= 0:
         rate = 24500.0
+
+    def loc(en: str | None, vi: str | None) -> str | None:
+        if lang == "vi":
+            return (vi or en or None)
+        return (en or vi or None)
+
+    footer_tagline = loc(site.footer_tagline, site.footer_tagline_vi)
+    collections_subtitle = loc(site.collections_subtitle, site.collections_subtitle_vi)
+
     return SitePublic(
         site_name=site.site_name,
         logo_url=site.logo_media.url if site.logo_media else None,
@@ -927,4 +976,6 @@ def get_site(db: Session = Depends(get_db), tenant: Tenant = Depends(get_tenant)
         currency_code=normalize_base_currency(site.currency_code),
         usd_to_vnd_rate=rate,
         supported_currencies=["VND"],
+        footer_tagline=footer_tagline,
+        collections_subtitle=collections_subtitle,
     )

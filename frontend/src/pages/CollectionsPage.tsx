@@ -15,6 +15,12 @@ export default function CollectionsPage() {
     queryKey: ["products-new-arrivals-count", lang],
     queryFn: () => api.getProducts({ lang, page: "1", page_size: "1" }),
   });
+  const { data: site } = useQuery({
+    queryKey: ["site", lang],
+    queryFn: () => api.getSite(lang),
+    staleTime: 60_000,
+  });
+  const collectionsSubtitle = site?.collections_subtitle?.trim() || t("collections.subtitle");
 
   const totalProducts = newArrivalsPage?.total ?? 0;
 
@@ -31,7 +37,7 @@ export default function CollectionsPage() {
       <header className="mb-10 border-b border-surface-container-high pb-4">
         <h1 className="font-headline text-headline-lg text-primary uppercase">{t("collections.title")}</h1>
         <p className="font-label text-label-caps text-secondary mt-1">
-          {t("collections.subtitle")}
+          {collectionsSubtitle}
         </p>
       </header>
 

@@ -70,7 +70,7 @@ export const api = {
   getBlogPosts: (lang?: string) => request<BlogPost[]>(`/api/blog-posts?${langQ(lang)}`),
   getBlogPost: (slug: string, lang?: string) =>
     request<BlogPost>(`/api/blog-posts/${slug}?${langQ(lang)}`),
-  getSite: () => request<SitePublic>("/api/site"),
+  getSite: (lang?: string) => request<SitePublic>(`/api/site?${langQ(lang)}`),
   getQuizzes: (lang?: string) => request<QuizNavItem[]>(`/api/quizzes?${langQ(lang)}`),
   getQuiz: (slug: string, lang?: string) =>
     request<ShopQuizPublic>(`/api/quizzes/${encodeURIComponent(slug)}?${langQ(lang)}`),

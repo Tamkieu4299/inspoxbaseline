@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
-import type { EditorialItem, Media } from "../types";
+import type { EditorialItem, HomeContentAdmin, Media } from "../types";
 import { ImageField, MediaPicker } from "./MediaLibrary";
 import { Checkbox, DangerButton, Field, PrimaryButton, SecondaryButton, Select, TextArea, TextInput, ViArea, ViInput } from "./ui";
 
@@ -31,9 +31,15 @@ export default function BrandTab() {
   const queryClient = useQueryClient();
   const { t } = useLanguage();
   const { data: items, isLoading } = useQuery({ queryKey: ["admin-editorial"], queryFn: adminApi.getEditorial });
+  const { data: home, isLoading: homeLoading } = useQuery({
+    queryKey: ["admin-home"],
+    queryFn: adminApi.getHome,
+  });
   const { data: media } = useQuery({ queryKey: ["admin-media"], queryFn: adminApi.getMedia });
 
   const [draft, setDraft] = useState<Partial<EditorialItem> | null>(null);
+  const [heroDraft, setHeroDraft] = useState<HomeContentAdmin | null>(null);
+  const [heroDirty, setHeroDirty] = useState(false);
   const [gridImageIndex, setGridImageIndex] = useState<number | null>(null);
 
   const saveMutation = useMutation({
@@ -43,6 +49,16 @@ export default function BrandTab() {
       queryClient.invalidateQueries({ queryKey: ["admin-editorial"] });
       queryClient.invalidateQueries({ queryKey: ["brand"] });
       setDraft(null);
+    },
+  });
+
+  const saveHeroMutation = useMutation({
+    mutationFn: adminApi.updateHome,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-home"] });
+      queryClient.invalidateQueries({ queryKey: ["home"] });
+      queryClient.invalidateQueries({ queryKey: ["brand"] });
+      setHeroDirty(false);
     },
   });
 
@@ -56,11 +72,90 @@ export default function BrandTab() {
 
   const mediaById = new Map((media || []).map((m) => [m.id, m]));
 
+  useEffect(() => {
+    if (home && !heroDirty) {
+      setHeroDraft(home);
+    }
+  }, [home, heroDirty]);
+
+  function setHero<K extends keyof HomeContentAdmin>(key: K, value: HomeContentAdmin[K]) {
+    setHeroDraft((d) => ({ ...(d ?? home!), [key]: value }));
+    setHeroDirty(true);
+  }
+
   function set<K extends keyof EditorialItem>(key: K, value: EditorialItem[K]) {
     setDraft((d) => ({ ...(d || blank()), [key]: value }));
   }
 
+  const h = heroDraft || home;
+
   return (
+    <div className="flex flex-col gap-6">
+      <div className="bg-white border border-surface-container-highest p-6 max-w-3xl">
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <div>
+            <h3 className="font-headline text-headline-md text-primary uppercase">{t("admin.brandPageHero")}</h3>
+            <p className="font-body text-body-md text-secondary mt-1">{t("admin.brandPageHeroHint")}</p>
+          </div>
+          <PrimaryButton
+            disabled={!heroDirty || !h || homeLoading}
+            onClick={() => h && home && saveHeroMutation.mutate({ ...home, ...h })}
+          >
+            {t("admin.saveBrandHero")}
+          </PrimaryButton>
+        </div>
+        {homeLoading || !h ? (
+          <p className="font-body text-body-md text-secondary">{t("admin.loading")}</p>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <ImageField
+              label={t("admin.brandHeroImage")}
+              value={h.brand_hero_image_id ? (mediaById.get(h.brand_hero_image_id) as Media) || null : null}
+              onChange={(m) => setHero("brand_hero_image_id", m ? m.id : null)}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Field label={t("admin.title")}>
+                <TextInput
+                  value={h.brand_hero_title || ""}
+                  onChange={(e) => setHero("brand_hero_title", e.target.value || null)}
+                />
+              </Field>
+              <ViInput
+                label={t("admin.title")}
+                value={h.brand_hero_title_vi || ""}
+                onChange={(e) => setHero("brand_hero_title_vi", e.target.value || null)}
+              />
+              <Field label={t("admin.subtitle")}>
+                <TextArea
+                  rows={2}
+                  value={h.brand_hero_subtitle || ""}
+                  onChange={(e) => setHero("brand_hero_subtitle", e.target.value || null)}
+                />
+              </Field>
+              <ViInput
+                label={t("admin.subtitle")}
+                value={h.brand_hero_subtitle_vi || ""}
+                onChange={(e) => setHero("brand_hero_subtitle_vi", e.target.value || null)}
+              />
+              <Field label={t("admin.heroCta")}>
+                <TextInput
+                  value={h.brand_hero_cta || ""}
+                  onChange={(e) => setHero("brand_hero_cta", e.target.value || null)}
+                />
+              </Field>
+              <ViInput
+                label={t("admin.heroCta")}
+                value={h.brand_hero_cta_vi || ""}
+                onChange={(e) => setHero("brand_hero_cta_vi", e.target.value || null)}
+              />
+            </div>
+          </div>
+        )}
+        {saveHeroMutation.isSuccess && !heroDirty && (
+          <p className="text-forest-green text-sm mt-3">{t("admin.brandHeroSaved")}</p>
+        )}
+      </div>
+
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <div className="lg:col-span-4 flex flex-col gap-2 max-h-[70vh] overflow-auto pr-2">
         <PrimaryButton onClick={() => setDraft(blank())}>{t("admin.newItem")}</PrimaryButton>
@@ -232,6 +327,7 @@ export default function BrandTab() {
           onClose={() => setGridImageIndex(null)}
         />
       )}
+    </div>
     </div>
   );
 }
