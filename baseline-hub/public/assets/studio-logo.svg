@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 120" role="img" aria-label="Baseline Studio">
-  <rect width="280" height="120" fill="none"/>
-  <text x="140" y="52" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="28" font-weight="600" letter-spacing="4" fill="#1a1a1a">BASELINE</text>
-  <text x="140" y="88" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-style="italic" letter-spacing="6" fill="#2c5530">Studio</text>
-  <line x1="70" y1="98" x2="210" y2="98" stroke="#2c5530" stroke-width="1" opacity="0.4"/>
-</svg>
