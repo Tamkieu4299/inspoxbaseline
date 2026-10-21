@@ -54,19 +54,19 @@ body {
 
 .doodle-scene {
   position: relative;
-  height: 108px;
+  height: 118px;
 }
 
 .doodle-racket {
   position: absolute;
   left: 50%;
-  bottom: 4px;
-  width: 72px;
-  height: 72px;
-  margin-left: -36px;
-  transform-origin: 70% 85%;
+  bottom: 0;
+  width: 80px;
+  height: 100px;
+  margin-left: -40px;
+  transform-origin: 50% 92%;
   animation: racket-doodle 2.2s ease-in-out infinite;
-  opacity: 0.9;
+  filter: drop-shadow(0 5px 8px rgba(26, 26, 26, 0.12));
 }
 
 .doodle-ball {
@@ -75,45 +75,16 @@ body {
 }
 
 .doodle-ball--a {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   animation: ball-doodle-a 2.8s ease-in-out infinite;
 }
 
 .doodle-ball--b {
-  width: 30px;
-  height: 30px;
-  opacity: 0.85;
+  width: 34px;
+  height: 34px;
+  opacity: 0.92;
   animation: ball-doodle-b 2.2s ease-in-out infinite;
-}
-
-.doodle-spark {
-  position: absolute;
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--accent);
-  opacity: 0;
-  animation: spark-pop 2.8s ease-in-out infinite;
-}
-
-.doodle-spark--1 {
-  left: 8%;
-  top: 18%;
-  animation-delay: 0s;
-}
-
-.doodle-spark--2 {
-  right: 6%;
-  top: 8%;
-  animation-delay: 0.9s;
-}
-
-.doodle-spark--3 {
-  left: 42%;
-  top: 0;
-  animation-delay: 1.6s;
 }
 
 @keyframes ball-doodle-a {
@@ -167,32 +138,6 @@ body {
   50% {
     transform: rotate(22deg);
   }
-}
-
-@keyframes spark-pop {
-  0%,
-  70%,
-  100% {
-    opacity: 0;
-    transform: translateY(6px) scale(0.9);
-  }
-  78% {
-    opacity: 0.85;
-    transform: translateY(0) scale(1);
-  }
-  88% {
-    opacity: 0;
-    transform: translateY(-8px) scale(1.05);
-  }
-}
-
-.kicker {
-  margin: 0 0 0.5rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 500;
 }
 
 .title {
@@ -315,8 +260,7 @@ a.card-cta:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .doodle-ball--a,
   .doodle-ball--b,
-  .doodle-racket,
-  .doodle-spark {
+  .doodle-racket {
     animation: none;
   }
 
