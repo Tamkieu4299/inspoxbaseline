@@ -380,15 +380,28 @@ def list_product_brands(
     return [b for b in brands if b]
 
 
-def _product_search_token_clause(token: str):
-    term = f"%{token}%"
+def _product_field_token_match(column, token: str):
+    """Substring match; short tokens must start a word (avoids e.g. de → blaDE)."""
+    if len(token) >= 3:
+        term = f"%{token}%"
+        return column.ilike(term)
     return or_(
-        Product.name.ilike(term),
-        Product.name_vi.ilike(term),
-        Product.subtitle.ilike(term),
-        Product.subtitle_vi.ilike(term),
-        Product.slug.ilike(term),
-        Product.brand.ilike(term),
+        column.ilike(token),
+        column.ilike(f"{token}%"),
+        column.ilike(f"% {token}%"),
+        column.ilike(f"%-{token}%"),
+        column.ilike(f"_{token}%"),
+    )
+
+
+def _product_search_token_clause(token: str):
+    return or_(
+        _product_field_token_match(Product.name, token),
+        _product_field_token_match(Product.name_vi, token),
+        _product_field_token_match(Product.subtitle, token),
+        _product_field_token_match(Product.subtitle_vi, token),
+        _product_field_token_match(Product.slug, token),
+        _product_field_token_match(Product.brand, token),
     )
 
 
