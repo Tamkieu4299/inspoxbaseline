@@ -48,194 +48,141 @@ body {
 }
 
 .tennis-stage {
-  width: min(100%, 380px);
+  width: min(100%, 280px);
   margin: 0 auto 1.25rem;
 }
 
-.epic-match {
+.doodle-scene {
   position: relative;
-  height: 148px;
+  height: 108px;
 }
 
-.match-court {
-  position: absolute;
-  inset: 28px 0 36px;
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.court-surface {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, #3d6b4f 0%, #2c5530 55%, #244628 100%);
-  opacity: 0.92;
-}
-
-.court-line--center {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 2px;
-  transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.45);
-}
-
-.court-net {
+.doodle-racket {
   position: absolute;
   left: 50%;
-  top: -6px;
-  bottom: -4px;
-  width: 3px;
-  transform: translateX(-50%);
-  background: #f0f0f0;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+  bottom: 4px;
+  width: 72px;
+  height: 72px;
+  margin-left: -36px;
+  transform-origin: 70% 85%;
+  animation: racket-doodle 2.2s ease-in-out infinite;
+  opacity: 0.9;
 }
 
-.net-mesh {
+.doodle-ball {
   position: absolute;
-  inset: 4px  -14px;
-  border-left: 1px dashed rgba(26, 26, 26, 0.2);
-  border-right: 1px dashed rgba(26, 26, 26, 0.2);
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 5px,
-    rgba(255, 255, 255, 0.35) 5px,
-    rgba(255, 255, 255, 0.35) 6px
-  );
+  filter: drop-shadow(0 4px 6px rgba(26, 26, 26, 0.12));
 }
 
-.player {
+.doodle-ball--a {
+  width: 40px;
+  height: 40px;
+  animation: ball-doodle-a 2.8s ease-in-out infinite;
+}
+
+.doodle-ball--b {
+  width: 30px;
+  height: 30px;
+  opacity: 0.85;
+  animation: ball-doodle-b 2.2s ease-in-out infinite;
+}
+
+.doodle-spark {
   position: absolute;
-  bottom: 32px;
-  width: 52px;
-  height: 70px;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
-}
-
-.player--fed {
-  left: 4px;
-  transform-origin: 50% 90%;
-  animation: fed-swing 3.6s ease-in-out infinite;
-}
-
-.player--nadal {
-  right: 4px;
-  transform: scaleX(-1);
-  transform-origin: 50% 90%;
-  animation: nadal-swing 3.6s ease-in-out infinite;
-}
-
-.player-tag {
-  position: absolute;
-  bottom: 8px;
-  font-size: 0.6rem;
-  letter-spacing: 0.14em;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 600;
-  color: var(--secondary);
+  color: var(--accent);
+  opacity: 0;
+  animation: spark-pop 2.8s ease-in-out infinite;
 }
 
-.player-tag--fed {
-  left: 8px;
+.doodle-spark--1 {
+  left: 8%;
+  top: 18%;
+  animation-delay: 0s;
 }
 
-.player-tag--nadal {
-  right: 8px;
+.doodle-spark--2 {
+  right: 6%;
+  top: 8%;
+  animation-delay: 0.9s;
 }
 
-.rally-ball {
-  position: absolute;
-  width: 26px;
-  height: 26px;
-  margin: -13px 0 0 -13px;
-  animation: epic-rally 3.6s linear infinite;
-  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.2));
-  z-index: 2;
+.doodle-spark--3 {
+  left: 42%;
+  top: 0;
+  animation-delay: 1.6s;
 }
 
-.match-caption {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: 0;
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--secondary);
-  opacity: 0.85;
-}
-
-@keyframes epic-rally {
-  0% {
-    left: 18%;
-    top: 78%;
+@keyframes ball-doodle-a {
+  0%,
+  100% {
+    left: 12%;
+    top: 55%;
     transform: rotate(0deg) scale(1);
   }
-  12% {
-    left: 32%;
-    top: 42%;
-  }
-  24% {
-    left: 48%;
-    top: 38%;
-  }
-  36% {
-    left: 64%;
-    top: 44%;
-  }
-  48% {
-    left: 82%;
-    top: 76%;
-    transform: rotate(200deg) scale(0.95, 1.05);
-  }
-  60% {
-    left: 66%;
-    top: 40%;
-  }
-  72% {
-    left: 48%;
-    top: 36%;
-  }
-  84% {
-    left: 30%;
-    top: 42%;
-  }
-  100% {
-    left: 18%;
-    top: 78%;
-    transform: rotate(400deg) scale(1);
-  }
-}
-
-@keyframes fed-swing {
-  0%,
-  86%,
-  100% {
-    transform: rotate(0deg) translateY(0);
-  }
-  90% {
-    transform: rotate(-14deg) translateY(-3px);
-  }
-  94% {
-    transform: rotate(6deg) translateY(0);
-  }
-}
-
-@keyframes nadal-swing {
-  0%,
-  44%,
-  52%,
-  100% {
-    transform: scaleX(-1) rotate(0deg);
-  }
-  48% {
-    transform: scaleX(-1) rotate(-16deg) translateY(-3px);
+  25% {
+    left: 38%;
+    top: 8%;
+    transform: rotate(140deg) scale(1.05);
   }
   50% {
-    transform: scaleX(-1) rotate(4deg);
+    left: 72%;
+    top: 48%;
+    transform: rotate(280deg) scale(0.95, 1.05);
+  }
+  75% {
+    left: 48%;
+    top: 22%;
+    transform: rotate(420deg);
+  }
+}
+
+@keyframes ball-doodle-b {
+  0%,
+  100% {
+    left: 78%;
+    top: 20%;
+    transform: rotate(0deg);
+  }
+  33% {
+    left: 55%;
+    top: 62%;
+    transform: rotate(-160deg);
+  }
+  66% {
+    left: 22%;
+    top: 28%;
+    transform: rotate(-320deg);
+  }
+}
+
+@keyframes racket-doodle {
+  0%,
+  100% {
+    transform: rotate(-18deg);
+  }
+  50% {
+    transform: rotate(22deg);
+  }
+}
+
+@keyframes spark-pop {
+  0%,
+  70%,
+  100% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.9);
+  }
+  78% {
+    opacity: 0.85;
+    transform: translateY(0) scale(1);
+  }
+  88% {
+    opacity: 0;
+    transform: translateY(-8px) scale(1.05);
   }
 }
 
@@ -366,15 +313,21 @@ a.card-cta:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rally-ball,
-  .player--fed,
-  .player--nadal {
+  .doodle-ball--a,
+  .doodle-ball--b,
+  .doodle-racket,
+  .doodle-spark {
     animation: none;
   }
 
-  .rally-ball {
-    left: 50%;
-    top: 55%;
+  .doodle-ball--a {
+    left: 20%;
+    top: 40%;
+  }
+
+  .doodle-ball--b {
+    left: 65%;
+    top: 35%;
   }
 
   .card {
