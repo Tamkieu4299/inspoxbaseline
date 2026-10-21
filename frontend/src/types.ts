@@ -380,6 +380,19 @@ export interface NavItem {
   enabled: boolean;
 }
 
+export interface FooterLinkConfig {
+  key: string;
+  enabled: boolean;
+  label?: string | null;
+  label_vi?: string | null;
+  url?: string | null;
+}
+
+export interface FooterLinkPublic {
+  label: string;
+  url?: string | null;
+}
+
 export interface SitePublic {
   site_name: string;
   logo_url?: string | null;
@@ -390,6 +403,7 @@ export interface SitePublic {
   supported_currencies?: string[];
   footer_tagline?: string | null;
   collections_subtitle?: string | null;
+  footer_links?: FooterLinkPublic[];
 }
 
 export interface SiteSettings {
@@ -406,6 +420,7 @@ export interface SiteSettings {
   footer_tagline_vi?: string | null;
   collections_subtitle?: string | null;
   collections_subtitle_vi?: string | null;
+  footer_links?: FooterLinkConfig[];
 }
 
 export interface TenantAdmin {

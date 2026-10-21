@@ -968,6 +968,10 @@ def get_site(
     footer_tagline = loc(site.footer_tagline, site.footer_tagline_vi)
     collections_subtitle = loc(site.collections_subtitle, site.collections_subtitle_vi)
 
+    from ..footer_links import resolve_footer_links
+
+    footer_links = resolve_footer_links(site.footer_links, lang)
+
     return SitePublic(
         site_name=site.site_name,
         logo_url=site.logo_media.url if site.logo_media else None,
@@ -978,4 +982,5 @@ def get_site(
         supported_currencies=["VND"],
         footer_tagline=footer_tagline,
         collections_subtitle=collections_subtitle,
+        footer_links=footer_links,
     )

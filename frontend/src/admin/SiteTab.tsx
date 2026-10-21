@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
-import type { Media, SiteSettings } from "../types";
+import { FOOTER_PRESET_LABELS, normalizeFooterLinkConfigs } from "../footerLinks";
+import type { FooterLinkConfig, Media, SiteSettings } from "../types";
 import { ImageField } from "./MediaLibrary";
-import { Field, PrimaryButton, TextInput, ViInput } from "./ui";
+import { Checkbox, Field, PrimaryButton, TextInput, ViInput } from "./ui";
 
 export default function SiteTab() {
   const queryClient = useQueryClient();
@@ -32,6 +33,13 @@ export default function SiteTab() {
 
   function set<K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) {
     setDraft((d) => ({ ...(d ?? site!), [key]: value }));
+  }
+
+  const footerLinks = normalizeFooterLinkConfigs(draftValue.footer_links);
+
+  function setFooterLink(index: number, patch: Partial<FooterLinkConfig>) {
+    const next = footerLinks.map((row, i) => (i === index ? { ...row, ...patch } : row));
+    set("footer_links", next);
   }
 
   return (
@@ -106,6 +114,57 @@ export default function SiteTab() {
           onChange={(e) => set("collections_subtitle_vi", e.target.value || null)}
           placeholder="Phụ đề trang /collections (tiếng Việt)"
         />
+      </div>
+
+      <div className="border-t border-surface-container-highest pt-6 flex flex-col gap-4">
+        <h4 className="font-headline text-headline-md text-primary uppercase">{t("admin.footerLinks")}</h4>
+        <p className="font-body text-body-md text-secondary -mt-2">{t("admin.footerLinksHint")}</p>
+        <div className="flex flex-col gap-4">
+          {footerLinks.map((row, index) => {
+            const preset = FOOTER_PRESET_LABELS[row.key as keyof typeof FOOTER_PRESET_LABELS];
+            const presetTitle = preset ? `${preset.en} / ${preset.vi}` : row.key;
+            return (
+              <div
+                key={row.key}
+                className="border border-surface-container-highest p-4 flex flex-col gap-3"
+              >
+                <label className="flex items-center gap-2 font-body text-body-md text-primary">
+                  <Checkbox
+                    checked={row.enabled}
+                    onChange={(e) => setFooterLink(index, { enabled: e.target.checked })}
+                  />
+                  <span className="font-label text-label-caps">{presetTitle}</span>
+                </label>
+                {row.enabled ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6">
+                    <Field label={t("admin.footerLinkLabelEn")}>
+                      <TextInput
+                        value={row.label || ""}
+                        onChange={(e) => setFooterLink(index, { label: e.target.value || null })}
+                        placeholder={preset?.en}
+                      />
+                    </Field>
+                    <ViInput
+                      label={t("admin.footerLinkLabelVi")}
+                      value={row.label_vi || ""}
+                      onChange={(e) => setFooterLink(index, { label_vi: e.target.value || null })}
+                      placeholder={preset?.vi}
+                    />
+                    {(row.key === "brand" || row.key === "admin") && (
+                      <Field label={t("admin.linkUrl")}>
+                        <TextInput
+                          value={row.url || ""}
+                          onChange={(e) => setFooterLink(index, { url: e.target.value || null })}
+                          placeholder={row.key === "brand" ? "/brand" : "/admin"}
+                        />
+                      </Field>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {draftValue.logo_media && (

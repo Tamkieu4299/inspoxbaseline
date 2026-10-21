@@ -383,6 +383,19 @@ class BlogPostOut(BlogPostSummaryOut):
     pass
 
 
+class FooterLinkConfig(BaseModel):
+    key: str
+    enabled: bool = True
+    label: str | None = None
+    label_vi: str | None = None
+    url: str | None = None
+
+
+class FooterLinkPublic(BaseModel):
+    label: str
+    url: str | None = None
+
+
 class SiteSettingsBase(BaseModel):
     site_name: str = "INSPO"
     logo_media_id: int | None = None
@@ -394,6 +407,7 @@ class SiteSettingsBase(BaseModel):
     footer_tagline_vi: str | None = None
     collections_subtitle: str | None = None
     collections_subtitle_vi: str | None = None
+    footer_links: list[FooterLinkConfig] = Field(default_factory=list)
 
 
 class SiteSettingsIn(SiteSettingsBase):
@@ -416,6 +430,7 @@ class SitePublic(BaseModel):
     supported_currencies: list[str] = Field(default_factory=lambda: ["VND"])
     footer_tagline: str | None = None
     collections_subtitle: str | None = None
+    footer_links: list[FooterLinkPublic] = Field(default_factory=list)
 
 
 class ShopQuizBase(BaseModel):

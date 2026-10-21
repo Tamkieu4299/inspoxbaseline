@@ -593,6 +593,10 @@ def update_site_settings(
     data["currency_code"] = normalize_base_currency(data.get("currency_code"))
     rate = float(data.get("usd_to_vnd_rate") or 24500)
     data["usd_to_vnd_rate"] = rate if rate > 0 else 24500.0
+    if "footer_links" in data and data["footer_links"] is not None:
+        from ..footer_links import normalize_footer_link_configs
+
+        data["footer_links"] = normalize_footer_link_configs(data["footer_links"])
     for field, value in data.items():
         setattr(site, field, value)
     db.commit()
