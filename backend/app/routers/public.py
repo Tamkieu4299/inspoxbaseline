@@ -1,5 +1,7 @@
+import re
+
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from ..database import get_db
@@ -378,6 +380,29 @@ def list_product_brands(
     return [b for b in brands if b]
 
 
+def _product_search_token_clause(token: str):
+    term = f"%{token}%"
+    return or_(
+        Product.name.ilike(term),
+        Product.name_vi.ilike(term),
+        Product.subtitle.ilike(term),
+        Product.subtitle_vi.ilike(term),
+        Product.slug.ilike(term),
+        Product.brand.ilike(term),
+    )
+
+
+def _apply_product_search(stmt, q: str):
+    """Each whitespace/hyphen-separated token must match at least one product field."""
+    normalized = re.sub(r"[\s\-_]+", " ", q.strip())
+    tokens = [t for t in normalized.split(" ") if t]
+    if not tokens:
+        return stmt
+    for token in tokens:
+        stmt = stmt.where(_product_search_token_clause(token))
+    return stmt
+
+
 def _product_hot_rank(product: Product) -> tuple:
     """Hot (featured) and bestseller first; lower list_order = higher in list."""
     created_ts = product.created_at.timestamp() if product.created_at else 0.0
@@ -480,7 +505,7 @@ def list_products(
             | Product.categories.any(Category.id == cat.id)
         )
     if q:
-        stmt = stmt.where(Product.name.ilike(f"%{q}%"))
+        stmt = _apply_product_search(stmt, q)
     if brand:
         stmt = stmt.where(Product.brand == brand.strip().lower())
 

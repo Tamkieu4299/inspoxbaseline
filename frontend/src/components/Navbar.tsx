@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import Icon from "./Icon";
+import NavbarSearch from "./NavbarSearch";
 import { useLanguage } from "../i18n";
 import { navCategories } from "../categoryNav";
 import type { NavItem } from "../types";
@@ -118,10 +120,11 @@ export default function Navbar() {
 
   const collectionsActive = location.pathname === "/collections";
   const categoriesActive = isCategoryView(location.pathname, location.search);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   return (
     <header className="bg-surface-container-lowest fixed top-0 w-full z-50 border-b border-outline-variant">
-      <div className="flex justify-between items-center w-full px-8 h-20 max-w-[1440px] mx-auto">
+      <div className="flex justify-between items-center w-full px-4 md:px-8 h-20 max-w-[1440px] mx-auto gap-4">
         {site?.logo_url ? (
           <Link to="/" className="h-10 w-fit shrink-0">
             <img src={site.logo_url} alt={site.site_name} className="h-full w-auto object-contain" />
@@ -173,10 +176,14 @@ export default function Navbar() {
             )
           )}
         </nav>
-        <div className="flex items-center space-x-6 text-primary">
+        <NavbarSearch className="hidden lg:block flex-1 max-w-md mx-2" />
+        <div className="flex items-center space-x-4 md:space-x-6 text-primary shrink-0">
           <button
+            type="button"
             aria-label={t("nav.search")}
-            className="hover:bg-surface-container-low hover:text-forest-green transition-all duration-150 p-2 focus:outline-none focus:ring-1 focus:ring-forest-green"
+            aria-expanded={mobileSearchOpen}
+            onClick={() => setMobileSearchOpen((v) => !v)}
+            className="lg:hidden hover:bg-surface-container-low hover:text-forest-green transition-all duration-150 p-2 focus:outline-none focus:ring-1 focus:ring-forest-green"
           >
             <Icon name="search" />
           </button>
@@ -190,6 +197,11 @@ export default function Navbar() {
           </button>
         </div>
       </div>
+      {mobileSearchOpen ? (
+        <div className="lg:hidden px-4 pb-3 max-w-[1440px] mx-auto">
+          <NavbarSearch autoFocus onClose={() => setMobileSearchOpen(false)} />
+        </div>
+      ) : null}
     </header>
   );
 }

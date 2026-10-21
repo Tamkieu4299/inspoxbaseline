@@ -30,6 +30,7 @@ export default function Collection() {
   const size = params.get("size") || "";
   const color = params.get("color") || "";
   const sort = params.get("sort") || "recommended";
+  const q = (params.get("q") || "").trim();
   const page = Math.max(1, parseInt(params.get("page") || "1", 10) || 1);
   const pageSize = 24;
 
@@ -50,7 +51,7 @@ export default function Collection() {
     queryFn: () => api.getProductBrands(brandCategory ? { category: brandCategory } : undefined),
   });
   const { data: productPage, isLoading } = useQuery({
-    queryKey: ["products", activeCollection, category, brand, size, color, sort, page, lang],
+    queryKey: ["products", activeCollection, category, brand, size, color, sort, q, page, lang],
     queryFn: () =>
       api.getProducts({
         collection: collectionFilter,
@@ -59,6 +60,7 @@ export default function Collection() {
         size: size || undefined,
         color: color || undefined,
         sort,
+        q: q || undefined,
         page: String(page),
         page_size: String(pageSize),
         lang,
@@ -105,15 +107,25 @@ export default function Collection() {
       <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between border-b border-surface-container-high pb-4">
         <div>
           <h1 className="font-headline text-headline-lg text-primary uppercase">
-            {category
-              ? currentCategory?.name || category.replace(/-/g, " ").toUpperCase()
-              : activeCollection
-                ? currentCollection?.name || activeCollection.replace(/-/g, " ").toUpperCase()
-                : t("collection.shopAll")}
+            {q
+              ? t("collection.searchResults", { q })
+              : category
+                ? currentCategory?.name || category.replace(/-/g, " ").toUpperCase()
+                : activeCollection
+                  ? currentCollection?.name || activeCollection.replace(/-/g, " ").toUpperCase()
+                  : t("collection.shopAll")}
           </h1>
           <p className="font-label text-label-caps text-secondary mt-1">
             {itemCount} {itemCount === 1 ? t("collection.itemFound") : t("collection.itemsFound")}
             {brand ? ` · ${formatBrandLabel(brand)}` : ""}
+            {q ? (
+              <>
+                {" · "}
+                <Link to="/products" className="hover:text-forest-green underline underline-offset-2">
+                  {t("collection.clearSearch")}
+                </Link>
+              </>
+            ) : null}
           </p>
         </div>
         <div className="mt-4 md:mt-0 flex items-center gap-2">
