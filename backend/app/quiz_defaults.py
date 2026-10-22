@@ -702,20 +702,7 @@ DEFAULT_RACQUET_FINDER = {
         {"icon": "data_object", "label": "Catalog match scores", "label_vi": "Điểm ghép catalog"},
         {"icon": "shield_with_heart", "label": "Weight & RA filters", "label_vi": "Lọc trọng lượng & RA"},
     ],
-    "faq": [
-        {
-            "q": "Is this the same as HEAD’s website quiz?",
-            "q_vi": "Có giống quiz trên web HEAD không?",
-            "a": "We use the same six topic areas HEAD publishes (gender, age, experience, common errors, flat vs spin, and swing feel), then rank Baseline Club catalog racquets with our playtest-style scores.",
-            "a_vi": "Chúng tôi dùng sáu chủ đề giống HEAD (giới tính, tuổi, trình độ, lỗi thường gặp, phẳng/xoáy, cảm giác vung), rồi xếp hạng vợt trong catalog Baseline Club.",
-        },
-        {
-            "q": "How are matches calculated?",
-            "q_vi": "Ghép vợt tính thế nào?",
-            "a": "Your answers build a profile on power, control, spin, comfort, and related axes. We rank active racquets that have finder profiles enabled in Admin → Products.",
-            "a_vi": "Câu trả lời tạo hồ sơ lực, kiểm soát, spin, êm tay… và xếp hạng vợt đã bật hồ sơ tìm vợt trong Admin → Products.",
-        },
-    ],
+    "faq": [],
     "dimensions": TW_DIMENSIONS,
     "dimension_weights": TW_DIMENSION_WEIGHTS,
     "product_filter": {"category_slugs": [], "require_finder_profile": True},
