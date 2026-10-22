@@ -272,6 +272,91 @@ export default function QuizzesTab() {
             <Field label={t("admin.subtitle")}>
               <TextArea value={draft.subtitle || ""} onChange={(e) => set("subtitle", e.target.value)} rows={2} />
             </Field>
+            <Field label={t("admin.quizzes.subtitleVi")}>
+              <TextArea value={draft.subtitle_vi || ""} onChange={(e) => set("subtitle_vi", e.target.value)} rows={2} />
+            </Field>
+
+            <div className="border border-surface-container-highest p-4 flex flex-col gap-3">
+              <h4 className="font-headline text-headline-md uppercase text-primary">{t("admin.quizzes.introHero")}</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field label={t("admin.quizzes.heroKicker")}>
+                  <TextInput
+                    value={draft.hero_kicker || ""}
+                    onChange={(e) => set("hero_kicker", e.target.value)}
+                    placeholder="RACQUET FINDER"
+                  />
+                </Field>
+                <Field label={t("admin.quizzes.heroKickerVi")}>
+                  <TextInput
+                    value={draft.hero_kicker_vi || ""}
+                    onChange={(e) => set("hero_kicker_vi", e.target.value)}
+                    placeholder="TÌM VỢT"
+                  />
+                </Field>
+              </div>
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <p className="font-label text-label-caps uppercase text-primary text-xs">{t("admin.quizzes.heroBadges")}</p>
+                  <SecondaryButton
+                    onClick={() =>
+                      set("hero_badges", [
+                        ...(draft.hero_badges || []),
+                        { icon: "check_circle", label: "New pill", label_vi: "" },
+                      ])
+                    }
+                  >
+                    {t("admin.quizzes.addHeroBadge")}
+                  </SecondaryButton>
+                </div>
+                <p className="font-body text-body-sm text-secondary mb-3">{t("admin.quizzes.heroBadgesHint")}</p>
+                <div className="flex flex-col gap-3">
+                  {(draft.hero_badges || []).map((badge, bi) => (
+                    <div
+                      key={bi}
+                      className="grid grid-cols-1 md:grid-cols-[120px_1fr_1fr_auto] gap-2 items-end border border-surface-container-high p-3"
+                    >
+                      <Field label={t("admin.quizzes.heroBadgeIcon")}>
+                        <TextInput
+                          value={badge.icon || ""}
+                          onChange={(e) => {
+                            const next = [...(draft.hero_badges || [])];
+                            next[bi] = { ...next[bi], icon: e.target.value };
+                            set("hero_badges", next);
+                          }}
+                          placeholder="quiz"
+                        />
+                      </Field>
+                      <Field label={t("admin.quizzes.heroBadgeLabel")}>
+                        <TextInput
+                          value={badge.label || ""}
+                          onChange={(e) => {
+                            const next = [...(draft.hero_badges || [])];
+                            next[bi] = { ...next[bi], label: e.target.value };
+                            set("hero_badges", next);
+                          }}
+                        />
+                      </Field>
+                      <Field label={t("admin.quizzes.heroBadgeLabelVi")}>
+                        <TextInput
+                          value={badge.label_vi || ""}
+                          onChange={(e) => {
+                            const next = [...(draft.hero_badges || [])];
+                            next[bi] = { ...next[bi], label_vi: e.target.value };
+                            set("hero_badges", next);
+                          }}
+                        />
+                      </Field>
+                      <DangerButton
+                        onClick={() => set("hero_badges", (draft.hero_badges || []).filter((_, i) => i !== bi))}
+                      >
+                        {t("admin.delete")}
+                      </DangerButton>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             <div className="flex flex-wrap gap-6">
               <label className="flex items-center gap-2 font-body text-body-md">
                 <Checkbox checked={draft.is_published ?? false} onChange={(e) => set("is_published", e.target.checked)} />
