@@ -33,7 +33,7 @@ export default function CollectionsPage() {
   );
 
   return (
-    <main className="flex-grow pt-24 px-4 md:px-8 lg:px-16 w-full max-w-[1920px] mx-auto pb-16">
+    <main className="flex-grow pt-20 md:pt-24 px-4 md:px-8 lg:px-16 w-full max-w-[1920px] mx-auto pb-16">
       <header className="mb-10 border-b border-surface-container-high pb-4">
         <h1 className="font-headline text-headline-lg text-primary uppercase">{t("collections.title")}</h1>
         {collectionsSubtitle ? (

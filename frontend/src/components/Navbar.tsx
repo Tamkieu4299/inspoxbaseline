@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import Icon from "./Icon";
+import MobileNav from "./MobileNav";
 import NavbarSearch from "./NavbarSearch";
 import { useLanguage } from "../i18n";
 import { navCategories } from "../categoryNav";
@@ -121,10 +122,11 @@ export default function Navbar() {
   const collectionsActive = location.pathname === "/collections";
   const categoriesActive = isCategoryView(location.pathname, location.search);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
-    <header className="bg-surface-container-lowest fixed top-0 w-full z-50 border-b border-outline-variant">
-      <div className="flex justify-between items-center w-full px-4 md:px-8 h-20 max-w-[1440px] mx-auto gap-4">
+    <header className="bg-surface-container-lowest fixed top-0 w-full z-50 border-b border-outline-variant pt-[env(safe-area-inset-top)]">
+      <div className="flex justify-between items-center w-full px-4 md:px-8 h-16 md:h-20 max-w-[1440px] mx-auto gap-2 sm:gap-4">
         {site?.logo_url ? (
           <Link to="/" className="h-10 w-fit shrink-0">
             <img src={site.logo_url} alt={site.site_name} className="h-full w-auto object-contain" />
@@ -137,7 +139,19 @@ export default function Navbar() {
             {site?.site_name || "INSPO"}
           </Link>
         )}
-        <nav className="hidden md:flex space-x-6 items-center">
+        <button
+          type="button"
+          className="lg:hidden p-2 -ml-1 text-primary hover:text-forest-green shrink-0"
+          aria-label={t("nav.menu")}
+          aria-expanded={mobileNavOpen}
+          onClick={() => {
+            setMobileNavOpen((v) => !v);
+            setMobileSearchOpen(false);
+          }}
+        >
+          <Icon name={mobileNavOpen ? "close" : "menu"} className="text-[26px]" />
+        </button>
+        <nav className="hidden lg:flex space-x-4 xl:space-x-6 items-center min-w-0">
           {links.map((link) =>
             link.children && link.children.length > 0 ? (
               <div key={link.key} className="relative group">
@@ -182,8 +196,11 @@ export default function Navbar() {
             type="button"
             aria-label={t("nav.search")}
             aria-expanded={mobileSearchOpen}
-            onClick={() => setMobileSearchOpen((v) => !v)}
-            className="lg:hidden hover:bg-surface-container-low hover:text-forest-green transition-all duration-150 p-2 focus:outline-none focus:ring-1 focus:ring-forest-green"
+            onClick={() => {
+              setMobileSearchOpen((v) => !v);
+              setMobileNavOpen(false);
+            }}
+            className="lg:hidden hover:bg-surface-container-low hover:text-forest-green transition-all duration-150 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-1 focus:ring-forest-green"
           >
             <Icon name="search" />
           </button>
@@ -198,10 +215,18 @@ export default function Navbar() {
         </div>
       </div>
       {mobileSearchOpen ? (
-        <div className="lg:hidden px-4 pb-3 max-w-[1440px] mx-auto">
+        <div className="lg:hidden px-4 pb-3 max-w-[1440px] mx-auto w-full">
           <NavbarSearch autoFocus onClose={() => setMobileSearchOpen(false)} />
         </div>
       ) : null}
+      <MobileNav
+        open={mobileNavOpen}
+        onClose={() => setMobileNavOpen(false)}
+        links={links}
+        categoriesActive={categoriesActive}
+        collectionsActive={collectionsActive}
+        pathname={location.pathname}
+      />
     </header>
   );
 }

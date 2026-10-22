@@ -119,8 +119,8 @@ function HomeSectionBlock({
       return (
         <section className="py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 h-auto md:h-[716px] min-h-[500px]">
-            <div className="bg-surface-container-low p-12 flex flex-col justify-center border-b md:border-b-0 md:border-r border-outline-variant">
-              <h2 className="font-display text-display-lg text-primary uppercase leading-none mb-6 whitespace-pre-line">
+            <div className="bg-surface-container-low p-6 md:p-12 flex flex-col justify-center border-b md:border-b-0 md:border-r border-outline-variant">
+              <h2 className="font-display text-display-lg-mobile md:text-display-lg text-primary uppercase leading-none mb-6 whitespace-pre-line">
                 {master.title}
               </h2>
               <p className="font-body text-body-lg text-secondary mb-8 max-w-md">{master.description}</p>
@@ -199,7 +199,7 @@ function HomeHero({ hero }: { hero: HomeData["hero"] }) {
   const subtitleColor = c.subtitle || hero.text_color || undefined;
 
   return (
-    <section className="relative w-full h-[870px] min-h-[600px] flex items-end pb-16 px-8 max-w-[1440px] mx-auto overflow-hidden">
+    <section className="relative w-full min-h-[min(520px,85vh)] sm:min-h-[600px] h-[70vh] sm:h-[780px] lg:h-[870px] max-h-[870px] flex items-end pb-10 sm:pb-16 px-4 sm:px-8 max-w-[1440px] mx-auto overflow-hidden">
       <div className="absolute inset-0 z-0 bg-surface-container-low">
         {slides.length > 0 ? (
           slides.map((slide, i) => (
@@ -256,7 +256,7 @@ function HomeHero({ hero }: { hero: HomeData["hero"] }) {
           </span>
         </div>
         <h1
-          className="font-display text-display-lg text-primary uppercase leading-none tracking-tighter"
+          className="font-display text-display-lg-mobile sm:text-display-lg text-primary uppercase leading-none tracking-tighter"
           style={titleColor ? { color: titleColor } : undefined}
         >
           {hero.title}
@@ -267,17 +267,17 @@ function HomeHero({ hero }: { hero: HomeData["hero"] }) {
         >
           {hero.subtitle}
         </p>
-        <div className="mt-4 flex gap-4">
+        <div className="mt-4 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
           <Link
             to={hero.primary_url}
-            className="inline-flex items-center justify-center px-8 py-4 bg-primary text-on-primary font-label text-label-caps uppercase rounded-none hover:bg-forest-green transition-colors"
+            className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-primary text-on-primary font-label text-label-caps uppercase rounded-none hover:bg-forest-green transition-colors text-center"
             style={c.primaryBg || c.primaryText ? { backgroundColor: c.primaryBg, color: c.primaryText } : undefined}
           >
             {hero.primary_cta}
           </Link>
           <Link
             to={hero.secondary_url}
-            className="inline-flex items-center justify-center px-8 py-4 bg-transparent border border-primary text-primary font-label text-label-caps uppercase rounded-none transition-colors"
+            className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-transparent border border-primary text-primary font-label text-label-caps uppercase rounded-none transition-colors text-center"
             style={
               c.secondaryBg || c.secondaryBorder || c.secondaryText || hero.text_color
                 ? {

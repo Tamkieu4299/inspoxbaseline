@@ -103,8 +103,8 @@ export default function Collection() {
   const itemCount = totalItems;
 
   return (
-    <main className="flex-grow pt-24 px-4 md:px-8 lg:px-16 w-full max-w-[1920px] mx-auto pb-16">
-      <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between border-b border-surface-container-high pb-4">
+    <main className="flex-grow pt-20 md:pt-24 px-4 md:px-8 lg:px-16 w-full max-w-[1920px] mx-auto pb-16">
+      <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-surface-container-high pb-4">
         <div>
           <h1 className="font-headline text-headline-lg text-primary uppercase">
             {q
@@ -128,7 +128,7 @@ export default function Collection() {
             ) : null}
           </p>
         </div>
-        <div className="mt-4 md:mt-0 flex items-center gap-2">
+        <div className="mt-0 flex flex-wrap items-center gap-2 w-full md:w-auto">
           <button
             onClick={() => setShowFilters((v) => !v)}
             className="lg:hidden font-label text-label-caps text-primary border border-surface-container-highest px-3 py-1.5 uppercase"

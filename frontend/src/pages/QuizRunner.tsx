@@ -87,7 +87,7 @@ export default function QuizRunner() {
 
   if (isLoading) {
     return (
-      <main className="pt-24 px-8 max-w-[1440px] mx-auto min-h-[60vh]">
+      <main className="pt-20 md:pt-24 px-4 sm:px-8 max-w-[1440px] mx-auto min-h-[60vh]">
         <p className="font-body text-body-md text-secondary">{t("loading")}</p>
       </main>
     );
@@ -95,7 +95,7 @@ export default function QuizRunner() {
 
   if (isError || !quiz) {
     return (
-      <main className="pt-24 px-8 max-w-[1440px] mx-auto min-h-[60vh]">
+      <main className="pt-20 md:pt-24 px-4 sm:px-8 max-w-[1440px] mx-auto min-h-[60vh]">
         <p className="font-body text-body-md text-secondary">{t("quiz.notFound")}</p>
       </main>
     );

@@ -136,7 +136,7 @@ export default function NavbarSearch({ className = "", autoFocus, onClose }: Nav
 
       {showPanel ? (
         <div
-          className="absolute left-0 right-0 top-full mt-1 z-[60] bg-surface-container-lowest border border-outline-variant shadow-lg max-h-[min(70vh,420px)] overflow-y-auto"
+          className="absolute left-0 right-0 top-full mt-1 z-[60] bg-surface-container-lowest border border-outline-variant shadow-lg max-h-[min(60dvh,420px)] overflow-y-auto overscroll-contain"
           id={listId}
           role="listbox"
         >

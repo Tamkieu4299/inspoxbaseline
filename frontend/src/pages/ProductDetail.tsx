@@ -90,7 +90,7 @@ export default function ProductDetail() {
 
   return (
     <>
-      <main className="max-w-[1440px] mx-auto px-6 md:px-8 py-24">
+      <main className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 pt-20 md:pt-24 pb-12 md:pb-24">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-16">
           <div className="md:col-span-7">
             <ProductGallery
@@ -152,7 +152,7 @@ export default function ProductDetail() {
                 <div className="flex justify-between items-end mb-2">
                   <h3 className="font-label text-label-caps text-primary uppercase">{t("product.size")}</h3>
                 </div>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                   {sizes.map((size) => {
                     const active = selectedSize === size;
                     return (
