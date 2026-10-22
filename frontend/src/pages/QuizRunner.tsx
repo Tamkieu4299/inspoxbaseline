@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import Icon from "../components/Icon";
+import RevealOnScroll from "../components/RevealOnScroll";
 import { useLanguage } from "../i18n";
 import { useStoreCurrency } from "../useStoreCurrency";
 import { dimensionIdsFromQuiz } from "../quiz/dimensions";
@@ -136,7 +137,8 @@ export default function QuizRunner() {
       </div>
 
       {phase === "intro" ? (
-        <section className="flex-1 flex flex-col justify-center py-16 px-6 md:px-margin-desktop max-w-[1440px] mx-auto w-full">
+        <RevealOnScroll immediate className="flex-1">
+        <section className="flex flex-col justify-center py-16 px-6 md:px-margin-desktop max-w-[1440px] mx-auto w-full">
           <p className="font-label text-label-caps text-secondary uppercase tracking-wider mb-2">
             {pickText(lang, quiz.hero_kicker, quiz.hero_kicker_vi)}
           </p>
@@ -168,10 +170,12 @@ export default function QuizRunner() {
             {t("quiz.start")}
           </button>
         </section>
+        </RevealOnScroll>
       ) : null}
 
       {phase === "slides" && current ? (
-        <section className="flex-1 flex flex-col py-8 md:py-12 px-6 md:px-margin-desktop max-w-[1440px] mx-auto w-full">
+        <RevealOnScroll resetKey={current.id} className="flex-1">
+        <section className="flex flex-col py-8 md:py-12 px-6 md:px-margin-desktop max-w-[1440px] mx-auto w-full">
           <div className="flex items-center justify-between gap-4 mb-6">
             <p className="font-label text-label-caps text-secondary uppercase">
               {t("quiz.stepOf", { current: String(stepIndex + 1), total: String(steps.length) })}
@@ -205,14 +209,14 @@ export default function QuizRunner() {
               ) : null}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 content-start">
-                {current.options.map((opt) => {
+                {current.options.map((opt, optIndex) => {
                   const active = answers[current.id] === opt.id;
                   return (
+                    <RevealOnScroll key={opt.id} className="h-full" delay={optIndex * 45} resetKey={current.id}>
                     <button
-                      key={opt.id}
                       type="button"
                       onClick={() => selectOption(current, opt)}
-                      className={`text-left p-5 border-2 transition-all flex flex-col gap-2 min-h-[120px] ${
+                      className={`w-full h-full text-left p-5 border-2 transition-all flex flex-col gap-2 min-h-[120px] ${
                         active
                           ? "border-primary bg-surface-container-lowest shadow-md ring-2 ring-primary ring-offset-2"
                           : "border-outline-variant bg-surface-container-lowest hover:border-primary hover:shadow-sm"
@@ -242,6 +246,7 @@ export default function QuizRunner() {
                         <p className="font-body text-body-sm text-secondary">{pickText(lang, opt.subtitle, opt.subtitle_vi)}</p>
                       ) : null}
                     </button>
+                    </RevealOnScroll>
                   );
                 })}
               </div>
@@ -270,10 +275,12 @@ export default function QuizRunner() {
           </div>
 
         </section>
+        </RevealOnScroll>
       ) : null}
 
       {phase === "results" ? (
-        <section className="flex-1 py-12 px-6 md:px-margin-desktop max-w-[1440px] mx-auto w-full">
+        <RevealOnScroll resetKey="results" className="flex-1">
+        <section className="py-12 px-6 md:px-margin-desktop max-w-[1440px] mx-auto w-full">
           <h2 className="font-headline text-headline-lg uppercase text-primary mb-8">{t("quiz.yourMatches")}</h2>
           {poolEmpty ? (
             <p className="font-body text-body-md text-secondary mb-6 max-w-2xl">{t("quiz.noPool")}</p>
@@ -283,8 +290,10 @@ export default function QuizRunner() {
           ) : null}
           <ul className="flex flex-col gap-4 max-w-3xl">
             {displayMatches.map((row, index) => (
-              <li
+              <RevealOnScroll
                 key={row.slug}
+                as="li"
+                delay={index * 50}
                 className="flex items-center gap-4 border border-outline-variant p-4 bg-surface-container-lowest"
               >
                 {row.product.image_url ? (
@@ -307,7 +316,7 @@ export default function QuizRunner() {
                 >
                   {t("quiz.viewProduct")}
                 </Link>
-              </li>
+              </RevealOnScroll>
             ))}
             {displayMatches.length === 0 ? (
               <p className="font-body text-body-md text-secondary">{t("quiz.noMatches")}</p>
@@ -334,9 +343,11 @@ export default function QuizRunner() {
             </button>
           </div>
         </section>
+        </RevealOnScroll>
       ) : null}
 
       {quiz.faq?.length > 0 && phase === "results" ? (
+        <RevealOnScroll>
         <section className="py-16 px-6 md:px-margin-desktop max-w-[1440px] mx-auto w-full border-t border-outline-variant">
           <h2 className="font-headline text-headline-lg uppercase text-primary mb-8">{t("quiz.faq")}</h2>
           <div className="flex flex-col gap-4 max-w-3xl">
@@ -350,6 +361,7 @@ export default function QuizRunner() {
             ))}
           </div>
         </section>
+        </RevealOnScroll>
       ) : null}
     </main>
   );

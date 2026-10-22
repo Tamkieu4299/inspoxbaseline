@@ -2,6 +2,7 @@ import { Navigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import BlockRenderer from "../components/BlockRenderer";
+import RevealOnScroll from "../components/RevealOnScroll";
 import { useLanguage } from "../i18n";
 
 export default function PageView() {
@@ -38,7 +39,7 @@ export default function PageView() {
         {page.gradient !== false && (
           <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/60 to-transparent" />
         )}
-        <div className="relative z-10 max-w-3xl flex flex-col items-start gap-3">
+        <RevealOnScroll immediate className="relative z-10 max-w-3xl flex flex-col items-start gap-3">
           <h1
             className="font-display text-display-lg-mobile md:text-display-lg text-primary uppercase leading-none tracking-tighter"
             style={page.hero_text_color ? { color: page.hero_text_color } : undefined}
@@ -53,13 +54,15 @@ export default function PageView() {
               {page.subtitle}
             </p>
           )}
-        </div>
+        </RevealOnScroll>
       </section>
 
       <section className="py-16 px-4 md:px-8 max-w-[1440px] mx-auto">
         <div className="max-w-3xl mx-auto flex flex-col gap-10">
-          {page.blocks.map((block) => (
-            <BlockRenderer key={block.id} block={block} />
+          {page.blocks.map((block, index) => (
+            <RevealOnScroll key={block.id} delay={(index % 5) * 60}>
+              <BlockRenderer block={block} />
+            </RevealOnScroll>
           ))}
         </div>
       </section>

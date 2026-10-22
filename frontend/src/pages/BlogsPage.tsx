@@ -2,6 +2,7 @@ import { Link, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import { useLanguage } from "../i18n";
+import RevealOnScroll from "../components/RevealOnScroll";
 import type { BlogPost } from "../types";
 
 function formatDate(date: string, lang: string) {
@@ -48,7 +49,7 @@ export default function BlogsPage() {
         {blog.gradient !== false && (
           <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/60 to-transparent" />
         )}
-        <div className="relative z-10 max-w-3xl flex flex-col items-start gap-3">
+        <RevealOnScroll immediate className="relative z-10 max-w-3xl flex flex-col items-start gap-3">
           <h1
             className="font-display text-display-lg-mobile md:text-display-lg text-primary uppercase leading-none tracking-tighter"
             style={blog.hero_text_color ? { color: blog.hero_text_color } : undefined}
@@ -63,16 +64,16 @@ export default function BlogsPage() {
               {blog.subtitle}
             </p>
           )}
-        </div>
+        </RevealOnScroll>
       </section>
 
       <section className="py-16 px-4 md:px-8 max-w-[1440px] mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {(posts || []).map((post: BlogPost) => (
+          {(posts || []).map((post: BlogPost, index) => (
+            <RevealOnScroll key={post.id} className="h-full" delay={(index % 6) * 50}>
             <Link
-              key={post.id}
               to={`/blogs/${post.slug}`}
-              className="group flex flex-col border border-surface-container-high bg-white hover:border-forest-green transition-colors"
+              className="group flex flex-col h-full border border-surface-container-high bg-white hover:border-forest-green transition-colors"
             >
               <div className="w-full aspect-[4/3] bg-surface-container-low overflow-hidden">
                 {post.cover_media?.url && (
@@ -97,6 +98,7 @@ export default function BlogsPage() {
                 )}
               </div>
             </Link>
+            </RevealOnScroll>
           ))}
         </div>
         {(!posts || posts.length === 0) && (

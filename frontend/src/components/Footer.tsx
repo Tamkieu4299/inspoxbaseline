@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import { useLanguage } from "../i18n";
+import RevealOnScroll from "./RevealOnScroll";
 import type { FooterLinkPublic } from "../types";
 
 function FooterLinkItem({ label, url }: FooterLinkPublic) {
@@ -39,7 +40,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-surface-container-lowest w-full border-t border-outline-variant mt-16">
-      <div className="grid grid-cols-12 gap-6 px-4 sm:px-8 py-12 sm:py-16 w-full max-w-[1440px] mx-auto">
+      <RevealOnScroll className="grid grid-cols-12 gap-6 px-4 sm:px-8 py-12 sm:py-16 w-full max-w-[1440px] mx-auto">
         <div className="col-span-12 md:col-span-6 flex flex-col justify-between mb-8 md:mb-0">
           {site?.logo_url ? (
             <Link to="/" className="h-10 w-fit mb-6">
@@ -71,7 +72,7 @@ export default function Footer() {
             </div>
           </div>
         ) : null}
-      </div>
+      </RevealOnScroll>
     </footer>
   );
 }

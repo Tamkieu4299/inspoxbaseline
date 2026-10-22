@@ -153,7 +153,7 @@ export default function Collection() {
 
       <div className="grid grid-cols-12 gap-6 relative">
         <aside className={`${showFilters ? "block" : "hidden"} lg:block col-span-12 lg:col-span-2`}>
-          <div className="flex flex-col gap-8">
+          <RevealOnScroll className="flex flex-col gap-8">
             <div>
               <h3 className="font-headline text-headline-md text-primary mb-2 uppercase border-b border-surface-container-high pb-1">
                 {t("collection.category")}
@@ -281,7 +281,7 @@ export default function Collection() {
             >
               {t("collection.clearFilters")}
             </button>
-          </div>
+          </RevealOnScroll>
         </aside>
 
         <div className="col-span-12 lg:col-span-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -299,7 +299,7 @@ export default function Collection() {
             ))
           )}
           {totalPages > 1 ? (
-            <div className="col-span-full flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 border-t border-surface-container-high pt-8">
+            <RevealOnScroll className="col-span-full flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 border-t border-surface-container-high pt-8">
               <p className="font-label text-label-caps text-secondary order-2 sm:order-1">
                 {t("collection.pageOf")
                   .replace("{page}", String(page))
@@ -323,7 +323,7 @@ export default function Collection() {
                   {t("collection.nextPage")}
                 </button>
               </div>
-            </div>
+            </RevealOnScroll>
           ) : null}
         </div>
       </div>

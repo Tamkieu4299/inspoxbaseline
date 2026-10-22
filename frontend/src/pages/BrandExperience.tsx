@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { api } from "../api";
 import Icon from "../components/Icon";
+import RevealOnScroll from "../components/RevealOnScroll";
 import { useLanguage } from "../i18n";
 import type { EditorialItem } from "../types";
 
@@ -36,7 +37,7 @@ export default function BrandExperience() {
             <div className="absolute inset-0 bg-gradient-to-t from-background to-white/20 opacity-100" />
           )}
         </div>
-        <div className="relative z-10 text-center px-4 md:px-16 max-w-[1440px] mx-auto flex flex-col items-center">
+        <RevealOnScroll immediate className="relative z-10 text-center px-4 md:px-16 max-w-[1440px] mx-auto flex flex-col items-center">
           <h1
             className="font-brand-display text-[64px] md:text-[96px] text-primary uppercase tracking-tighter mb-4 leading-none"
             style={data.hero_text_color ? { color: data.hero_text_color } : undefined}
@@ -55,20 +56,22 @@ export default function BrandExperience() {
           >
             {data.hero_cta}
           </a>
-        </div>
+        </RevealOnScroll>
       </header>
 
       {/* Masonry Gallery */}
       <main className="w-full px-4 md:px-16 py-16 max-w-[1440px] mx-auto space-y-16" id="gallery">
         <section>
-          <div className="flex justify-between items-end mb-8 border-b border-surface-variant pb-4">
+          <RevealOnScroll className="flex justify-between items-end mb-8 border-b border-surface-variant pb-4">
             <h2 className="font-brand-display text-headline-lg-mobile md:text-headline-lg text-primary uppercase">
               {t("brand.lab")}
             </h2>
-          </div>
+          </RevealOnScroll>
           <div className="masonry-grid">
-            {data.items.map((item) => (
-              <MasonryItem key={item.id} item={item} />
+            {data.items.map((item, index) => (
+              <RevealOnScroll key={item.id} delay={(index % 6) * 55}>
+                <MasonryItem item={item} />
+              </RevealOnScroll>
             ))}
           </div>
         </section>

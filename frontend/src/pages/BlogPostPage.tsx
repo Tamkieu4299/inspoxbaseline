@@ -2,6 +2,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import BlockRenderer from "../components/BlockRenderer";
+import RevealOnScroll from "../components/RevealOnScroll";
 import { useLanguage } from "../i18n";
 
 function formatDate(date: string, lang: string) {
@@ -36,13 +37,16 @@ export default function BlogPostPage() {
 
   return (
     <main className="pt-20 py-16 px-4 md:px-8 max-w-[1440px] mx-auto">
+      <RevealOnScroll immediate>
       <Link
         to="/blogs"
         className="font-label text-label-caps text-secondary hover:text-forest-green transition-colors inline-block mb-8"
       >
         {t("blog.back")}
       </Link>
+      </RevealOnScroll>
       <article className="max-w-3xl mx-auto flex flex-col gap-8">
+        <RevealOnScroll immediate>
         <header className="flex flex-col gap-3">
           {post.published_at && (
             <span className="font-label text-label-caps text-secondary">
@@ -54,16 +58,21 @@ export default function BlogPostPage() {
           </h1>
           {post.excerpt && <p className="font-body text-body-lg text-secondary">{post.excerpt}</p>}
         </header>
+        </RevealOnScroll>
         {post.cover_media?.url && (
+          <RevealOnScroll delay={40}>
           <img
             src={post.cover_media.url}
             alt={post.title}
             className="w-full max-h-[520px] object-cover"
           />
+          </RevealOnScroll>
         )}
         <div className="flex flex-col gap-8">
           {post.content.map((block, index) => (
-            <BlockRenderer key={index} block={block} />
+            <RevealOnScroll key={index} delay={(index % 5) * 55}>
+              <BlockRenderer block={block} />
+            </RevealOnScroll>
           ))}
         </div>
       </article>

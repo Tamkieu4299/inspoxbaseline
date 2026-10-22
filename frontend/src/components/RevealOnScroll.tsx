@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ElementType, type ReactNode } from "react";
 
 interface RevealOnScrollProps {
   children: ReactNode;
@@ -7,6 +7,9 @@ interface RevealOnScrollProps {
   delay?: number;
   /** Skip motion (e.g. hero above the fold) */
   immediate?: boolean;
+  /** Remount animation when this value changes (e.g. quiz step id) */
+  resetKey?: string | number;
+  as?: ElementType;
 }
 
 export default function RevealOnScroll({
@@ -14,12 +17,18 @@ export default function RevealOnScroll({
   className = "",
   delay = 0,
   immediate = false,
+  resetKey,
+  as: Tag = "div",
 }: RevealOnScrollProps) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(immediate);
 
   useEffect(() => {
-    if (immediate) return;
+    if (immediate) {
+      setVisible(true);
+      return;
+    }
+    setVisible(false);
     const el = ref.current;
     if (!el) return;
 
@@ -40,19 +49,19 @@ export default function RevealOnScroll({
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [immediate]);
+  }, [immediate, resetKey]);
 
   const motionClass = visible
     ? "opacity-100 translate-y-0"
     : "opacity-0 translate-y-8 motion-reduce:opacity-100 motion-reduce:translate-y-0";
 
   return (
-    <div
+    <Tag
       ref={ref}
       className={`transition-all duration-700 ease-out motion-reduce:transition-none ${motionClass} ${className}`}
       style={visible ? { transitionDelay: `${delay}ms` } : undefined}
     >
       {children}
-    </div>
+    </Tag>
   );
 }
