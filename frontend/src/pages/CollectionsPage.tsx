@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import CoverMedia from "../components/CoverMedia";
+import RevealOnScroll from "../components/RevealOnScroll";
 import { useLanguage } from "../i18n";
 
 export default function CollectionsPage() {
@@ -34,12 +35,14 @@ export default function CollectionsPage() {
 
   return (
     <main className="flex-grow pt-20 md:pt-24 px-4 md:px-8 lg:px-16 w-full max-w-[1920px] mx-auto pb-16">
-      <header className="mb-10 border-b border-surface-container-high pb-4">
+      <RevealOnScroll className="mb-10">
+      <header className="border-b border-surface-container-high pb-4">
         <h1 className="font-headline text-headline-lg text-primary uppercase">{t("collections.title")}</h1>
         {collectionsSubtitle ? (
           <p className="font-label text-label-caps text-secondary mt-1">{collectionsSubtitle}</p>
         ) : null}
       </header>
+      </RevealOnScroll>
 
       {isLoading ? (
         <p className="font-body text-body-md text-secondary py-16 text-center">{t("loading")}</p>
@@ -49,13 +52,13 @@ export default function CollectionsPage() {
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedCollections.map((c) => {
+          {sortedCollections.map((c, index) => {
             const count = c.slug === "new-arrivals" ? totalProducts : (c.products || []).length;
             return (
+              <RevealOnScroll key={c.id} delay={(index % 6) * 50}>
               <Link
-                key={c.id}
                 to={`/collections/${c.slug}`}
-                className="group flex flex-col bg-background border border-transparent hover:border-surface-container-high p-2 transition-all"
+                className="group flex flex-col h-full bg-background border border-transparent hover:border-surface-container-high p-2 transition-all"
               >
                 <div className="relative w-full aspect-[4/5] overflow-hidden bg-surface-container-low">
                   {c.hero_media ? (
@@ -83,6 +86,7 @@ export default function CollectionsPage() {
                   </p>
                 </div>
               </Link>
+              </RevealOnScroll>
             );
           })}
         </div>

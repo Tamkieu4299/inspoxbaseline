@@ -8,6 +8,7 @@ import { useLanguage } from "../i18n";
 import { normalizeHomeSections, type HomeSectionConfig } from "../homeSections";
 import CoverMedia from "../components/CoverMedia";
 import type { HeroSlide } from "../mediaUtils";
+import RevealOnScroll from "../components/RevealOnScroll";
 import type { Collection, HomeData } from "../types";
 
 export default function Home() {
@@ -18,19 +19,21 @@ export default function Home() {
   });
 
   if (isLoading || !data) {
-    return (
-      <main className="pt-20 max-w-[1440px] mx-auto px-8 py-16">
-        <p className="font-body text-body-md text-secondary">{t("loading")}</p>
-      </main>
-    );
+    return <main className="pt-20 min-h-[40vh]" aria-hidden />;
   }
 
   const sections = normalizeHomeSections(data.sections);
 
   return (
     <main className="pt-20">
-      {sections.map((section) => (
-        <HomeSectionBlock key={section.id} section={section} data={data} t={t} />
+      {sections.map((section, index) => (
+        <RevealOnScroll
+          key={section.id}
+          immediate={section.id === "hero"}
+          delay={section.id === "hero" ? 0 : Math.min(index * 70, 280)}
+        >
+          <HomeSectionBlock section={section} data={data} t={t} />
+        </RevealOnScroll>
       ))}
     </main>
   );

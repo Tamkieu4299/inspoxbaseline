@@ -5,6 +5,7 @@ import { api } from "../api";
 import Icon from "../components/Icon";
 import Lightbox from "../components/Lightbox";
 import ProductGallery, { isGalleryLayout } from "../components/ProductGallery";
+import RevealOnScroll from "../components/RevealOnScroll";
 import ProductFeatureGrid from "../components/ProductFeatureGrid";
 import { ProductDescription, ProductTechSpecList } from "../components/ProductStoryAndSpecs";
 import { useLanguage } from "../i18n";
@@ -92,7 +93,7 @@ export default function ProductDetail() {
     <>
       <main className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 pt-20 md:pt-24 pb-12 md:pb-24">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-16">
-          <div className="md:col-span-7">
+          <RevealOnScroll className="md:col-span-7" immediate>
             <ProductGallery
               images={galleryImages}
               name={product.name}
@@ -100,9 +101,9 @@ export default function ProductDetail() {
               activeIndex={galleryFocusIndex}
               onImageClick={(index) => setLightboxIndex(index)}
             />
-          </div>
+          </RevealOnScroll>
 
-          <div className="md:col-span-5 flex flex-col md:pl-4 pt-8 md:pt-0">
+          <RevealOnScroll className="md:col-span-5 flex flex-col md:pl-4 pt-8 md:pt-0" delay={80}>
             {product.badge && (
               <div className="mb-4">
                 <span className="font-label text-label-caps bg-primary text-on-primary px-2 py-1 uppercase tracking-widest inline-block">
@@ -186,10 +187,12 @@ export default function ProductDetail() {
             </button>
 
             <ProductTechSpecList techSpecs={product.tech_specs} />
-          </div>
+          </RevealOnScroll>
         </div>
 
-        <ProductFeatureGrid features={product.features} />
+        <RevealOnScroll delay={120}>
+          <ProductFeatureGrid features={product.features} />
+        </RevealOnScroll>
       </main>
       {lightboxIndex !== null && (
         <Lightbox

@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import ProductCard from "../components/ProductCard";
+import RevealOnScroll from "../components/RevealOnScroll";
 import { useLanguage } from "../i18n";
 import type { Product } from "../types";
 import { navCategories } from "../categoryNav";
@@ -104,7 +105,8 @@ export default function Collection() {
 
   return (
     <main className="flex-grow pt-20 md:pt-24 px-4 md:px-8 lg:px-16 w-full max-w-[1920px] mx-auto pb-16">
-      <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-surface-container-high pb-4">
+      <RevealOnScroll className="mb-8">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-surface-container-high pb-4">
         <div>
           <h1 className="font-headline text-headline-lg text-primary uppercase">
             {q
@@ -147,6 +149,7 @@ export default function Collection() {
           </select>
         </div>
       </header>
+      </RevealOnScroll>
 
       <div className="grid grid-cols-12 gap-6 relative">
         <aside className={`${showFilters ? "block" : "hidden"} lg:block col-span-12 lg:col-span-2`}>
@@ -289,7 +292,11 @@ export default function Collection() {
               {t("collection.noMatch")}
             </p>
           ) : (
-            products.map((product) => <ProductCard key={product.id} product={product} />)
+            products.map((product, index) => (
+              <RevealOnScroll key={product.id} className="h-full" delay={(index % 8) * 45}>
+                <ProductCard product={product} />
+              </RevealOnScroll>
+            ))
           )}
           {totalPages > 1 ? (
             <div className="col-span-full flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 border-t border-surface-container-high pt-8">
