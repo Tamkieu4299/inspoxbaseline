@@ -313,44 +313,55 @@ export default function QuizzesTab() {
                   {(draft.hero_badges || []).map((badge, bi) => (
                     <div
                       key={bi}
-                      className="grid grid-cols-1 md:grid-cols-[120px_1fr_1fr_auto] gap-2 items-end border border-surface-container-high p-3"
+                      className="border border-surface-container-high p-3 flex flex-col gap-3 min-w-0"
                     >
-                      <Field label={t("admin.quizzes.heroBadgeIcon")}>
-                        <TextInput
-                          value={badge.icon || ""}
-                          onChange={(e) => {
-                            const next = [...(draft.hero_badges || [])];
-                            next[bi] = { ...next[bi], icon: e.target.value };
-                            set("hero_badges", next);
-                          }}
-                          placeholder="quiz"
-                        />
-                      </Field>
-                      <Field label={t("admin.quizzes.heroBadgeLabel")}>
-                        <TextInput
-                          value={badge.label || ""}
-                          onChange={(e) => {
-                            const next = [...(draft.hero_badges || [])];
-                            next[bi] = { ...next[bi], label: e.target.value };
-                            set("hero_badges", next);
-                          }}
-                        />
-                      </Field>
-                      <Field label={t("admin.quizzes.heroBadgeLabelVi")}>
-                        <TextInput
-                          value={badge.label_vi || ""}
-                          onChange={(e) => {
-                            const next = [...(draft.hero_badges || [])];
-                            next[bi] = { ...next[bi], label_vi: e.target.value };
-                            set("hero_badges", next);
-                          }}
-                        />
-                      </Field>
-                      <DangerButton
-                        onClick={() => set("hero_badges", (draft.hero_badges || []).filter((_, i) => i !== bi))}
-                      >
-                        {t("admin.delete")}
-                      </DangerButton>
+                      <div className="flex flex-wrap items-end gap-3">
+                        <Field label={t("admin.quizzes.heroBadgeIcon")} className="w-full min-w-0 sm:max-w-[9rem] sm:flex-1">
+                          <TextInput
+                            value={badge.icon || ""}
+                            onChange={(e) => {
+                              const next = [...(draft.hero_badges || [])];
+                              next[bi] = { ...next[bi], icon: e.target.value };
+                              set("hero_badges", next);
+                            }}
+                            placeholder="quiz"
+                          />
+                        </Field>
+                        <div className="flex items-center gap-2 shrink-0 pb-0.5 ml-auto">
+                          {badge.icon ? (
+                            <Icon name={badge.icon} className="text-[22px] text-primary hidden sm:block" />
+                          ) : null}
+                          <DangerButton
+                            type="button"
+                            className="whitespace-nowrap px-3 py-2 text-xs"
+                            onClick={() => set("hero_badges", (draft.hero_badges || []).filter((_, i) => i !== bi))}
+                          >
+                            {t("admin.delete")}
+                          </DangerButton>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 min-[520px]:grid-cols-2 gap-3 min-w-0">
+                        <Field label={t("admin.quizzes.heroBadgeLabel")} className="min-w-0">
+                          <TextInput
+                            value={badge.label || ""}
+                            onChange={(e) => {
+                              const next = [...(draft.hero_badges || [])];
+                              next[bi] = { ...next[bi], label: e.target.value };
+                              set("hero_badges", next);
+                            }}
+                          />
+                        </Field>
+                        <Field label={t("admin.quizzes.heroBadgeLabelVi")} className="min-w-0">
+                          <TextInput
+                            value={badge.label_vi || ""}
+                            onChange={(e) => {
+                              const next = [...(draft.hero_badges || [])];
+                              next[bi] = { ...next[bi], label_vi: e.target.value };
+                              set("hero_badges", next);
+                            }}
+                          />
+                        </Field>
+                      </div>
                     </div>
                   ))}
                 </div>
