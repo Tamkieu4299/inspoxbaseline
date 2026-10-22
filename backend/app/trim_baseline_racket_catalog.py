@@ -1,7 +1,7 @@
 """Deactivate baseline rackets outside the allowed Wilson / Babolat / Head lines.
 
 Keeps (rackets category only):
-  Wilson — Defyer, Blade, Clash, Pro Staff, RF
+  Wilson — Defyer, Blade, Clash, Pro Staff, RF, Ultra
   Babolat — Pure Aero, Pure Strike, Pure Drive (not Boost/Evo/etc.)
   Head — Speed, Gravity, Boom, Radical
 
@@ -49,6 +49,8 @@ def product_in_allowed_racket_line(product: Product) -> bool:
             return True
         if "prostaff" in blob or "pro staff" in blob or "pro-staff" in blob:
             return True
+        if "ultra" in blob:
+            return True
         return _RF_LINE.search(blob) is not None
 
     if brand == "babolat":
@@ -62,7 +64,7 @@ def product_in_allowed_racket_line(product: Product) -> bool:
 
 def trim_racket_catalog(*, tenant_slug: str = "baseline", dry_run: bool = True) -> dict:
     db = SessionLocal()
-    stats = {"kept_active": 0, "deactivated": 0, "already_inactive": 0}
+    stats = {"kept_active": 0, "reactivated": 0, "deactivated": 0, "inactive_unmatched": 0}
     try:
         tenant = db.scalar(select(Tenant).where(Tenant.slug == tenant_slug))
         if tenant is None:
@@ -77,14 +79,19 @@ def trim_racket_catalog(*, tenant_slug: str = "baseline", dry_run: bool = True) 
         ).all()
 
         for product in products:
-            if not product.is_active:
-                stats["already_inactive"] += 1
+            allowed = product_in_allowed_racket_line(product)
+            if allowed:
+                if product.is_active:
+                    stats["kept_active"] += 1
+                else:
+                    product.is_active = True
+                    stats["reactivated"] += 1
                 continue
-            if product_in_allowed_racket_line(product):
-                stats["kept_active"] += 1
-                continue
-            product.is_active = False
-            stats["deactivated"] += 1
+            if product.is_active:
+                product.is_active = False
+                stats["deactivated"] += 1
+            else:
+                stats["inactive_unmatched"] += 1
 
         if dry_run:
             db.rollback()
