@@ -57,14 +57,21 @@ def upgrade_racquet_finder_quiz(tenant_slug: str = "baseline") -> None:
             db.add(quiz)
             print(f"Created quiz '{quiz.slug}' for tenant {tenant_slug}")
         else:
-            quiz.subtitle = DEFAULT_RACQUET_FINDER["subtitle"]
-            quiz.subtitle_vi = DEFAULT_RACQUET_FINDER["subtitle_vi"]
-            quiz.hero_badges = DEFAULT_RACQUET_FINDER["hero_badges"]
-            quiz.faq = DEFAULT_RACQUET_FINDER["faq"]
-            quiz.dimensions = DEFAULT_RACQUET_FINDER["dimensions"]
-            quiz.dimension_weights = DEFAULT_RACQUET_FINDER["dimension_weights"]
-            quiz.steps = DEFAULT_RACQUET_FINDER["steps"]
-            quiz.product_filter = DEFAULT_RACQUET_FINDER["product_filter"]
+            for key in (
+                "title",
+                "title_vi",
+                "subtitle",
+                "subtitle_vi",
+                "hero_kicker",
+                "hero_kicker_vi",
+                "hero_badges",
+                "faq",
+                "dimensions",
+                "dimension_weights",
+                "steps",
+                "product_filter",
+            ):
+                setattr(quiz, key, DEFAULT_RACQUET_FINDER[key])
             print(
                 f"Upgraded quiz '{quiz.slug}' for tenant {tenant_slug}: "
                 f"{len(quiz.steps or [])} steps, {len(quiz.dimensions or [])} dimensions"
@@ -80,7 +87,7 @@ def main() -> None:
     p.add_argument(
         "--upgrade-racquet-finder",
         action="store_true",
-        help="Replace racquet-finder steps/dimensions with latest TW-aligned template",
+        help="Replace racquet-finder content with latest HEAD-style 6-question template",
     )
     args = p.parse_args()
 
