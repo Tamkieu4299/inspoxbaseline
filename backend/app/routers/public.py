@@ -39,6 +39,7 @@ from ..schemas import (
     SitePublic,
 )
 from ..home_sections import latest_drops_fetch_limit, normalize_home_sections
+from ..product_sort import product_hot_sort_key
 from ..security import get_tenant
 
 router = APIRouter(prefix="/api", tags=["public"])
@@ -417,15 +418,8 @@ def _apply_product_search(stmt, q: str):
 
 
 def _product_hot_rank(product: Product) -> tuple:
-    """Hot (featured) and bestseller first; lower list_order = higher in list."""
-    created_ts = product.created_at.timestamp() if product.created_at else 0.0
-    order = int(getattr(product, "list_order", 0) or 0)
-    return (
-        0 if product.is_featured else 1,
-        0 if product.is_bestseller else 1,
-        order,
-        -created_ts,
-    )
+    """Featured / bestseller first, then HOT line + flagship variant, then list_order."""
+    return product_hot_sort_key(product)
 
 
 def _sort_products(products: list[Product], sort: str) -> list[Product]:
@@ -473,7 +467,7 @@ def list_products(
     brand: str | None = None,
     size: str | None = None,
     color: str | None = None,
-    sort: str = "newest",
+    sort: str = "recommended",
     q: str | None = None,
     page: int = 1,
     page_size: int = 24,
