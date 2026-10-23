@@ -40,6 +40,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import selectinload
 
 from .database import SessionLocal
+from .racket_catalog_rules import is_junior_racket
 from .minio_client import save_file
 from .models import Category, Collection, Product, ProductImage, Tenant
 
@@ -1358,6 +1359,8 @@ def _upsert_racquet(
 ) -> str:
     if dry_run:
         return "dry-run"
+    if is_junior_racket(item.name, item.slug):
+        active = False
     rackets = _rackets_category(db, tenant_id)
     product = db.scalar(select(Product).where(Product.tenant_id == tenant_id, Product.slug == item.slug))
     product_brand = _normalize_brand(item.brand)

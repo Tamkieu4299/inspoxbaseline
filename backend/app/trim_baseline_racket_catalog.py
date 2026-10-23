@@ -1,5 +1,7 @@
 """Deactivate baseline rackets outside the allowed Wilson / Babolat / Head lines.
 
+Also deactivates junior / youth racquets (names containing Junior, JR, youth, kids, etc.).
+
 Keeps (rackets category only):
   Wilson — Defyer, Blade, Clash, Pro Staff, RF, Ultra
   Babolat — Pure Aero, Pure Strike, Pure Drive (not Boost/Evo/etc.)
@@ -24,6 +26,7 @@ from sqlalchemy import select
 from .database import SessionLocal
 from .import_external_racquets import _rackets_category
 from .models import Product, Tenant
+from .racket_catalog_rules import is_junior_racket
 
 _PURE_LINE = re.compile(
     r"pure[\s-]+(aero|strike|drive)\b",
@@ -34,6 +37,12 @@ _RF_LINE = re.compile(
     r"\brf\b|rf01|rf[\s-]?01|roger[\s-]?federer",
     re.IGNORECASE,
 )
+
+
+def product_kept_in_baseline_catalog(product: Product) -> bool:
+    if is_junior_racket(product.name, product.slug, product.name_vi):
+        return False
+    return product_in_allowed_racket_line(product)
 
 
 def product_in_allowed_racket_line(product: Product) -> bool:
@@ -64,7 +73,13 @@ def product_in_allowed_racket_line(product: Product) -> bool:
 
 def trim_racket_catalog(*, tenant_slug: str = "baseline", dry_run: bool = True) -> dict:
     db = SessionLocal()
-    stats = {"kept_active": 0, "reactivated": 0, "deactivated": 0, "inactive_unmatched": 0}
+    stats = {
+        "kept_active": 0,
+        "reactivated": 0,
+        "deactivated": 0,
+        "deactivated_junior": 0,
+        "inactive_unmatched": 0,
+    }
     try:
         tenant = db.scalar(select(Tenant).where(Tenant.slug == tenant_slug))
         if tenant is None:
@@ -79,7 +94,8 @@ def trim_racket_catalog(*, tenant_slug: str = "baseline", dry_run: bool = True) 
         ).all()
 
         for product in products:
-            allowed = product_in_allowed_racket_line(product)
+            junior = is_junior_racket(product.name, product.slug, product.name_vi)
+            allowed = product_kept_in_baseline_catalog(product)
             if allowed:
                 if product.is_active:
                     stats["kept_active"] += 1
@@ -90,6 +106,8 @@ def trim_racket_catalog(*, tenant_slug: str = "baseline", dry_run: bool = True) 
             if product.is_active:
                 product.is_active = False
                 stats["deactivated"] += 1
+                if junior:
+                    stats["deactivated_junior"] += 1
             else:
                 stats["inactive_unmatched"] += 1
 
