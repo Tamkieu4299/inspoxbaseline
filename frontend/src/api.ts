@@ -23,11 +23,24 @@ const API_BASE = import.meta.env.VITE_API_URL || "";
 
 const langQ = (lang?: string) => (lang ? `lang=${encodeURIComponent(lang)}` : "");
 
+function tenantFromIpPort(host: string, port: string): string | null {
+  if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) return null;
+  if (port === "3001") return "baseline";
+  if (port === "3000") return "shop1";
+  return null;
+}
+
 export const tenantSlug = (): string => {
+  const host = (window.location.hostname || "").trim();
+  const port = (window.location.port || "").trim();
+  const fromIp = tenantFromIpPort(host, port);
+  if (fromIp) return fromIp;
+
   const explicit = (import.meta.env.VITE_TENANT_SLUG || "").trim();
   if (explicit) return explicit;
-  const first = (window.location.hostname || "").split(".")[0] || "";
-  if (/^[a-z0-9][a-z0-9-]*$/.test(first) && !["www", "localhost"].includes(first)) {
+
+  const first = host.split(".")[0] || "";
+  if (/^[a-z][a-z0-9-]*$/.test(first) && !["www", "localhost"].includes(first)) {
     return first;
   }
   return "shop1";
