@@ -430,6 +430,11 @@ class FooterContactConfig(BaseModel):
     follow_section_title_vi: str | None = None
     messenger_url: str | None = None
     floating_contact_enabled: bool = True
+    show_footer_brand: bool = True
+    show_footer_tagline: bool = True
+    show_footer_contact_details: bool = True
+    show_footer_social_icons: bool = True
+    show_footer_registration_badge: bool = True
     social: FooterSocialLinks = Field(default_factory=FooterSocialLinks)
 
 
@@ -453,6 +458,11 @@ class FooterContactPublic(BaseModel):
     categories_title: str | None = None
     copyright_line: str | None = None
     show_product_categories: bool = True
+    show_footer_brand: bool = True
+    show_footer_tagline: bool = True
+    show_footer_contact_details: bool = True
+    show_footer_social_icons: bool = True
+    show_footer_registration_badge: bool = True
     follow_section_title: str | None = None
     social: dict[str, str] = Field(default_factory=dict)
     floating_contact: FloatingContactPublic | None = None

@@ -236,6 +236,45 @@ export default function SiteTab() {
           }
           onChange={(m) => setFooterContact({ registration_badge_media_id: m ? m.id : null })}
         />
+        <div className="border-t border-surface-container-highest pt-4 flex flex-col gap-3">
+          <p className="font-label text-label-caps text-primary uppercase">{t("admin.footerBrandColumn")}</p>
+          <p className="font-body text-body-sm text-secondary -mt-1">{t("admin.footerBrandColumnHint")}</p>
+          <label className="flex items-center gap-2 font-body text-body-md text-primary">
+            <Checkbox
+              checked={footerContact.show_footer_brand !== false}
+              onChange={(e) => setFooterContact({ show_footer_brand: e.target.checked })}
+            />
+            {t("admin.footerShowBrand")}
+          </label>
+          <label className="flex items-center gap-2 font-body text-body-md text-primary">
+            <Checkbox
+              checked={footerContact.show_footer_tagline !== false}
+              onChange={(e) => setFooterContact({ show_footer_tagline: e.target.checked })}
+            />
+            {t("admin.footerShowTagline")}
+          </label>
+          <label className="flex items-center gap-2 font-body text-body-md text-primary">
+            <Checkbox
+              checked={footerContact.show_footer_contact_details !== false}
+              onChange={(e) => setFooterContact({ show_footer_contact_details: e.target.checked })}
+            />
+            {t("admin.footerShowContactDetails")}
+          </label>
+          <label className="flex items-center gap-2 font-body text-body-md text-primary">
+            <Checkbox
+              checked={footerContact.show_footer_social_icons !== false}
+              onChange={(e) => setFooterContact({ show_footer_social_icons: e.target.checked })}
+            />
+            {t("admin.footerShowSocialIcons")}
+          </label>
+          <label className="flex items-center gap-2 font-body text-body-md text-primary">
+            <Checkbox
+              checked={footerContact.show_footer_registration_badge !== false}
+              onChange={(e) => setFooterContact({ show_footer_registration_badge: e.target.checked })}
+            />
+            {t("admin.footerShowRegBadge")}
+          </label>
+        </div>
         <div className="border-t border-surface-container-highest pt-4 flex flex-col gap-4">
           <p className="font-label text-label-caps text-primary uppercase">{t("admin.footerLayout")}</p>
           <Field label={t("admin.footerUsefulLinksTitle")}>

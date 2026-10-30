@@ -781,6 +781,13 @@ const en: Record<string, string> = {
   "admin.footerFloatingContact": "Show floating Zalo / Messenger / phone buttons",
   "admin.footerFloatingContactHint":
     "Fixed buttons on the bottom-right. Zalo uses the Zalo URL above or zalo.me/{phone}. Phone uses the number above.",
+  "admin.footerBrandColumn": "Footer brand column (left)",
+  "admin.footerBrandColumnHint": "Show or hide each block in the first footer column. Floating Zalo/Messenger buttons are controlled separately above.",
+  "admin.footerShowBrand": "Show logo / site name",
+  "admin.footerShowTagline": "Show footer tagline",
+  "admin.footerShowContactDetails": "Show contact details (phone, address, hours, …)",
+  "admin.footerShowSocialIcons": "Show social icon row in footer",
+  "admin.footerShowRegBadge": "Show registration badge image",
   "admin.footerTaglineHint": "Short intro paragraph under the logo in the footer.",
   "admin.footerLinkLabelEn": "Link label (English)",
   "admin.footerLinkLabelVi": "Link label (Vietnamese)",
@@ -1615,6 +1622,14 @@ const vi: Record<string, string> = {
   "admin.footerFloatingContact": "Hiện nút Zalo / Messenger / gọi điện (góc màn hình)",
   "admin.footerFloatingContactHint":
     "Nút cố định góc phải dưới. Zalo dùng link Zalo hoặc zalo.me/{SĐT}. Gọi điện dùng số ở trên.",
+  "admin.footerBrandColumn": "Cột thương hiệu footer (trái)",
+  "admin.footerBrandColumnHint":
+    "Bật/tắt từng khối ở cột đầu footer. Nút Zalo/Messenger nổi điều khiển riêng ở trên.",
+  "admin.footerShowBrand": "Hiện logo / tên shop",
+  "admin.footerShowTagline": "Hiện tagline footer",
+  "admin.footerShowContactDetails": "Hiện liên hệ (SĐT, địa chỉ, giờ mở cửa, …)",
+  "admin.footerShowSocialIcons": "Hiện hàng icon mạng xã hội trong footer",
+  "admin.footerShowRegBadge": "Hiện ảnh badge đăng ký",
   "admin.footerTaglineHint": "Đoạn giới thiệu ngắn dưới logo ở footer.",
   "admin.footerLinkLabelEn": "Nhãn liên kết (tiếng Anh)",
   "admin.footerLinkLabelVi": "Nhãn liên kết (tiếng Việt)",

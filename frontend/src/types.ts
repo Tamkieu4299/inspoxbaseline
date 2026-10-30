@@ -433,6 +433,11 @@ export interface FooterContactConfig {
   follow_section_title_vi?: string | null;
   messenger_url?: string | null;
   floating_contact_enabled?: boolean;
+  show_footer_brand?: boolean;
+  show_footer_tagline?: boolean;
+  show_footer_contact_details?: boolean;
+  show_footer_social_icons?: boolean;
+  show_footer_registration_badge?: boolean;
   social?: FooterSocialLinks;
 }
 
@@ -450,6 +455,11 @@ export interface FooterContactPublic {
   categories_title?: string | null;
   copyright_line?: string | null;
   show_product_categories?: boolean;
+  show_footer_brand?: boolean;
+  show_footer_tagline?: boolean;
+  show_footer_contact_details?: boolean;
+  show_footer_social_icons?: boolean;
+  show_footer_registration_badge?: boolean;
   follow_section_title?: string | null;
   social?: Record<string, string>;
   floating_contact?: FloatingContactPublic | null;

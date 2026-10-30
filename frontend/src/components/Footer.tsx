@@ -110,85 +110,103 @@ export default function Footer() {
   const categoryNav = navCategories(categories);
   const socialEntries = SOCIAL_NETWORKS.filter((n) => contact?.social?.[n]);
 
-  const hasContactBlock =
+  const showBrand = contact?.show_footer_brand !== false;
+  const showTagline = contact?.show_footer_tagline !== false;
+  const showContactDetails = contact?.show_footer_contact_details !== false;
+  const showSocialIcons = contact?.show_footer_social_icons !== false;
+  const showRegBadge = contact?.show_footer_registration_badge !== false;
+
+  const hasContactDetails =
     contact &&
     (contact.phone ||
       contact.email ||
       contact.address ||
       contact.business_registration ||
       contact.showroom_note ||
-      contact.opening_hours ||
-      socialEntries.length > 0);
+      contact.opening_hours);
+
+  const showBrandColumn =
+    showBrand ||
+    (showTagline && !!footerTagline) ||
+    (showContactDetails && hasContactDetails) ||
+    (showSocialIcons && socialEntries.length > 0) ||
+    (showRegBadge && !!contact?.registration_badge_url);
 
   return (
     <footer className="bg-surface-container-lowest w-full border-t border-outline-variant mt-16">
       <RevealOnScroll className="px-4 sm:px-8 py-12 sm:py-16 w-full max-w-[1440px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8">
           {/* Brand + contact */}
-          <div className="lg:col-span-5 flex flex-col gap-5">
-            {site?.logo_url ? (
-              <Link to="/" className="h-12 w-fit">
-                <img src={site.logo_url} alt={site.site_name} className="h-full w-auto object-contain" />
-              </Link>
-            ) : (
-              <Link
-                to="/"
-                className="font-display text-3xl font-extrabold text-primary tracking-tighter hover:text-forest-green transition-colors w-fit"
-              >
-                {site?.site_name || "INSPO"}
-              </Link>
-            )}
-            <p className="font-body text-body-sm text-secondary leading-relaxed max-w-md">{footerTagline}</p>
-
-            {hasContactBlock ? (
-              <div className="flex flex-col gap-4">
-                {contact?.phone ? (
-                  <ContactRow icon="call" href={phoneTelHref(contact.phone)}>
-                    {contact.phone}
-                  </ContactRow>
-                ) : null}
-                {contact?.address ? (
-                  <ContactRow
-                    icon="location_on"
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.address)}`}
+          {showBrandColumn ? (
+            <div className="lg:col-span-5 flex flex-col gap-5">
+              {showBrand ? (
+                site?.logo_url ? (
+                  <Link to="/" className="h-12 w-fit">
+                    <img src={site.logo_url} alt={site.site_name} className="h-full w-auto object-contain" />
+                  </Link>
+                ) : (
+                  <Link
+                    to="/"
+                    className="font-display text-3xl font-extrabold text-primary tracking-tighter hover:text-forest-green transition-colors w-fit"
                   >
-                    {contact.address}
-                  </ContactRow>
-                ) : null}
-                {contact?.business_registration ? (
-                  <ContactRow icon="badge">{contact.business_registration}</ContactRow>
-                ) : null}
-                {contact?.showroom_note ? (
-                  <ContactRow icon="storefront">{contact.showroom_note}</ContactRow>
-                ) : null}
-                {contact?.email ? (
-                  <ContactRow icon="mail" href={`mailto:${contact.email}`}>
-                    {contact.email}
-                  </ContactRow>
-                ) : null}
-                {contact?.opening_hours ? (
-                  <ContactRow icon="schedule">{contact.opening_hours}</ContactRow>
-                ) : null}
-              </div>
-            ) : null}
+                    {site?.site_name || "INSPO"}
+                  </Link>
+                )
+              ) : null}
+              {showTagline ? (
+                <p className="font-body text-body-sm text-secondary leading-relaxed max-w-md">{footerTagline}</p>
+              ) : null}
 
-            {socialEntries.length > 0 ? (
-              <SocialIconsRow>
-                {socialEntries.map((network) => (
-                  <SocialIconLink key={network} network={network} href={contact!.social![network]!} />
-                ))}
-              </SocialIconsRow>
-            ) : null}
+              {showContactDetails && hasContactDetails ? (
+                <div className="flex flex-col gap-4">
+                  {contact?.phone ? (
+                    <ContactRow icon="call" href={phoneTelHref(contact.phone)}>
+                      {contact.phone}
+                    </ContactRow>
+                  ) : null}
+                  {contact?.address ? (
+                    <ContactRow
+                      icon="location_on"
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.address)}`}
+                    >
+                      {contact.address}
+                    </ContactRow>
+                  ) : null}
+                  {contact?.business_registration ? (
+                    <ContactRow icon="badge">{contact.business_registration}</ContactRow>
+                  ) : null}
+                  {contact?.showroom_note ? (
+                    <ContactRow icon="storefront">{contact.showroom_note}</ContactRow>
+                  ) : null}
+                  {contact?.email ? (
+                    <ContactRow icon="mail" href={`mailto:${contact.email}`}>
+                      {contact.email}
+                    </ContactRow>
+                  ) : null}
+                  {contact?.opening_hours ? (
+                    <ContactRow icon="schedule">{contact.opening_hours}</ContactRow>
+                  ) : null}
+                </div>
+              ) : null}
 
-            {contact?.registration_badge_url ? (
-              <img
-                src={contact.registration_badge_url}
-                alt=""
-                className="h-14 w-auto object-contain mt-2"
-                loading="lazy"
-              />
-            ) : null}
-          </div>
+              {showSocialIcons && socialEntries.length > 0 ? (
+                <SocialIconsRow>
+                  {socialEntries.map((network) => (
+                    <SocialIconLink key={network} network={network} href={contact!.social![network]!} />
+                  ))}
+                </SocialIconsRow>
+              ) : null}
+
+              {showRegBadge && contact?.registration_badge_url ? (
+                <img
+                  src={contact.registration_badge_url}
+                  alt=""
+                  className="h-14 w-auto object-contain mt-2"
+                  loading="lazy"
+                />
+              ) : null}
+            </div>
+          ) : null}
 
           {/* Useful links */}
           {footerLinks.length > 0 ? (
@@ -204,7 +222,11 @@ export default function Footer() {
           ) : null}
 
           {/* Categories + embeds */}
-          <div className={`lg:col-span-4 flex flex-col gap-8 ${footerLinks.length === 0 ? "lg:col-start-6" : ""}`}>
+          <div
+            className={`lg:col-span-4 flex flex-col gap-8 ${
+              footerLinks.length === 0 && !showBrandColumn ? "lg:col-start-1" : footerLinks.length === 0 ? "lg:col-start-6" : ""
+            }`}
+          >
             {contact?.show_product_categories !== false && categoryNav.length > 0 ? (
               <FooterColumn title={contact?.categories_title || t("footer.productCategories")}>
                 <ul className="flex flex-col gap-3">

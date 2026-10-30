@@ -45,6 +45,11 @@ def default_footer_contact() -> dict[str, Any]:
         "follow_section_title_vi": None,
         "messenger_url": None,
         "floating_contact_enabled": True,
+        "show_footer_brand": True,
+        "show_footer_tagline": True,
+        "show_footer_contact_details": True,
+        "show_footer_social_icons": True,
+        "show_footer_registration_badge": True,
         "social": {key: None for key in SOCIAL_NETWORKS},
     }
 
@@ -143,6 +148,11 @@ def resolve_footer_contact(
         "categories_title": _loc(lang, data.get("categories_title"), data.get("categories_title_vi")),
         "copyright_line": _loc(lang, data.get("copyright_text"), data.get("copyright_text_vi")),
         "show_product_categories": bool(data.get("show_product_categories", True)),
+        "show_footer_brand": bool(data.get("show_footer_brand", True)),
+        "show_footer_tagline": bool(data.get("show_footer_tagline", True)),
+        "show_footer_contact_details": bool(data.get("show_footer_contact_details", True)),
+        "show_footer_social_icons": bool(data.get("show_footer_social_icons", True)),
+        "show_footer_registration_badge": bool(data.get("show_footer_registration_badge", True)),
         "follow_section_title": _loc(
             lang, data.get("follow_section_title"), data.get("follow_section_title_vi")
         ),

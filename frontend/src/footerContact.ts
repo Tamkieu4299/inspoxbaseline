@@ -37,6 +37,11 @@ export function defaultFooterContact(): FooterContactConfig {
     follow_section_title_vi: null,
     messenger_url: null,
     floating_contact_enabled: true,
+    show_footer_brand: true,
+    show_footer_tagline: true,
+    show_footer_contact_details: true,
+    show_footer_social_icons: true,
+    show_footer_registration_badge: true,
     social: {
       facebook: null,
       instagram: null,
