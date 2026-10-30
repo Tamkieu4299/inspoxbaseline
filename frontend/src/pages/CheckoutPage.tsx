@@ -41,7 +41,7 @@ export default function CheckoutPage() {
 
   if (lines.length === 0) {
     return (
-      <main className="px-4 sm:px-8 py-12 max-w-lg mx-auto text-center">
+      <main className="px-4 sm:px-8 pt-20 md:pt-24 pb-12 max-w-lg mx-auto text-center">
         <p className="font-body text-body-md text-secondary mb-4">{t("cart.empty")}</p>
         <Link to="/products" className="text-forest-green underline">
           {t("cart.continueShopping")}
@@ -51,7 +51,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="px-4 sm:px-8 lg:px-stack-xl py-12 max-w-4xl mx-auto">
+    <main className="px-4 sm:px-8 lg:px-stack-xl pt-20 md:pt-24 pb-12 max-w-4xl mx-auto">
       <h1 className="font-headline text-headline-lg text-primary uppercase mb-8">{t("checkout.title")}</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <form

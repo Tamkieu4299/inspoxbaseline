@@ -10,7 +10,7 @@ export default function CartPage() {
 
   if (lines.length === 0) {
     return (
-      <main className="px-4 sm:px-8 lg:px-stack-xl py-12 max-w-3xl mx-auto">
+      <main className="px-4 sm:px-8 lg:px-stack-xl pt-20 md:pt-24 pb-12 max-w-3xl mx-auto">
         <h1 className="font-headline text-headline-lg text-primary uppercase mb-4">{t("cart.title")}</h1>
         <p className="font-body text-body-md text-secondary mb-6">{t("cart.empty")}</p>
         <Link
@@ -24,7 +24,7 @@ export default function CartPage() {
   }
 
   return (
-    <main className="px-4 sm:px-8 lg:px-stack-xl py-12 max-w-4xl mx-auto">
+    <main className="px-4 sm:px-8 lg:px-stack-xl pt-20 md:pt-24 pb-12 max-w-4xl mx-auto">
       <h1 className="font-headline text-headline-lg text-primary uppercase mb-8">{t("cart.title")}</h1>
       <ul className="flex flex-col gap-4 mb-8">
         {lines.map((line) => {

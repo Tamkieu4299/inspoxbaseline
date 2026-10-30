@@ -23,6 +23,10 @@ export default function StorefrontShell({ children }: { children: ReactNode }) {
     return () => window.clearTimeout(t);
   }, [isFetched]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [location.pathname, location.search, location.hash]);
+
   const showLoader = !bootDone;
 
   return (

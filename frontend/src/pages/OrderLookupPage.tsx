@@ -18,7 +18,7 @@ export default function OrderLookupPage() {
   });
 
   return (
-    <main className="px-4 sm:px-8 lg:px-stack-xl py-12 max-w-lg mx-auto">
+    <main className="px-4 sm:px-8 lg:px-stack-xl pt-20 md:pt-24 pb-12 max-w-lg mx-auto">
       <h1 className="font-headline text-headline-lg text-primary uppercase mb-2">{t("order.trackTitle")}</h1>
       <p className="font-body text-body-md text-secondary mb-8">{t("order.trackHint")}</p>
       <form

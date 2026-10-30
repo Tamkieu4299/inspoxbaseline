@@ -7,7 +7,7 @@ export default function OrderThankYouPage() {
   const orderNumber = params.get("order") || "";
 
   return (
-    <main className="px-4 sm:px-8 py-16 max-w-lg mx-auto text-center">
+    <main className="px-4 sm:px-8 pt-20 md:pt-24 pb-16 max-w-lg mx-auto text-center">
       <h1 className="font-headline text-headline-lg text-primary uppercase mb-4">{t("order.thankYouTitle")}</h1>
       <p className="font-body text-body-md text-secondary mb-2">{t("order.thankYouBody")}</p>
       {orderNumber ? (
