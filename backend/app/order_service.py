@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from .config import settings
 from .currency import normalize_base_currency
 from .models import Order, OrderLine, Product, SiteSettings
 from .order_notify import post_order_webhook, send_order_email
@@ -31,29 +32,63 @@ def _generate_order_number(db: Session, tenant_id: int) -> str:
     return f"{prefix}-{count + 1:04d}"
 
 
-def _order_email_body(order: Order, site_name: str) -> str:
-    lines = []
-    for line in order.lines:
+def _storefront_base(site: SiteSettings | None) -> str | None:
+    raw = (site.storefront_url if site else None) or settings.STOREFRONT_URL or ""
+    base = raw.strip().rstrip("/")
+    return base or None
+
+
+def _admin_orders_url(site: SiteSettings | None) -> str | None:
+    base = _storefront_base(site)
+    if not base:
+        return None
+    return f"{base}/admin?tab=orders"
+
+
+def _format_money(amount: float, currency: str) -> str:
+    return f"{amount:,.0f} {currency}"
+
+
+def _order_email_body(order: Order, site_name: str, site: SiteSettings | None) -> str:
+    item_lines = []
+    for idx, line in enumerate(order.lines, start=1):
         variant = []
         if line.color:
             variant.append(line.color)
         if line.size:
             variant.append(line.size)
         suffix = f" ({', '.join(variant)})" if variant else ""
-        lines.append(
-            f"- {line.product_name}{suffix} x{line.quantity} = {line.line_total:,.0f} {order.currency_code}"
+        item_lines.append(
+            f"  {idx}. {line.product_name}{suffix}\n"
+            f"     Qty: {line.quantity} × {_format_money(line.unit_price, order.currency_code)}"
+            f" = {_format_money(line.line_total, order.currency_code)}"
         )
-    items = "\n".join(lines) or "(no lines)"
+    items = "\n".join(item_lines) or "  (no line items)"
+    placed = order.created_at.strftime("%Y-%m-%d %H:%M UTC") if order.created_at else "—"
+    admin_url = _admin_orders_url(site)
+    admin_block = (
+        f"\nManage this order in admin:\n{admin_url}\n"
+        if admin_url
+        else "\n(Open your shop admin → Orders / Đơn hàng to view this order.)\n"
+    )
     return (
-        f"New order {order.order_number} — {site_name}\n\n"
-        f"Customer: {order.customer_name}\n"
-        f"Phone: {order.customer_phone}\n"
-        f"Email: {order.customer_email or '—'}\n"
-        f"Address:\n{order.shipping_address}\n\n"
-        f"Payment: COD\n"
-        f"Note: {order.note or '—'}\n\n"
-        f"Items:\n{items}\n\n"
-        f"Total: {order.total:,.0f} {order.currency_code}\n"
+        f"New COD order — {site_name}\n"
+        f"{'=' * 40}\n\n"
+        f"Order code: {order.order_number}\n"
+        f"Order ID:   {order.id}\n"
+        f"Placed:     {placed}\n"
+        f"Status:     {order.status}\n\n"
+        f"CUSTOMER\n"
+        f"  Name:    {order.customer_name}\n"
+        f"  Phone:   {order.customer_phone}\n"
+        f"  Email:   {order.customer_email or '—'}\n"
+        f"  Address: {order.shipping_address.replace(chr(10), ', ')}\n\n"
+        f"  Note:    {order.note or '—'}\n\n"
+        f"ITEMS\n{items}\n\n"
+        f"PAYMENT: Cash on delivery (COD)\n"
+        f"TOTAL:   {_format_money(order.total, order.currency_code)}\n"
+        f"{admin_block}"
+        f"\n— {site_name} storefront\n"
     )
 
 
@@ -170,10 +205,11 @@ def create_order(
     notify_to = (site.order_notification_email if site else None) or ""
     email_err = None
     if notify_to:
+        total_label = _format_money(order.total, order.currency_code)
         email_err = send_order_email(
             to_email=notify_to,
-            subject=f"[{site_name}] New order {order.order_number}",
-            body=_order_email_body(order, site_name),
+            subject=f"[{site_name}] New order {order.order_number} — {total_label}",
+            body=_order_email_body(order, site_name, site),
         )
 
     webhook_url = (site.order_webhook_url if site else None) or ""

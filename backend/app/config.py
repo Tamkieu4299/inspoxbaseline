@@ -38,6 +38,8 @@ class Settings:
     SMTP_FROM: str = os.getenv("SMTP_FROM", "")
     SMTP_USE_TLS: bool = os.getenv("SMTP_USE_TLS", "true").lower() in ("1", "true", "yes")
     ORDER_WEBHOOK_SECRET: str = os.getenv("ORDER_WEBHOOK_SECRET", "")
+    # Fallback shop URL for order emails when site_settings.storefront_url is empty.
+    STOREFRONT_URL: str = os.getenv("STOREFRONT_URL", "")
 
     @property
     def TRUSTED_HOSTS_LIST(self) -> list[str]:

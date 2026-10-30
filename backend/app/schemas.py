@@ -492,6 +492,7 @@ class SiteSettingsBase(BaseModel):
     footer_text_color: str | None = None
     order_notification_email: str | None = None
     order_webhook_url: str | None = None
+    storefront_url: str | None = None
 
 
 class SiteSettingsIn(SiteSettingsBase):

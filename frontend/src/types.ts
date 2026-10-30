@@ -568,6 +568,7 @@ export interface SiteSettings {
   footer_text_color?: string | null;
   order_notification_email?: string | null;
   order_webhook_url?: string | null;
+  storefront_url?: string | null;
 }
 
 export interface TenantAdmin {

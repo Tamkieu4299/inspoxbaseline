@@ -45,6 +45,7 @@ services:
       SMTP_FROM: ${SMTP_FROM:-}
       SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
       ORDER_WEBHOOK_SECRET: ${ORDER_WEBHOOK_SECRET:-}
+      STOREFRONT_URL: ${STOREFRONT_URL:-}
     ports:
       - "8000:8000"
     volumes:

@@ -381,6 +381,7 @@ class SiteSettings(Base, TimestampMixin):
     footer_text_color: Mapped[str | None] = mapped_column(String(20), nullable=True)
     order_notification_email: Mapped[str | None] = mapped_column(String(320), nullable=True)
     order_webhook_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    storefront_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
 
 class Order(Base, TimestampMixin):

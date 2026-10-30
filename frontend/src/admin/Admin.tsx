@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { MediaLibrary } from "./MediaLibrary";
@@ -29,7 +29,26 @@ export default function Admin() {
   const [tenant, setTenant] = useState<string | null>(
     () => sessionStorage.getItem("inspo_admin_tenant") || null,
   );
-  const [tab, setTab] = useState<AdminTab>("home");
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState<AdminTab>(() => {
+    const fromUrl = searchParams.get("tab");
+    const allowed: AdminTab[] = [
+      "orders",
+      "products",
+      "collections",
+      "media",
+      "home",
+      "brand",
+      "pages",
+      "journal",
+      "quizzes",
+      "categories",
+      "nav",
+      "site",
+      "users",
+    ];
+    return allowed.includes(fromUrl as AdminTab) ? (fromUrl as AdminTab) : "home";
+  });
 
   useEffect(() => {
     const token = adminApi.getToken();

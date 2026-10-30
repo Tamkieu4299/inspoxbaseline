@@ -111,6 +111,7 @@ const en: Record<string, string> = {
   "admin.ordersEmpty": "No orders yet.",
   "admin.ordersAllStatuses": "All statuses",
   "admin.ordersExportCsv": "Export CSV",
+  "admin.storefrontUrl": "Storefront URL (for order email admin link)",
   "admin.orderNotificationEmail": "Order notification email",
   "admin.orderWebhookUrl": "Order webhook URL (CRM)",
   "admin.orderNotifyHint":
@@ -1009,6 +1010,7 @@ const vi: Record<string, string> = {
   "admin.ordersEmpty": "Chưa có đơn hàng.",
   "admin.ordersAllStatuses": "Mọi trạng thái",
   "admin.ordersExportCsv": "Xuất CSV",
+  "admin.storefrontUrl": "URL cửa hàng (link admin trong email đơn hàng)",
   "admin.orderNotificationEmail": "Email nhận thông báo đơn",
   "admin.orderWebhookUrl": "Webhook đơn hàng (CRM)",
   "admin.orderNotifyHint":

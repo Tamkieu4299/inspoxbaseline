@@ -171,6 +171,13 @@ export default function SiteTab() {
         </div>
         <p className="font-body text-body-sm text-secondary -mt-2">{t("admin.shellBackgroundHint")}</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-surface-container-highest pt-4">
+          <Field label={t("admin.storefrontUrl")}>
+            <TextInput
+              value={draftValue.storefront_url || ""}
+              onChange={(e) => set("storefront_url", e.target.value.trim() || null)}
+              placeholder="http://14.225.212.3:3001"
+            />
+          </Field>
           <Field label={t("admin.orderNotificationEmail")}>
             <TextInput
               type="email"

@@ -127,6 +127,7 @@ def _migrate_existing(db, tenant_id: int):
     _add_column_if_missing(db, "site_settings", "footer_text_color", "VARCHAR(20)")
     _add_column_if_missing(db, "site_settings", "order_notification_email", "VARCHAR(320)")
     _add_column_if_missing(db, "site_settings", "order_webhook_url", "VARCHAR(1000)")
+    _add_column_if_missing(db, "site_settings", "storefront_url", "VARCHAR(500)")
     db.execute(text("UPDATE site_settings SET footer_links='[]' WHERE footer_links IS NULL"))
     db.commit()
     _add_column_if_missing(db, "home_content", "brand_hero_title", "VARCHAR(300)")
