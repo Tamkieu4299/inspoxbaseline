@@ -56,11 +56,11 @@ function FooterColumn({
   return (
     <>
       <details open={defaultOpen} className="group lg:[&>summary]:hidden">
-        <summary className="font-headline text-headline-md text-primary uppercase mb-4 cursor-pointer list-none flex items-center justify-between lg:cursor-default">
+        <summary className="font-headline text-headline-md text-primary uppercase mb-2 cursor-pointer list-none flex items-center justify-between lg:cursor-default">
           {title}
           <Icon name="expand_more" className="lg:hidden group-open:rotate-180 transition-transform" />
         </summary>
-        <div className="pb-6 lg:pb-0">{children}</div>
+        <div className="pb-4 lg:pb-0">{children}</div>
       </details>
     </>
   );
@@ -77,11 +77,11 @@ function ContactRow({
 }) {
   const inner = (
     <>
-      <Icon name={icon} className="text-primary text-[22px] shrink-0 mt-0.5" />
+      <Icon name={icon} className="text-primary text-[20px] shrink-0 mt-0.5" />
       <span className="font-body text-body-sm text-secondary whitespace-pre-line">{children}</span>
     </>
   );
-  const rowClass = "flex gap-3 items-start";
+  const rowClass = "flex gap-2.5 items-start";
   if (href) {
     return (
       <a href={href} className={`${rowClass} hover:text-forest-green`}>
@@ -134,32 +134,32 @@ export default function Footer() {
     (showRegBadge && !!contact?.registration_badge_url);
 
   return (
-    <footer className="bg-surface-container-lowest w-full border-t border-outline-variant mt-16">
-      <RevealOnScroll className="px-4 sm:px-8 py-12 sm:py-16 w-full max-w-[1440px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8">
+    <footer className="bg-surface-container w-full border-t border-outline-variant mt-10">
+      <RevealOnScroll className="px-4 sm:px-8 lg:px-stack-xl py-8 sm:py-10 w-full max-w-[1440px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-gutter">
           {/* Brand + contact */}
           {showBrandColumn ? (
-            <div className="lg:col-span-5 flex flex-col gap-5">
+            <div className="lg:col-span-5 flex flex-col gap-3">
               {showBrand ? (
                 site?.logo_url ? (
-                  <Link to="/" className="h-12 w-fit">
+                  <Link to="/" className="h-10 w-fit">
                     <img src={site.logo_url} alt={site.site_name} className="h-full w-auto object-contain" />
                   </Link>
                 ) : (
                   <Link
                     to="/"
-                    className="font-display text-3xl font-extrabold text-primary tracking-tighter hover:text-forest-green transition-colors w-fit"
+                    className="font-display text-[28px] sm:text-[32px] font-extrabold text-primary tracking-tighter hover:text-forest-green transition-colors w-fit"
                   >
                     {site?.site_name || "INSPO"}
                   </Link>
                 )
               ) : null}
               {showTagline ? (
-                <p className="font-body text-body-sm text-secondary leading-relaxed max-w-md">{footerTagline}</p>
+                <p className="font-body text-body-sm text-secondary leading-snug max-w-md">{footerTagline}</p>
               ) : null}
 
               {showContactDetails && hasContactDetails ? (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2.5">
                   {contact?.phone ? (
                     <ContactRow icon="call" href={phoneTelHref(contact.phone)}>
                       {contact.phone}
@@ -206,7 +206,7 @@ export default function Footer() {
                 <img
                   src={contact.registration_badge_url}
                   alt=""
-                  className="h-14 w-auto object-contain mt-2"
+                  className="h-11 w-auto object-contain mt-1"
                   loading="lazy"
                 />
               ) : null}
@@ -217,7 +217,7 @@ export default function Footer() {
           {footerLinks.length > 0 ? (
             <div className="lg:col-span-3">
               <FooterColumn title={contact?.useful_links_title || t("footer.usefulLinks")}>
-                <ul className="flex flex-col gap-3">
+                <ul className="flex flex-col gap-2">
                   {footerLinks.map((link, index) => (
                     <FooterLinkItem key={`${link.label}-${index}`} {...link} />
                   ))}
@@ -228,13 +228,13 @@ export default function Footer() {
 
           {/* Categories + embeds */}
           <div
-            className={`lg:col-span-4 flex flex-col gap-8 ${
+            className={`lg:col-span-4 flex flex-col gap-5 ${
               footerLinks.length === 0 && !showBrandColumn ? "lg:col-start-1" : footerLinks.length === 0 ? "lg:col-start-6" : ""
             }`}
           >
             {contact?.show_product_categories !== false && categoryNav.length > 0 ? (
               <FooterColumn title={contact?.categories_title || t("footer.productCategories")}>
-                <ul className="flex flex-col gap-3">
+                <ul className="flex flex-col gap-2">
                   {categoryNav.map((cat) => (
                     <li key={cat.id}>
                       <Link
@@ -255,14 +255,14 @@ export default function Footer() {
                 title={contact?.follow_section_title || t("footer.followUs")}
                 defaultOpen
               >
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
                   {contact?.facebook_page_embed_url ? (
-                    <div className="w-full max-w-[340px] overflow-hidden rounded-sm border border-outline-variant">
+                    <div className="w-full max-w-[300px] overflow-hidden rounded-sm border border-outline-variant bg-surface-container-lowest">
                       <iframe
                         title={t("footer.facebookEmbed")}
                         src={contact.facebook_page_embed_url}
-                        width="340"
-                        height="130"
+                        width="300"
+                        height="110"
                         className="w-full max-w-full border-0"
                         loading="lazy"
                         scrolling="no"
@@ -271,7 +271,7 @@ export default function Footer() {
                     </div>
                   ) : null}
                   {contact?.map_embed_url ? (
-                    <div className="w-full max-w-[400px] aspect-[4/3] overflow-hidden rounded-sm border border-outline-variant">
+                    <div className="w-full max-w-[280px] h-[160px] overflow-hidden rounded-sm border border-outline-variant bg-surface-container-lowest">
                       <iframe
                         title={t("footer.mapEmbed")}
                         src={contact.map_embed_url}
@@ -288,7 +288,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="font-body text-body-sm text-secondary mt-12 pt-8 border-t border-outline-variant">
+        <div className="font-body text-body-sm text-secondary mt-6 pt-4 border-t border-outline-variant">
           {contact?.copyright_line?.trim() ||
             `© ${new Date().getFullYear()} ${site?.site_name || "INSPO"}.`}
         </div>

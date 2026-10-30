@@ -21,7 +21,7 @@ const BRAND_HOVER: Record<SocialNetwork, string> = {
 };
 
 function IconSvg({ network }: { network: SocialNetwork }) {
-  const cls = "w-[22px] h-[22px] lg:w-6 lg:h-6 fill-current";
+  const cls = "w-5 h-5 fill-current";
   switch (network) {
     case "facebook":
       return (
@@ -71,7 +71,7 @@ export default function SocialIconLink({ network, href }: { network: SocialNetwo
       target="_blank"
       rel="noopener noreferrer nofollow"
       aria-label={LABELS[network]}
-      className={`social-icon social-${network} inline-flex h-12 w-12 lg:h-[60px] lg:w-[60px] shrink-0 items-center justify-center rounded-full text-black/60 transition-colors ${BRAND_HOVER[network]}`}
+      className={`social-icon social-${network} inline-flex h-10 w-10 lg:h-11 lg:w-11 shrink-0 items-center justify-center rounded-full text-black/60 transition-colors ${BRAND_HOVER[network]}`}
     >
       <span className="inline-flex items-center justify-center" aria-hidden>
         <IconSvg network={network} />
