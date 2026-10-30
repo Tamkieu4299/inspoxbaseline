@@ -168,8 +168,9 @@ def create_order(
 
     site_name = (site.site_name if site else "Store") or "Store"
     notify_to = (site.order_notification_email if site else None) or ""
+    email_err = None
     if notify_to:
-        send_order_email(
+        email_err = send_order_email(
             to_email=notify_to,
             subject=f"[{site_name}] New order {order.order_number}",
             body=_order_email_body(order, site_name),
@@ -178,7 +179,8 @@ def create_order(
     webhook_url = (site.order_webhook_url if site else None) or ""
     status, err = post_order_webhook(url=webhook_url, payload=_order_webhook_payload(order, site_name))
     order.webhook_delivery_status = status
-    order.webhook_last_error = err
+    parts = [p for p in (email_err, err) if p]
+    order.webhook_last_error = "; ".join(parts)[:500] if parts else None
     db.commit()
     db.refresh(order)
     return order

@@ -21,10 +21,61 @@ def _smtp_configured() -> bool:
     return bool(settings.SMTP_HOST and settings.SMTP_FROM)
 
 
-def send_order_email(*, to_email: str, subject: str, body: str) -> None:
+def _send_smtp_message(msg: EmailMessage) -> None:
+    host = settings.SMTP_HOST
+    port = int(settings.SMTP_PORT or 587)
+    user = (settings.SMTP_USER or "").strip()
+    password = settings.SMTP_PASSWORD or ""
+    errors: list[str] = []
+
+    def attempt_starttls() -> None:
+        with smtplib.SMTP(host, port, timeout=30) as smtp:
+            smtp.ehlo()
+            smtp.starttls()
+            smtp.ehlo()
+            if user:
+                smtp.login(user, password)
+            smtp.send_message(msg)
+
+    def attempt_ssl() -> None:
+        with smtplib.SMTP_SSL(host, 465, timeout=30) as smtp:
+            smtp.ehlo()
+            if user:
+                smtp.login(user, password)
+            smtp.send_message(msg)
+
+    if port == 465:
+        try:
+            attempt_ssl()
+            return
+        except Exception as exc:
+            errors.append(f"ssl465: {exc}")
+    elif settings.SMTP_USE_TLS:
+        try:
+            attempt_starttls()
+            return
+        except Exception as exc:
+            errors.append(f"starttls{port}: {exc}")
+            try:
+                attempt_ssl()
+                return
+            except Exception as exc2:
+                errors.append(f"ssl465-fallback: {exc2}")
+    else:
+        with smtplib.SMTP(host, port, timeout=30) as smtp:
+            if user:
+                smtp.login(user, password)
+            smtp.send_message(msg)
+        return
+
+    raise RuntimeError("; ".join(errors))
+
+
+def send_order_email(*, to_email: str, subject: str, body: str) -> str | None:
+    """Send order alert email. Returns error text or None on success/skip."""
     if not to_email.strip():
         logger.info("Order email skipped: no recipient")
-        return
+        return None
     if not _smtp_configured():
         logger.warning(
             "Order email not sent (SMTP not configured). To=%s Subject=%s\n%s",
@@ -32,25 +83,19 @@ def send_order_email(*, to_email: str, subject: str, body: str) -> None:
             subject,
             body,
         )
-        return
+        return "smtp_not_configured"
     msg = EmailMessage()
     msg["Subject"] = subject
     msg["From"] = settings.SMTP_FROM
     msg["To"] = to_email.strip()
     msg.set_content(body)
-    port = settings.SMTP_PORT
-    if settings.SMTP_USE_TLS:
-        with smtplib.SMTP(settings.SMTP_HOST, port, timeout=30) as smtp:
-            smtp.starttls()
-            if settings.SMTP_USER:
-                smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-            smtp.send_message(msg)
-    else:
-        with smtplib.SMTP(settings.SMTP_HOST, port, timeout=30) as smtp:
-            if settings.SMTP_USER:
-                smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-            smtp.send_message(msg)
-    logger.info("Order email sent to %s", to_email)
+    try:
+        _send_smtp_message(msg)
+        logger.info("Order email sent to %s", to_email)
+        return None
+    except Exception as exc:
+        logger.exception("Order email failed for %s", to_email)
+        return str(exc)[:500]
 
 
 def post_order_webhook(*, url: str, payload: dict[str, Any]) -> tuple[str, str | None]:
