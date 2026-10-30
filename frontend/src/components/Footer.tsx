@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
-import { SOCIAL_NETWORKS, phoneTelHref } from "../footerContact";
+import { phoneTelHref } from "../footerContact";
+import type { SocialNetwork } from "../footerContact";
 import { useLanguage } from "../i18n";
 import Icon from "./Icon";
 import RevealOnScroll from "./RevealOnScroll";
@@ -108,7 +109,7 @@ export default function Footer() {
   const footerLinks = site?.footer_links ?? [];
   const contact = site?.footer_contact;
   const categoryNav = navCategories(categories);
-  const socialEntries = SOCIAL_NETWORKS.filter((n) => contact?.social?.[n]);
+  const socialEntries = contact?.social_links ?? [];
 
   const showBrand = contact?.show_footer_brand !== false;
   const showTagline = contact?.show_footer_tagline !== false;
@@ -191,8 +192,12 @@ export default function Footer() {
 
               {showSocialIcons && socialEntries.length > 0 ? (
                 <SocialIconsRow>
-                  {socialEntries.map((network) => (
-                    <SocialIconLink key={network} network={network} href={contact!.social![network]!} />
+                  {socialEntries.map((link, index) => (
+                    <SocialIconLink
+                      key={`${link.icon}-${index}`}
+                      network={link.icon as SocialNetwork}
+                      href={link.url}
+                    />
                   ))}
                 </SocialIconsRow>
               ) : null}

@@ -393,6 +393,7 @@ export interface FooterLinkPublic {
   url?: string | null;
 }
 
+/** @deprecated Legacy fixed social map — migrated to social_links on read. */
 export interface FooterSocialLinks {
   facebook?: string | null;
   instagram?: string | null;
@@ -400,6 +401,11 @@ export interface FooterSocialLinks {
   youtube?: string | null;
   tiktok?: string | null;
   zalo?: string | null;
+}
+
+export interface FooterSocialLink {
+  icon: string;
+  url: string;
 }
 
 export interface FloatingContactPublic {
@@ -438,6 +444,8 @@ export interface FooterContactConfig {
   show_footer_contact_details?: boolean;
   show_footer_social_icons?: boolean;
   show_footer_registration_badge?: boolean;
+  social_links?: FooterSocialLink[];
+  /** @deprecated use social_links */
   social?: FooterSocialLinks;
 }
 
@@ -461,7 +469,7 @@ export interface FooterContactPublic {
   show_footer_social_icons?: boolean;
   show_footer_registration_badge?: boolean;
   follow_section_title?: string | null;
-  social?: Record<string, string>;
+  social_links?: FooterSocialLink[];
   floating_contact?: FloatingContactPublic | null;
 }
 

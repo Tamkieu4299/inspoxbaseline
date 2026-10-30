@@ -44,13 +44,16 @@ MAP_EMBED_SHOWROOM = (
 )
 
 
-def baseline_social_links() -> dict[str, str]:
-    """Placeholder: most networks point to Facebook until real URLs are set in admin."""
-    links = {
-        key: FB_PAGE_URL for key in ("facebook", "instagram", "youtube", "tiktok", "threads")
-    }
-    links["zalo"] = ZALO_CHAT_URL
-    return links
+def baseline_social_links() -> list[dict[str, str]]:
+    """Default footer badges — edit URLs in Admin → Site."""
+    return [
+        {"icon": "facebook", "url": FB_PAGE_URL},
+        {"icon": "instagram", "url": FB_PAGE_URL},
+        {"icon": "youtube", "url": FB_PAGE_URL},
+        {"icon": "tiktok", "url": FB_PAGE_URL},
+        {"icon": "zalo", "url": ZALO_CHAT_URL},
+        {"icon": "threads", "url": FB_PAGE_URL},
+    ]
 
 
 def baseline_footer_contact_patch() -> dict:
@@ -68,7 +71,7 @@ def baseline_footer_contact_patch() -> dict:
         "facebook_page_embed_url": FB_EMBED_URL,
         "messenger_url": FB_MESSENGER_URL,
         "floating_contact_enabled": True,
-        "social": baseline_social_links(),
+        "social_links": baseline_social_links(),
         "useful_links_title": None,
         "useful_links_title_vi": "Liên kết hữu ích",
         "categories_title": None,
@@ -94,11 +97,8 @@ def apply_baseline_footer(*, dry_run: bool = True) -> None:
         site.footer_tagline_vi = FOOTER_TAGLINE_VI
         merged = normalize_footer_contact(site.footer_contact)
         patch = baseline_footer_contact_patch()
-        merged.update({k: v for k, v in patch.items() if k != "social"})
-        social = dict(merged.get("social") or {})
-        for key, url in baseline_social_links().items():
-            social[key] = url
-        merged["social"] = social
+        merged.update({k: v for k, v in patch.items() if k != "social_links"})
+        merged["social_links"] = baseline_social_links()
         site.footer_contact = merged
 
         if dry_run:

@@ -3,10 +3,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
 import { FOOTER_PRESET_LABELS, normalizeFooterLinkConfigs } from "../footerLinks";
-import { SOCIAL_NETWORKS, normalizeFooterContact } from "../footerContact";
-import type { FooterContactConfig, FooterLinkConfig, Media, SiteSettings } from "../types";
+import {
+  SOCIAL_NETWORKS,
+  SOCIAL_NETWORK_LABELS,
+  normalizeFooterContact,
+  type SocialNetwork,
+} from "../footerContact";
+import type { FooterContactConfig, FooterLinkConfig, FooterSocialLink, Media, SiteSettings } from "../types";
 import { ImageField } from "./MediaLibrary";
-import { Checkbox, Field, PrimaryButton, TextInput, ViInput } from "./ui";
+import { Checkbox, Field, PrimaryButton, SecondaryButton, Select, TextInput, ViInput } from "./ui";
 
 export default function SiteTab() {
   const queryClient = useQueryClient();
@@ -43,10 +48,22 @@ export default function SiteTab() {
     set("footer_contact", normalizeFooterContact({ ...footerContact, ...patch }));
   }
 
-  function setSocial(network: (typeof SOCIAL_NETWORKS)[number], url: string) {
-    setFooterContact({
-      social: { ...footerContact.social, [network]: url.trim() || null },
-    });
+  function setSocialLinks(links: FooterSocialLink[]) {
+    setFooterContact({ social_links: links });
+  }
+
+  function updateSocialLink(index: number, patch: Partial<FooterSocialLink>) {
+    const next = [...(footerContact.social_links || [])];
+    next[index] = { ...next[index], ...patch };
+    setSocialLinks(next);
+  }
+
+  function removeSocialLink(index: number) {
+    setSocialLinks((footerContact.social_links || []).filter((_, i) => i !== index));
+  }
+
+  function addSocialLink() {
+    setSocialLinks([...(footerContact.social_links || []), { icon: "facebook", url: "" }]);
   }
 
   function setFooterLink(index: number, patch: Partial<FooterLinkConfig>) {
@@ -334,18 +351,42 @@ export default function SiteTab() {
           />
         </div>
         <div>
-          <p className="font-label text-label-caps text-primary uppercase mb-3">{t("admin.socialLinks")}</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {SOCIAL_NETWORKS.map((network) => (
-              <Field key={network} label={network.charAt(0).toUpperCase() + network.slice(1)}>
-                <TextInput
-                  value={footerContact.social?.[network] || ""}
-                  onChange={(e) => setSocial(network, e.target.value)}
-                  placeholder="https://"
-                />
-              </Field>
+          <p className="font-label text-label-caps text-primary uppercase mb-1">{t("admin.socialLinks")}</p>
+          <p className="font-body text-body-sm text-secondary mb-4">{t("admin.socialLinksHint")}</p>
+          <div className="flex flex-col gap-3">
+            {(footerContact.social_links || []).map((link, index) => (
+              <div
+                key={`social-${index}`}
+                className="grid grid-cols-1 md:grid-cols-[minmax(140px,180px)_1fr_auto] gap-3 items-end border border-surface-container-highest p-3"
+              >
+                <Field label={t("admin.socialLinkIcon")}>
+                  <Select
+                    value={link.icon}
+                    onChange={(e) => updateSocialLink(index, { icon: e.target.value as SocialNetwork })}
+                  >
+                    {SOCIAL_NETWORKS.map((network) => (
+                      <option key={network} value={network}>
+                        {SOCIAL_NETWORK_LABELS[network]}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label={t("admin.socialLinkUrl")}>
+                  <TextInput
+                    value={link.url}
+                    onChange={(e) => updateSocialLink(index, { url: e.target.value })}
+                    placeholder="https://"
+                  />
+                </Field>
+                <SecondaryButton type="button" onClick={() => removeSocialLink(index)}>
+                  {t("admin.socialLinkRemove")}
+                </SecondaryButton>
+              </div>
             ))}
           </div>
+          <SecondaryButton type="button" className="mt-3" onClick={addSocialLink}>
+            {t("admin.socialLinkAdd")}
+          </SecondaryButton>
         </div>
       </div>
 

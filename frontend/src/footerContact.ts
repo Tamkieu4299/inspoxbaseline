@@ -1,4 +1,4 @@
-import type { FooterContactConfig } from "./types";
+import type { FooterContactConfig, FooterSocialLink } from "./types";
 
 export const SOCIAL_NETWORKS = [
   "facebook",
@@ -10,6 +10,33 @@ export const SOCIAL_NETWORKS = [
 ] as const;
 
 export type SocialNetwork = (typeof SOCIAL_NETWORKS)[number];
+
+export const SOCIAL_NETWORK_LABELS: Record<SocialNetwork, string> = {
+  facebook: "Facebook",
+  instagram: "Instagram",
+  youtube: "YouTube",
+  tiktok: "TikTok",
+  zalo: "Zalo",
+  threads: "Threads",
+};
+
+function normalizeSocialLinks(raw: FooterContactConfig): FooterSocialLink[] {
+  const links = raw.social_links;
+  if (Array.isArray(links) && links.length > 0) {
+    return links
+      .map((item) => ({
+        icon: (item.icon || "").toLowerCase() as SocialNetwork,
+        url: (item.url || "").trim(),
+      }))
+      .filter((item) => SOCIAL_NETWORKS.includes(item.icon) && item.url);
+  }
+  const legacy = raw.social;
+  if (!legacy) return [];
+  return SOCIAL_NETWORKS.filter((icon) => legacy[icon]?.trim()).map((icon) => ({
+    icon,
+    url: legacy[icon]!.trim(),
+  }));
+}
 
 export function defaultFooterContact(): FooterContactConfig {
   return {
@@ -42,24 +69,17 @@ export function defaultFooterContact(): FooterContactConfig {
     show_footer_contact_details: true,
     show_footer_social_icons: true,
     show_footer_registration_badge: true,
-    social: {
-      facebook: null,
-      instagram: null,
-      threads: null,
-      youtube: null,
-      tiktok: null,
-      zalo: null,
-    },
+    social_links: [],
   };
 }
 
 export function normalizeFooterContact(raw: FooterContactConfig | null | undefined): FooterContactConfig {
   const base = defaultFooterContact();
   if (!raw) return base;
+  const merged = { ...base, ...raw };
   return {
-    ...base,
-    ...raw,
-    social: { ...base.social, ...(raw.social || {}) },
+    ...merged,
+    social_links: normalizeSocialLinks(merged),
   };
 }
 

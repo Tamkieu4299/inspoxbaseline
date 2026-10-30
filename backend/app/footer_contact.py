@@ -12,10 +12,10 @@ from .models import Media
 SOCIAL_NETWORKS = (
     "facebook",
     "instagram",
-    "threads",
     "youtube",
     "tiktok",
     "zalo",
+    "threads",
 )
 
 _FOOTER_BOOL_KEYS = (
@@ -60,17 +60,40 @@ def default_footer_contact() -> dict[str, Any]:
         "show_footer_contact_details": True,
         "show_footer_social_icons": True,
         "show_footer_registration_badge": True,
-        "social": {key: None for key in SOCIAL_NETWORKS},
+        "social_links": [],
     }
+
+
+def normalize_social_links(raw: dict[str, Any]) -> list[dict[str, str]]:
+    """Footer social badges: ordered list of {icon, url}. Migrates legacy social dict."""
+    links_in = raw.get("social_links")
+    if isinstance(links_in, list) and links_in:
+        out: list[dict[str, str]] = []
+        for item in links_in:
+            if not isinstance(item, dict):
+                continue
+            icon = (item.get("icon") or "").strip().lower()
+            url = (item.get("url") or "").strip()
+            if icon not in SOCIAL_NETWORKS or not url:
+                continue
+            out.append({"icon": icon, "url": url})
+        return out
+
+    social_in = raw.get("social") if isinstance(raw.get("social"), dict) else {}
+    out = []
+    for icon in SOCIAL_NETWORKS:
+        url = (social_in.get(icon) or "").strip()
+        if url:
+            out.append({"icon": icon, "url": url})
+    return out
 
 
 def normalize_footer_contact(raw: dict | None) -> dict[str, Any]:
     base = default_footer_contact()
     if not raw or not isinstance(raw, dict):
         return base
-    social_in = raw.get("social") if isinstance(raw.get("social"), dict) else {}
-    social = {key: social_in.get(key) or None for key in SOCIAL_NETWORKS}
-    out = {**base, **{k: raw.get(k) for k in base if k != "social"}, "social": social}
+    skip = {"social", "social_links"}
+    out = {**base, **{k: raw.get(k) for k in base if k not in skip}, "social_links": normalize_social_links(raw)}
     for key in _FOOTER_BOOL_KEYS:
         if out.get(key) is None:
             out[key] = base[key]
@@ -90,20 +113,24 @@ def _phone_digits(phone: str | None) -> str | None:
     return digits
 
 
-def _zalo_chat_url(data: dict[str, Any], social: dict[str, str | None]) -> str | None:
-    zalo = (social.get("zalo") or "").strip()
-    if zalo and "zalo.me" in zalo.lower():
-        return zalo
+def _zalo_chat_url(data: dict[str, Any], social_links: list[dict[str, str]]) -> str | None:
+    for item in social_links:
+        if item.get("icon") == "zalo":
+            zalo = (item.get("url") or "").strip()
+            if zalo and "zalo.me" in zalo.lower():
+                return zalo
     digits = _phone_digits(data.get("phone"))
     if digits:
         return f"https://zalo.me/{digits}"
     return None
 
 
-def _resolve_floating_contact(data: dict[str, Any], social: dict[str, str | None]) -> dict[str, str] | None:
+def _resolve_floating_contact(
+    data: dict[str, Any], social_links: list[dict[str, str]]
+) -> dict[str, str] | None:
     if not bool(data.get("floating_contact_enabled", True)):
         return None
-    zalo_url = _zalo_chat_url(data, social)
+    zalo_url = _zalo_chat_url(data, social_links)
     messenger_url = (data.get("messenger_url") or "").strip() or None
     phone = (data.get("phone") or "").strip() or None
     phone_href = None
@@ -137,7 +164,7 @@ def resolve_footer_contact(
     db: Session | None = None,
 ) -> dict[str, Any]:
     data = normalize_footer_contact(raw)
-    social = {k: v for k, v in (data.get("social") or {}).items() if v and str(v).strip()}
+    social_links = data.get("social_links") or []
     badge_url = None
     badge_id = data.get("registration_badge_media_id")
     if badge_id and db is not None:
@@ -171,8 +198,6 @@ def resolve_footer_contact(
         "follow_section_title": _loc(
             lang, data.get("follow_section_title"), data.get("follow_section_title_vi")
         ),
-        "social": social,
-        "floating_contact": _resolve_floating_contact(
-            data, normalize_footer_contact(data).get("social") or {}
-        ),
+        "social_links": social_links,
+        "floating_contact": _resolve_floating_contact(data, social_links),
     }

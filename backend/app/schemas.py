@@ -396,13 +396,9 @@ class FooterLinkPublic(BaseModel):
     url: str | None = None
 
 
-class FooterSocialLinks(BaseModel):
-    facebook: str | None = None
-    instagram: str | None = None
-    threads: str | None = None
-    youtube: str | None = None
-    tiktok: str | None = None
-    zalo: str | None = None
+class FooterSocialLinkConfig(BaseModel):
+    icon: str
+    url: str
 
 
 class FooterContactConfig(BaseModel):
@@ -435,7 +431,12 @@ class FooterContactConfig(BaseModel):
     show_footer_contact_details: bool = True
     show_footer_social_icons: bool = True
     show_footer_registration_badge: bool = True
-    social: FooterSocialLinks = Field(default_factory=FooterSocialLinks)
+    social_links: list[FooterSocialLinkConfig] = Field(default_factory=list)
+
+
+class FooterSocialLinkPublic(BaseModel):
+    icon: str
+    url: str
 
 
 class FloatingContactPublic(BaseModel):
@@ -464,7 +465,7 @@ class FooterContactPublic(BaseModel):
     show_footer_social_icons: bool = True
     show_footer_registration_badge: bool = True
     follow_section_title: str | None = None
-    social: dict[str, str] = Field(default_factory=dict)
+    social_links: list[FooterSocialLinkPublic] = Field(default_factory=list)
     floating_contact: FloatingContactPublic | None = None
 
 
