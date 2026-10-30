@@ -16,6 +16,8 @@ from .models import (
     Media,
     Page,
     Product,
+    Order,
+    OrderLine,
     ShopQuiz,
     Tenant,
     User,
@@ -33,6 +35,7 @@ TENANTED_TABLES = [
     "blog_posts",
     "site_settings",
     "shop_quizzes",
+    "orders",
 ]
 
 SLUG_UNIQUE_MODELS = [Category, Collection, Product, Page, BlogPost, ShopQuiz]
@@ -119,6 +122,11 @@ def _migrate_existing(db, tenant_id: int):
     _add_column_if_missing(db, "site_settings", "collections_subtitle_vi", "VARCHAR(500)")
     _add_column_if_missing(db, "site_settings", "footer_links", "JSON")
     _add_column_if_missing(db, "site_settings", "footer_contact", "JSON")
+    _add_column_if_missing(db, "site_settings", "navbar_background_color", "VARCHAR(20)")
+    _add_column_if_missing(db, "site_settings", "footer_background_color", "VARCHAR(20)")
+    _add_column_if_missing(db, "site_settings", "footer_text_color", "VARCHAR(20)")
+    _add_column_if_missing(db, "site_settings", "order_notification_email", "VARCHAR(320)")
+    _add_column_if_missing(db, "site_settings", "order_webhook_url", "VARCHAR(1000)")
     db.execute(text("UPDATE site_settings SET footer_links='[]' WHERE footer_links IS NULL"))
     db.commit()
     _add_column_if_missing(db, "home_content", "brand_hero_title", "VARCHAR(300)")

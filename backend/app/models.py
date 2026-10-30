@@ -376,3 +376,50 @@ class SiteSettings(Base, TimestampMixin):
     collections_subtitle_vi: Mapped[str | None] = mapped_column(String(500), nullable=True)
     footer_links: Mapped[list] = mapped_column(JSON, default=list)
     footer_contact: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    navbar_background_color: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    footer_background_color: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    footer_text_color: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    order_notification_email: Mapped[str | None] = mapped_column(String(320), nullable=True)
+    order_webhook_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+
+
+class Order(Base, TimestampMixin):
+    __tablename__ = "orders"
+    __table_args__ = (UniqueConstraint("tenant_id", "order_number", name="uq_order_tenant_number"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True)
+    order_number: Mapped[str] = mapped_column(String(40), index=True)
+    status: Mapped[str] = mapped_column(String(30), default="new", index=True)
+    payment_method: Mapped[str] = mapped_column(String(30), default="cod")
+    currency_code: Mapped[str] = mapped_column(String(3), default="VND")
+    customer_name: Mapped[str] = mapped_column(String(200))
+    customer_phone: Mapped[str] = mapped_column(String(40), index=True)
+    customer_email: Mapped[str | None] = mapped_column(String(320), nullable=True)
+    shipping_address: Mapped[str] = mapped_column(Text)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    subtotal: Mapped[float] = mapped_column(Float, default=0.0)
+    total: Mapped[float] = mapped_column(Float, default=0.0)
+    webhook_delivery_status: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    webhook_last_error: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
+    lines: Mapped[list["OrderLine"]] = relationship(
+        back_populates="order", cascade="all, delete-orphan"
+    )
+
+
+class OrderLine(Base):
+    __tablename__ = "order_lines"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), index=True)
+    product_id: Mapped[int | None] = mapped_column(ForeignKey("products.id"), nullable=True)
+    product_slug: Mapped[str] = mapped_column(String(200))
+    product_name: Mapped[str] = mapped_column(String(300))
+    color: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    size: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    quantity: Mapped[int] = mapped_column(Integer, default=1)
+    unit_price: Mapped[float] = mapped_column(Float, default=0.0)
+    line_total: Mapped[float] = mapped_column(Float, default=0.0)
+
+    order: Mapped["Order"] = relationship(back_populates="lines")

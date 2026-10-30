@@ -37,6 +37,9 @@ from ..schemas import (
     ShopQuizOut,
     ShopQuizPublicOut,
     SitePublic,
+    OrderCreateIn,
+    OrderCreatedOut,
+    OrderPublicOut,
 )
 from ..home_sections import latest_drops_fetch_limit, normalize_home_sections
 from ..product_sort import product_hot_sort_key
@@ -1020,4 +1023,60 @@ def get_site(
         collections_subtitle=collections_subtitle,
         footer_links=footer_links,
         footer_contact=footer_contact,
+        navbar_background_color=(site.navbar_background_color or "").strip() or None,
+        footer_background_color=(site.footer_background_color or "").strip() or None,
+        footer_text_color=(site.footer_text_color or "").strip() or None,
     )
+
+
+@router.post("/orders", response_model=OrderCreatedOut)
+def create_store_order(
+    payload: OrderCreateIn,
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
+    from ..order_service import create_order
+
+    order = create_order(
+        db,
+        tenant_id=tenant.id,
+        customer_name=payload.customer_name,
+        customer_phone=payload.customer_phone,
+        shipping_address=payload.shipping_address,
+        customer_email=payload.customer_email,
+        note=payload.note,
+        items=[item.model_dump() for item in payload.items],
+    )
+    return OrderCreatedOut(
+        id=order.id,
+        order_number=order.order_number,
+        total=order.total,
+        currency_code=order.currency_code,
+    )
+
+
+@router.get("/orders/lookup", response_model=OrderPublicOut)
+def lookup_order(
+    phone: str = Query(..., min_length=6),
+    order_number: str = Query(..., min_length=4),
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(get_tenant),
+):
+    from ..models import Order  # noqa: PLC0415
+
+    digits = "".join(ch for ch in phone if ch.isdigit())
+    num = order_number.strip()
+    order = db.scalar(
+        select(Order)
+        .where(
+            Order.tenant_id == tenant.id,
+            Order.order_number == num,
+        )
+        .options(selectinload(Order.lines))
+    )
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    stored = "".join(ch for ch in order.customer_phone if ch.isdigit())
+    if stored != digits and not stored.endswith(digits[-9:]):
+        raise HTTPException(status_code=404, detail="Order not found")
+    return OrderPublicOut.model_validate(order)

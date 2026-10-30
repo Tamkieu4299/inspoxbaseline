@@ -31,6 +31,13 @@ class Settings:
     )
     # Comma-separated Host allowlist for the backend. "*" disables the check (dev only).
     TRUSTED_HOSTS: str = os.getenv("TRUSTED_HOSTS", "*")
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USER: str = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SMTP_FROM: str = os.getenv("SMTP_FROM", "")
+    SMTP_USE_TLS: bool = os.getenv("SMTP_USE_TLS", "true").lower() in ("1", "true", "yes")
+    ORDER_WEBHOOK_SECRET: str = os.getenv("ORDER_WEBHOOK_SECRET", "")
 
     @property
     def TRUSTED_HOSTS_LIST(self) -> list[str]:

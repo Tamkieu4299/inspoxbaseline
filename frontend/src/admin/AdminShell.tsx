@@ -14,6 +14,7 @@ export type AdminTab =
   | "categories"
   | "nav"
   | "site"
+  | "orders"
   | "users";
 
 type NavItem = { tab: AdminTab; icon: string; labelKey: string };
@@ -51,6 +52,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     labelKey: "admin.hub.system",
     items: [
+      { tab: "orders", icon: "receipt_long", labelKey: "admin.tab.orders" },
       { tab: "site", icon: "settings", labelKey: "admin.tab.site" },
       { tab: "users", icon: "group", labelKey: "admin.tab.users" },
     ],
@@ -78,6 +80,7 @@ const SCREEN_SUBTITLE: Record<AdminTab, string> = {
   quizzes: "admin.screen.quizzes",
   nav: "admin.screen.nav",
   site: "admin.screen.site",
+  orders: "admin.screen.orders",
   users: "admin.screen.users",
 };
 

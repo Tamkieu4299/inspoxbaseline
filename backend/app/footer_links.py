@@ -5,62 +5,85 @@ from __future__ import annotations
 from typing import Any
 
 FOOTER_PRESET_DEFAULTS: dict[str, dict[str, str | None]] = {
-    "privacy": {
-        "label": "PRIVACY POLICY",
-        "label_vi": "CHÍNH SÁCH BẢO MẬT",
-        "url": None,
-    },
     "terms": {
-        "label": "TERMS OF SERVICE",
-        "label_vi": "ĐIỀU KHOẢN SỬ DỤNG",
+        "label": "Terms of service",
+        "label_vi": "Điều khoản sử dụng",
         "url": None,
     },
     "shipping": {
-        "label": "SHIPPING & RETURNS",
-        "label_vi": "GIAO HÀNG & ĐỔI TRẢ",
+        "label": "Shipping & returns",
+        "label_vi": "Giao hàng & đổi trả",
         "url": None,
     },
     "brand": {
-        "label": "BRAND EXPERIENCE",
-        "label_vi": "TRẢI NGHIỆM THƯƠNG HIỆU",
+        "label": "Brand experience",
+        "label_vi": "Trải nghiệm thương hiệu",
         "url": "/brand",
     },
     "admin": {
-        "label": "ADMIN",
-        "label_vi": "QUẢN TRỊ",
+        "label": "Admin",
+        "label_vi": "Quản trị",
         "url": "/admin",
     },
 }
 
 FOOTER_PRESET_KEYS = list(FOOTER_PRESET_DEFAULTS.keys())
 
+# Quoc Sport-style presets removed from admin; drop if still stored in JSON.
+REMOVED_FOOTER_PRESET_KEYS = frozenset(
+    {
+        "privacy",
+        "shipping_policy",
+        "return_policy",
+        "careers",
+        "contact",
+        "order_lookup",
+    }
+)
+
+# Legacy rows default on for terms/shipping/brand/admin.
+DEFAULT_ENABLED_FOOTER_KEYS = frozenset({"terms", "shipping", "brand", "admin"})
+
+
+def _preset_enabled_by_default(key: str) -> bool:
+    return key in DEFAULT_ENABLED_FOOTER_KEYS
+
 
 def default_footer_link_configs() -> list[dict[str, Any]]:
     return [
-        {"key": key, "enabled": True, "label": None, "label_vi": None, "url": None}
+        {
+            "key": key,
+            "enabled": _preset_enabled_by_default(key),
+            "label": None,
+            "label_vi": None,
+            "url": None,
+        }
         for key in FOOTER_PRESET_KEYS
     ]
 
 
 def normalize_footer_link_configs(stored: list | None) -> list[dict[str, Any]]:
-    """Merge stored rows with presets; null/empty stored => all presets enabled."""
+    """Merge stored rows with presets; unset stored => opt-in defaults per preset."""
     if not stored:
         return default_footer_link_configs()
     by_key = {str(item.get("key")): item for item in stored if item.get("key")}
     out: list[dict[str, Any]] = []
     for key in FOOTER_PRESET_KEYS:
         row = by_key.get(key, {})
+        enabled = row.get("enabled")
+        if enabled is None:
+            enabled = _preset_enabled_by_default(key)
         out.append(
             {
                 "key": key,
-                "enabled": bool(row.get("enabled", True)),
+                "enabled": bool(enabled),
                 "label": row.get("label"),
                 "label_vi": row.get("label_vi"),
                 "url": row.get("url"),
             }
         )
     for key, row in by_key.items():
-        if key in FOOTER_PRESET_DEFAULTS:
+        if key in FOOTER_PRESET_DEFAULTS or key in REMOVED_FOOTER_PRESET_KEYS:
             continue
         out.append(
             {
@@ -93,5 +116,8 @@ def resolve_footer_links(stored: list | None, lang: str) -> list[dict[str, str |
         url = item.get("url")
         if url is None or url == "":
             url = preset.get("url")
+        url = (url or "").strip() or None
+        if not url:
+            continue
         resolved.append({"label": label, "url": url})
     return resolved

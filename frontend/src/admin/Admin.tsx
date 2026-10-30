@@ -11,6 +11,7 @@ import BrandTab from "./BrandTab";
 import PagesTab from "./PagesTab";
 import JournalTab from "./JournalTab";
 import SiteTab from "./SiteTab";
+import OrdersTab from "./OrdersTab";
 import UsersTab from "./UsersTab";
 import { getAdminProfile } from "../api";
 import NavTab from "./NavTab";
@@ -162,6 +163,7 @@ export default function Admin() {
       {tab === "pages" && <PagesTab />}
       {tab === "quizzes" && <QuizzesTab />}
       {tab === "site" && <SiteTab />}
+      {tab === "orders" && <OrdersTab />}
       {tab === "users" && isSuperAdmin && <UsersTab />}
       {tab === "categories" && <CategoriesTab />}
       {tab === "nav" && <NavTab />}

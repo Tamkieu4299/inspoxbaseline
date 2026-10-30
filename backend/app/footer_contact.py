@@ -50,6 +50,7 @@ def default_footer_contact() -> dict[str, Any]:
         "map_embed_url": None,
         "facebook_page_embed_url": None,
         "registration_badge_media_id": None,
+        "registration_badge_url": None,
         "useful_links_title": None,
         "useful_links_title_vi": None,
         "categories_title": None,
@@ -198,7 +199,7 @@ def resolve_footer_contact(
 ) -> dict[str, Any]:
     data = normalize_footer_contact(raw)
     social_links = data.get("social_links") or []
-    badge_url = None
+    badge_url = (data.get("registration_badge_url") or "").strip() or None
     badge_id = data.get("registration_badge_media_id")
     if badge_id and db is not None:
         media = db.get(Media, int(badge_id))

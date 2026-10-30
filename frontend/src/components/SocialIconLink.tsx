@@ -64,14 +64,25 @@ function IconSvg({ network }: { network: SocialNetwork }) {
   }
 }
 
-export default function SocialIconLink({ network, href }: { network: SocialNetwork; href: string }) {
+export default function SocialIconLink({
+  network,
+  href,
+  onDark,
+}: {
+  network: SocialNetwork;
+  href: string;
+  onDark?: boolean;
+}) {
+  const tone = onDark
+    ? "text-white/75 hover:text-white"
+    : `text-black/60 ${BRAND_HOVER[network]}`;
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer nofollow"
       aria-label={LABELS[network]}
-      className={`social-icon social-${network} inline-flex h-10 w-10 lg:h-11 lg:w-11 shrink-0 items-center justify-center rounded-full text-black/60 transition-colors ${BRAND_HOVER[network]}`}
+      className={`social-icon social-${network} inline-flex h-10 w-10 lg:h-11 lg:w-11 shrink-0 items-center justify-center rounded-full transition-colors ${tone}`}
     >
       <span className="inline-flex items-center justify-center" aria-hidden>
         <IconSvg network={network} />

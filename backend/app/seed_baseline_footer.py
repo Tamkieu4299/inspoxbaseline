@@ -82,9 +82,9 @@ def baseline_footer_contact_patch() -> dict:
         "floating_contact_links": baseline_floating_contact_links(),
         "social_links": baseline_social_links(),
         "useful_links_title": None,
-        "useful_links_title_vi": "Liên kết hữu ích",
+        "useful_links_title_vi": None,
         "categories_title": None,
-        "categories_title_vi": "Danh mục sản phẩm",
+        "categories_title_vi": None,
         "follow_section_title": "Follow Baseline Club",
         "follow_section_title_vi": "Theo dõi Baseline Club",
     }

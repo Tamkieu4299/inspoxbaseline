@@ -101,6 +101,7 @@ export function defaultFooterContact(): FooterContactConfig {
     map_embed_url: null,
     facebook_page_embed_url: null,
     registration_badge_media_id: null,
+    registration_badge_url: null,
     useful_links_title: null,
     useful_links_title_vi: null,
     categories_title: null,

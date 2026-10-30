@@ -420,6 +420,7 @@ class FooterContactConfig(BaseModel):
     map_embed_url: str | None = None
     facebook_page_embed_url: str | None = None
     registration_badge_media_id: int | None = None
+    registration_badge_url: str | None = None
     useful_links_title: str | None = None
     useful_links_title_vi: str | None = None
     categories_title: str | None = None
@@ -486,6 +487,11 @@ class SiteSettingsBase(BaseModel):
     collections_subtitle_vi: str | None = None
     footer_links: list[FooterLinkConfig] = Field(default_factory=list)
     footer_contact: FooterContactConfig | None = None
+    navbar_background_color: str | None = None
+    footer_background_color: str | None = None
+    footer_text_color: str | None = None
+    order_notification_email: str | None = None
+    order_webhook_url: str | None = None
 
 
 class SiteSettingsIn(SiteSettingsBase):
@@ -510,6 +516,9 @@ class SitePublic(BaseModel):
     collections_subtitle: str | None = None
     footer_links: list[FooterLinkPublic] = Field(default_factory=list)
     footer_contact: FooterContactPublic | None = None
+    navbar_background_color: str | None = None
+    footer_background_color: str | None = None
+    footer_text_color: str | None = None
 
 
 class ShopQuizBase(BaseModel):
@@ -560,6 +569,81 @@ class QuizMatchProductOut(BaseModel):
 class ShopQuizPublicOut(ShopQuizBase):
     id: int
     match_products: list[QuizMatchProductOut] = Field(default_factory=list)
+
+
+class OrderLineCreateIn(BaseModel):
+    product_id: int
+    quantity: int = 1
+    color: str | None = None
+    size: str | None = None
+
+
+class OrderCreateIn(BaseModel):
+    customer_name: str
+    customer_phone: str
+    shipping_address: str
+    customer_email: str | None = None
+    note: str | None = None
+    items: list[OrderLineCreateIn] = Field(min_length=1)
+
+
+class OrderLineOut(ORMModel):
+    id: int
+    product_id: int | None = None
+    product_slug: str
+    product_name: str
+    color: str | None = None
+    size: str | None = None
+    quantity: int
+    unit_price: float
+    line_total: float
+
+
+class OrderPublicOut(BaseModel):
+    id: int
+    order_number: str
+    status: str
+    payment_method: str
+    currency_code: str
+    customer_name: str
+    customer_phone: str
+    shipping_address: str
+    note: str | None = None
+    subtotal: float
+    total: float
+    created_at: datetime
+    lines: list[OrderLineOut] = Field(default_factory=list)
+
+
+class OrderCreatedOut(BaseModel):
+    id: int
+    order_number: str
+    total: float
+    currency_code: str
+
+
+class OrderStatusPatchIn(BaseModel):
+    status: str
+
+
+class OrderAdminOut(ORMModel):
+    id: int
+    order_number: str
+    status: str
+    payment_method: str
+    currency_code: str
+    customer_name: str
+    customer_phone: str
+    customer_email: str | None = None
+    shipping_address: str
+    note: str | None = None
+    subtotal: float
+    total: float
+    webhook_delivery_status: str | None = None
+    webhook_last_error: str | None = None
+    created_at: datetime
+    updated_at: datetime
+    lines: list[OrderLineOut] = Field(default_factory=list)
 
 
 from pydantic import model_validator

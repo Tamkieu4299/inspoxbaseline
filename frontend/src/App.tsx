@@ -13,7 +13,12 @@ import QuizRunner from "./pages/QuizRunner";
 import Admin from "./admin/Admin";
 import SiteBranding from "./components/SiteBranding";
 import { LanguageProvider } from "./i18n";
+import { CartProvider } from "./cart/CartContext";
 import { StoreCurrencyProvider } from "./useStoreCurrency";
+import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderThankYouPage from "./pages/OrderThankYouPage";
+import OrderLookupPage from "./pages/OrderLookupPage";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 60_000, refetchOnWindowFocus: false } },
@@ -31,6 +36,7 @@ export default function App() {
             path="*"
             element={
               <StoreCurrencyProvider>
+                <CartProvider>
                 <StorefrontShell>
                   <Routes>
                     <Route path="/" element={<Home />} />
@@ -43,9 +49,14 @@ export default function App() {
                     <Route path="/blogs" element={<BlogsPage />} />
                     <Route path="/blogs/:slug" element={<BlogPostPage />} />
                     <Route path="/quizzes/:slug" element={<QuizRunner />} />
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/orders/thank-you" element={<OrderThankYouPage />} />
+                    <Route path="/orders/track" element={<OrderLookupPage />} />
                     <Route path="*" element={<Home />} />
                   </Routes>
                 </StorefrontShell>
+                </CartProvider>
               </StoreCurrencyProvider>
             }
           />

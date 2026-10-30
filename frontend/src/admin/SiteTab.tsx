@@ -146,6 +146,48 @@ export default function SiteTab() {
             onChange={(m) => set("favicon_media_id", m ? m.id : null)}
           />
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Field label={t("admin.navbarBackgroundColor")}>
+            <TextInput
+              value={draftValue.navbar_background_color || ""}
+              onChange={(e) => set("navbar_background_color", e.target.value.trim() || null)}
+              placeholder="#ffffff"
+            />
+          </Field>
+          <Field label={t("admin.footerBackgroundColor")}>
+            <TextInput
+              value={draftValue.footer_background_color || ""}
+              onChange={(e) => set("footer_background_color", e.target.value.trim() || null)}
+              placeholder="#004225"
+            />
+          </Field>
+          <Field label={t("admin.footerTextColor")}>
+            <TextInput
+              value={draftValue.footer_text_color || ""}
+              onChange={(e) => set("footer_text_color", e.target.value.trim() || null)}
+              placeholder="#ffffff"
+            />
+          </Field>
+        </div>
+        <p className="font-body text-body-sm text-secondary -mt-2">{t("admin.shellBackgroundHint")}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-surface-container-highest pt-4">
+          <Field label={t("admin.orderNotificationEmail")}>
+            <TextInput
+              type="email"
+              value={draftValue.order_notification_email || ""}
+              onChange={(e) => set("order_notification_email", e.target.value.trim() || null)}
+              placeholder="owner@example.com"
+            />
+          </Field>
+          <Field label={t("admin.orderWebhookUrl")}>
+            <TextInput
+              value={draftValue.order_webhook_url || ""}
+              onChange={(e) => set("order_webhook_url", e.target.value.trim() || null)}
+              placeholder="https://crm.example.com/hooks/orders"
+            />
+          </Field>
+        </div>
+        <p className="font-body text-body-sm text-secondary -mt-2">{t("admin.orderNotifyHint")}</p>
       </div>
 
       <div className="border-t border-surface-container-highest pt-6 flex flex-col gap-4">
@@ -320,6 +362,14 @@ export default function SiteTab() {
           }
           onChange={(m) => setFooterContact({ registration_badge_media_id: m ? m.id : null })}
         />
+        <Field label={t("admin.footerRegBadgeUrl")}>
+          <TextInput
+            value={footerContact.registration_badge_url || ""}
+            onChange={(e) => setFooterContact({ registration_badge_url: e.target.value.trim() || null })}
+            placeholder="https://…"
+          />
+          <p className="font-body text-body-sm text-secondary mt-1">{t("admin.footerRegBadgeUrlHint")}</p>
+        </Field>
         <div className="border-t border-surface-container-highest pt-4 flex flex-col gap-3">
           <p className="font-label text-label-caps text-primary uppercase">{t("admin.footerBrandColumn")}</p>
           <p className="font-body text-body-sm text-secondary -mt-1">{t("admin.footerBrandColumnHint")}</p>

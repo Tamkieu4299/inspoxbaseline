@@ -1,4 +1,8 @@
+import csv
+import io
+
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
@@ -15,6 +19,7 @@ from ..models import (
     Product,
     ProductImage,
     ShopQuiz,
+    Order,
     SiteSettings,
     Tenant,
 )
@@ -38,6 +43,8 @@ from ..schemas import (
     ShopQuizOut,
     SiteSettingsIn,
     SiteSettingsOut,
+    OrderAdminOut,
+    OrderStatusPatchIn,
 )
 from ..security import AdminDep
 
@@ -684,3 +691,131 @@ def delete_quiz(quiz_id: int, db: Session = Depends(get_db), tenant: Tenant = Ad
     db.delete(quiz)
     db.commit()
     return {"ok": True}
+
+
+ORDER_STATUSES = frozenset({"new", "confirmed", "shipped", "cancelled"})
+
+
+@router.get("/orders", response_model=list[OrderAdminOut])
+def list_orders(
+    db: Session = Depends(get_db),
+    tenant: Tenant = AdminDep,
+    status: str | None = Query(None),
+    limit: int = Query(100, ge=1, le=500),
+):
+    stmt = (
+        select(Order)
+        .where(Order.tenant_id == tenant.id)
+        .options(selectinload(Order.lines))
+        .order_by(Order.created_at.desc())
+        .limit(limit)
+    )
+    if status:
+        stmt = stmt.where(Order.status == status)
+    rows = db.scalars(stmt).all()
+    return [OrderAdminOut.model_validate(o) for o in rows]
+
+
+@router.get("/orders/export.csv")
+def export_orders_csv(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    rows = db.scalars(
+        select(Order)
+        .where(Order.tenant_id == tenant.id)
+        .options(selectinload(Order.lines))
+        .order_by(Order.created_at.desc())
+    ).all()
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(
+        [
+            "order_number",
+            "status",
+            "created_at",
+            "customer_name",
+            "customer_phone",
+            "customer_email",
+            "shipping_address",
+            "note",
+            "payment_method",
+            "currency",
+            "total",
+            "line_product",
+            "line_color",
+            "line_size",
+            "line_qty",
+            "line_unit_price",
+            "line_total",
+        ]
+    )
+    for order in rows:
+        base = [
+            order.order_number,
+            order.status,
+            order.created_at.isoformat() if order.created_at else "",
+            order.customer_name,
+            order.customer_phone,
+            order.customer_email or "",
+            order.shipping_address.replace("\n", " "),
+            (order.note or "").replace("\n", " "),
+            order.payment_method,
+            order.currency_code,
+            order.total,
+        ]
+        line_rows = order.lines or []
+        if not line_rows:
+            writer.writerow(base + ["", "", "", "", "", ""])
+            continue
+        for line in line_rows:
+            writer.writerow(
+                base
+                + [
+                    line.product_name,
+                    line.color or "",
+                    line.size or "",
+                    line.quantity,
+                    line.unit_price,
+                    line.line_total,
+                ]
+            )
+    buf.seek(0)
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="orders.csv"'},
+    )
+
+
+@router.get("/orders/{order_id}", response_model=OrderAdminOut)
+def get_order(order_id: int, db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    order = db.scalar(
+        select(Order)
+        .where(Order.id == order_id, Order.tenant_id == tenant.id)
+        .options(selectinload(Order.lines))
+    )
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return OrderAdminOut.model_validate(order)
+
+
+@router.patch("/orders/{order_id}", response_model=OrderAdminOut)
+def update_order_status(
+    order_id: int,
+    payload: OrderStatusPatchIn,
+    db: Session = Depends(get_db),
+    tenant: Tenant = AdminDep,
+):
+    status = (payload.status or "").strip().lower()
+    if status not in ORDER_STATUSES:
+        raise HTTPException(status_code=400, detail="Invalid status")
+    order = db.scalar(select(Order).where(Order.id == order_id, Order.tenant_id == tenant.id))
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    order.status = status
+    db.commit()
+    db.refresh(order)
+    order = db.scalar(
+        select(Order)
+        .where(Order.id == order_id)
+        .options(selectinload(Order.lines))
+    )
+    return OrderAdminOut.model_validate(order)

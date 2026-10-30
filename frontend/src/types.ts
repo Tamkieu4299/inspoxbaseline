@@ -427,6 +427,7 @@ export interface FooterContactConfig {
   map_embed_url?: string | null;
   facebook_page_embed_url?: string | null;
   registration_badge_media_id?: number | null;
+  registration_badge_url?: string | null;
   useful_links_title?: string | null;
   useful_links_title_vi?: string | null;
   categories_title?: string | null;
@@ -486,6 +487,64 @@ export interface SitePublic {
   collections_subtitle?: string | null;
   footer_links?: FooterLinkPublic[];
   footer_contact?: FooterContactPublic | null;
+  navbar_background_color?: string | null;
+  footer_background_color?: string | null;
+  footer_text_color?: string | null;
+}
+
+export interface OrderLine {
+  id: number;
+  product_id?: number | null;
+  product_slug: string;
+  product_name: string;
+  color?: string | null;
+  size?: string | null;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+}
+
+export interface OrderCreated {
+  id: number;
+  order_number: string;
+  total: number;
+  currency_code: string;
+}
+
+export interface OrderPublic {
+  id: number;
+  order_number: string;
+  status: string;
+  payment_method: string;
+  currency_code: string;
+  customer_name: string;
+  customer_phone: string;
+  shipping_address: string;
+  note?: string | null;
+  subtotal: number;
+  total: number;
+  created_at: string;
+  lines: OrderLine[];
+}
+
+export interface OrderAdmin {
+  id: number;
+  order_number: string;
+  status: string;
+  payment_method: string;
+  currency_code: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email?: string | null;
+  shipping_address: string;
+  note?: string | null;
+  subtotal: number;
+  total: number;
+  webhook_delivery_status?: string | null;
+  webhook_last_error?: string | null;
+  created_at: string;
+  updated_at: string;
+  lines: OrderLine[];
 }
 
 export interface SiteSettings {
@@ -504,6 +563,11 @@ export interface SiteSettings {
   collections_subtitle_vi?: string | null;
   footer_links?: FooterLinkConfig[];
   footer_contact?: FooterContactConfig | null;
+  navbar_background_color?: string | null;
+  footer_background_color?: string | null;
+  footer_text_color?: string | null;
+  order_notification_email?: string | null;
+  order_webhook_url?: string | null;
 }
 
 export interface TenantAdmin {

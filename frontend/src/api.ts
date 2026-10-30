@@ -13,6 +13,9 @@ import type {
   QuizNavItem,
   ShopQuiz,
   ShopQuizPublic,
+  OrderAdmin,
+  OrderCreated,
+  OrderPublic,
   SitePublic,
   SiteSettings,
   TenantAdmin,
@@ -87,6 +90,23 @@ export const api = {
   getQuizzes: (lang?: string) => request<QuizNavItem[]>(`/api/quizzes?${langQ(lang)}`),
   getQuiz: (slug: string, lang?: string) =>
     request<ShopQuizPublic>(`/api/quizzes/${encodeURIComponent(slug)}?${langQ(lang)}`),
+  createOrder: (body: {
+    customer_name: string;
+    customer_phone: string;
+    shipping_address: string;
+    customer_email?: string | null;
+    note?: string | null;
+    items: { product_id: number; quantity: number; color?: string | null; size?: string | null }[];
+  }) =>
+    request<OrderCreated>(`/api/orders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...tenantHeader() },
+      body: JSON.stringify(body),
+    }),
+  lookupOrder: (phone: string, orderNumber: string) =>
+    request<OrderPublic>(
+      `/api/orders/lookup?phone=${encodeURIComponent(phone)}&order_number=${encodeURIComponent(orderNumber)}`,
+    ),
 };
 
 const adminToken = () => sessionStorage.getItem("inspo_admin_token") || "";
@@ -327,6 +347,23 @@ export const adminApi = {
       headers: adminHeaders(),
       body: JSON.stringify(body),
     }),
+
+  getOrders: (status?: string) => {
+    const qs = status ? `?status=${encodeURIComponent(status)}` : "";
+    return request<OrderAdmin[]>(`/api/admin/orders${qs}`, { headers: adminHeaders() });
+  },
+  getOrder: (id: number) => request<OrderAdmin>(`/api/admin/orders/${id}`, { headers: adminHeaders() }),
+  updateOrderStatus: (id: number, status: string) =>
+    request<OrderAdmin>(`/api/admin/orders/${id}`, {
+      method: "PATCH",
+      headers: adminHeaders(),
+      body: JSON.stringify({ status }),
+    }),
+  exportOrdersCsv: async () => {
+    const res = await fetch(`${API_BASE}/api/admin/orders/export.csv`, { headers: adminHeaders() });
+    if (!res.ok) throw new Error(await res.text());
+    return res.blob();
+  },
 
   getTenants: () => request<TenantAdmin[]>(`/api/admin/tenants`, { headers: adminHeaders() }),
   createTenant: (body: unknown) =>

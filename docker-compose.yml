@@ -38,6 +38,13 @@ services:
       CORS_ORIGIN_REGEX: ${CORS_ORIGIN_REGEX:-^https?://(?:[a-z0-9-]+\.)*localhost(?::\d+)?$}
       TRUSTED_HOSTS: ${TRUSTED_HOSTS:-*}
       BASELINE_CLUB_DIR: /app/BaselineClub
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
+      ORDER_WEBHOOK_SECRET: ${ORDER_WEBHOOK_SECRET:-}
     ports:
       - "8000:8000"
     volumes:

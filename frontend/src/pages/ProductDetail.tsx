@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import Icon from "../components/Icon";
@@ -10,6 +10,7 @@ import ProductFeatureGrid from "../components/ProductFeatureGrid";
 import { ProductDescription, ProductTechSpecList } from "../components/ProductStoryAndSpecs";
 import { useLanguage } from "../i18n";
 import { useStoreCurrency } from "../useStoreCurrency";
+import { useCart } from "../cart/CartContext";
 import {
   canPurchaseWithVariants,
   colorDisplayName,
@@ -21,6 +22,8 @@ import {
 export default function ProductDetail() {
   const { lang, t } = useLanguage();
   const { formatPrice } = useStoreCurrency();
+  const { addLine } = useCart();
+  const [added, setAdded] = useState(false);
   const { slug = "" } = useParams();
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [selectedColorIndex, setSelectedColorIndex] = useState<number | null>(null);
@@ -181,10 +184,35 @@ export default function ProductDetail() {
             <button
               type="button"
               disabled={!canAddToCart}
-              className="w-full bg-primary text-on-primary font-label text-label-caps uppercase py-4 mb-8 hover:bg-inverse-surface transition-colors tracking-widest flex justify-center items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={() => {
+                if (!product) return;
+                const img = enabledProductImages(product.images)[0];
+                addLine({
+                  productId: product.id,
+                  slug: product.slug,
+                  name: product.name,
+                  price: Number(product.price) || 0,
+                  color: selectedColor ? colorDisplayName(selectedColor, lang) : null,
+                  size: selectedSize,
+                  imageUrl: img?.url ?? null,
+                });
+                setAdded(true);
+                window.setTimeout(() => setAdded(false), 2500);
+              }}
+              className="w-full bg-primary text-on-primary font-label text-label-caps uppercase py-4 mb-2 hover:bg-inverse-surface transition-colors tracking-widest flex justify-center items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {t("product.addToCart")} <Icon name="arrow_forward" className="text-[20px]" />
             </button>
+            {added ? (
+              <p className="font-body text-body-sm text-forest-green mb-4">
+                {t("product.addedToCart")}{" "}
+                <Link to="/cart" className="underline">
+                  {t("cart.viewCart")}
+                </Link>
+              </p>
+            ) : (
+              <div className="mb-6" />
+            )}
 
             <ProductTechSpecList techSpecs={product.tech_specs} />
           </RevealOnScroll>
