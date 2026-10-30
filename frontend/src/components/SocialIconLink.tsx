@@ -1,16 +1,27 @@
+import type { ReactNode } from "react";
 import type { SocialNetwork } from "../footerContact";
 
 const LABELS: Record<SocialNetwork, string> = {
-  facebook: "Facebook",
-  instagram: "Instagram",
-  threads: "Threads",
-  youtube: "YouTube",
-  tiktok: "TikTok",
-  zalo: "Zalo",
+  facebook: "Facebook social link",
+  instagram: "Instagram social link",
+  threads: "Threads social link",
+  youtube: "YouTube social link",
+  tiktok: "TikTok social link",
+  zalo: "Zalo social link",
+};
+
+/** Woodmart el-social-icons brand hues (hover accent). */
+const BRAND_HOVER: Record<SocialNetwork, string> = {
+  facebook: "hover:text-[#365493]",
+  instagram: "hover:text-[#774430]",
+  threads: "hover:text-[#0A0A0A]",
+  youtube: "hover:text-[#CB2027]",
+  tiktok: "hover:text-[#010101]",
+  zalo: "hover:text-[#0068FF]",
 };
 
 function IconSvg({ network }: { network: SocialNetwork }) {
-  const cls = "w-5 h-5 fill-current";
+  const cls = "w-[22px] h-[22px] lg:w-6 lg:h-6 fill-current";
   switch (network) {
     case "facebook":
       return (
@@ -45,7 +56,7 @@ function IconSvg({ network }: { network: SocialNetwork }) {
     case "zalo":
       return (
         <svg className={cls} viewBox="0 0 24 24" aria-hidden>
-          <path d="M12 2C6.48 2 2 5.82 2 10.5c0 2.58 1.35 4.89 3.47 6.44L4 22l5.53-2.89c.78.12 1.58.19 2.47.19 5.52 0 10-3.82 10-8.5S17.52 2 12 2zm-2.2 10.1H7.5V7.9h2.3v4.2zm3.5 0h-2.3V7.9h2.3v4.2zm3.5 0h-2.3V7.9h2.3v4.2z" />
+          <path d="M4.5 3A1.5 1.5 0 0 0 3 4.5v11A1.5 1.5 0 0 0 4.5 17H8l3.2 3.2c.3.3.8.1.8-.35V17h4.5A1.5 1.5 0 0 0 18 15.5v-11A1.5 1.5 0 0 0 16.5 3h-12zm2.2 4.1h1.6l1.4 2.6 1.4-2.6h1.6l-2.3 3.9 2.4 4H11l-1.5-2.5L8 15.5H6.4l2.4-4-2.1-3.4z" />
         </svg>
       );
     default:
@@ -60,9 +71,18 @@ export default function SocialIconLink({ network, href }: { network: SocialNetwo
       target="_blank"
       rel="noopener noreferrer nofollow"
       aria-label={LABELS[network]}
-      className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary text-on-primary hover:bg-inverse-surface transition-colors"
+      className={`social-icon social-${network} inline-flex h-12 w-12 lg:h-[60px] lg:w-[60px] shrink-0 items-center justify-center rounded-full text-black/60 transition-colors ${BRAND_HOVER[network]}`}
     >
-      <IconSvg network={network} />
+      <span className="inline-flex items-center justify-center" aria-hidden>
+        <IconSvg network={network} />
+      </span>
     </a>
+  );
+}
+
+/** Woodmart-style row: wd-social-icons wd-size-large wd-shape-circle color-scheme-dark */
+export function SocialIconsRow({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-center text-left gap-0 pt-1">{children}</div>
   );
 }

@@ -6,7 +6,7 @@ import { SOCIAL_NETWORKS, phoneTelHref } from "../footerContact";
 import { useLanguage } from "../i18n";
 import Icon from "./Icon";
 import RevealOnScroll from "./RevealOnScroll";
-import SocialIconLink from "./SocialIconLink";
+import SocialIconLink, { SocialIconsRow } from "./SocialIconLink";
 import type { FooterLinkPublic } from "../types";
 import { navCategories } from "../categoryNav";
 
@@ -148,7 +148,12 @@ export default function Footer() {
                   </ContactRow>
                 ) : null}
                 {contact?.address ? (
-                  <ContactRow icon="location_on">{contact.address}</ContactRow>
+                  <ContactRow
+                    icon="location_on"
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.address)}`}
+                  >
+                    {contact.address}
+                  </ContactRow>
                 ) : null}
                 {contact?.business_registration ? (
                   <ContactRow icon="badge">{contact.business_registration}</ContactRow>
@@ -168,11 +173,11 @@ export default function Footer() {
             ) : null}
 
             {socialEntries.length > 0 ? (
-              <div className="flex flex-wrap gap-2 pt-1">
+              <SocialIconsRow>
                 {socialEntries.map((network) => (
                   <SocialIconLink key={network} network={network} href={contact!.social![network]!} />
                 ))}
-              </div>
+              </SocialIconsRow>
             ) : null}
 
             {contact?.registration_badge_url ? (
