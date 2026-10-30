@@ -3,7 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
 import { FOOTER_PRESET_LABELS, normalizeFooterLinkConfigs } from "../footerLinks";
-import type { FooterLinkConfig, Media, SiteSettings } from "../types";
+import { SOCIAL_NETWORKS, normalizeFooterContact } from "../footerContact";
+import type { FooterContactConfig, FooterLinkConfig, Media, SiteSettings } from "../types";
 import { ImageField } from "./MediaLibrary";
 import { Checkbox, Field, PrimaryButton, TextInput, ViInput } from "./ui";
 
@@ -36,6 +37,17 @@ export default function SiteTab() {
   }
 
   const footerLinks = normalizeFooterLinkConfigs(draftValue.footer_links);
+  const footerContact = normalizeFooterContact(draftValue.footer_contact);
+
+  function setFooterContact(patch: Partial<FooterContactConfig>) {
+    set("footer_contact", normalizeFooterContact({ ...footerContact, ...patch }));
+  }
+
+  function setSocial(network: (typeof SOCIAL_NETWORKS)[number], url: string) {
+    setFooterContact({
+      social: { ...footerContact.social, [network]: url.trim() || null },
+    });
+  }
 
   function setFooterLink(index: number, patch: Partial<FooterLinkConfig>) {
     const next = footerLinks.map((row, i) => (i === index ? { ...row, ...patch } : row));
@@ -43,11 +55,17 @@ export default function SiteTab() {
   }
 
   return (
-    <div className="bg-white border border-surface-container-highest p-6 flex flex-col gap-6 max-w-2xl">
+    <div className="bg-white border border-surface-container-highest p-6 flex flex-col gap-6 max-w-3xl">
       <div className="flex items-center justify-between">
         <h3 className="font-headline text-headline-md text-primary uppercase">{t("admin.siteBranding")}</h3>
         <PrimaryButton
-          onClick={() => saveMutation.mutate({ ...draftValue, currency_code: "VND" })}
+          onClick={() =>
+            saveMutation.mutate({
+              ...draftValue,
+              currency_code: "VND",
+              footer_contact: normalizeFooterContact(draftValue.footer_contact),
+            })
+          }
           disabled={!draft}
         >
           {t("admin.saveBranding")}
@@ -94,6 +112,7 @@ export default function SiteTab() {
             onChange={(e) => set("footer_tagline", e.target.value || null)}
             placeholder={t("admin.footerTaglinePlaceholder")}
           />
+          <p className="font-body text-body-sm text-secondary mt-1">{t("admin.footerTaglineHint")}</p>
         </Field>
         <ViInput
           label={t("admin.footerTagline")}
@@ -114,6 +133,154 @@ export default function SiteTab() {
           onChange={(e) => set("collections_subtitle_vi", e.target.value || null)}
           placeholder="Phụ đề trang /collections (tiếng Việt)"
         />
+      </div>
+
+      <div className="border-t border-surface-container-highest pt-6 flex flex-col gap-4">
+        <h4 className="font-headline text-headline-md text-primary uppercase">{t("admin.footerContact")}</h4>
+        <p className="font-body text-body-md text-secondary -mt-2">{t("admin.footerContactHint")}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Field label={t("admin.footerPhone")}>
+            <TextInput
+              value={footerContact.phone || ""}
+              onChange={(e) => setFooterContact({ phone: e.target.value || null })}
+              placeholder="0939 22 63 69"
+            />
+          </Field>
+          <Field label={t("admin.footerEmail")}>
+            <TextInput
+              value={footerContact.email || ""}
+              onChange={(e) => setFooterContact({ email: e.target.value || null })}
+              placeholder="hello@example.com"
+            />
+          </Field>
+          <Field label={t("admin.footerAddress")}>
+            <TextInput
+              value={footerContact.address || ""}
+              onChange={(e) => setFooterContact({ address: e.target.value || null })}
+            />
+          </Field>
+          <ViInput
+            label={t("admin.footerAddressVi")}
+            value={footerContact.address_vi || ""}
+            onChange={(e) => setFooterContact({ address_vi: e.target.value || null })}
+          />
+          <Field label={t("admin.footerBusinessReg")}>
+            <TextInput
+              value={footerContact.business_registration || ""}
+              onChange={(e) => setFooterContact({ business_registration: e.target.value || null })}
+            />
+          </Field>
+          <ViInput
+            label={t("admin.footerBusinessRegVi")}
+            value={footerContact.business_registration_vi || ""}
+            onChange={(e) => setFooterContact({ business_registration_vi: e.target.value || null })}
+          />
+          <Field label={t("admin.footerShowroom")}>
+            <TextInput
+              value={footerContact.showroom_note || ""}
+              onChange={(e) => setFooterContact({ showroom_note: e.target.value || null })}
+            />
+          </Field>
+          <ViInput
+            label={t("admin.footerShowroomVi")}
+            value={footerContact.showroom_note_vi || ""}
+            onChange={(e) => setFooterContact({ showroom_note_vi: e.target.value || null })}
+          />
+          <Field label={t("admin.footerHours")}>
+            <TextInput
+              value={footerContact.opening_hours || ""}
+              onChange={(e) => setFooterContact({ opening_hours: e.target.value || null })}
+            />
+          </Field>
+          <ViInput
+            label={t("admin.footerHoursVi")}
+            value={footerContact.opening_hours_vi || ""}
+            onChange={(e) => setFooterContact({ opening_hours_vi: e.target.value || null })}
+          />
+        </div>
+        <Field label={t("admin.footerMapEmbed")}>
+          <TextInput
+            value={footerContact.map_embed_url || ""}
+            onChange={(e) => setFooterContact({ map_embed_url: e.target.value || null })}
+            placeholder="https://www.google.com/maps/embed?pb=..."
+          />
+        </Field>
+        <Field label={t("admin.footerFbEmbed")}>
+          <TextInput
+            value={footerContact.facebook_page_embed_url || ""}
+            onChange={(e) => setFooterContact({ facebook_page_embed_url: e.target.value || null })}
+            placeholder="https://www.facebook.com/plugins/page.php?href=..."
+          />
+        </Field>
+        <ImageField
+          label={t("admin.footerRegBadge")}
+          value={
+            footerContact.registration_badge_media_id
+              ? (mediaById.get(footerContact.registration_badge_media_id) as Media) || null
+              : null
+          }
+          onChange={(m) => setFooterContact({ registration_badge_media_id: m ? m.id : null })}
+        />
+        <div className="border-t border-surface-container-highest pt-4 flex flex-col gap-4">
+          <p className="font-label text-label-caps text-primary uppercase">{t("admin.footerLayout")}</p>
+          <Field label={t("admin.footerUsefulLinksTitle")}>
+            <TextInput
+              value={footerContact.useful_links_title || ""}
+              onChange={(e) => setFooterContact({ useful_links_title: e.target.value || null })}
+              placeholder={t("footer.usefulLinks")}
+            />
+          </Field>
+          <ViInput
+            label={t("admin.footerUsefulLinksTitle")}
+            value={footerContact.useful_links_title_vi || ""}
+            onChange={(e) => setFooterContact({ useful_links_title_vi: e.target.value || null })}
+          />
+          <Field label={t("admin.footerCategoriesTitle")}>
+            <TextInput
+              value={footerContact.categories_title || ""}
+              onChange={(e) => setFooterContact({ categories_title: e.target.value || null })}
+              placeholder={t("footer.productCategories")}
+            />
+          </Field>
+          <ViInput
+            label={t("admin.footerCategoriesTitle")}
+            value={footerContact.categories_title_vi || ""}
+            onChange={(e) => setFooterContact({ categories_title_vi: e.target.value || null })}
+          />
+          <Field label={t("admin.footerCopyright")}>
+            <TextInput
+              value={footerContact.copyright_text || ""}
+              onChange={(e) => setFooterContact({ copyright_text: e.target.value || null })}
+              placeholder={`© ${new Date().getFullYear()} ${draftValue.site_name}`}
+            />
+          </Field>
+          <ViInput
+            label={t("admin.footerCopyright")}
+            value={footerContact.copyright_text_vi || ""}
+            onChange={(e) => setFooterContact({ copyright_text_vi: e.target.value || null })}
+          />
+          <label className="flex items-center gap-2 font-body text-body-md text-primary">
+            <Checkbox
+              checked={footerContact.show_product_categories !== false}
+              onChange={(e) => setFooterContact({ show_product_categories: e.target.checked })}
+            />
+            {t("admin.footerShowCategories")}
+          </label>
+        </div>
+        <div>
+          <p className="font-label text-label-caps text-primary uppercase mb-3">{t("admin.socialLinks")}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {SOCIAL_NETWORKS.map((network) => (
+              <Field key={network} label={network.charAt(0).toUpperCase() + network.slice(1)}>
+                <TextInput
+                  value={footerContact.social?.[network] || ""}
+                  onChange={(e) => setSocial(network, e.target.value)}
+                  placeholder="https://"
+                />
+              </Field>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="border-t border-surface-container-highest pt-6 flex flex-col gap-4">
@@ -150,15 +317,19 @@ export default function SiteTab() {
                       onChange={(e) => setFooterLink(index, { label_vi: e.target.value || null })}
                       placeholder={preset?.vi}
                     />
-                    {(row.key === "brand" || row.key === "admin") && (
-                      <Field label={t("admin.linkUrl")}>
-                        <TextInput
-                          value={row.url || ""}
-                          onChange={(e) => setFooterLink(index, { url: e.target.value || null })}
-                          placeholder={row.key === "brand" ? "/brand" : "/admin"}
-                        />
-                      </Field>
-                    )}
+                    <Field label={t("admin.linkUrl")}>
+                      <TextInput
+                        value={row.url || ""}
+                        onChange={(e) => setFooterLink(index, { url: e.target.value || null })}
+                        placeholder={
+                          row.key === "brand"
+                            ? "/brand"
+                            : row.key === "admin"
+                              ? "/admin"
+                              : "/pages/shipping-policy"
+                        }
+                      />
+                    </Field>
                   </div>
                 ) : null}
               </div>

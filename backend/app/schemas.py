@@ -396,6 +396,56 @@ class FooterLinkPublic(BaseModel):
     url: str | None = None
 
 
+class FooterSocialLinks(BaseModel):
+    facebook: str | None = None
+    instagram: str | None = None
+    threads: str | None = None
+    youtube: str | None = None
+    tiktok: str | None = None
+    zalo: str | None = None
+
+
+class FooterContactConfig(BaseModel):
+    phone: str | None = None
+    email: str | None = None
+    address: str | None = None
+    address_vi: str | None = None
+    business_registration: str | None = None
+    business_registration_vi: str | None = None
+    showroom_note: str | None = None
+    showroom_note_vi: str | None = None
+    opening_hours: str | None = None
+    opening_hours_vi: str | None = None
+    map_embed_url: str | None = None
+    facebook_page_embed_url: str | None = None
+    registration_badge_media_id: int | None = None
+    useful_links_title: str | None = None
+    useful_links_title_vi: str | None = None
+    categories_title: str | None = None
+    categories_title_vi: str | None = None
+    copyright_text: str | None = None
+    copyright_text_vi: str | None = None
+    show_product_categories: bool = True
+    social: FooterSocialLinks = Field(default_factory=FooterSocialLinks)
+
+
+class FooterContactPublic(BaseModel):
+    phone: str | None = None
+    email: str | None = None
+    address: str | None = None
+    business_registration: str | None = None
+    showroom_note: str | None = None
+    opening_hours: str | None = None
+    map_embed_url: str | None = None
+    facebook_page_embed_url: str | None = None
+    registration_badge_url: str | None = None
+    useful_links_title: str | None = None
+    categories_title: str | None = None
+    copyright_line: str | None = None
+    show_product_categories: bool = True
+    social: dict[str, str] = Field(default_factory=dict)
+
+
 class SiteSettingsBase(BaseModel):
     site_name: str = "INSPO"
     logo_media_id: int | None = None
@@ -408,6 +458,7 @@ class SiteSettingsBase(BaseModel):
     collections_subtitle: str | None = None
     collections_subtitle_vi: str | None = None
     footer_links: list[FooterLinkConfig] = Field(default_factory=list)
+    footer_contact: FooterContactConfig | None = None
 
 
 class SiteSettingsIn(SiteSettingsBase):
@@ -431,6 +482,7 @@ class SitePublic(BaseModel):
     footer_tagline: str | None = None
     collections_subtitle: str | None = None
     footer_links: list[FooterLinkPublic] = Field(default_factory=list)
+    footer_contact: FooterContactPublic | None = None
 
 
 class ShopQuizBase(BaseModel):

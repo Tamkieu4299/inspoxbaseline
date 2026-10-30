@@ -375,3 +375,4 @@ class SiteSettings(Base, TimestampMixin):
     collections_subtitle: Mapped[str | None] = mapped_column(String(500), nullable=True)
     collections_subtitle_vi: Mapped[str | None] = mapped_column(String(500), nullable=True)
     footer_links: Mapped[list] = mapped_column(JSON, default=list)
+    footer_contact: Mapped[dict | None] = mapped_column(JSON, nullable=True)

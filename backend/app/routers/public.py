@@ -1004,6 +1004,10 @@ def get_site(
 
     footer_links = resolve_footer_links(site.footer_links, lang)
 
+    from ..footer_contact import resolve_footer_contact
+
+    footer_contact = resolve_footer_contact(site.footer_contact, lang, db)
+
     return SitePublic(
         site_name=site.site_name,
         logo_url=site.logo_media.url if site.logo_media else None,
@@ -1015,4 +1019,5 @@ def get_site(
         footer_tagline=footer_tagline,
         collections_subtitle=collections_subtitle,
         footer_links=footer_links,
+        footer_contact=footer_contact,
     )

@@ -578,7 +578,12 @@ def _get_or_create_site(db: Session, tenant_id: int) -> SiteSettings:
 
 @router.get("/site", response_model=SiteSettingsOut)
 def get_site_settings(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
+    from ..footer_contact import normalize_footer_contact
+    from ..footer_links import normalize_footer_link_configs
+
     site = _get_or_create_site(db, tenant.id)
+    site.footer_links = normalize_footer_link_configs(site.footer_links)
+    site.footer_contact = normalize_footer_contact(site.footer_contact)
     return SiteSettingsOut.model_validate(site)
 
 
@@ -597,6 +602,13 @@ def update_site_settings(
         from ..footer_links import normalize_footer_link_configs
 
         data["footer_links"] = normalize_footer_link_configs(data["footer_links"])
+    if "footer_contact" in data and data["footer_contact"] is not None:
+        from ..footer_contact import normalize_footer_contact
+
+        fc = data["footer_contact"]
+        if hasattr(fc, "model_dump"):
+            fc = fc.model_dump()
+        data["footer_contact"] = normalize_footer_contact(fc)
     for field, value in data.items():
         setattr(site, field, value)
     db.commit()

@@ -393,6 +393,56 @@ export interface FooterLinkPublic {
   url?: string | null;
 }
 
+export interface FooterSocialLinks {
+  facebook?: string | null;
+  instagram?: string | null;
+  threads?: string | null;
+  youtube?: string | null;
+  tiktok?: string | null;
+  zalo?: string | null;
+}
+
+export interface FooterContactConfig {
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  address_vi?: string | null;
+  business_registration?: string | null;
+  business_registration_vi?: string | null;
+  showroom_note?: string | null;
+  showroom_note_vi?: string | null;
+  opening_hours?: string | null;
+  opening_hours_vi?: string | null;
+  map_embed_url?: string | null;
+  facebook_page_embed_url?: string | null;
+  registration_badge_media_id?: number | null;
+  useful_links_title?: string | null;
+  useful_links_title_vi?: string | null;
+  categories_title?: string | null;
+  categories_title_vi?: string | null;
+  copyright_text?: string | null;
+  copyright_text_vi?: string | null;
+  show_product_categories?: boolean;
+  social?: FooterSocialLinks;
+}
+
+export interface FooterContactPublic {
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  business_registration?: string | null;
+  showroom_note?: string | null;
+  opening_hours?: string | null;
+  map_embed_url?: string | null;
+  facebook_page_embed_url?: string | null;
+  registration_badge_url?: string | null;
+  useful_links_title?: string | null;
+  categories_title?: string | null;
+  copyright_line?: string | null;
+  show_product_categories?: boolean;
+  social?: Record<string, string>;
+}
+
 export interface SitePublic {
   site_name: string;
   logo_url?: string | null;
@@ -404,6 +454,7 @@ export interface SitePublic {
   footer_tagline?: string | null;
   collections_subtitle?: string | null;
   footer_links?: FooterLinkPublic[];
+  footer_contact?: FooterContactPublic | null;
 }
 
 export interface SiteSettings {
@@ -421,6 +472,7 @@ export interface SiteSettings {
   collections_subtitle?: string | null;
   collections_subtitle_vi?: string | null;
   footer_links?: FooterLinkConfig[];
+  footer_contact?: FooterContactConfig | null;
 }
 
 export interface TenantAdmin {
