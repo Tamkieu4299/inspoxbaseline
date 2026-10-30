@@ -266,6 +266,18 @@ export default function SiteTab() {
             />
             {t("admin.footerShowCategories")}
           </label>
+          <Field label={t("admin.footerFollowTitle")}>
+            <TextInput
+              value={footerContact.follow_section_title || ""}
+              onChange={(e) => setFooterContact({ follow_section_title: e.target.value || null })}
+              placeholder={t("footer.followUs")}
+            />
+          </Field>
+          <ViInput
+            label={t("admin.footerFollowTitle")}
+            value={footerContact.follow_section_title_vi || ""}
+            onChange={(e) => setFooterContact({ follow_section_title_vi: e.target.value || null })}
+          />
         </div>
         <div>
           <p className="font-label text-label-caps text-primary uppercase mb-3">{t("admin.socialLinks")}</p>

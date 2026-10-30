@@ -423,6 +423,8 @@ export interface FooterContactConfig {
   copyright_text?: string | null;
   copyright_text_vi?: string | null;
   show_product_categories?: boolean;
+  follow_section_title?: string | null;
+  follow_section_title_vi?: string | null;
   social?: FooterSocialLinks;
 }
 
@@ -440,6 +442,7 @@ export interface FooterContactPublic {
   categories_title?: string | null;
   copyright_line?: string | null;
   show_product_categories?: boolean;
+  follow_section_title?: string | null;
   social?: Record<string, string>;
 }
 

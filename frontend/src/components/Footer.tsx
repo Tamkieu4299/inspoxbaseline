@@ -218,32 +218,40 @@ export default function Footer() {
               </FooterColumn>
             ) : null}
 
-            {contact?.facebook_page_embed_url ? (
-              <div className="w-full max-w-[340px] overflow-hidden rounded-sm border border-outline-variant">
-                <iframe
-                  title={t("footer.facebookEmbed")}
-                  src={contact.facebook_page_embed_url}
-                  width="340"
-                  height="130"
-                  className="w-full max-w-full border-0"
-                  loading="lazy"
-                  scrolling="no"
-                  allow="encrypted-media"
-                />
-              </div>
-            ) : null}
-
-            {contact?.map_embed_url ? (
-              <div className="w-full max-w-[400px] aspect-[4/3] overflow-hidden rounded-sm border border-outline-variant">
-                <iframe
-                  title={t("footer.mapEmbed")}
-                  src={contact.map_embed_url}
-                  className="w-full h-full border-0"
-                  loading="lazy"
-                  allowFullScreen
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              </div>
+            {contact?.facebook_page_embed_url || contact?.map_embed_url ? (
+              <FooterColumn
+                title={contact?.follow_section_title || t("footer.followUs")}
+                defaultOpen
+              >
+                <div className="flex flex-col gap-4">
+                  {contact?.facebook_page_embed_url ? (
+                    <div className="w-full max-w-[340px] overflow-hidden rounded-sm border border-outline-variant">
+                      <iframe
+                        title={t("footer.facebookEmbed")}
+                        src={contact.facebook_page_embed_url}
+                        width="340"
+                        height="130"
+                        className="w-full max-w-full border-0"
+                        loading="lazy"
+                        scrolling="no"
+                        allow="encrypted-media"
+                      />
+                    </div>
+                  ) : null}
+                  {contact?.map_embed_url ? (
+                    <div className="w-full max-w-[400px] aspect-[4/3] overflow-hidden rounded-sm border border-outline-variant">
+                      <iframe
+                        title={t("footer.mapEmbed")}
+                        src={contact.map_embed_url}
+                        className="w-full h-full border-0"
+                        loading="lazy"
+                        allowFullScreen
+                        referrerPolicy="no-referrer-when-downgrade"
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              </FooterColumn>
             ) : null}
           </div>
         </div>

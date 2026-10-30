@@ -40,6 +40,8 @@ def default_footer_contact() -> dict[str, Any]:
         "copyright_text": None,
         "copyright_text_vi": None,
         "show_product_categories": True,
+        "follow_section_title": None,
+        "follow_section_title_vi": None,
         "social": {key: None for key in SOCIAL_NETWORKS},
     }
 
@@ -94,5 +96,8 @@ def resolve_footer_contact(
         "categories_title": _loc(lang, data.get("categories_title"), data.get("categories_title_vi")),
         "copyright_line": _loc(lang, data.get("copyright_text"), data.get("copyright_text_vi")),
         "show_product_categories": bool(data.get("show_product_categories", True)),
+        "follow_section_title": _loc(
+            lang, data.get("follow_section_title"), data.get("follow_section_title_vi")
+        ),
         "social": social,
     }

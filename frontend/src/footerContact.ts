@@ -33,6 +33,8 @@ export function defaultFooterContact(): FooterContactConfig {
     copyright_text: null,
     copyright_text_vi: null,
     show_product_categories: true,
+    follow_section_title: null,
+    follow_section_title_vi: null,
     social: {
       facebook: null,
       instagram: null,

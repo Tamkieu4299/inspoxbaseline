@@ -426,6 +426,8 @@ class FooterContactConfig(BaseModel):
     copyright_text: str | None = None
     copyright_text_vi: str | None = None
     show_product_categories: bool = True
+    follow_section_title: str | None = None
+    follow_section_title_vi: str | None = None
     social: FooterSocialLinks = Field(default_factory=FooterSocialLinks)
 
 
@@ -443,6 +445,7 @@ class FooterContactPublic(BaseModel):
     categories_title: str | None = None
     copyright_line: str | None = None
     show_product_categories: bool = True
+    follow_section_title: str | None = None
     social: dict[str, str] = Field(default_factory=dict)
 
 
