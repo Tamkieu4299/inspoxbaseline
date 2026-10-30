@@ -613,6 +613,7 @@ def update_site_settings(
         setattr(site, field, value)
     db.commit()
     db.refresh(site)
+    site.footer_contact = normalize_footer_contact(site.footer_contact)
     return SiteSettingsOut.model_validate(site)
 
 

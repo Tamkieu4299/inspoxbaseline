@@ -18,6 +18,16 @@ SOCIAL_NETWORKS = (
     "zalo",
 )
 
+_FOOTER_BOOL_KEYS = (
+    "show_product_categories",
+    "floating_contact_enabled",
+    "show_footer_brand",
+    "show_footer_tagline",
+    "show_footer_contact_details",
+    "show_footer_social_icons",
+    "show_footer_registration_badge",
+)
+
 
 def default_footer_contact() -> dict[str, Any]:
     return {
@@ -61,6 +71,11 @@ def normalize_footer_contact(raw: dict | None) -> dict[str, Any]:
     social_in = raw.get("social") if isinstance(raw.get("social"), dict) else {}
     social = {key: social_in.get(key) or None for key in SOCIAL_NETWORKS}
     out = {**base, **{k: raw.get(k) for k in base if k != "social"}, "social": social}
+    for key in _FOOTER_BOOL_KEYS:
+        if out.get(key) is None:
+            out[key] = base[key]
+        else:
+            out[key] = bool(out[key])
     return out
 
 
