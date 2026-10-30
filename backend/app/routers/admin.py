@@ -592,6 +592,7 @@ def update_site_settings(
     payload: SiteSettingsIn, db: Session = Depends(get_db), tenant: Tenant = AdminDep
 ):
     from ..currency import normalize_base_currency
+    from ..footer_contact import normalize_footer_contact
 
     site = _get_or_create_site(db, tenant.id)
     data = payload.model_dump()
@@ -603,8 +604,6 @@ def update_site_settings(
 
         data["footer_links"] = normalize_footer_link_configs(data["footer_links"])
     if "footer_contact" in data and data["footer_contact"] is not None:
-        from ..footer_contact import normalize_footer_contact
-
         fc = data["footer_contact"]
         if hasattr(fc, "model_dump"):
             fc = fc.model_dump()
