@@ -402,6 +402,12 @@ export interface FooterSocialLinks {
   zalo?: string | null;
 }
 
+export interface FloatingContactPublic {
+  zalo_url?: string | null;
+  messenger_url?: string | null;
+  phone_href?: string | null;
+}
+
 export interface FooterContactConfig {
   phone?: string | null;
   email?: string | null;
@@ -425,6 +431,8 @@ export interface FooterContactConfig {
   show_product_categories?: boolean;
   follow_section_title?: string | null;
   follow_section_title_vi?: string | null;
+  messenger_url?: string | null;
+  floating_contact_enabled?: boolean;
   social?: FooterSocialLinks;
 }
 
@@ -444,6 +452,7 @@ export interface FooterContactPublic {
   show_product_categories?: boolean;
   follow_section_title?: string | null;
   social?: Record<string, string>;
+  floating_contact?: FloatingContactPublic | null;
 }
 
 export interface SitePublic {

@@ -19,6 +19,9 @@ from .footer_contact import normalize_footer_contact
 from .models import SiteSettings, Tenant
 
 FB_PAGE_URL = "https://www.facebook.com/profile.php?id=61592847184311"
+FB_MESSENGER_URL = "https://m.me/61592847184311"
+BASELINE_PHONE = "0834 086 256"
+ZALO_CHAT_URL = "https://zalo.me/0834086256"
 FB_EMBED_URL = (
     "https://www.facebook.com/plugins/page.php?href="
     + quote(FB_PAGE_URL, safe="")
@@ -42,15 +45,17 @@ MAP_EMBED_SHOWROOM = (
 
 
 def baseline_social_links() -> dict[str, str]:
-    """Placeholder: all networks point to Facebook until real URLs are set in admin."""
-    return {
-        key: FB_PAGE_URL
-        for key in ("facebook", "instagram", "youtube", "tiktok", "zalo", "threads")
+    """Placeholder: most networks point to Facebook until real URLs are set in admin."""
+    links = {
+        key: FB_PAGE_URL for key in ("facebook", "instagram", "youtube", "tiktok", "threads")
     }
+    links["zalo"] = ZALO_CHAT_URL
+    return links
 
 
 def baseline_footer_contact_patch() -> dict:
     return {
+        "phone": BASELINE_PHONE,
         "address": "21 Võ Trường Toản, An Khánh Ward, Ho Chi Minh City, Vietnam",
         "address_vi": "21 Võ Trường Toản, Phường An Khánh, TP. HCM",
         "showroom_note": (
@@ -61,6 +66,8 @@ def baseline_footer_contact_patch() -> dict:
         ),
         "map_embed_url": MAP_EMBED_SHOWROOM,
         "facebook_page_embed_url": FB_EMBED_URL,
+        "messenger_url": FB_MESSENGER_URL,
+        "floating_contact_enabled": True,
         "social": baseline_social_links(),
         "useful_links_title": None,
         "useful_links_title_vi": "Liên kết hữu ích",

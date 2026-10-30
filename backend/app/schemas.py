@@ -428,7 +428,15 @@ class FooterContactConfig(BaseModel):
     show_product_categories: bool = True
     follow_section_title: str | None = None
     follow_section_title_vi: str | None = None
+    messenger_url: str | None = None
+    floating_contact_enabled: bool = True
     social: FooterSocialLinks = Field(default_factory=FooterSocialLinks)
+
+
+class FloatingContactPublic(BaseModel):
+    zalo_url: str | None = None
+    messenger_url: str | None = None
+    phone_href: str | None = None
 
 
 class FooterContactPublic(BaseModel):
@@ -447,6 +455,7 @@ class FooterContactPublic(BaseModel):
     show_product_categories: bool = True
     follow_section_title: str | None = None
     social: dict[str, str] = Field(default_factory=dict)
+    floating_contact: FloatingContactPublic | None = None
 
 
 class SiteSettingsBase(BaseModel):

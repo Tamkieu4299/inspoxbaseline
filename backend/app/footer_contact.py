@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -42,6 +43,8 @@ def default_footer_contact() -> dict[str, Any]:
         "show_product_categories": True,
         "follow_section_title": None,
         "follow_section_title_vi": None,
+        "messenger_url": None,
+        "floating_contact_enabled": True,
         "social": {key: None for key in SOCIAL_NETWORKS},
     }
 
@@ -53,6 +56,50 @@ def normalize_footer_contact(raw: dict | None) -> dict[str, Any]:
     social_in = raw.get("social") if isinstance(raw.get("social"), dict) else {}
     social = {key: social_in.get(key) or None for key in SOCIAL_NETWORKS}
     out = {**base, **{k: raw.get(k) for k in base if k != "social"}, "social": social}
+    return out
+
+
+def _phone_digits(phone: str | None) -> str | None:
+    if not phone:
+        return None
+    digits = re.sub(r"\D", "", phone.strip())
+    if not digits:
+        return None
+    if digits.startswith("84") and len(digits) >= 10:
+        digits = "0" + digits[2:]
+    return digits
+
+
+def _zalo_chat_url(data: dict[str, Any], social: dict[str, str | None]) -> str | None:
+    zalo = (social.get("zalo") or "").strip()
+    if zalo and "zalo.me" in zalo.lower():
+        return zalo
+    digits = _phone_digits(data.get("phone"))
+    if digits:
+        return f"https://zalo.me/{digits}"
+    return None
+
+
+def _resolve_floating_contact(data: dict[str, Any], social: dict[str, str | None]) -> dict[str, str] | None:
+    if not bool(data.get("floating_contact_enabled", True)):
+        return None
+    zalo_url = _zalo_chat_url(data, social)
+    messenger_url = (data.get("messenger_url") or "").strip() or None
+    phone = (data.get("phone") or "").strip() or None
+    phone_href = None
+    if phone:
+        digits = _phone_digits(phone)
+        if digits:
+            phone_href = f"tel:{digits}"
+    if not zalo_url and not messenger_url and not phone_href:
+        return None
+    out: dict[str, str] = {}
+    if zalo_url:
+        out["zalo_url"] = zalo_url
+    if messenger_url:
+        out["messenger_url"] = messenger_url
+    if phone_href:
+        out["phone_href"] = phone_href
     return out
 
 
@@ -100,4 +147,7 @@ def resolve_footer_contact(
             lang, data.get("follow_section_title"), data.get("follow_section_title_vi")
         ),
         "social": social,
+        "floating_contact": _resolve_floating_contact(
+            data, normalize_footer_contact(data).get("social") or {}
+        ),
     }

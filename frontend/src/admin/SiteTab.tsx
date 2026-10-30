@@ -212,6 +212,21 @@ export default function SiteTab() {
             placeholder="https://www.facebook.com/plugins/page.php?href=..."
           />
         </Field>
+        <Field label={t("admin.footerMessenger")}>
+          <TextInput
+            value={footerContact.messenger_url || ""}
+            onChange={(e) => setFooterContact({ messenger_url: e.target.value || null })}
+            placeholder="https://m.me/YourPage"
+          />
+        </Field>
+        <label className="flex items-center gap-2 font-body text-body-md text-primary">
+          <Checkbox
+            checked={footerContact.floating_contact_enabled !== false}
+            onChange={(e) => setFooterContact({ floating_contact_enabled: e.target.checked })}
+          />
+          {t("admin.footerFloatingContact")}
+        </label>
+        <p className="font-body text-body-sm text-secondary -mt-2">{t("admin.footerFloatingContactHint")}</p>
         <ImageField
           label={t("admin.footerRegBadge")}
           value={

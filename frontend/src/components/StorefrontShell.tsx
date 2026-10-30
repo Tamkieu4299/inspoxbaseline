@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
+import FloatingContactBar from "./FloatingContactBar";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 import PageLoader from "./PageLoader";
@@ -37,6 +38,7 @@ export default function StorefrontShell({ children }: { children: ReactNode }) {
           {children}
         </div>
         <Footer />
+        <FloatingContactBar />
       </div>
     </>
   );
