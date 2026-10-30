@@ -1,4 +1,4 @@
-import type { FooterContactConfig, FooterSocialLink } from "./types";
+import type { FooterContactConfig, FooterFloatingLink, FooterSocialLink } from "./types";
 
 export const SOCIAL_NETWORKS = [
   "facebook",
@@ -11,6 +11,16 @@ export const SOCIAL_NETWORKS = [
 
 export type SocialNetwork = (typeof SOCIAL_NETWORKS)[number];
 
+export const FLOATING_CONTACT_ICONS = ["zalo", "messenger", "phone"] as const;
+
+export type FloatingContactIcon = (typeof FLOATING_CONTACT_ICONS)[number];
+
+export const FLOATING_CONTACT_LABELS: Record<FloatingContactIcon, string> = {
+  zalo: "Zalo",
+  messenger: "Messenger",
+  phone: "Hotline / gọi điện",
+};
+
 export const SOCIAL_NETWORK_LABELS: Record<SocialNetwork, string> = {
   facebook: "Facebook",
   instagram: "Instagram",
@@ -19,6 +29,44 @@ export const SOCIAL_NETWORK_LABELS: Record<SocialNetwork, string> = {
   zalo: "Zalo",
   threads: "Threads",
 };
+
+function normalizePhoneHref(urlOrPhone: string): string {
+  const raw = urlOrPhone.trim();
+  if (!raw) return "";
+  if (raw.toLowerCase().startsWith("tel:")) return raw;
+  return phoneTelHref(raw);
+}
+
+function normalizeFloatingContactLinks(
+  raw: FooterContactConfig,
+  socialLinks: FooterSocialLink[]
+): FooterFloatingLink[] {
+  const links = raw.floating_contact_links;
+  if (Array.isArray(links) && links.length > 0) {
+    return links
+      .map((item) => ({
+        icon: (item.icon || "").toLowerCase() as FloatingContactIcon,
+        url: (item.url || "").trim(),
+      }))
+      .filter((item) => FLOATING_CONTACT_ICONS.includes(item.icon as FloatingContactIcon) && item.url)
+      .map((item) =>
+        item.icon === "phone" ? { ...item, url: normalizePhoneHref(item.url) || item.url } : item
+      );
+  }
+  const out: FooterFloatingLink[] = [];
+  const zaloSocial = socialLinks.find((l) => l.icon === "zalo")?.url;
+  const zalo =
+    zaloSocial ||
+    (raw.phone?.trim() ? `https://zalo.me/${raw.phone.replace(/\D/g, "")}` : "");
+  if (zalo) out.push({ icon: "zalo", url: zalo });
+  const messenger = raw.messenger_url?.trim();
+  if (messenger) out.push({ icon: "messenger", url: messenger });
+  if (raw.phone?.trim()) {
+    const tel = normalizePhoneHref(raw.phone);
+    if (tel) out.push({ icon: "phone", url: tel });
+  }
+  return out;
+}
 
 function normalizeSocialLinks(raw: FooterContactConfig): FooterSocialLink[] {
   const links = raw.social_links;
@@ -62,8 +110,8 @@ export function defaultFooterContact(): FooterContactConfig {
     show_product_categories: true,
     follow_section_title: null,
     follow_section_title_vi: null,
-    messenger_url: null,
     floating_contact_enabled: true,
+    floating_contact_links: [],
     show_footer_brand: true,
     show_footer_tagline: true,
     show_footer_contact_details: true,
@@ -77,9 +125,11 @@ export function normalizeFooterContact(raw: FooterContactConfig | null | undefin
   const base = defaultFooterContact();
   if (!raw) return base;
   const merged = { ...base, ...raw };
+  const social_links = normalizeSocialLinks(merged);
   return {
     ...merged,
-    social_links: normalizeSocialLinks(merged),
+    social_links,
+    floating_contact_links: normalizeFloatingContactLinks(merged, social_links),
   };
 }
 

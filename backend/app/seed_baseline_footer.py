@@ -44,6 +44,15 @@ MAP_EMBED_SHOWROOM = (
 )
 
 
+def baseline_floating_contact_links() -> list[dict[str, str]]:
+    digits = BASELINE_PHONE.replace(" ", "")
+    return [
+        {"icon": "zalo", "url": ZALO_CHAT_URL},
+        {"icon": "messenger", "url": FB_MESSENGER_URL},
+        {"icon": "phone", "url": f"tel:{digits}"},
+    ]
+
+
 def baseline_social_links() -> list[dict[str, str]]:
     """Default footer badges — edit URLs in Admin → Site."""
     return [
@@ -69,8 +78,8 @@ def baseline_footer_contact_patch() -> dict:
         ),
         "map_embed_url": MAP_EMBED_SHOWROOM,
         "facebook_page_embed_url": FB_EMBED_URL,
-        "messenger_url": FB_MESSENGER_URL,
         "floating_contact_enabled": True,
+        "floating_contact_links": baseline_floating_contact_links(),
         "social_links": baseline_social_links(),
         "useful_links_title": None,
         "useful_links_title_vi": "Liên kết hữu ích",
@@ -97,8 +106,11 @@ def apply_baseline_footer(*, dry_run: bool = True) -> None:
         site.footer_tagline_vi = FOOTER_TAGLINE_VI
         merged = normalize_footer_contact(site.footer_contact)
         patch = baseline_footer_contact_patch()
-        merged.update({k: v for k, v in patch.items() if k != "social_links"})
+        merged.update(
+            {k: v for k, v in patch.items() if k not in ("social_links", "floating_contact_links")}
+        )
         merged["social_links"] = baseline_social_links()
+        merged["floating_contact_links"] = baseline_floating_contact_links()
         site.footer_contact = merged
 
         if dry_run:

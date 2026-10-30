@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import { useLanguage } from "../i18n";
-import type { FloatingContactPublic } from "../types";
+import type { FooterFloatingLink } from "../types";
 
 function ZaloIcon() {
   return (
@@ -56,63 +56,46 @@ function FloatingButton({
   );
 }
 
-function Bar({ links }: { links: FloatingContactPublic }) {
+function FloatingLinkButton({ link }: { link: FooterFloatingLink }) {
   const { t } = useLanguage();
-  return (
-    <div
-      id="ft-contact-icons-out-m"
-      className="fixed bottom-6 right-4 z-[500] flex flex-col gap-3 pointer-events-none sm:bottom-8 sm:right-6"
-      aria-label={t("floatingContact.groupLabel")}
-    >
-      {links.zalo_url ? (
-        <div className="pointer-events-auto">
-          <FloatingButton
-            href={links.zalo_url}
-            label={t("floatingContact.zalo")}
-            className="bg-[#0068FF]"
-            external
-          >
-            <ZaloIcon />
-          </FloatingButton>
-        </div>
-      ) : null}
-      {links.messenger_url ? (
-        <div className="pointer-events-auto">
-          <FloatingButton
-            href={links.messenger_url}
-            label={t("floatingContact.messenger")}
-            className="bg-gradient-to-br from-[#A334FA] to-[#0078FF]"
-            external
-          >
-            <MessengerIcon />
-          </FloatingButton>
-        </div>
-      ) : null}
-      {links.phone_href ? (
-        <div className="pointer-events-auto">
-          <FloatingButton
-            href={links.phone_href}
-            label={t("floatingContact.phone")}
-            className="bg-[#22c55e]"
-            pulse
-          >
-            <PhoneIcon />
-          </FloatingButton>
-        </div>
-      ) : null}
-    </div>
-  );
+  switch (link.icon) {
+    case "zalo":
+      return (
+        <FloatingButton href={link.url} label={t("floatingContact.zalo")} className="bg-[#0068FF]" external>
+          <ZaloIcon />
+        </FloatingButton>
+      );
+    case "messenger":
+      return (
+        <FloatingButton
+          href={link.url}
+          label={t("floatingContact.messenger")}
+          className="bg-gradient-to-br from-[#A334FA] to-[#0078FF]"
+          external
+        >
+          <MessengerIcon />
+        </FloatingButton>
+      );
+    case "phone":
+      return (
+        <FloatingButton href={link.url} label={t("floatingContact.phone")} className="bg-[#22c55e]" pulse>
+          <PhoneIcon />
+        </FloatingButton>
+      );
+    default:
+      return null;
+  }
 }
 
 export default function FloatingContactBar() {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const { data: site } = useQuery({
     queryKey: ["site", lang],
     queryFn: () => api.getSite(lang),
     staleTime: 60_000,
   });
-  const links = site?.footer_contact?.floating_contact;
-  if (!links) return null;
+  const links = site?.footer_contact?.floating_contact_links ?? [];
+  if (links.length === 0) return null;
   return (
     <>
       <style>{`
@@ -121,7 +104,17 @@ export default function FloatingContactBar() {
           50% { box-shadow: 0 10px 25px -3px rgb(0 0 0 / 0.28); }
         }
       `}</style>
-      <Bar links={links} />
+      <div
+        id="ft-contact-icons-out-m"
+        className="fixed bottom-6 right-4 z-[500] flex flex-col gap-3 pointer-events-none sm:bottom-8 sm:right-6"
+        aria-label={t("floatingContact.groupLabel")}
+      >
+        {links.map((link, index) => (
+          <div key={`${link.icon}-${index}`} className="pointer-events-auto">
+            <FloatingLinkButton link={link} />
+          </div>
+        ))}
+      </div>
     </>
   );
 }

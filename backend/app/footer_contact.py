@@ -18,6 +18,12 @@ SOCIAL_NETWORKS = (
     "threads",
 )
 
+FLOATING_CONTACT_ICONS = (
+    "zalo",
+    "messenger",
+    "phone",
+)
+
 _FOOTER_BOOL_KEYS = (
     "show_product_categories",
     "floating_contact_enabled",
@@ -53,8 +59,8 @@ def default_footer_contact() -> dict[str, Any]:
         "show_product_categories": True,
         "follow_section_title": None,
         "follow_section_title_vi": None,
-        "messenger_url": None,
         "floating_contact_enabled": True,
+        "floating_contact_links": [],
         "show_footer_brand": True,
         "show_footer_tagline": True,
         "show_footer_contact_details": True,
@@ -92,8 +98,14 @@ def normalize_footer_contact(raw: dict | None) -> dict[str, Any]:
     base = default_footer_contact()
     if not raw or not isinstance(raw, dict):
         return base
-    skip = {"social", "social_links"}
-    out = {**base, **{k: raw.get(k) for k in base if k not in skip}, "social_links": normalize_social_links(raw)}
+    social_links = normalize_social_links(raw)
+    skip = {"social", "social_links", "floating_contact_links", "messenger_url"}
+    out = {
+        **base,
+        **{k: raw.get(k) for k in base if k not in skip},
+        "social_links": social_links,
+        "floating_contact_links": normalize_floating_contact_links(raw, social_links),
+    }
     for key in _FOOTER_BOOL_KEYS:
         if out.get(key) is None:
             out[key] = base[key]
@@ -113,40 +125,61 @@ def _phone_digits(phone: str | None) -> str | None:
     return digits
 
 
-def _zalo_chat_url(data: dict[str, Any], social_links: list[dict[str, str]]) -> str | None:
+def _phone_href(url_or_phone: str) -> str | None:
+    raw = (url_or_phone or "").strip()
+    if not raw:
+        return None
+    if raw.lower().startswith("tel:"):
+        return raw
+    digits = _phone_digits(raw)
+    return f"tel:{digits}" if digits else raw
+
+
+def _zalo_url_from_social(social_links: list[dict[str, str]]) -> str | None:
     for item in social_links:
         if item.get("icon") == "zalo":
             zalo = (item.get("url") or "").strip()
-            if zalo and "zalo.me" in zalo.lower():
+            if zalo:
                 return zalo
-    digits = _phone_digits(data.get("phone"))
-    if digits:
-        return f"https://zalo.me/{digits}"
     return None
 
 
-def _resolve_floating_contact(
-    data: dict[str, Any], social_links: list[dict[str, str]]
-) -> dict[str, str] | None:
-    if not bool(data.get("floating_contact_enabled", True)):
-        return None
-    zalo_url = _zalo_chat_url(data, social_links)
-    messenger_url = (data.get("messenger_url") or "").strip() or None
-    phone = (data.get("phone") or "").strip() or None
-    phone_href = None
-    if phone:
-        digits = _phone_digits(phone)
+def normalize_floating_contact_links(
+    raw: dict[str, Any], social_links: list[dict[str, str]]
+) -> list[dict[str, str]]:
+    """Fixed corner buttons: ordered list of {icon, url}. Migrates legacy messenger_url + phone."""
+    links_in = raw.get("floating_contact_links")
+    if isinstance(links_in, list) and links_in:
+        out: list[dict[str, str]] = []
+        for item in links_in:
+            if not isinstance(item, dict):
+                continue
+            icon = (item.get("icon") or "").strip().lower()
+            url = (item.get("url") or "").strip()
+            if icon not in FLOATING_CONTACT_ICONS or not url:
+                continue
+            if icon == "phone":
+                href = _phone_href(url)
+                if not href:
+                    continue
+                url = href
+            out.append({"icon": icon, "url": url})
+        return out
+
+    out = []
+    zalo = _zalo_url_from_social(social_links)
+    if not zalo:
+        digits = _phone_digits(raw.get("phone"))
         if digits:
-            phone_href = f"tel:{digits}"
-    if not zalo_url and not messenger_url and not phone_href:
-        return None
-    out: dict[str, str] = {}
-    if zalo_url:
-        out["zalo_url"] = zalo_url
-    if messenger_url:
-        out["messenger_url"] = messenger_url
+            zalo = f"https://zalo.me/{digits}"
+    if zalo:
+        out.append({"icon": "zalo", "url": zalo})
+    messenger = (raw.get("messenger_url") or "").strip()
+    if messenger:
+        out.append({"icon": "messenger", "url": messenger})
+    phone_href = _phone_href((raw.get("phone") or "").strip())
     if phone_href:
-        out["phone_href"] = phone_href
+        out.append({"icon": "phone", "url": phone_href})
     return out
 
 
@@ -199,5 +232,9 @@ def resolve_footer_contact(
             lang, data.get("follow_section_title"), data.get("follow_section_title_vi")
         ),
         "social_links": social_links,
-        "floating_contact": _resolve_floating_contact(data, social_links),
+        "floating_contact_links": (
+            normalize_floating_contact_links(data, social_links)
+            if bool(data.get("floating_contact_enabled", True))
+            else []
+        ),
     }

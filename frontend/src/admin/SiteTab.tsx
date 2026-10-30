@@ -4,12 +4,22 @@ import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
 import { FOOTER_PRESET_LABELS, normalizeFooterLinkConfigs } from "../footerLinks";
 import {
+  FLOATING_CONTACT_ICONS,
+  FLOATING_CONTACT_LABELS,
   SOCIAL_NETWORKS,
   SOCIAL_NETWORK_LABELS,
   normalizeFooterContact,
+  type FloatingContactIcon,
   type SocialNetwork,
 } from "../footerContact";
-import type { FooterContactConfig, FooterLinkConfig, FooterSocialLink, Media, SiteSettings } from "../types";
+import type {
+  FooterContactConfig,
+  FooterFloatingLink,
+  FooterLinkConfig,
+  FooterSocialLink,
+  Media,
+  SiteSettings,
+} from "../types";
 import { ImageField } from "./MediaLibrary";
 import { Checkbox, Field, PrimaryButton, SecondaryButton, Select, TextInput, ViInput } from "./ui";
 
@@ -64,6 +74,24 @@ export default function SiteTab() {
 
   function addSocialLink() {
     setSocialLinks([...(footerContact.social_links || []), { icon: "facebook", url: "" }]);
+  }
+
+  function setFloatingLinks(links: FooterFloatingLink[]) {
+    setFooterContact({ floating_contact_links: links });
+  }
+
+  function updateFloatingLink(index: number, patch: Partial<FooterFloatingLink>) {
+    const next = [...(footerContact.floating_contact_links || [])];
+    next[index] = { ...next[index], ...patch };
+    setFloatingLinks(next);
+  }
+
+  function removeFloatingLink(index: number) {
+    setFloatingLinks((footerContact.floating_contact_links || []).filter((_, i) => i !== index));
+  }
+
+  function addFloatingLink() {
+    setFloatingLinks([...(footerContact.floating_contact_links || []), { icon: "zalo", url: "" }]);
   }
 
   function setFooterLink(index: number, patch: Partial<FooterLinkConfig>) {
@@ -229,21 +257,60 @@ export default function SiteTab() {
             placeholder="https://www.facebook.com/plugins/page.php?href=..."
           />
         </Field>
-        <Field label={t("admin.footerMessenger")}>
-          <TextInput
-            value={footerContact.messenger_url || ""}
-            onChange={(e) => setFooterContact({ messenger_url: e.target.value || null })}
-            placeholder="https://m.me/YourPage"
-          />
-        </Field>
-        <label className="flex items-center gap-2 font-body text-body-md text-primary">
-          <Checkbox
-            checked={footerContact.floating_contact_enabled !== false}
-            onChange={(e) => setFooterContact({ floating_contact_enabled: e.target.checked })}
-          />
-          {t("admin.footerFloatingContact")}
-        </label>
-        <p className="font-body text-body-sm text-secondary -mt-2">{t("admin.footerFloatingContactHint")}</p>
+        <div className="border-t border-surface-container-highest pt-4 flex flex-col gap-3">
+          <label className="flex items-center gap-2 font-body text-body-md text-primary">
+            <Checkbox
+              checked={footerContact.floating_contact_enabled !== false}
+              onChange={(e) => setFooterContact({ floating_contact_enabled: e.target.checked })}
+            />
+            {t("admin.footerFloatingContact")}
+          </label>
+          <p className="font-body text-body-sm text-secondary">{t("admin.footerFloatingContactHint")}</p>
+          {footerContact.floating_contact_enabled !== false ? (
+            <>
+              <div className="flex flex-col gap-3">
+                {(footerContact.floating_contact_links || []).map((link, index) => (
+                  <div
+                    key={`float-${index}`}
+                    className="grid grid-cols-1 md:grid-cols-[minmax(140px,180px)_1fr_auto] gap-3 items-end border border-surface-container-highest p-3"
+                  >
+                    <Field label={t("admin.socialLinkIcon")}>
+                      <Select
+                        value={link.icon}
+                        onChange={(e) =>
+                          updateFloatingLink(index, { icon: e.target.value as FloatingContactIcon })
+                        }
+                      >
+                        {FLOATING_CONTACT_ICONS.map((icon) => (
+                          <option key={icon} value={icon}>
+                            {FLOATING_CONTACT_LABELS[icon]}
+                          </option>
+                        ))}
+                      </Select>
+                    </Field>
+                    <Field label={t("admin.socialLinkUrl")}>
+                      <TextInput
+                        value={link.url}
+                        onChange={(e) => updateFloatingLink(index, { url: e.target.value })}
+                        placeholder={
+                          link.icon === "phone"
+                            ? "tel:0834086256 or 0834 086 256"
+                            : "https://"
+                        }
+                      />
+                    </Field>
+                    <SecondaryButton type="button" onClick={() => removeFloatingLink(index)}>
+                      {t("admin.socialLinkRemove")}
+                    </SecondaryButton>
+                  </div>
+                ))}
+              </div>
+              <SecondaryButton type="button" onClick={addFloatingLink}>
+                {t("admin.floatingLinkAdd")}
+              </SecondaryButton>
+            </>
+          ) : null}
+        </div>
         <ImageField
           label={t("admin.footerRegBadge")}
           value={

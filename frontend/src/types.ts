@@ -408,10 +408,9 @@ export interface FooterSocialLink {
   url: string;
 }
 
-export interface FloatingContactPublic {
-  zalo_url?: string | null;
-  messenger_url?: string | null;
-  phone_href?: string | null;
+export interface FooterFloatingLink {
+  icon: string;
+  url: string;
 }
 
 export interface FooterContactConfig {
@@ -437,8 +436,10 @@ export interface FooterContactConfig {
   show_product_categories?: boolean;
   follow_section_title?: string | null;
   follow_section_title_vi?: string | null;
-  messenger_url?: string | null;
   floating_contact_enabled?: boolean;
+  floating_contact_links?: FooterFloatingLink[];
+  /** @deprecated migrated to floating_contact_links */
+  messenger_url?: string | null;
   show_footer_brand?: boolean;
   show_footer_tagline?: boolean;
   show_footer_contact_details?: boolean;
@@ -470,7 +471,7 @@ export interface FooterContactPublic {
   show_footer_registration_badge?: boolean;
   follow_section_title?: string | null;
   social_links?: FooterSocialLink[];
-  floating_contact?: FloatingContactPublic | null;
+  floating_contact_links?: FooterFloatingLink[];
 }
 
 export interface SitePublic {

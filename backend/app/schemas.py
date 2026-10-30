@@ -401,6 +401,11 @@ class FooterSocialLinkConfig(BaseModel):
     url: str
 
 
+class FooterFloatingLinkConfig(BaseModel):
+    icon: str
+    url: str
+
+
 class FooterContactConfig(BaseModel):
     phone: str | None = None
     email: str | None = None
@@ -424,8 +429,8 @@ class FooterContactConfig(BaseModel):
     show_product_categories: bool = True
     follow_section_title: str | None = None
     follow_section_title_vi: str | None = None
-    messenger_url: str | None = None
     floating_contact_enabled: bool = True
+    floating_contact_links: list[FooterFloatingLinkConfig] = Field(default_factory=list)
     show_footer_brand: bool = True
     show_footer_tagline: bool = True
     show_footer_contact_details: bool = True
@@ -439,10 +444,9 @@ class FooterSocialLinkPublic(BaseModel):
     url: str
 
 
-class FloatingContactPublic(BaseModel):
-    zalo_url: str | None = None
-    messenger_url: str | None = None
-    phone_href: str | None = None
+class FooterFloatingLinkPublic(BaseModel):
+    icon: str
+    url: str
 
 
 class FooterContactPublic(BaseModel):
@@ -466,7 +470,7 @@ class FooterContactPublic(BaseModel):
     show_footer_registration_badge: bool = True
     follow_section_title: str | None = None
     social_links: list[FooterSocialLinkPublic] = Field(default_factory=list)
-    floating_contact: FloatingContactPublic | None = None
+    floating_contact_links: list[FooterFloatingLinkPublic] = Field(default_factory=list)
 
 
 class SiteSettingsBase(BaseModel):
