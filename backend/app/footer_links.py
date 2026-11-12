@@ -41,7 +41,6 @@ REMOVED_FOOTER_PRESET_KEYS = frozenset(
     }
 )
 
-# Legacy rows default on for terms/shipping/brand/admin.
 DEFAULT_ENABLED_FOOTER_KEYS = frozenset({"terms", "shipping", "brand", "admin"})
 
 
@@ -63,38 +62,31 @@ def default_footer_link_configs() -> list[dict[str, Any]]:
 
 
 def normalize_footer_link_configs(stored: list | None) -> list[dict[str, Any]]:
-    """Merge stored rows with presets; unset stored => opt-in defaults per preset."""
+    """Sanitize rows and preserve merchant-defined order (add/remove/reorder in admin)."""
     if not stored:
         return default_footer_link_configs()
-    by_key = {str(item.get("key")): item for item in stored if item.get("key")}
     out: list[dict[str, Any]] = []
-    for key in FOOTER_PRESET_KEYS:
-        row = by_key.get(key, {})
-        enabled = row.get("enabled")
+    seen: set[str] = set()
+    for raw in stored:
+        if not isinstance(raw, dict):
+            continue
+        key = str(raw.get("key") or "").strip()
+        if not key or key in REMOVED_FOOTER_PRESET_KEYS or key in seen:
+            continue
+        seen.add(key)
+        enabled = raw.get("enabled")
         if enabled is None:
-            enabled = _preset_enabled_by_default(key)
+            enabled = _preset_enabled_by_default(key) if key in FOOTER_PRESET_DEFAULTS else True
         out.append(
             {
                 "key": key,
                 "enabled": bool(enabled),
-                "label": row.get("label"),
-                "label_vi": row.get("label_vi"),
-                "url": row.get("url"),
+                "label": raw.get("label"),
+                "label_vi": raw.get("label_vi"),
+                "url": raw.get("url"),
             }
         )
-    for key, row in by_key.items():
-        if key in FOOTER_PRESET_DEFAULTS or key in REMOVED_FOOTER_PRESET_KEYS:
-            continue
-        out.append(
-            {
-                "key": key,
-                "enabled": bool(row.get("enabled", True)),
-                "label": row.get("label"),
-                "label_vi": row.get("label_vi"),
-                "url": row.get("url"),
-            }
-        )
-    return out
+    return out if out else default_footer_link_configs()
 
 
 def resolve_footer_links(stored: list | None, lang: str) -> list[dict[str, str | None]]:

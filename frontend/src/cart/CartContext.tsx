@@ -33,8 +33,23 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
+const CART_STORAGE_VERSION = 2;
+
 function storageKey() {
-  return `inspo-cart:${tenantSlug()}`;
+  return `inspo-cart:${tenantSlug()}:v${CART_STORAGE_VERSION}`;
+}
+
+function migrateCartLine(line: CartLine): CartLine {
+  const size = line.size?.trim() || null;
+  if (!size) return line;
+  const upper = size.toUpperCase();
+  if (upper === "ONE SIZE" || upper === "ONE-SIZE" || upper === "OS") {
+    return { ...line, size: "GRIP 2" };
+  }
+  if (/^\d$/.test(size)) {
+    return { ...line, size: `GRIP ${size}` };
+  }
+  return line;
 }
 
 export function lineKey(line: Pick<CartLine, "productId" | "color" | "size">) {
@@ -45,7 +60,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>(() => {
     try {
       const raw = localStorage.getItem(storageKey());
-      return raw ? (JSON.parse(raw) as CartLine[]) : [];
+      if (!raw) return [];
+      const parsed = JSON.parse(raw) as CartLine[];
+      return Array.isArray(parsed) ? parsed.map(migrateCartLine) : [];
     } catch {
       return [];
     }

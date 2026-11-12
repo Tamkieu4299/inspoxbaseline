@@ -23,6 +23,8 @@ from ..models import (
     SiteSettings,
     Tenant,
 )
+from ..product_complements import normalize_complement_links
+from ..product_sizes import normalize_product_sizes
 from ..schemas import (
     BlogPostIn,
     BlogPostOut,
@@ -46,9 +48,11 @@ from ..schemas import (
     OrderAdminOut,
     OrderStatusPatchIn,
 )
-from ..security import AdminDep
+from ..security import AdminDep, require_tenant_admin
+from .tamhub_sync_admin import router as tamhub_sync_router
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
+router.include_router(tamhub_sync_router, dependencies=[Depends(require_tenant_admin)])
 
 
 def _apply_collection(collection: Collection, payload: CollectionIn):
@@ -93,6 +97,8 @@ def _sync_product_categories(
 def _apply_product(db: Session, product: Product | None, payload: ProductIn, tenant_id: int):
     category_ids = _resolve_category_ids(payload)
     data = payload.model_dump(exclude={"images", "category_ids"})
+    data["complements"] = normalize_complement_links(data.get("complements"))
+    data["sizes"] = normalize_product_sizes(data.get("sizes"))
     data["category_id"] = category_ids[0] if category_ids else None
     if product is None:
         product = Product(**data, tenant_id=tenant_id)
@@ -317,6 +323,9 @@ def create_product(payload: ProductIn, db: Session = Depends(get_db), tenant: Te
     product = _apply_product(db, None, payload, tenant.id)
     db.commit()
     db.refresh(product)
+    from ..tamhub_sync import schedule_tenant_sync
+
+    schedule_tenant_sync(tenant.slug)
     return ProductOut.model_validate(product)
 
 
@@ -334,6 +343,9 @@ def update_product(
     _apply_product(db, product, payload, tenant.id)
     db.commit()
     db.refresh(product)
+    from ..tamhub_sync import schedule_tenant_sync
+
+    schedule_tenant_sync(tenant.slug)
     return ProductOut.model_validate(product)
 
 

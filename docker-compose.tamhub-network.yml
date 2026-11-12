@@ -1,0 +1,14 @@
+# Attach inspo backend to TamHub shared network (create once: docker network create inspo-tamhub)
+#
+#   docker compose -f docker-compose.yml -f docker-compose.tamhub-network.yml up -d
+
+services:
+  backend:
+    networks:
+      - default
+      - inspo-tamhub
+
+networks:
+  inspo-tamhub:
+    external: true
+    name: inspo-tamhub

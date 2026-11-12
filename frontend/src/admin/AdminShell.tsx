@@ -15,7 +15,8 @@ export type AdminTab =
   | "nav"
   | "site"
   | "orders"
-  | "users";
+  | "users"
+  | "tamhubSync";
 
 type NavItem = { tab: AdminTab; icon: string; labelKey: string };
 type NavGroup = { labelKey: string; items: NavItem[] };
@@ -54,6 +55,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { tab: "orders", icon: "receipt_long", labelKey: "admin.tab.orders" },
       { tab: "site", icon: "settings", labelKey: "admin.tab.site" },
+      { tab: "tamhubSync", icon: "sync", labelKey: "admin.tab.tamhubSync" },
       { tab: "users", icon: "group", labelKey: "admin.tab.users" },
     ],
   },
@@ -63,7 +65,7 @@ function navGroups(isSuperAdmin: boolean): NavGroup[] {
   if (isSuperAdmin) return NAV_GROUPS;
   return NAV_GROUPS.map((g) =>
     g.labelKey === "admin.hub.system"
-      ? { ...g, items: g.items.filter((i) => i.tab !== "users") }
+      ? { ...g, items: g.items.filter((i) => i.tab !== "users" && i.tab !== "tamhubSync") }
       : g,
   );
 }
@@ -82,6 +84,7 @@ const SCREEN_SUBTITLE: Record<AdminTab, string> = {
   site: "admin.screen.site",
   orders: "admin.screen.orders",
   users: "admin.screen.users",
+  tamhubSync: "admin.screen.tamhubSync",
 };
 
 export function AdminPageHeader({ tab }: { tab: AdminTab }) {

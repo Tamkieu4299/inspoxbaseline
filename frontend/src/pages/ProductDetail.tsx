@@ -11,6 +11,7 @@ import { ProductDescription, ProductTechSpecList } from "../components/ProductSt
 import { useLanguage } from "../i18n";
 import { useStoreCurrency } from "../useStoreCurrency";
 import { useCart } from "../cart/CartContext";
+import ProductComplementsSection from "../components/ProductComplementsSection";
 import {
   canPurchaseWithVariants,
   colorDisplayName,
@@ -38,12 +39,17 @@ export default function ProductDetail() {
     () => (product ? getProductVariantOptions(product) : null),
     [product]
   );
-  const { colors, sizes, hasColors, hasSizes } = variantOptions ?? {
+  const { colors, sizes, sizeOptions, hasColors, hasSizes } = variantOptions ?? {
     colors: [],
     sizes: [],
+    sizeOptions: [],
     hasColors: false,
     hasSizes: false,
   };
+  const gripSizePicker =
+    hasSizes &&
+    (product?.categories?.some((c) => c.slug === "rackets") ||
+      sizes.every((s) => /^GRIP\s/i.test(s)));
 
   const selectedColor =
     hasColors && selectedColorIndex != null && selectedColorIndex >= 0
@@ -69,6 +75,12 @@ export default function ProductDetail() {
     setSelectedSize(null);
     setLightboxIndex(null);
   }, [slug, product?.id]);
+
+  useEffect(() => {
+    if (!selectedSize) return;
+    const opt = sizeOptions.find((o) => o.name === selectedSize);
+    if (opt && !opt.available) setSelectedSize(null);
+  }, [selectedSize, sizeOptions]);
 
   function selectColorway(idx: number) {
     setSelectedColorIndex(idx);
@@ -154,23 +166,35 @@ export default function ProductDetail() {
             {hasSizes && (
               <div className="mb-8">
                 <div className="flex justify-between items-end mb-2">
-                  <h3 className="font-label text-label-caps text-primary uppercase">{t("product.size")}</h3>
+                  <h3 className="font-label text-label-caps text-primary uppercase">
+                    {gripSizePicker ? t("product.gripSize") : t("product.size")}
+                  </h3>
                 </div>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                  {sizes.map((size) => {
-                    const active = selectedSize === size;
+                  {sizeOptions.map((opt) => {
+                    const active = selectedSize === opt.name;
+                    const soldOut = !opt.available;
                     return (
                       <button
-                        key={size}
+                        key={opt.name}
                         type="button"
-                        onClick={() => setSelectedSize(size)}
+                        disabled={soldOut}
+                        aria-disabled={soldOut}
+                        onClick={() => !soldOut && setSelectedSize(opt.name)}
                         className={`py-2 border font-body text-body-md transition-colors ${
-                          active
-                            ? "border-primary bg-primary text-on-primary"
-                            : "border-outline text-primary hover:border-primary hover:bg-surface-container"
+                          soldOut
+                            ? "border-outline-variant bg-surface-container text-secondary/70 opacity-60 cursor-not-allowed"
+                            : active
+                              ? "border-primary bg-primary text-on-primary"
+                              : "border-outline text-primary hover:border-primary hover:bg-surface-container"
                         }`}
                       >
-                        {size}
+                        <span className={soldOut ? "line-through decoration-secondary/60" : undefined}>{opt.name}</span>
+                        {soldOut ? (
+                          <span className="block font-label text-[9px] uppercase tracking-wider mt-0.5 text-secondary">
+                            {t("product.sizeSoldOut")}
+                          </span>
+                        ) : null}
                       </button>
                     );
                   })}
@@ -217,6 +241,12 @@ export default function ProductDetail() {
             <ProductTechSpecList techSpecs={product.tech_specs} />
           </RevealOnScroll>
         </div>
+
+        {product.complement_products && product.complement_products.length > 0 ? (
+          <RevealOnScroll delay={100}>
+            <ProductComplementsSection items={product.complement_products} />
+          </RevealOnScroll>
+        ) : null}
 
         <RevealOnScroll delay={120}>
           <ProductFeatureGrid features={product.features} />

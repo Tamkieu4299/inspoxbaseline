@@ -192,14 +192,33 @@ def _ensure_admin(db, tenant_id: int) -> None:
         db.commit()
 
 
-def _get_or_create_category(db, tenant_id: int, slug: str, name: str) -> Category:
+def _get_or_create_category(
+    db,
+    tenant_id: int,
+    slug: str,
+    name: str,
+    *,
+    name_vi: str | None = None,
+    parent_id: int | None = None,
+) -> Category:
     cat = db.scalar(
         select(Category).where(Category.tenant_id == tenant_id, Category.slug == slug)
     )
     if cat is None:
-        cat = Category(tenant_id=tenant_id, slug=slug, name=name)
+        cat = Category(
+            tenant_id=tenant_id,
+            slug=slug,
+            name=name,
+            name_vi=name_vi or name,
+            parent_id=parent_id,
+        )
         db.add(cat)
         db.flush()
+    else:
+        if name_vi and cat.name_vi != name_vi:
+            cat.name_vi = name_vi
+        if parent_id is not None and cat.parent_id != parent_id:
+            cat.parent_id = parent_id
     return cat
 
 
@@ -248,10 +267,21 @@ def _replace_product_images(db, product: Product, media_rows: list[tuple[Media, 
         )
 
 
+def _overgrips_category(db, tenant_id: int, accessories: Category) -> Category:
+    return _get_or_create_category(
+        db,
+        tenant_id,
+        "overgrips",
+        "OVERGRIPS",
+        name_vi="Overgrip",
+        parent_id=accessories.id,
+    )
+
+
 def _upsert_overgrips(
     db,
     tenant_id: int,
-    accessories: Category,
+    overgrips: Category,
     collection: Collection,
     variants: list[dict],
 ) -> Product:
@@ -279,7 +309,7 @@ def _upsert_overgrips(
             description=OVERGRIPS_DESCRIPTION_EN,
             description_vi=OVERGRIPS_DESCRIPTION_VI,
             price=14.0,
-            category_id=accessories.id,
+            category_id=overgrips.id,
             collection_id=collection.id,
             badge="NEW",
             gallery_layout="slideshow",
@@ -316,11 +346,12 @@ def _upsert_overgrips(
         product.description = OVERGRIPS_DESCRIPTION_EN
         product.description_vi = OVERGRIPS_DESCRIPTION_VI
         product.colors = colors
-        product.category_id = accessories.id
+        product.category_id = overgrips.id
         product.collection_id = collection.id
         product.is_active = True
         product.is_featured = True
 
+    product.categories = [overgrips]
     _replace_product_images(db, product, media_rows)
     return product
 
@@ -352,7 +383,12 @@ def _upsert_racket(db, tenant_id: int, rackets: Category, collection: Collection
             badge="CUSTOM",
             gallery_layout="collage",
             colors=[pink],
-            sizes=["GRIP 1", "GRIP 2", "GRIP 3", "GRIP 4"],
+            sizes=[
+                {"name": "GRIP 1", "available": True},
+                {"name": "GRIP 2", "available": True},
+                {"name": "GRIP 3", "available": True},
+                {"name": "GRIP 4", "available": True},
+            ],
             tech_specs=[
                 {"label": "FRAME", "value": "HEAD SPEED MP", "label_vi": "KHUNG", "value_vi": "HEAD SPEED MP"},
                 {"label": "FINISH", "value": "BASELINE CLUB CUSTOM", "label_vi": "HOÀN THIỆN", "value_vi": "CUSTOM BASELINE CLUB"},
@@ -411,7 +447,10 @@ def run(*, overgrips_only: bool = False) -> None:
         tenant = _ensure_tenant(db)
         _ensure_admin(db, tenant.id)
 
-        accessories = _get_or_create_category(db, tenant.id, "accessories", "ACCESSORIES")
+        accessories = _get_or_create_category(
+            db, tenant.id, "accessories", "ACCESSORIES", name_vi="Phụ kiện"
+        )
+        overgrips_cat = _overgrips_category(db, tenant.id, accessories)
         rackets = _get_or_create_category(db, tenant.id, "rackets", "RACKETS")
 
         racket_media = None
@@ -436,7 +475,7 @@ def run(*, overgrips_only: bool = False) -> None:
         elif racket_media and gear.hero_image_id is None:
             gear.hero_image_id = racket_media.id
 
-        overgrips = _upsert_overgrips(db, tenant.id, accessories, gear, overgrip_variants)
+        overgrips = _upsert_overgrips(db, tenant.id, overgrips_cat, gear, overgrip_variants)
 
         racket = None
         if not overgrips_only:

@@ -7,14 +7,16 @@ import MobileNav from "./MobileNav";
 import NavbarSearch from "./NavbarSearch";
 import { useLanguage } from "../i18n";
 import { useCart } from "../cart/CartContext";
-import { navCategories } from "../categoryNav";
+import { categoryMenuTree } from "../categoryNav";
+import type { CategoryMenuNode } from "../categoryNav";
+import CategoryFlyoutMenu from "./CategoryFlyoutMenu";
 import type { NavItem } from "../types";
 
 interface BuiltLink {
   key: string;
   label: string;
   to: string;
-  children?: { label: string; to: string }[];
+  categoryTree?: CategoryMenuNode[];
 }
 
 function isCategoryView(pathname: string, search: string): boolean {
@@ -66,10 +68,7 @@ export default function Navbar() {
           key: "categories",
           label: t("nav.categories"),
           to: "/collections",
-          children: navCategories(categories).map((c) => ({
-            label: c.name,
-            to: `/products?category=${c.slug}`,
-          })),
+          categoryTree: categoryMenuTree(categories),
         };
       case "page": {
         const page = item.ref ? pageBySlug.get(item.ref) : undefined;
@@ -113,7 +112,7 @@ export default function Navbar() {
   }
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `font-label text-label-caps px-3 py-2 transition-all duration-150 ${
+    `font-label text-label-caps uppercase px-3 py-2 transition-all duration-150 ${
       isActive
         ? "text-forest-green border-b-2 border-forest-green"
         : "text-secondary hover:text-forest-green hover:bg-surface-container-low"
@@ -162,7 +161,7 @@ export default function Navbar() {
         </button>
         <nav className="hidden lg:flex space-x-4 xl:space-x-6 items-center min-w-0">
           {links.map((link) =>
-            link.children && link.children.length > 0 ? (
+            link.categoryTree && link.categoryTree.length > 0 ? (
               <div key={link.key} className="relative group">
                 <NavLink
                   to={link.to}
@@ -171,16 +170,8 @@ export default function Navbar() {
                   {link.label} <Icon name="expand_more" className="text-[16px] leading-none" />
                 </NavLink>
                 <div className="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
-                  <div className="bg-surface-container-lowest border border-outline-variant shadow-lg min-w-[200px] py-2">
-                    {link.children.map((child) => (
-                      <Link
-                        key={child.to}
-                        to={child.to}
-                        className="block px-4 py-2 font-label text-label-caps text-secondary hover:text-forest-green hover:bg-surface-container-low transition-colors"
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
+                  <div className="bg-surface-container-lowest border border-outline-variant shadow-lg">
+                    <CategoryFlyoutMenu nodes={link.categoryTree} />
                   </div>
                 </div>
               </div>

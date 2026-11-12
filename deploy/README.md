@@ -15,6 +15,25 @@ In production only ports `80`/`443` are published. The backend API and MinIO
 
 ---
 
+## TamHub on the same VPS
+
+See [tamhub-coexist.md](./tamhub-coexist.md) for running TamHub alongside inspo (two shared tenants: `shop1` + `baseline`).
+
+## SSH deploy from your Mac (password in local file)
+
+For the same flow used in the Oct 2026 VPS session (sshpass + zip upload):
+
+```bash
+cp deploy/vps.credentials.example deploy/vps.credentials   # already filled if you have vps.credentials
+bash deploy/vps-ssh-deploy.sh          # package + scp + remote docker + import
+bash deploy/vps-ssh-deploy.sh status   # check containers on server
+bash deploy/vps-ssh-deploy.sh fix-media   # if images 403 / wrong host
+```
+
+`deploy/vps.credentials` is **gitignored** — keep it local only.
+
+---
+
 ## 1. Prerequisites
 
 **On your Mac (packaging machine):**

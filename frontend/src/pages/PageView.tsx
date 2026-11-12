@@ -58,7 +58,7 @@ export default function PageView() {
       </section>
 
       <section className="py-16 px-4 md:px-8 max-w-[1440px] mx-auto">
-        <div className="max-w-3xl mx-auto flex flex-col gap-10">
+        <div className="max-w-3xl mx-auto flex flex-col gap-8 md:gap-10">
           {page.blocks.map((block, index) => (
             <RevealOnScroll key={block.id} delay={(index % 5) * 60}>
               <BlockRenderer block={block} />

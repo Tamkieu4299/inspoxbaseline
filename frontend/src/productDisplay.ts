@@ -1,5 +1,5 @@
 import type { Lang } from "./i18n";
-import type { Product, ProductImage } from "./types";
+import type { Product, ProductImage, ProductSizeInput, ProductSizeOption } from "./types";
 
 export type ColorSwatch = { name: string; hex: string; nameVi?: string };
 
@@ -27,9 +27,31 @@ function norm(s: string) {
   return s.trim().toLowerCase();
 }
 
-/** Images tagged for a colorway; falls back to untagged, then all enabled. */
-export function parseProductSizes(sizes: string[] | undefined): string[] {
-  return (sizes || []).map((s) => String(s).trim()).filter(Boolean);
+export function parseProductSizeOptions(sizes: ProductSizeInput[] | undefined): ProductSizeOption[] {
+  const out: ProductSizeOption[] = [];
+  const seen = new Set<string>();
+  for (const item of sizes || []) {
+    let name = "";
+    let available = true;
+    if (typeof item === "string") {
+      name = item.trim();
+    } else if (item && typeof item === "object") {
+      name = String(item.name || "").trim();
+      if (item.available !== undefined) available = Boolean(item.available);
+      else if (item.sold_out !== undefined) available = !item.sold_out;
+    }
+    if (!name) continue;
+    const key = name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ name, available });
+  }
+  return out;
+}
+
+/** @deprecated use parseProductSizeOptions */
+export function parseProductSizes(sizes: ProductSizeInput[] | undefined): string[] {
+  return parseProductSizeOptions(sizes).map((s) => s.name);
 }
 
 export type ProductVariantOptions = {
@@ -37,17 +59,20 @@ export type ProductVariantOptions = {
   hasSizes: boolean;
   colors: ColorSwatch[];
   sizes: string[];
+  sizeOptions: ProductSizeOption[];
 };
 
 /** Storefront pickers are driven only by what the merchant configured (may be color only, size only, both, or neither). */
 export function getProductVariantOptions(product: Pick<Product, "colors" | "sizes">): ProductVariantOptions {
   const colors = parseProductColors(product.colors);
-  const sizes = parseProductSizes(product.sizes);
+  const sizeOptions = parseProductSizeOptions(product.sizes);
+  const sizes = sizeOptions.map((s) => s.name);
   return {
     hasColors: colors.length > 0,
     hasSizes: sizes.length > 0,
     colors,
     sizes,
+    sizeOptions,
   };
 }
 
@@ -62,7 +87,11 @@ export function canPurchaseWithVariants(
   options: ProductVariantOptions,
   selected: { size: string | null }
 ): boolean {
-  if (options.hasSizes && !selected.size) return false;
+  if (options.hasSizes) {
+    if (!selected.size) return false;
+    const opt = options.sizeOptions.find((o) => o.name === selected.size);
+    if (!opt?.available) return false;
+  }
   return true;
 }
 
@@ -79,15 +108,4 @@ export function firstImageIndexForColorway(
   const key = norm(colorName);
   const idx = enabled.findIndex((i) => i.color_name && norm(i.color_name) === key);
   return idx >= 0 ? idx : null;
-}
-
-/** @deprecated Prefer showing all images on PDP and jumping via firstImageIndexForColorway. */
-export function imagesForColorway(images: ProductImage[], colorName: string | null): ProductImage[] {
-  const enabled = enabledProductImages(images);
-  if (!colorName) return enabled;
-  const key = norm(colorName);
-  const tagged = enabled.filter((i) => i.color_name && norm(i.color_name) === key);
-  if (tagged.length > 0) return tagged;
-  const shared = enabled.filter((i) => !i.color_name?.trim());
-  return shared.length > 0 ? shared : enabled;
 }

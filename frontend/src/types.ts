@@ -13,6 +13,14 @@ export interface Category {
   slug: string;
   name: string;
   name_vi?: string | null;
+  parent_id?: number | null;
+}
+
+export type ProductSizeInput = string | { name: string; available?: boolean; sold_out?: boolean };
+
+export interface ProductSizeOption {
+  name: string;
+  available: boolean;
 }
 
 export interface ProductImage {
@@ -43,7 +51,7 @@ export interface Product {
   brand?: string | null;
   gallery_layout?: string;
   colors: { name?: string; hex?: string; name_vi?: string }[] | string[];
-  sizes: string[];
+  sizes: ProductSizeInput[];
   tech_specs: { label?: string; value?: string; label_vi?: string; value_vi?: string }[];
   features: { icon?: string; title?: string; description?: string; title_vi?: string; description_vi?: string }[];
   is_active: boolean;
@@ -57,6 +65,27 @@ export interface Product {
   categories?: Category[];
   collection?: CollectionSummary | null;
   finder_profile?: ProductFinderProfile | null;
+  complements?: ProductComplementLink[];
+  complement_products?: ProductComplementOut[];
+}
+
+export interface ProductComplementLink {
+  product_id: number;
+  role: string;
+}
+
+export interface ProductSummaryCard {
+  id: number;
+  slug: string;
+  name: string;
+  price: number;
+  brand?: string | null;
+  image_url?: string | null;
+}
+
+export interface ProductComplementOut {
+  role: string;
+  product: ProductSummaryCard;
 }
 
 export interface ProductListPage {
@@ -172,6 +201,7 @@ export interface QuizMatchProduct {
   price: number;
   image_url?: string | null;
   finder_profile?: ProductFinderProfile | null;
+  complement_products?: ProductComplementOut[];
 }
 
 export interface QuizNavItem {

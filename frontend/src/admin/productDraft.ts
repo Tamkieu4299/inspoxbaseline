@@ -1,4 +1,5 @@
-import type { Product, ProductFinderProfile } from "../types";
+import type { Product, ProductFinderProfile, ProductSizeOption } from "../types";
+import { parseProductSizeOptions } from "../productDisplay";
 
 export interface ProductDraft {
   id?: number;
@@ -16,7 +17,7 @@ export interface ProductDraft {
   badge: string;
   gallery_layout: string;
   colors: { name: string; hex: string }[];
-  sizes: string[];
+  sizes: ProductSizeOption[];
   tech_specs: { label: string; value: string; label_vi: string; value_vi: string }[];
   features: { icon: string; title: string; description: string; title_vi: string; description_vi: string }[];
   is_active: boolean;
@@ -25,6 +26,7 @@ export interface ProductDraft {
   list_order: number;
   images: { media_id?: number; url: string; alt: string; color_name?: string; position: number; enabled: boolean }[];
   finder_profile: ProductFinderProfile;
+  complements: { product_id: number; role: string }[];
 }
 
 export const PRODUCT_BADGES = ["", "NEW", "LIMITED", "BESTSELLER", "NEW ARRIVAL"];
@@ -54,6 +56,7 @@ export function blankProductDraft(): ProductDraft {
     list_order: 0,
     images: [],
     finder_profile: { enabled: false, vectors: {}, specs: {}, tags: [] },
+    complements: [],
   };
 }
 
@@ -77,7 +80,7 @@ export function productToDraft(p: Product): ProductDraft {
     colors: (p.colors || []).map((c) =>
       typeof c === "string" ? { name: c, hex: "#ffffff" } : { name: c.name || "", hex: c.hex || "#ffffff" }
     ),
-    sizes: p.sizes || [],
+    sizes: parseProductSizeOptions(p.sizes),
     tech_specs: (p.tech_specs || []).map((s) => ({
       label: s.label || "",
       value: s.value || "",
@@ -110,6 +113,10 @@ export function productToDraft(p: Product): ProductDraft {
       color_name: i.color_name || "",
       position: i.position,
       enabled: i.enabled !== false,
+    })),
+    complements: (p.complements || []).map((c) => ({
+      product_id: c.product_id,
+      role: c.role || "pair",
     })),
   };
 }

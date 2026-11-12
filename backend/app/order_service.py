@@ -6,11 +6,11 @@ from datetime import datetime
 
 from fastapi import HTTPException
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from .config import settings
 from .currency import normalize_base_currency
-from .models import Order, OrderLine, Product, SiteSettings
+from .models import Order, OrderLine, Product, SiteSettings, Tenant
 from .order_notify import post_order_webhook, send_order_email
 
 
@@ -92,10 +92,11 @@ def _order_email_body(order: Order, site_name: str, site: SiteSettings | None) -
     )
 
 
-def _order_webhook_payload(order: Order, site_name: str) -> dict:
+def _order_webhook_payload(order: Order, site_name: str, tenant_slug: str) -> dict:
     return {
         "event": "order.created",
         "site_name": site_name,
+        "tenant_slug": tenant_slug,
         "order": {
             "id": order.id,
             "order_number": order.order_number,
@@ -115,6 +116,7 @@ def _order_webhook_payload(order: Order, site_name: str) -> dict:
                     "product_id": line.product_id,
                     "product_slug": line.product_slug,
                     "product_name": line.product_name,
+                    "image_url": line.image_url,
                     "color": line.color,
                     "size": line.size,
                     "quantity": line.quantity,
@@ -147,6 +149,8 @@ def create_order(
         raise HTTPException(status_code=400, detail="Cart is empty")
 
     site = db.scalar(select(SiteSettings).where(SiteSettings.tenant_id == tenant_id))
+    tenant = db.get(Tenant, tenant_id)
+    tenant_slug = tenant.slug if tenant else "shop1"
     currency = normalize_base_currency(site.currency_code if site else "VND")
 
     order = Order(
@@ -172,13 +176,32 @@ def create_order(
         qty = int(raw.get("quantity") or 1)
         if qty < 1 or qty > 99:
             raise HTTPException(status_code=400, detail="Invalid quantity")
-        product = db.get(Product, product_id)
-        if not product or product.tenant_id != tenant_id or not product.is_active:
+        product = db.scalar(
+            select(Product)
+            .options(selectinload(Product.images))
+            .where(Product.id == product_id, Product.tenant_id == tenant_id)
+        )
+        if not product or not product.is_active:
             raise HTTPException(status_code=400, detail=f"Product unavailable: {product_id}")
         color = (raw.get("color") or "").strip() or None
         size = (raw.get("size") or "").strip() or None
-        if product.sizes and size and size not in product.sizes:
-            raise HTTPException(status_code=400, detail=f"Invalid size for {product.slug}")
+        image_url = (raw.get("image_url") or "").strip() or None
+        from .product_sizes import normalize_product_sizes, resolve_order_size
+
+        if normalize_product_sizes(product.sizes):
+            resolved_size = resolve_order_size(product.sizes, size)
+            if not resolved_size:
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        f"Invalid or unavailable size for {product.slug}. "
+                        "Pick a grip/size on the product page and update your cart."
+                    ),
+                )
+            size = resolved_size
+        if not image_url and product.images:
+            first = next((i for i in product.images if i.enabled and i.url), None)
+            image_url = first.url if first else None
         unit = float(product.price or 0)
         line_total = unit * qty
         subtotal += line_total
@@ -188,6 +211,7 @@ def create_order(
                 product_id=product.id,
                 product_slug=product.slug,
                 product_name=product.name,
+                image_url=image_url,
                 color=color,
                 size=size,
                 quantity=qty,
@@ -213,7 +237,10 @@ def create_order(
         )
 
     webhook_url = (site.order_webhook_url if site else None) or ""
-    status, err = post_order_webhook(url=webhook_url, payload=_order_webhook_payload(order, site_name))
+    status, err = post_order_webhook(
+        url=webhook_url,
+        payload=_order_webhook_payload(order, site_name, tenant_slug),
+    )
     order.webhook_delivery_status = status
     parts = [p for p in (email_err, err) if p]
     order.webhook_last_error = "; ".join(parts)[:500] if parts else None

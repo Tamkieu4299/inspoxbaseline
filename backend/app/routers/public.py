@@ -42,6 +42,8 @@ from ..schemas import (
     OrderPublicOut,
 )
 from ..home_sections import latest_drops_fetch_limit, normalize_home_sections
+from ..product_complements import normalize_complement_links, resolve_complements
+from ..product_sizes import normalize_product_sizes, size_option_names
 from ..product_sort import product_hot_sort_key
 from ..security import get_tenant
 
@@ -61,6 +63,31 @@ EDITORIAL_HERO = {
     "cta": "Explore Heritage & Innovation",
     "cta_vi": "Khám phá Di sản & Đổi mới",
 }
+
+
+def _category_ids_for_filter(db: Session, tenant_id: int, root: Category) -> list[int]:
+    """Root category id plus all descendant category ids (for parent filters)."""
+    rows = db.execute(
+        select(Category.id, Category.parent_id).where(Category.tenant_id == tenant_id)
+    ).all()
+    children: dict[int, list[int]] = {}
+    for cid, parent_id in rows:
+        if parent_id is not None:
+            children.setdefault(parent_id, []).append(cid)
+    ids = [root.id]
+    stack = list(children.get(root.id, []))
+    while stack:
+        cid = stack.pop()
+        ids.append(cid)
+        stack.extend(children.get(cid, []))
+    return ids
+
+
+def _product_in_category_filter(category_ids: list[int]):
+    return or_(
+        Product.category_id.in_(category_ids),
+        Product.categories.any(Category.id.in_(category_ids)),
+    )
 
 
 def _vi_list(items: list | None, mapping: list[tuple[str, str]]):
@@ -165,6 +192,17 @@ def _load_product(db: Session, product: Product, lang: str = "en") -> ProductOut
         )
     data["images"] = [
         ProductImageOut.model_validate(i) for i in product.images if i.enabled
+    ]
+    data["sizes"] = normalize_product_sizes(data.get("sizes"))
+    data["complements"] = normalize_complement_links(data.get("complements"))
+    data["complement_products"] = [
+        c.model_dump() for c in resolve_complements(
+            db,
+            tenant_id=product.tenant_id,
+            links=product.complements,
+            lang=lang,
+            exclude_product_id=product.id,
+        )
     ]
     return ProductOut.model_validate(data)
 
@@ -291,7 +329,7 @@ def list_categories(
                 Category.tenant_id == tenant.id,
                 ~Category.slug.like("brand-%"),
             )
-            .order_by(Category.name)
+            .order_by(Category.parent_id.nullsfirst(), Category.name)
         )
         .scalars()
         .all()
@@ -376,10 +414,8 @@ def list_product_brands(
         ).scalar_one_or_none()
         if cat is None:
             raise HTTPException(status_code=404, detail="Category not found")
-        stmt = stmt.where(
-            (Product.category_id == cat.id)
-            | Product.categories.any(Category.id == cat.id)
-        )
+        cat_ids = _category_ids_for_filter(db, tenant.id, cat)
+        stmt = stmt.where(_product_in_category_filter(cat_ids))
     brands = db.execute(stmt.order_by(Product.brand)).scalars().all()
     return [b for b in brands if b]
 
@@ -510,10 +546,8 @@ def list_products(
         ).scalar_one_or_none()
         if cat is None:
             raise HTTPException(status_code=404, detail="Category not found")
-        stmt = stmt.where(
-            (Product.category_id == cat.id)
-            | Product.categories.any(Category.id == cat.id)
-        )
+        cat_ids = _category_ids_for_filter(db, tenant.id, cat)
+        stmt = stmt.where(_product_in_category_filter(cat_ids))
     if q:
         stmt = _apply_product_search(stmt, q)
     if brand:
@@ -522,7 +556,7 @@ def list_products(
     products = db.execute(stmt).scalars().all()
 
     if size:
-        products = [p for p in products if size in (p.sizes or [])]
+        products = [p for p in products if size in size_option_names(p.sizes)]
     if color:
         products = [p for p in products if any(
             c.get("name") == color if isinstance(c, dict) else c == color
@@ -872,7 +906,9 @@ def _localize_quiz(data: dict, lang: str) -> dict:
     return data
 
 
-def _quiz_match_products(db: Session, tenant_id: int, product_filter: dict | None) -> list[QuizMatchProductOut]:
+def _quiz_match_products(
+    db: Session, tenant_id: int, product_filter: dict | None, *, lang: str = "en"
+) -> list[QuizMatchProductOut]:
     pf = product_filter or {}
     category_slugs = [str(s).strip() for s in (pf.get("category_slugs") or []) if str(s).strip()]
     require_profile = bool(pf.get("require_finder_profile", True))
@@ -901,14 +937,22 @@ def _quiz_match_products(db: Session, tenant_id: int, product_filter: dict | Non
                 break
         if not image_url and p.images:
             image_url = p.images[0].url
+        display_name = (p.name_vi or p.name) if lang == "vi" else p.name
         out.append(
             QuizMatchProductOut(
                 id=p.id,
                 slug=p.slug,
-                name=p.name,
+                name=display_name,
                 price=float(p.price or 0),
                 image_url=image_url,
                 finder_profile=profile if profile else None,
+                complement_products=resolve_complements(
+                    db,
+                    tenant_id=tenant_id,
+                    links=p.complements,
+                    lang=lang,
+                    exclude_product_id=p.id,
+                ),
             )
         )
     return out
@@ -966,7 +1010,7 @@ def get_quiz(
         raise HTTPException(status_code=404, detail="Quiz not found")
     data = ShopQuizOut.model_validate(quiz).model_dump()
     data = _localize_quiz(data, lang)
-    data["match_products"] = _quiz_match_products(db, tenant.id, quiz.product_filter)
+    data["match_products"] = _quiz_match_products(db, tenant.id, quiz.product_filter, lang=lang)
     return ShopQuizPublicOut.model_validate(data)
 
 

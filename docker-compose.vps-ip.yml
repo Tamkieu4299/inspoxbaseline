@@ -1,0 +1,14 @@
+# VPS IP-only deploy override (no Caddy). Use with deploy/vps-ssh-deploy.sh
+#
+#   docker compose -f docker-compose.yml -f docker-compose.vps-ip.yml up -d --build
+
+services:
+  minio:
+    build: ./deploy/minio-amd64
+    image: inspo-minio-amd64:latest
+    platform: linux/amd64
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 12

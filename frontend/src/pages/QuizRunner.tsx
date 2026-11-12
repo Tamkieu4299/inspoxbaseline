@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import Icon from "../components/Icon";
 import RevealOnScroll from "../components/RevealOnScroll";
+import ProductComplementsSection from "../components/ProductComplementsSection";
 import { useLanguage } from "../i18n";
 import { useStoreCurrency } from "../useStoreCurrency";
 import { dimensionIdsFromQuiz } from "../quiz/dimensions";
@@ -67,6 +68,7 @@ export default function QuizRunner() {
       price: p.price,
       image_url: p.image_url,
       finder_profile: p.finder_profile,
+      complement_products: p.complement_products,
     }));
     if (!pool.length) {
       return { ranked: [], guardrailsApplied: true, poolEmpty: true };
@@ -290,32 +292,34 @@ export default function QuizRunner() {
           ) : null}
           <ul className="flex flex-col gap-4 max-w-3xl">
             {displayMatches.map((row, index) => (
-              <RevealOnScroll
-                key={row.slug}
-                as="li"
-                delay={index * 50}
-                className="flex items-center gap-4 border border-outline-variant p-4 bg-surface-container-lowest"
-              >
-                {row.product.image_url ? (
-                  <img src={row.product.image_url} alt="" className="w-20 h-24 object-cover bg-white shrink-0" />
-                ) : (
-                  <div className="w-20 h-24 bg-surface-container shrink-0" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-label text-label-caps text-secondary">
-                    #{index + 1} · {row.match}% {t("quiz.match")}
-                  </p>
-                  <p className="font-headline text-headline-md uppercase truncate">
-                    {formatQuizProductName(row.product.name, lang)}
-                  </p>
-                  <p className="font-body text-body-md text-secondary">{formatPrice(row.product.price)}</p>
+              <RevealOnScroll key={row.slug} as="li" delay={index * 50}>
+                <div className="border border-outline-variant p-4 bg-surface-container-lowest">
+                  <div className="flex items-center gap-4">
+                    {row.product.image_url ? (
+                      <img src={row.product.image_url} alt="" className="w-20 h-24 object-cover bg-white shrink-0" />
+                    ) : (
+                      <div className="w-20 h-24 bg-surface-container shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-label text-label-caps text-secondary">
+                        #{index + 1} · {row.match}% {t("quiz.match")}
+                      </p>
+                      <p className="font-headline text-headline-md uppercase truncate">
+                        {formatQuizProductName(row.product.name, lang)}
+                      </p>
+                      <p className="font-body text-body-md text-secondary">{formatPrice(row.product.price)}</p>
+                    </div>
+                    <Link
+                      to={`/products/${row.slug}`}
+                      className="font-label text-label-caps uppercase bg-primary text-on-primary px-4 py-2 shrink-0"
+                    >
+                      {t("quiz.viewProduct")}
+                    </Link>
+                  </div>
+                  {row.product.complement_products && row.product.complement_products.length > 0 ? (
+                    <ProductComplementsSection items={row.product.complement_products} compact />
+                  ) : null}
                 </div>
-                <Link
-                  to={`/products/${row.slug}`}
-                  className="font-label text-label-caps uppercase bg-primary text-on-primary px-4 py-2 shrink-0"
-                >
-                  {t("quiz.viewProduct")}
-                </Link>
               </RevealOnScroll>
             ))}
             {displayMatches.length === 0 ? (

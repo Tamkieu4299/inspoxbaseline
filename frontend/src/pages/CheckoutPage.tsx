@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { api } from "../api";
 import { useCart } from "../cart/CartContext";
 import { useLanguage } from "../i18n";
+import { getProductVariantOptions } from "../productDisplay";
 import { useStoreCurrency } from "../useStoreCurrency";
 
 export default function CheckoutPage() {
@@ -19,8 +20,17 @@ export default function CheckoutPage() {
   const [note, setNote] = useState("");
 
   const placeOrder = useMutation({
-    mutationFn: () =>
-      api.createOrder({
+    mutationFn: async () => {
+      for (const line of lines) {
+        const product = await api.getProduct(line.slug);
+        const variants = getProductVariantOptions(product);
+        if (!variants.hasSizes) continue;
+        const opt = variants.sizeOptions.find((o) => o.name === line.size);
+        if (!line.size || !opt?.available) {
+          throw new Error(t("checkout.invalidSizeLine", { name: line.name }));
+        }
+      }
+      return api.createOrder({
         customer_name: customerName,
         customer_phone: customerPhone,
         customer_email: customerEmail || null,
@@ -31,8 +41,10 @@ export default function CheckoutPage() {
           quantity: l.quantity,
           color: l.color || null,
           size: l.size || null,
+          image_url: l.imageUrl || null,
         })),
-      }),
+      });
+    },
     onSuccess: (res) => {
       clearCart();
       navigate(`/orders/thank-you?order=${encodeURIComponent(res.order_number)}`, { replace: true });
@@ -110,7 +122,11 @@ export default function CheckoutPage() {
           </label>
           <p className="font-body text-body-sm text-secondary">{t("checkout.codHint")}</p>
           {placeOrder.isError ? (
-            <p className="text-status-danger font-body text-body-sm">{t("checkout.error")}</p>
+            <p className="text-status-danger font-body text-body-sm">
+              {placeOrder.error instanceof Error && placeOrder.error.message
+                ? placeOrder.error.message
+                : t("checkout.error")}
+            </p>
           ) : null}
           <button
             type="submit"

@@ -10,7 +10,7 @@ import Icon from "./Icon";
 import RevealOnScroll from "./RevealOnScroll";
 import SocialIconLink, { SocialIconsRow } from "./SocialIconLink";
 import type { FooterLinkPublic } from "../types";
-import { navCategories } from "../categoryNav";
+import { categoryMenuLinks } from "../categoryNav";
 
 function FooterLinkItem({ label, url }: FooterLinkPublic) {
   const href = (url || "").trim();
@@ -109,7 +109,7 @@ export default function Footer() {
   const footerTagline = site?.footer_tagline?.trim() || t("footer.tagline");
   const footerLinks = (site?.footer_links ?? []).filter((link) => (link.url || "").trim());
   const contact = site?.footer_contact;
-  const categoryNav = navCategories(categories);
+  const categoryNav = categoryMenuLinks(categories);
   const socialEntries = contact?.social_links ?? [];
 
   const showBrand = contact?.show_footer_brand !== false;
@@ -250,13 +250,13 @@ export default function Footer() {
               <FooterColumn title={contact?.categories_title || t("footer.productCategories")}>
                 <ul className="flex flex-col gap-2">
                   {categoryNav.map((cat) => (
-                    <li key={cat.id}>
+                    <li key={cat.to}>
                       <Link
-                        to={`/products?category=${cat.slug}`}
+                        to={cat.to}
                         className="font-body text-body-sm text-inherit opacity-90 hover:opacity-100 transition-opacity flex items-start gap-2"
                       >
                         <span className="mt-2 w-1.5 h-1.5 rounded-full bg-current shrink-0" aria-hidden />
-                        {cat.name}
+                        {cat.label}
                       </Link>
                     </li>
                   ))}

@@ -92,6 +92,9 @@ class Category(Base, TimestampMixin):
     slug: Mapped[str] = mapped_column(String(100))
     name: Mapped[str] = mapped_column(String(100))
     name_vi: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    parent_id: Mapped[int | None] = mapped_column(
+        ForeignKey("categories.id"), nullable=True, index=True
+    )
 
     products: Mapped[list["Product"]] = relationship(
         secondary=product_categories,
@@ -158,6 +161,7 @@ class Product(Base, TimestampMixin):
     is_bestseller: Mapped[bool] = mapped_column(Boolean, default=False)
     list_order: Mapped[int] = mapped_column(Integer, default=0, index=True)
     finder_profile: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    complements: Mapped[list] = mapped_column(JSON, default=list)
 
     category: Mapped["Category | None"] = relationship(foreign_keys=[category_id])
     categories: Mapped[list["Category"]] = relationship(
@@ -419,6 +423,7 @@ class OrderLine(Base):
     product_name: Mapped[str] = mapped_column(String(300))
     color: Mapped[str | None] = mapped_column(String(200), nullable=True)
     size: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     quantity: Mapped[int] = mapped_column(Integer, default=1)
     unit_price: Mapped[float] = mapped_column(Float, default=0.0)
     line_total: Mapped[float] = mapped_column(Float, default=0.0)

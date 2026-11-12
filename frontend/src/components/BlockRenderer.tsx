@@ -20,7 +20,11 @@ export default function BlockRenderer({ block }: { block: Block }) {
         </h2>
       );
     case "text":
-      return <p className="font-body text-body-lg text-secondary max-w-2xl">{d.body || ""}</p>;
+      return (
+        <p className="font-body text-body-md sm:text-body-lg text-secondary max-w-3xl leading-relaxed whitespace-pre-line">
+          {d.body || ""}
+        </p>
+      );
     case "image":
       return (
         <figure className="space-y-2">
@@ -39,11 +43,14 @@ export default function BlockRenderer({ block }: { block: Block }) {
       );
     case "list":
       return (
-        <ul className="space-y-2">
+        <ul className="space-y-4 max-w-3xl">
           {(d.items || []).map((item: string, i: number) => (
-            <li key={i} className="font-label text-label-caps text-primary flex items-center gap-3">
-              <span className="w-1.5 h-1.5 bg-forest-green inline-block" />
-              {item}
+            <li
+              key={i}
+              className="font-body text-body-md sm:text-body-lg text-secondary leading-relaxed flex items-start gap-3"
+            >
+              <span className="mt-2.5 w-2 h-2 shrink-0 bg-forest-green inline-block" aria-hidden />
+              <span>{item}</span>
             </li>
           ))}
         </ul>

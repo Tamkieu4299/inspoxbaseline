@@ -148,6 +148,23 @@ export interface MeResponse {
   accessible_tenants: { id: number; slug: string; name: string }[];
 }
 
+export interface TamHubSyncStatus {
+  enabled: boolean;
+  interval_seconds: number;
+  sync_inventory_to_inspo: boolean;
+  env_interval_seconds: number;
+  state_path: string;
+  last_run_at: string | null;
+  last_finished_at: string | null;
+  last_status: string;
+  last_error: string | null;
+  last_duration_ms: number | null;
+  last_reason: string | null;
+  running: boolean;
+  tenants: Record<string, { status: string; at?: string; message?: string }>;
+  recent_errors: { at: string; reason: string; message: string }[];
+}
+
 const ADMIN_PROFILE_KEY = "inspo_admin_profile";
 
 function saveAdminProfile(user: AdminUserProfile) {
@@ -400,6 +417,23 @@ export const adminApi = {
     }),
   resetAdminUserPassword: (id: number) =>
     request<{ user: AdminUserRecord; generated_password: string }>(`/api/admin/users/${id}/reset-password`, {
+      method: "POST",
+      headers: adminHeaders(),
+    }),
+
+  getTamHubSync: () => request<TamHubSyncStatus>(`/api/admin/tamhub-sync`, { headers: adminHeaders() }),
+  updateTamHubSync: (body: {
+    enabled?: boolean;
+    interval_seconds?: number;
+    sync_inventory_to_inspo?: boolean;
+  }) =>
+    request<TamHubSyncStatus>(`/api/admin/tamhub-sync`, {
+      method: "PUT",
+      headers: adminHeaders(),
+      body: JSON.stringify(body),
+    }),
+  runTamHubSync: () =>
+    request<{ ok: boolean; message: string }>(`/api/admin/tamhub-sync/run`, {
       method: "POST",
       headers: adminHeaders(),
     }),

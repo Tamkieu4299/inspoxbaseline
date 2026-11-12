@@ -102,6 +102,7 @@ class CategoryBase(BaseModel):
     slug: str
     name: str
     name_vi: str | None = None
+    parent_id: int | None = None
 
 
 class CategoryIn(CategoryBase):
@@ -119,6 +120,25 @@ class ProductImageIn(BaseModel):
     color_name: str | None = None
     position: int = 0
     enabled: bool = True
+
+
+class ProductComplementLink(BaseModel):
+    product_id: int
+    role: str = "pair"
+
+
+class ProductSummaryCard(BaseModel):
+    id: int
+    slug: str
+    name: str
+    price: float = 0.0
+    brand: str | None = None
+    image_url: str | None = None
+
+
+class ProductComplementOut(BaseModel):
+    role: str
+    product: ProductSummaryCard
 
 
 class ProductImageOut(ORMModel):
@@ -154,6 +174,7 @@ class ProductBase(BaseModel):
     is_bestseller: bool = False
     list_order: int = 0
     finder_profile: dict[str, Any] | None = None
+    complements: list[ProductComplementLink] = Field(default_factory=list)
 
 
 class ProductIn(ProductBase):
@@ -165,6 +186,7 @@ class ProductOut(ProductBase, ORMModel):
     id: int
     created_at: datetime
     images: list[ProductImageOut] = Field(default_factory=list)
+    complement_products: list[ProductComplementOut] = Field(default_factory=list)
     category: CategoryOut | None = None
     categories: list[CategoryOut] = Field(default_factory=list)
     collection: "CollectionSummary | None" = None
@@ -565,6 +587,7 @@ class QuizMatchProductOut(BaseModel):
     price: float
     image_url: str | None = None
     finder_profile: dict[str, Any] | None = None
+    complement_products: list[ProductComplementOut] = Field(default_factory=list)
 
 
 class ShopQuizPublicOut(ShopQuizBase):

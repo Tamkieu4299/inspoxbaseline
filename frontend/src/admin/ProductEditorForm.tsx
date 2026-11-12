@@ -165,6 +165,7 @@ export function ProductEditorForm({
 }) {
   const { t, lang } = useLanguage();
   const { data: shopQuizzes } = useQuery({ queryKey: ["admin-quizzes"], queryFn: adminApi.getQuizzes });
+  const { data: catalogProducts } = useQuery({ queryKey: ["admin-products"], queryFn: adminApi.getProducts });
   const quizDimensions = useMemo(() => {
     const fromQuizzes = shopQuizzes?.length ? collectDimensionsFromQuizzes(shopQuizzes) : [];
     return fromQuizzes.length ? fromQuizzes : legacyDimensionDefs();
@@ -382,6 +383,76 @@ export function ProductEditorForm({
                     }
                   />
                 </Field>
+              </div>
+            </div>
+
+            <div className="border border-surface-container-highest p-4 bg-surface-container-lowest">
+              <h4 className="font-headline text-headline-md uppercase text-primary mb-1">{t("admin.productComplements")}</h4>
+              <p className="font-body text-body-sm text-secondary mb-3">{t("admin.productComplementsHint")}</p>
+              <div className="flex flex-col gap-4">
+                {(["tennis_string", "pair"] as const).map((role) => {
+                  const roleLabel =
+                    role === "tennis_string" ? t("admin.complementRoleString") : t("admin.complementRolePair");
+                  const selected = draft.complements.filter((c) => c.role === role);
+                  const available = (catalogProducts || []).filter(
+                    (p) =>
+                      p.id !== draft.id &&
+                      !selected.some((s) => s.product_id === p.id) &&
+                      (role === "tennis_string"
+                        ? p.categories?.some((c) => c.slug === "tennis-strings") || p.slug.startsWith("gs-")
+                        : true)
+                  );
+                  return (
+                    <div key={role}>
+                      <span className="font-label text-label-caps uppercase text-secondary text-xs tracking-wider">
+                        {roleLabel}
+                      </span>
+                      <ul className="mt-2 flex flex-col gap-2">
+                        {selected.map((link) => {
+                          const prod = catalogProducts?.find((p) => p.id === link.product_id);
+                          return (
+                            <li
+                              key={`${role}-${link.product_id}`}
+                              className="flex items-center justify-between gap-2 px-3 py-2 bg-surface-container-low rounded"
+                            >
+                              <span className="font-body text-body-sm truncate">{prod?.name || `#${link.product_id}`}</span>
+                              <button
+                                type="button"
+                                className="text-error font-label text-label-caps uppercase text-xs shrink-0"
+                                onClick={() =>
+                                  set(
+                                    "complements",
+                                    draft.complements.filter(
+                                      (c) => !(c.product_id === link.product_id && c.role === role)
+                                    )
+                                  )
+                                }
+                              >
+                                {t("admin.remove")}
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      <Select
+                        className="mt-2 max-w-md"
+                        value=""
+                        onChange={(e) => {
+                          const id = Number(e.target.value);
+                          if (!id) return;
+                          set("complements", [...draft.complements, { product_id: id, role }]);
+                        }}
+                      >
+                        <option value="">{t("admin.complementAdd")}</option>
+                        {available.slice(0, 200).map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -783,14 +854,63 @@ export function ProductEditorForm({
             />
             <p className="font-body text-body-sm text-secondary -mt-2 mb-4">{t("admin.colorwaysOptionalHint")}</p>
 
-            <Field label={t("admin.sizes")}>
-              <TextInput
-                value={draft.sizes.join(", ")}
-                onChange={(e) => set("sizes", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-                placeholder={t("admin.sizesPlaceholder")}
-              />
-              <p className="text-secondary text-xs mt-1 font-body">{t("admin.sizesOptionalHint")}</p>
-            </Field>
+            <div className="border border-surface-container-highest p-4 bg-surface-container-lowest">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <h4 className="font-headline text-headline-md uppercase text-primary">{t("admin.sizes")}</h4>
+                <SecondaryButton
+                  type="button"
+                  onClick={() =>
+                    set("sizes", [
+                      { name: "GRIP 1", available: true },
+                      { name: "GRIP 2", available: true },
+                      { name: "GRIP 3", available: true },
+                      { name: "GRIP 4", available: true },
+                    ])
+                  }
+                >
+                  {t("admin.addGripSizesPreset")}
+                </SecondaryButton>
+              </div>
+              <p className="text-secondary text-xs mb-3 font-body">{t("admin.sizesOptionalHint")}</p>
+              <ul className="flex flex-col gap-2 mb-3">
+                {draft.sizes.map((row, index) => (
+                  <li key={`size-${index}`} className="flex flex-wrap items-center gap-3 p-2 bg-surface-container-low rounded">
+                    <TextInput
+                      className="flex-1 min-w-[120px]"
+                      value={row.name}
+                      placeholder={t("admin.sizesPlaceholder")}
+                      onChange={(e) => {
+                        const next = draft.sizes.map((s, i) =>
+                          i === index ? { ...s, name: e.target.value } : s
+                        );
+                        set("sizes", next);
+                      }}
+                    />
+                    <StudioToggle
+                      label={t("admin.sizeInStock")}
+                      checked={row.available}
+                      onChange={(v) => {
+                        const next = draft.sizes.map((s, i) => (i === index ? { ...s, available: v } : s));
+                        set("sizes", next);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="text-error font-label text-label-caps uppercase text-xs"
+                      onClick={() => set("sizes", draft.sizes.filter((_, i) => i !== index))}
+                    >
+                      {t("admin.remove")}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <SecondaryButton
+                type="button"
+                onClick={() => set("sizes", [...draft.sizes, { name: "", available: true }])}
+              >
+                {t("admin.addSize")}
+              </SecondaryButton>
+            </div>
         </StudioModule>
       ) : null}
 

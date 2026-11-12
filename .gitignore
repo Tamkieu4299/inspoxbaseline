@@ -20,4 +20,5 @@ SampleImages/
 
 # VPS deployment artifacts (contain real DB/media — never commit)
 deploy/backup/
+deploy/vps.credentials
 inspo-deploy.zip

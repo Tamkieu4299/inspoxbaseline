@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import Icon from "./Icon";
 import { useLanguage } from "../i18n";
+import type { CategoryMenuNode } from "../categoryNav";
+import MobileCategoryMenu from "./MobileCategoryMenu";
 
 export interface MobileNavLink {
   key: string;
   label: string;
   to: string;
-  children?: { label: string; to: string }[];
+  categoryTree?: CategoryMenuNode[];
 }
 
 interface MobileNavProps {
@@ -71,7 +73,7 @@ export default function MobileNav({
         </div>
         <nav className="flex-1 overflow-y-auto overscroll-contain px-2 py-3">
           {links.map((link) =>
-            link.children && link.children.length > 0 ? (
+            link.categoryTree && link.categoryTree.length > 0 ? (
               <div key={link.key} className="border-b border-outline-variant/60">
                 <button
                   type="button"
@@ -85,7 +87,7 @@ export default function MobileNav({
                   />
                 </button>
                 {expanded === link.key ? (
-                  <div className="pb-2 pl-2">
+                  <div className="pl-2 pb-2">
                     <NavLink
                       to={link.to}
                       onClick={onClose}
@@ -97,16 +99,7 @@ export default function MobileNav({
                     >
                       {t("collection.all")}
                     </NavLink>
-                    {link.children.map((child) => (
-                      <Link
-                        key={child.to}
-                        to={child.to}
-                        onClick={onClose}
-                        className="block px-3 py-2.5 font-body text-body-md text-secondary hover:text-forest-green"
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
+                    <MobileCategoryMenu nodes={link.categoryTree} onNavigate={onClose} />
                   </div>
                 ) : null}
               </div>

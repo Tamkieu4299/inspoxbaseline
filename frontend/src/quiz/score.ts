@@ -22,11 +22,14 @@ export type QuizOptionDef = {
   guardrails?: QuizGuardrails;
 };
 
+import type { ProductComplementOut } from "../types";
+
 export type MatchProduct = {
   slug: string;
   name: string;
   price: number;
   image_url?: string | null;
+  complement_products?: ProductComplementOut[];
   finder_profile?: {
     enabled?: boolean;
     vectors?: Record<string, number | undefined>;

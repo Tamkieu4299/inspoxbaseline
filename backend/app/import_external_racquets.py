@@ -1287,12 +1287,31 @@ def _download_image(client: httpx.Client, url: str) -> tuple[bytes, str, str]:
     return content, ctype, name
 
 
-def _get_or_create_category(db, tenant_id: int, slug: str, name: str) -> Category:
+def _get_or_create_category(
+    db,
+    tenant_id: int,
+    slug: str,
+    name: str,
+    *,
+    name_vi: str | None = None,
+    parent_id: int | None = None,
+) -> Category:
     cat = db.scalar(select(Category).where(Category.tenant_id == tenant_id, Category.slug == slug))
     if cat is None:
-        cat = Category(tenant_id=tenant_id, slug=slug, name=name, name_vi=name)
+        cat = Category(
+            tenant_id=tenant_id,
+            slug=slug,
+            name=name,
+            name_vi=name_vi or name,
+            parent_id=parent_id,
+        )
         db.add(cat)
         db.flush()
+    else:
+        if name_vi and cat.name_vi != name_vi:
+            cat.name_vi = name_vi
+        if parent_id is not None and cat.parent_id != parent_id:
+            cat.parent_id = parent_id
     return cat
 
 
@@ -1410,7 +1429,12 @@ def _upsert_racquet(
             badge=item.badge,
             gallery_layout="slideshow",
             colors=[],
-            sizes=["ONE SIZE"],
+            sizes=[
+                {"name": "GRIP 1", "available": True},
+                {"name": "GRIP 2", "available": True},
+                {"name": "GRIP 3", "available": True},
+                {"name": "GRIP 4", "available": True},
+            ],
             tech_specs=specs,
             features=features,
             is_active=active,
@@ -1437,6 +1461,16 @@ def _upsert_racquet(
         if product.finder_profile != finder:
             product.finder_profile = finder
         product.is_active = active
+        from .product_sizes import default_racket_grip_sizes, normalize_product_sizes, size_option_names
+
+        names = size_option_names(product.sizes)
+        if not names or (
+            len(names) == 1
+            and names[0].strip().upper() in ("ONE SIZE", "ONE-SIZE", "OS", "GRIP 2")
+        ):
+            product.sizes = default_racket_grip_sizes(all_available=True)
+        else:
+            product.sizes = normalize_product_sizes(product.sizes)
 
     product.categories = [rackets]
     if replace_images:

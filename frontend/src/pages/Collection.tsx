@@ -76,7 +76,12 @@ export default function Collection() {
 
   const allSizes = useMemo(() => {
     const set = new Set<string>();
-    (products || []).forEach((p: Product) => (p.sizes || []).forEach((s) => set.add(s)));
+    (products || []).forEach((p: Product) =>
+      (p.sizes || []).forEach((s) => {
+        const name = typeof s === "string" ? s : s?.name;
+        if (name) set.add(name);
+      })
+    );
     return Array.from(set);
   }, [products]);
 

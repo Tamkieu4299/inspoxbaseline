@@ -2,7 +2,12 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
-import { FOOTER_PRESET_LABELS, normalizeFooterLinkConfigs } from "../footerLinks";
+import {
+  FOOTER_PRESET_LABELS,
+  footerLinkPresetTitle,
+  newFooterLinkKey,
+  normalizeFooterLinkConfigs,
+} from "../footerLinks";
 import {
   FLOATING_CONTACT_ICONS,
   FLOATING_CONTACT_LABELS,
@@ -94,9 +99,32 @@ export default function SiteTab() {
     setFloatingLinks([...(footerContact.floating_contact_links || []), { icon: "zalo", url: "" }]);
   }
 
+  function setFooterLinks(links: FooterLinkConfig[]) {
+    set("footer_links", links);
+  }
+
   function setFooterLink(index: number, patch: Partial<FooterLinkConfig>) {
     const next = footerLinks.map((row, i) => (i === index ? { ...row, ...patch } : row));
-    set("footer_links", next);
+    setFooterLinks(next);
+  }
+
+  function removeFooterLink(index: number) {
+    setFooterLinks(footerLinks.filter((_, i) => i !== index));
+  }
+
+  function addFooterLink() {
+    setFooterLinks([
+      ...footerLinks,
+      { key: newFooterLinkKey(), enabled: true, label: null, label_vi: null, url: null },
+    ]);
+  }
+
+  function moveFooterLink(index: number, dir: -1 | 1) {
+    const next = [...footerLinks];
+    const j = index + dir;
+    if (j < 0 || j >= next.length) return;
+    [next[index], next[j]] = [next[j], next[index]];
+    setFooterLinks(next);
   }
 
   return (
@@ -109,6 +137,7 @@ export default function SiteTab() {
               ...draftValue,
               currency_code: "VND",
               footer_contact: normalizeFooterContact(draftValue.footer_contact),
+              footer_links: normalizeFooterLinkConfigs(draftValue.footer_links),
             })
           }
           disabled={!draft}
@@ -519,36 +548,65 @@ export default function SiteTab() {
         <p className="font-body text-body-md text-secondary -mt-2">{t("admin.footerLinksHint")}</p>
         <div className="flex flex-col gap-4">
           {footerLinks.map((row, index) => {
-            const preset = FOOTER_PRESET_LABELS[row.key as keyof typeof FOOTER_PRESET_LABELS];
-            const presetTitle = preset ? `${preset.en} / ${preset.vi}` : row.key;
+            const presetTitle = footerLinkPresetTitle(row.key);
+            const presetHints =
+              FOOTER_PRESET_LABELS[row.key as keyof typeof FOOTER_PRESET_LABELS] ?? {
+                en: "Link label",
+                vi: "Nhãn liên kết",
+              };
             return (
               <div
                 key={row.key}
                 className="border border-surface-container-highest p-4 flex flex-col gap-3"
               >
-                <label className="flex items-center gap-2 font-body text-body-md text-primary">
-                  <Checkbox
-                    checked={row.enabled}
-                    onChange={(e) => setFooterLink(index, { enabled: e.target.checked })}
-                  />
-                  <span className="font-label text-label-caps">{presetTitle}</span>
-                </label>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <label className="flex items-center gap-2 font-body text-body-md text-primary min-w-0">
+                    <Checkbox
+                      checked={row.enabled}
+                      onChange={(e) => setFooterLink(index, { enabled: e.target.checked })}
+                    />
+                    <span className="font-label text-label-caps truncate">
+                      {presetTitle || t("admin.footerLinkCustom")}
+                    </span>
+                  </label>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <SecondaryButton
+                      type="button"
+                      disabled={index === 0}
+                      onClick={() => moveFooterLink(index, -1)}
+                      aria-label={t("admin.footerLinkMoveUp")}
+                    >
+                      ↑
+                    </SecondaryButton>
+                    <SecondaryButton
+                      type="button"
+                      disabled={index === footerLinks.length - 1}
+                      onClick={() => moveFooterLink(index, 1)}
+                      aria-label={t("admin.footerLinkMoveDown")}
+                    >
+                      ↓
+                    </SecondaryButton>
+                    <SecondaryButton type="button" onClick={() => removeFooterLink(index)}>
+                      {t("admin.footerLinkRemove")}
+                    </SecondaryButton>
+                  </div>
+                </div>
                 {row.enabled ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <Field label={t("admin.footerLinkLabelEn")}>
                       <TextInput
                         value={row.label || ""}
                         onChange={(e) => setFooterLink(index, { label: e.target.value || null })}
-                        placeholder={preset?.en}
+                        placeholder={presetHints.en}
                       />
                     </Field>
                     <ViInput
                       label={t("admin.footerLinkLabelVi")}
                       value={row.label_vi || ""}
                       onChange={(e) => setFooterLink(index, { label_vi: e.target.value || null })}
-                      placeholder={preset?.vi}
+                      placeholder={presetHints.vi}
                     />
-                    <Field label={t("admin.linkUrl")}>
+                    <Field label={t("admin.linkUrl")} className="md:col-span-2">
                       <TextInput
                         value={row.url || ""}
                         onChange={(e) => setFooterLink(index, { url: e.target.value || null })}
@@ -557,7 +615,7 @@ export default function SiteTab() {
                             ? "/brand"
                             : row.key === "admin"
                               ? "/admin"
-                              : "/pages/shipping-policy"
+                              : "/pages/your-page-slug"
                         }
                       />
                     </Field>
@@ -567,6 +625,9 @@ export default function SiteTab() {
             );
           })}
         </div>
+        <SecondaryButton type="button" className="mt-1" onClick={addFooterLink}>
+          {t("admin.footerLinkAdd")}
+        </SecondaryButton>
       </div>
 
       {draftValue.logo_media && (
