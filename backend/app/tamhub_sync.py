@@ -22,6 +22,8 @@ from .models import Product, Tenant
 from .product_sizes import merge_size_availability, normalize_product_sizes
 from .tamhub_export import export_tenant
 from .tamhub_sync_config import (
+    clear_orphaned_running_on_startup,
+    clear_stale_running,
     get_effective_config,
     record_sync_error,
     record_sync_start,
@@ -426,6 +428,8 @@ def _worker_loop() -> None:
 
 
 def start_background_sync() -> None:
+    if clear_orphaned_running_on_startup():
+        logger.warning("Cleared orphaned TamHub sync running flag after backend start")
     thread = threading.Thread(target=_worker_loop, name="tamhub-sync", daemon=True)
     thread.start()
     logger.info("TamHub background sync worker started (enabled=%s)", get_effective_config()["enabled"])

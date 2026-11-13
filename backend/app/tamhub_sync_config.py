@@ -6,6 +6,7 @@ import json
 import os
 import threading
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -73,7 +74,63 @@ def get_effective_config() -> dict[str, Any]:
     }
 
 
+def _parse_run_at(iso: str | None) -> float | None:
+    if not iso:
+        return None
+    try:
+        return datetime.strptime(iso, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp()
+    except (ValueError, TypeError):
+        return None
+
+
+def clear_orphaned_running_on_startup() -> bool:
+    """After process restart, any `running=true` in disk state is stale."""
+    with _LOCK:
+        data = {**_DEFAULT, **_load_raw()}
+        if not data.get("running"):
+            return False
+        data["running"] = False
+        if not data.get("last_finished_at"):
+            data["last_status"] = "error"
+            data["last_error"] = (
+                "Previous sync was interrupted (backend restarted). "
+                "Use Run sync now to run again."
+            )
+            data["last_finished_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        _save_raw(data)
+        return True
+
+
+def clear_stale_running(*, max_age_seconds: int | None = None) -> bool:
+    """If running flag was left set (e.g. backend restart mid-sync), clear it."""
+    limit = max_age_seconds if max_age_seconds is not None else int(
+        os.getenv("TAMHUB_SYNC_STALE_SECONDS", "600")
+    )
+    with _LOCK:
+        data = {**_DEFAULT, **_load_raw()}
+        if not data.get("running"):
+            return False
+        if limit == 0:
+            stale = True
+        else:
+            started = _parse_run_at(data.get("last_run_at"))
+            stale = started is None or (time.time() - started) > limit
+        if stale:
+            data["running"] = False
+            if not data.get("last_finished_at"):
+                data["last_status"] = "error"
+                data["last_error"] = (
+                    "Previous sync did not finish (backend restarted or timed out). "
+                    "Status was reset automatically — use Run sync now."
+                )
+                data["last_finished_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            _save_raw(data)
+            return True
+    return False
+
+
 def get_status() -> dict[str, Any]:
+    clear_stale_running()
     with _LOCK:
         stored = {**_DEFAULT, **_load_raw()}
         cfg = get_effective_config()

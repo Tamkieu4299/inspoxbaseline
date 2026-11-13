@@ -18,7 +18,6 @@ import NavTab from "./NavTab";
 import QuizzesTab from "./QuizzesTab";
 import TenantPicker from "./TenantPicker";
 import AdminShell, { AdminAuthFrame, type AdminTab } from "./AdminShell";
-import TamHubSyncTab from "./TamHubSyncTab";
 import { useLanguage } from "../i18n";
 
 export default function Admin() {
@@ -47,7 +46,6 @@ export default function Admin() {
       "nav",
       "site",
       "users",
-      "tamhubSync",
     ];
     return allowed.includes(fromUrl as AdminTab) ? (fromUrl as AdminTab) : "home";
   });
@@ -186,7 +184,6 @@ export default function Admin() {
       {tab === "site" && <SiteTab />}
       {tab === "orders" && <OrdersTab />}
       {tab === "users" && isSuperAdmin && <UsersTab />}
-      {tab === "tamhubSync" && isSuperAdmin && <TamHubSyncTab />}
       {tab === "categories" && <CategoriesTab />}
       {tab === "nav" && <NavTab />}
     </AdminShell>

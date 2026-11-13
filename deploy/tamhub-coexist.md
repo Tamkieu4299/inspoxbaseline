@@ -88,18 +88,18 @@ Running **both** full stacks on **2 GB** RAM is tight. Prefer **4 GB+** or disab
 
 ## Ongoing catalog sync (automatic)
 
-When `TAMHUB_SYNC_ENABLED=true` on **inspo-backend** (same `INSPO_TENANT_MAP` + `ORDER_WEBHOOK_SECRET` / `INSPO_CATALOG_SYNC_SECRET` as TamHub):
+**TamHub worker-service** schedules Inspo catalog jobs (default **60 min**; one job **per store** — shop1, baseline):
 
-- **On a timer (default 15 min):** Inspo → TamHub catalog (name, price, images, variants) and TamHub inventory → Inspo grip availability.
-- **After Admin product save:** debounced catalog push for that tenant.
+- Pull catalog JSON from Inspo export API → upsert TamHub products/variants (`X-Inspo-Catalog-Sync`).
+- Optionally pull TamHub inventory → Inspo grip `available` flags.
+- Progress and errors appear on **TamHub → Jobs** (Inspo catalog filter).
 
 **Change the timer (e.g. 10 min) without redeploy**
 
-1. **Inspo Admin** (super-admin) → **TamHub sync** → pick **10 min** → Save; or
-2. **TamHub** Super Admin → **Inspo catalog sync** (needs `INSPO_BACKEND_URL` + `INSPO_CATALOG_SYNC_SECRET` on service-management); or
-3. Env default: `TAMHUB_SYNC_INTERVAL_SECONDS=600` in `~/inspo/.env` (used until overridden in the UI; state in `/data/tamhub_sync_state.json`).
+1. **TamHub** → **Jobs** (`/jobs`) → **Inspo catalog** tab; super-admin sees **Inspo ↔ TamHub sync** settings (interval, run now).
+2. Env on worker-service: `INSPO_SYNC_INTERVAL_MINUTES`, `INSPO_SYNC_ENABLED`, `INSPO_BACKEND_URL`, `INSPO_CATALOG_SYNC_SECRET`, `INSPO_TENANT_MAP`.
 
-From either UI you can **Run sync now**, see **last error**, and toggle inventory pull.
+Inspo **no longer** runs the background sync thread unless `TAMHUB_SYNC_LEGACY_IN_PROCESS=true`. Inspo exposes **catalog export** and **inventory patch** APIs only.
 
 Manual script (`run-inspo-sync-on-vps.sh`) is optional for one-off backfills.
 

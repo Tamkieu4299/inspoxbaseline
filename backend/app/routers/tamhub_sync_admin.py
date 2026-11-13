@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, Field
 
 from ..tamhub_sync import run_sync_all
-from ..tamhub_sync_config import get_status, update_config, verify_integration_token
+from ..tamhub_sync_config import clear_stale_running, get_status, update_config, verify_integration_token
 
 router = APIRouter(tags=["tamhub-sync"])
 
@@ -42,8 +42,15 @@ def put_tamhub_sync_config(body: TamHubSyncConfigIn):
     return get_status()
 
 
+@router.post("/tamhub-sync/reset-stale")
+def post_tamhub_sync_reset_stale():
+    cleared = clear_stale_running(max_age_seconds=0)
+    return {"ok": True, "cleared": cleared, "status": get_status()}
+
+
 @router.post("/tamhub-sync/run")
 def post_tamhub_sync_run():
+    clear_stale_running()
     status = get_status()
     if status.get("running"):
         raise HTTPException(status_code=409, detail="Sync already running")

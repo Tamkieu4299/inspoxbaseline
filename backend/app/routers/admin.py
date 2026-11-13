@@ -48,11 +48,9 @@ from ..schemas import (
     OrderAdminOut,
     OrderStatusPatchIn,
 )
-from ..security import AdminDep, require_tenant_admin
-from .tamhub_sync_admin import router as tamhub_sync_router
+from ..security import AdminDep
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
-router.include_router(tamhub_sync_router, dependencies=[Depends(require_tenant_admin)])
 
 
 def _apply_collection(collection: Collection, payload: CollectionIn):
@@ -323,9 +321,6 @@ def create_product(payload: ProductIn, db: Session = Depends(get_db), tenant: Te
     product = _apply_product(db, None, payload, tenant.id)
     db.commit()
     db.refresh(product)
-    from ..tamhub_sync import schedule_tenant_sync
-
-    schedule_tenant_sync(tenant.slug)
     return ProductOut.model_validate(product)
 
 
@@ -343,9 +338,6 @@ def update_product(
     _apply_product(db, product, payload, tenant.id)
     db.commit()
     db.refresh(product)
-    from ..tamhub_sync import schedule_tenant_sync
-
-    schedule_tenant_sync(tenant.slug)
     return ProductOut.model_validate(product)
 
 

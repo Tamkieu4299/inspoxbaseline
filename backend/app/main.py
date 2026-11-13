@@ -5,14 +5,18 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from contextlib import asynccontextmanager
 
 from .config import settings
+import os
+
 from .routers import admin, admin_users, auth, media, public, tenants
-from .routers.tamhub_sync_admin import integration_router
+from .routers.inspo_bridge import router as inspo_bridge_router
 from .tamhub_sync import start_background_sync
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    start_background_sync()
+    # Sync orchestration lives in TamHub worker-service; legacy Inspo thread is opt-in only.
+    if os.getenv("TAMHUB_SYNC_LEGACY_IN_PROCESS", "").lower() in ("1", "true", "yes"):
+        start_background_sync()
     yield
 
 
@@ -38,7 +42,7 @@ app.include_router(admin.router)
 app.include_router(media.router)
 app.include_router(tenants.router)
 app.include_router(admin_users.router)
-app.include_router(integration_router, prefix="/api")
+app.include_router(inspo_bridge_router, prefix="/api")
 
 
 @app.get("/api/health")
