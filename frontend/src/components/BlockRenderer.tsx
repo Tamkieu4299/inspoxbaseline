@@ -64,6 +64,54 @@ export default function BlockRenderer({ block }: { block: Block }) {
           {d.label || t("block.shop")}
         </Link>
       );
+    case "pricing_table": {
+      const cols = d.columns || {};
+      const serviceHead = cols.service || t("block.pricingService");
+      const priceHead = cols.price || t("block.pricingPrice");
+      const noteHead = cols.note || t("block.pricingNote");
+      const rows = d.rows || [];
+      return (
+        <div className="w-full max-w-3xl space-y-3">
+          {d.title ? (
+            <h3 className="font-headline text-headline-md text-primary uppercase tracking-tight">{d.title}</h3>
+          ) : null}
+          {d.note ? <p className="font-body text-body-sm text-secondary whitespace-pre-line">{d.note}</p> : null}
+          {rows.length > 0 ? (
+            <div className="overflow-x-auto border border-surface-container-high">
+              <table className="w-full min-w-[280px] border-collapse">
+                <thead>
+                  <tr className="bg-surface-container-low">
+                    <th className="text-left font-label text-label-caps text-secondary px-4 py-2 uppercase">{serviceHead}</th>
+                    <th className="text-left font-label text-label-caps text-secondary px-4 py-2 uppercase whitespace-nowrap">
+                      {priceHead}
+                    </th>
+                    {noteHead ? (
+                      <th className="text-left font-label text-label-caps text-secondary px-4 py-2 uppercase hidden sm:table-cell">
+                        {noteHead}
+                      </th>
+                    ) : null}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row: Record<string, string>, i: number) => (
+                    <tr key={i} className="border-t border-surface-container-high">
+                      <td className="font-body text-body-md text-primary px-4 py-3 align-top">{row.service || ""}</td>
+                      <td className="font-body text-body-md text-primary px-4 py-3 align-top whitespace-nowrap">{row.price || ""}</td>
+                      {noteHead ? (
+                        <td className="font-body text-body-sm text-secondary px-4 py-3 align-top hidden sm:table-cell">
+                          {row.note || ""}
+                        </td>
+                      ) : null}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
+          {d.footer ? <p className="font-label text-label-caps text-secondary text-sm">{d.footer}</p> : null}
+        </div>
+      );
+    }
     default:
       return null;
   }

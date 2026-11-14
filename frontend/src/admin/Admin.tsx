@@ -5,6 +5,7 @@ import { adminApi } from "../api";
 import { MediaLibrary } from "./MediaLibrary";
 import { PrimaryButton, SecondaryButton, TextInput, ViInput } from "./ui";
 import ProductsTab from "./ProductsTab";
+import CategoriesTab from "./CategoriesTab";
 import CollectionsTab from "./CollectionsTab";
 import HomeTab from "./HomeTab";
 import BrandTab from "./BrandTab";
@@ -190,72 +191,3 @@ export default function Admin() {
   );
 }
 
-function CategoriesTab() {
-  const { t } = useLanguage();
-  const queryClient = useQueryClient();
-  const { data: categories } = useQuery({ queryKey: ["admin-categories"], queryFn: adminApi.getCategories });
-  const [name, setName] = useState("");
-  const [nameVi, setNameVi] = useState("");
-  const [slug, setSlug] = useState("");
-
-  const createMutation = useMutation({
-    mutationFn: adminApi.createCategory,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-categories"] });
-      setName("");
-      setNameVi("");
-      setSlug("");
-    },
-  });
-  const deleteMutation = useMutation({
-    mutationFn: adminApi.deleteCategory,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-categories"] }),
-  });
-
-  return (
-    <div className="bg-white border border-surface-container-highest p-6 max-w-xl shadow-sm">
-      <h3 className="font-headline text-headline-md text-charcoal uppercase mb-4">{t("admin.categories")}</h3>
-      <div className="flex gap-2 mb-3 flex-wrap">
-        <TextInput placeholder={t("admin.categoryName")} value={name} onChange={(e) => setName(e.target.value)} />
-        <ViInput
-          label={t("admin.categoryName")}
-          placeholder="Tên tiếng Việt"
-          value={nameVi}
-          onChange={(e) => setNameVi(e.target.value)}
-        />
-      </div>
-      <div className="flex gap-2 mb-6 flex-wrap">
-        <TextInput
-          placeholder={t("admin.categorySlug")}
-          value={slug}
-          onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
-        />
-        <PrimaryButton
-          onClick={() => createMutation.mutate({ name, name_vi: nameVi || null, slug })}
-          disabled={!name || !slug}
-        >
-          {t("admin.add")}
-        </PrimaryButton>
-      </div>
-      <ul className="flex flex-col divide-y divide-surface-container-high">
-        {(categories || []).map((c) => (
-          <li key={c.id} className="flex items-center justify-between py-2">
-            <span className="font-body text-body-md text-on-background uppercase">
-              {c.name}
-              {c.name_vi ? <span className="text-forest-green"> · {c.name_vi}</span> : null}
-            </span>
-            <span className="flex items-center gap-3">
-              <code className="font-brand-label text-label-caps text-secondary">{c.slug}</code>
-              <button
-                onClick={() => deleteMutation.mutate(c.id)}
-                className="font-label text-label-caps text-error hover:underline uppercase"
-              >
-                {t("admin.delete")}
-              </button>
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}

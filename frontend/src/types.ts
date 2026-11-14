@@ -8,11 +8,23 @@ export interface Media {
   size: number;
 }
 
+export interface CatalogContentBlock {
+  block_type: string;
+  position?: number;
+  data: Record<string, unknown>;
+}
+
 export interface Category {
   id: number;
   slug: string;
   name: string;
   name_vi?: string | null;
+  tagline?: string | null;
+  tagline_vi?: string | null;
+  description?: string | null;
+  description_vi?: string | null;
+  content_blocks?: CatalogContentBlock[];
+  content_blocks_vi?: CatalogContentBlock[] | null;
   parent_id?: number | null;
 }
 
@@ -219,6 +231,8 @@ export interface CollectionSummary {
   tagline_vi?: string | null;
   description?: string | null;
   description_vi?: string | null;
+  content_blocks?: CatalogContentBlock[];
+  content_blocks_vi?: CatalogContentBlock[] | null;
   hero_image_id?: number | null;
   hero_media?: Media | null;
   badge?: string | null;

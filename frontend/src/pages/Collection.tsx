@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
+import CatalogIntro from "../components/CatalogIntro";
 import ProductCard from "../components/ProductCard";
 import RevealOnScroll from "../components/RevealOnScroll";
 import { useLanguage } from "../i18n";
@@ -41,6 +42,11 @@ export default function Collection() {
     queryKey: ["collections", lang],
     queryFn: () => api.getCollections(lang),
   });
+  const { data: collectionDetail } = useQuery({
+    queryKey: ["collection", slug, lang],
+    queryFn: () => api.getCollection(slug!, lang),
+    enabled: Boolean(slug),
+  });
   const { data: categories } = useQuery({
     queryKey: ["categories", lang],
     queryFn: () => api.getCategories(lang),
@@ -72,7 +78,28 @@ export default function Collection() {
   const totalPages = productPage?.total_pages ?? 1;
 
   const currentCollection = collections?.find((c) => c.slug === activeCollection);
-  const currentCategory = categoryNav.find((c) => c.slug === category);
+  const currentCategory = categories?.find((c) => c.slug === category);
+  const catalogIntro = useMemo(() => {
+    if (q) return null;
+    if (category && currentCategory) {
+      return {
+        tagline: currentCategory.tagline,
+        description: currentCategory.description,
+        blocks: currentCategory.content_blocks,
+        hero: null as null,
+      };
+    }
+    const c = collectionDetail || currentCollection;
+    if (activeCollection && c) {
+      return {
+        tagline: c.tagline,
+        description: c.description,
+        blocks: c.content_blocks,
+        hero: c.hero_media ?? null,
+      };
+    }
+    return null;
+  }, [q, category, currentCategory, activeCollection, collectionDetail, currentCollection]);
 
   const allSizes = useMemo(() => {
     const set = new Set<string>();
@@ -156,7 +183,16 @@ export default function Collection() {
       </header>
       </RevealOnScroll>
 
-      <div className="grid grid-cols-12 gap-6 relative">
+      {catalogIntro ? (
+        <CatalogIntro
+          tagline={catalogIntro.tagline}
+          description={catalogIntro.description}
+          blocks={catalogIntro.blocks}
+          hero={catalogIntro.hero}
+        />
+      ) : null}
+
+      <div className="grid grid-cols-12 gap-6 relative items-start">
         <aside className={`${showFilters ? "block" : "hidden"} lg:block col-span-12 lg:col-span-2`}>
           <RevealOnScroll className="flex flex-col gap-8">
             <div>
@@ -289,22 +325,24 @@ export default function Collection() {
           </RevealOnScroll>
         </aside>
 
-        <div className="col-span-12 lg:col-span-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-          {isLoading ? (
-            <p className="col-span-full font-body text-body-md text-secondary py-16 text-center">{t("loading")}</p>
-          ) : !products || products.length === 0 ? (
-            <p className="col-span-full font-body text-body-md text-secondary py-16 text-center">
-              {t("collection.noMatch")}
-            </p>
-          ) : (
-            products.map((product, index) => (
-              <RevealOnScroll key={product.id} className="h-full" delay={(index % 8) * 45}>
-                <ProductCard product={product} />
-              </RevealOnScroll>
-            ))
-          )}
+        <div className="col-span-12 lg:col-span-10 flex flex-col gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 items-start">
+            {isLoading ? (
+              <p className="col-span-full font-body text-body-md text-secondary py-16 text-center">{t("loading")}</p>
+            ) : !products || products.length === 0 ? (
+              <p className="col-span-full font-body text-body-md text-secondary py-16 text-center">
+                {t("collection.noMatch")}
+              </p>
+            ) : (
+              products.map((product, index) => (
+                <RevealOnScroll key={product.id} delay={(index % 8) * 45}>
+                  <ProductCard product={product} />
+                </RevealOnScroll>
+              ))
+            )}
+          </div>
           {totalPages > 1 ? (
-            <RevealOnScroll className="col-span-full flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 border-t border-surface-container-high pt-8">
+            <RevealOnScroll className="flex flex-col sm:flex-row items-center justify-center gap-4 border-t border-surface-container-high pt-8">
               <p className="font-label text-label-caps text-secondary order-2 sm:order-1">
                 {t("collection.pageOf")
                   .replace("{page}", String(page))

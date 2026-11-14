@@ -4,7 +4,7 @@ import { useLanguage } from "../i18n";
 import { ImageField } from "./MediaLibrary";
 import { DangerButton, Field, Select, TextArea, TextInput } from "./ui";
 
-export const BLOCK_TYPES = ["heading", "text", "image", "quote", "list", "cta"] as const;
+export const BLOCK_TYPES = ["heading", "text", "image", "quote", "list", "cta", "pricing_table"] as const;
 export type BlockType = (typeof BLOCK_TYPES)[number];
 
 export function blankBlock(type: BlockType = "text"): PageBlock {
@@ -18,6 +18,7 @@ const BLOCK_STUDIO_META: Record<BlockType, { icon: string; labelKey: string }> =
   quote: { icon: "format_quote", labelKey: "admin.blockTypeQuote" },
   list: { icon: "list", labelKey: "admin.blockTypeList" },
   cta: { icon: "smart_button", labelKey: "admin.blockTypeCta" },
+  pricing_table: { icon: "table", labelKey: "admin.blockTypePricing" },
 };
 
 export function BlocksField({
@@ -319,10 +320,135 @@ export function BlocksField({
                 </Field>
               </div>
             )}
+            {block.block_type === "pricing_table" && (
+              <PricingTableFields data={d} onChange={(data) => updateData(index, data)} t={t} />
+            )}
           </div>
         );
       })}
       {!studio ? quickAddBar : null}
+    </div>
+  );
+}
+
+type PricingRow = { service?: string; service_vi?: string; price?: string; price_vi?: string; note?: string; note_vi?: string };
+
+function PricingTableFields({
+  data,
+  onChange,
+  t,
+}: {
+  data: Record<string, any>;
+  onChange: (data: Record<string, any>) => void;
+  t: (k: string) => string;
+}) {
+  const rows: PricingRow[] = data.rows || [];
+  function setRow(i: number, patch: Partial<PricingRow>) {
+    const next = rows.map((r, idx) => (idx === i ? { ...r, ...patch } : r));
+    onChange({ ...data, rows: next });
+  }
+  return (
+    <div className="flex flex-col gap-3">
+      <InputPair
+        label={t("admin.pricingTableTitle")}
+        en={data.title || ""}
+        vi={data.title_vi || ""}
+        onEn={(v) => onChange({ ...data, title: v })}
+        onVi={(v) => onChange({ ...data, title_vi: v })}
+      />
+      <InputPairTextArea
+        label={t("admin.pricingTableNote")}
+        en={data.note || ""}
+        vi={data.note_vi || ""}
+        onEn={(v) => onChange({ ...data, note: v })}
+        onVi={(v) => onChange({ ...data, note_vi: v })}
+      />
+      {rows.map((row, i) => (
+        <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-2 border border-surface-container-low p-2">
+          <Field label={t("admin.pricingRowService")}>
+            <TextInput value={row.service || ""} onChange={(e) => setRow(i, { service: e.target.value })} />
+          </Field>
+          <Field label={`VI · ${t("admin.pricingRowService")}`}>
+            <TextInput value={row.service_vi || ""} onChange={(e) => setRow(i, { service_vi: e.target.value })} />
+          </Field>
+          <Field label={t("admin.pricingRowPrice")}>
+            <TextInput value={row.price || ""} onChange={(e) => setRow(i, { price: e.target.value })} placeholder="5.750.000 ₫" />
+          </Field>
+          <Field label={`VI · ${t("admin.pricingRowPrice")}`}>
+            <TextInput value={row.price_vi || ""} onChange={(e) => setRow(i, { price_vi: e.target.value })} />
+          </Field>
+          <Field label={t("admin.pricingRowNote")}>
+            <TextInput value={row.note || ""} onChange={(e) => setRow(i, { note: e.target.value })} />
+          </Field>
+          <div className="flex items-end">
+            <DangerButton onClick={() => onChange({ ...data, rows: rows.filter((_, idx) => idx !== i) })}>{t("admin.remove")}</DangerButton>
+          </div>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() => onChange({ ...data, rows: [...rows, { service: "", price: "" }] })}
+        className="font-label text-label-caps text-forest-green hover:underline uppercase self-start"
+      >
+        + {t("admin.addPricingRow")}
+      </button>
+      <InputPair
+        label={t("admin.pricingTableFooter")}
+        en={data.footer || ""}
+        vi={data.footer_vi || ""}
+        onEn={(v) => onChange({ ...data, footer: v })}
+        onVi={(v) => onChange({ ...data, footer_vi: v })}
+      />
+    </div>
+  );
+}
+
+function InputPair({
+  label,
+  en,
+  vi,
+  onEn,
+  onVi,
+}: {
+  label: string;
+  en: string;
+  vi: string;
+  onEn: (v: string) => void;
+  onVi: (v: string) => void;
+}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+      <Field label={label}>
+        <TextInput value={en} onChange={(e) => onEn(e.target.value)} />
+      </Field>
+      <Field label={`VI · ${label}`}>
+        <TextInput value={vi} onChange={(e) => onVi(e.target.value)} />
+      </Field>
+    </div>
+  );
+}
+
+function InputPairTextArea({
+  label,
+  en,
+  vi,
+  onEn,
+  onVi,
+}: {
+  label: string;
+  en: string;
+  vi: string;
+  onEn: (v: string) => void;
+  onVi: (v: string) => void;
+}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+      <Field label={label}>
+        <TextArea rows={2} value={en} onChange={(e) => onEn(e.target.value)} />
+      </Field>
+      <Field label={`VI · ${label}`}>
+        <TextArea rows={2} value={vi} onChange={(e) => onVi(e.target.value)} />
+      </Field>
     </div>
   );
 }

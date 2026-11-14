@@ -29,7 +29,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const cats = categoryNames(product);
   const image = product.images?.find((i) => i.position === 0) || product.images?.[0];
   return (
-    <Link to={`/products/${product.slug}`} className="group cursor-pointer flex flex-col h-full bg-background border border-transparent hover:border-surface-container-high p-2 transition-all">
+    <Link to={`/products/${product.slug}`} className="group cursor-pointer flex flex-col bg-background border border-transparent hover:border-surface-container-high p-2 transition-all">
       <div className="relative w-full aspect-[3/4] overflow-hidden bg-surface-container-low">
         {(product.badge || product.is_featured) && (
           <div className="absolute top-2 left-2 bg-forest-green text-white font-label text-label-caps px-2 py-1 z-10 uppercase tracking-widest font-bold">

@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
-import type { Collection, Media } from "../types";
+import type { Collection, Media, PageBlock } from "../types";
+import { BlocksField } from "./BlockEditor";
 import { MediaField } from "./MediaLibrary";
 import { Checkbox, DangerButton, Field, PrimaryButton, SecondaryButton, Select, TextArea, TextInput, ViArea, ViInput } from "./ui";
 
@@ -20,6 +21,7 @@ interface Draft {
   is_featured: boolean;
   is_active: boolean;
   display_order: number;
+  content_blocks: PageBlock[];
 }
 
 function blankDraft(): Draft {
@@ -36,7 +38,17 @@ function blankDraft(): Draft {
     is_featured: false,
     is_active: true,
     display_order: 0,
+    content_blocks: [],
   };
+}
+
+function blocksFromCollection(c: Collection): PageBlock[] {
+  return (c.content_blocks || []).map((b, i) => ({
+    id: 0,
+    block_type: b.block_type,
+    position: b.position ?? i,
+    data: b.data || {},
+  }));
 }
 
 function toDraft(c: Collection): Draft {
@@ -54,7 +66,16 @@ function toDraft(c: Collection): Draft {
     is_featured: c.is_featured,
     is_active: c.is_active,
     display_order: c.display_order,
+    content_blocks: blocksFromCollection(c),
   };
+}
+
+function blocksToPayload(blocks: PageBlock[]) {
+  return blocks.map((b, i) => ({
+    block_type: b.block_type,
+    position: i,
+    data: b.data || {},
+  }));
 }
 
 export default function CollectionsTab() {
@@ -92,8 +113,10 @@ export default function CollectionsTab() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: (d: Draft) =>
-      d.id ? adminApi.updateCollection(d.id, d) : adminApi.createCollection(d),
+    mutationFn: (d: Draft) => {
+      const body = { ...d, content_blocks: blocksToPayload(d.content_blocks) };
+      return d.id ? adminApi.updateCollection(d.id, body) : adminApi.createCollection(body);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-collections"] });
       queryClient.invalidateQueries({ queryKey: ["collections"] });
@@ -261,6 +284,13 @@ export default function CollectionsTab() {
               <label className="flex items-center gap-2 font-body text-body-md text-on-background">
                 <Checkbox checked={draft.is_featured} onChange={(e) => set("is_featured", e.target.checked)} /> {t("admin.featuredTrending")}
               </label>
+            </div>
+            <div className="border-t border-surface-container-high pt-4">
+              <BlocksField
+                blocks={draft.content_blocks}
+                onChange={(blocks) => set("content_blocks", blocks)}
+                mediaById={mediaById}
+              />
             </div>
             {saveMutation.isError && <p className="text-error text-sm">{String(saveMutation.error)}</p>}
           </div>

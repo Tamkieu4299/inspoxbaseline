@@ -98,10 +98,22 @@ class MediaOut(ORMModel):
     size: int
 
 
+class CatalogContentBlock(BaseModel):
+    block_type: str
+    position: int = 0
+    data: dict = Field(default_factory=dict)
+
+
 class CategoryBase(BaseModel):
     slug: str
     name: str
     name_vi: str | None = None
+    tagline: str | None = None
+    tagline_vi: str | None = None
+    description: str | None = None
+    description_vi: str | None = None
+    content_blocks: list[CatalogContentBlock] = Field(default_factory=list)
+    content_blocks_vi: list[CatalogContentBlock] | None = None
     parent_id: int | None = None
 
 
@@ -204,6 +216,8 @@ class CollectionBase(BaseModel):
     tagline_vi: str | None = None
     description: str | None = None
     description_vi: str | None = None
+    content_blocks: list[CatalogContentBlock] = Field(default_factory=list)
+    content_blocks_vi: list[CatalogContentBlock] | None = None
     hero_image_id: int | None = None
     badge: str | None = None
     is_featured: bool = False

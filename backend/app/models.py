@@ -92,6 +92,12 @@ class Category(Base, TimestampMixin):
     slug: Mapped[str] = mapped_column(String(100))
     name: Mapped[str] = mapped_column(String(100))
     name_vi: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    tagline: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    tagline_vi: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    description_vi: Mapped[str | None] = mapped_column(Text, nullable=True)
+    content_blocks: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    content_blocks_vi: Mapped[list | None] = mapped_column(JSON, nullable=True)
     parent_id: Mapped[int | None] = mapped_column(
         ForeignKey("categories.id"), nullable=True, index=True
     )
@@ -123,6 +129,8 @@ class Collection(Base, TimestampMixin):
     is_featured: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     display_order: Mapped[int] = mapped_column(Integer, default=0)
+    content_blocks: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    content_blocks_vi: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
     products: Mapped[list["Product"]] = relationship(back_populates="collection")
 

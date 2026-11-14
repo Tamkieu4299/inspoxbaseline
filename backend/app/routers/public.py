@@ -142,12 +142,45 @@ BLOCK_DATA_VI = {
     "quote": [("quote", "quote_vi"), ("author", "author_vi")],
     "list": [("items", "items_vi")],
     "cta": [("label", "label_vi")],
+    "pricing_table": [("title", "title_vi"), ("note", "note_vi"), ("footer", "footer_vi")],
 }
 
 
+def _localize_pricing_table_data(data: dict | None):
+    if not data:
+        return data or {}
+    out = _vi_dict(data, BLOCK_DATA_VI["pricing_table"])
+    rows = []
+    for row in out.get("rows") or []:
+        r = _vi_dict(dict(row), [("service", "service_vi"), ("price", "price_vi"), ("note", "note_vi")])
+        rows.append(r)
+    out["rows"] = rows
+    if out.get("columns"):
+        out["columns"] = _vi_dict(dict(out["columns"]), [
+            ("service", "service_vi"),
+            ("price", "price_vi"),
+            ("note", "note_vi"),
+        ])
+    return out
+
+
 def _localize_block_data(data: dict | None, block_type: str | None = None):
+    if block_type == "pricing_table":
+        return _localize_pricing_table_data(data)
     mapping = BLOCK_DATA_VI.get(block_type or "", [("body", "body_vi")])
     return _vi_dict(data, mapping)
+
+
+def _localized_content_blocks(blocks: list | None, lang: str) -> list:
+    raw = blocks or []
+    if lang != "vi":
+        return raw
+    out = []
+    for b in raw:
+        row = dict(b)
+        row["data"] = _localize_block_data(row.get("data"), row.get("block_type"))
+        out.append(row)
+    return out
 
 
 def _load_collection(db: Session, collection: Collection, lang: str = "en") -> CollectionOut:
@@ -174,6 +207,11 @@ def _load_collection(db: Session, collection: Collection, lang: str = "en") -> C
         data["name"] = data["name_vi"] or data["name"]
         data["tagline"] = data["tagline_vi"] or data["tagline"]
         data["description"] = data["description_vi"] or data["description"]
+        vi_blocks = collection.content_blocks_vi
+        block_source = vi_blocks if vi_blocks else collection.content_blocks
+        data["content_blocks"] = _localized_content_blocks(block_source, "vi")
+    else:
+        data["content_blocks"] = collection.content_blocks or []
     data["products"] = [_load_product(db, p, lang) for p in products]
     return CollectionOut.model_validate(data)
 
@@ -334,12 +372,20 @@ def list_categories(
         .scalars()
         .all()
     )
-    if lang != "vi":
-        return categories
+    if lang == "en":
+        return [
+            CategoryOut.model_validate({**CategoryOut.model_validate(c).model_dump(), "content_blocks": c.content_blocks or []})
+            for c in categories
+        ]
     out = []
     for c in categories:
         data = CategoryOut.model_validate(c).model_dump()
         data["name"] = data["name_vi"] or data["name"]
+        data["tagline"] = data["tagline_vi"] or data["tagline"]
+        data["description"] = data["description_vi"] or data["description"]
+        vi_blocks = c.content_blocks_vi
+        block_source = vi_blocks if vi_blocks else c.content_blocks
+        data["content_blocks"] = _localized_content_blocks(block_source, "vi")
         out.append(CategoryOut.model_validate(data))
     return out
 

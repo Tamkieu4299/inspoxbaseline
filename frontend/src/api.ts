@@ -252,6 +252,12 @@ export const adminApi = {
       headers: adminHeaders(),
       body: JSON.stringify(body),
     }),
+  updateCategory: (id: number, body: unknown) =>
+    request<Category>(`/api/admin/categories/${id}`, {
+      method: "PUT",
+      headers: adminHeaders(),
+      body: JSON.stringify(body),
+    }),
   deleteCategory: (id: number) =>
     request(`/api/admin/categories/${id}`, { method: "DELETE", headers: adminHeaders() }),
 
