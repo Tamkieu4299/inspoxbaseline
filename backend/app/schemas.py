@@ -116,6 +116,11 @@ class CategoryBase(BaseModel):
     content_blocks_vi: list[CatalogContentBlock] | None = None
     parent_id: int | None = None
 
+    @field_validator("content_blocks", mode="before")
+    @classmethod
+    def _coerce_category_content_blocks(cls, v: Any) -> list:
+        return v if v is not None else []
+
 
 class CategoryIn(CategoryBase):
     pass
@@ -223,6 +228,11 @@ class CollectionBase(BaseModel):
     is_featured: bool = False
     is_active: bool = True
     display_order: int = 0
+
+    @field_validator("content_blocks", mode="before")
+    @classmethod
+    def _coerce_collection_content_blocks(cls, v: Any) -> list:
+        return v if v is not None else []
 
 
 class CollectionIn(CollectionBase):
