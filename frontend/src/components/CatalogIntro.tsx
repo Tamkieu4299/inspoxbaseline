@@ -10,12 +10,13 @@ export type CatalogIntroProps = {
   variant?: "shop" | "page";
 };
 
-function isBannerPoster(blocks: CatalogIntroProps["blocks"]) {
+function isSoloIntroBlock(blocks: CatalogIntroProps["blocks"]) {
   const sorted = [...(blocks || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+  if (sorted.length !== 1) return false;
+  const t = sorted[0].block_type;
+  if (t === "service_package") return true;
   return (
-    sorted.length === 1 &&
-    sorted[0].block_type === "image" &&
-    (sorted[0].data?.layout === "banner" || sorted[0].data?.layout === "poster")
+    t === "image" && (sorted[0].data?.layout === "banner" || sorted[0].data?.layout === "poster")
   );
 }
 
@@ -27,9 +28,9 @@ export default function CatalogIntro({
   variant = "page",
 }: CatalogIntroProps) {
   const sorted = [...(blocks || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-  const bannerOnly = isBannerPoster(blocks);
+  const soloIntro = isSoloIntroBlock(blocks);
   const hasCopy = Boolean(
-    hero?.url || sorted.length > 0 || (!bannerOnly && (tagline || description)),
+    hero?.url || sorted.length > 0 || (!soloIntro && (tagline || description)),
   );
   if (!hasCopy) return null;
 
@@ -45,17 +46,17 @@ export default function CatalogIntro({
           <img src={hero.url} alt="" className="w-full h-auto object-contain" />
         </div>
       ) : null}
-      {!bannerOnly && tagline ? (
+      {!soloIntro && tagline ? (
         <p className="font-label text-label-caps text-forest-green uppercase tracking-widest">{tagline}</p>
       ) : null}
-      {!bannerOnly && description ? (
+      {!soloIntro && description ? (
         <p className="font-body text-body-md sm:text-body-lg text-secondary max-w-3xl leading-relaxed whitespace-pre-line">
           {description}
         </p>
       ) : null}
       {sorted.length > 0 ? (
         <div
-          className={`flex flex-col ${bannerOnly && shop ? "items-start" : ""} ${bannerOnly ? "gap-0" : shop ? "gap-4" : "gap-6"}`}
+          className={`flex flex-col w-full ${soloIntro ? "gap-0" : shop ? "gap-4" : "gap-6"}`}
         >
           {sorted.map((block, i) => (
             <BlockRenderer key={i} block={block} context={shop ? "catalog" : "page"} />

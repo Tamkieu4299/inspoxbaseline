@@ -4,7 +4,16 @@ import { useLanguage } from "../i18n";
 import { ImageField } from "./MediaLibrary";
 import { DangerButton, Field, Select, TextArea, TextInput } from "./ui";
 
-export const BLOCK_TYPES = ["heading", "text", "image", "quote", "list", "cta", "pricing_table"] as const;
+export const BLOCK_TYPES = [
+  "heading",
+  "text",
+  "image",
+  "quote",
+  "list",
+  "cta",
+  "pricing_table",
+  "service_package",
+] as const;
 export type BlockType = (typeof BLOCK_TYPES)[number];
 
 export function blankBlock(type: BlockType = "text"): PageBlock {
@@ -19,6 +28,7 @@ const BLOCK_STUDIO_META: Record<BlockType, { icon: string; labelKey: string }> =
   list: { icon: "list", labelKey: "admin.blockTypeList" },
   cta: { icon: "smart_button", labelKey: "admin.blockTypeCta" },
   pricing_table: { icon: "table", labelKey: "admin.blockTypePricing" },
+  service_package: { icon: "loyalty", labelKey: "admin.blockTypeServicePackage" },
 };
 
 export function BlocksField({
@@ -340,6 +350,9 @@ export function BlocksField({
             {block.block_type === "pricing_table" && (
               <PricingTableFields data={d} onChange={(data) => updateData(index, data)} t={t} />
             )}
+            {block.block_type === "service_package" && (
+              <ServicePackageFields data={d} onChange={(data) => updateData(index, data)} t={t} />
+            )}
           </div>
         );
       })}
@@ -349,6 +362,95 @@ export function BlocksField({
 }
 
 type PricingRow = { service?: string; service_vi?: string; price?: string; price_vi?: string; note?: string; note_vi?: string };
+
+type PackageFeature = { icon?: string; title?: string; title_vi?: string };
+
+function ServicePackageFields({
+  data,
+  onChange,
+  t,
+}: {
+  data: Record<string, any>;
+  onChange: (data: Record<string, any>) => void;
+  t: (k: string) => string;
+}) {
+  function patch(p: Record<string, unknown>) {
+    onChange({ ...data, ...p });
+  }
+  function setFeatures(key: "includes" | "guarantees", items: PackageFeature[]) {
+    patch({ [key]: items });
+  }
+  function renderFeatureList(key: "includes" | "guarantees", labelKey: string) {
+    const items: PackageFeature[] = data[key] || [];
+    return (
+      <div className="border border-surface-container-low p-3 space-y-2">
+        <p className="font-label text-label-caps text-secondary uppercase">{t(labelKey)}</p>
+        {items.map((row, i) => (
+          <div key={i} className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <TextInput
+              placeholder="icon (Material name)"
+              value={row.icon || ""}
+              onChange={(e) => {
+                const next = [...items];
+                next[i] = { ...row, icon: e.target.value };
+                setFeatures(key, next);
+              }}
+            />
+            <TextInput
+              placeholder="Title EN"
+              value={row.title || ""}
+              onChange={(e) => {
+                const next = [...items];
+                next[i] = { ...row, title: e.target.value };
+                setFeatures(key, next);
+              }}
+            />
+            <TextInput
+              placeholder="Title VI"
+              value={row.title_vi || ""}
+              onChange={(e) => {
+                const next = [...items];
+                next[i] = { ...row, title_vi: e.target.value };
+                setFeatures(key, next);
+              }}
+            />
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => setFeatures(key, [...items, { icon: "check_circle", title: "" }])}
+          className="font-label text-label-caps text-forest-green uppercase hover:underline"
+        >
+          + {t("admin.addPricingRow")}
+        </button>
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-col gap-3">
+      <InputPair label={t("admin.spKicker")} en={data.kicker || ""} vi={data.kicker_vi || ""} onEn={(v) => patch({ kicker: v })} onVi={(v) => patch({ kicker_vi: v })} />
+      <Field label={t("admin.spEst")}>
+        <TextInput value={data.est || ""} onChange={(e) => patch({ est: e.target.value })} />
+      </Field>
+      <InputPair label={t("admin.blockHeading")} en={data.title || ""} vi={data.title_vi || ""} onEn={(v) => patch({ title: v })} onVi={(v) => patch({ title_vi: v })} />
+      <InputPairTextArea label={t("admin.tagline")} en={data.tagline || ""} vi={data.tagline_vi || ""} onEn={(v) => patch({ tagline: v })} onVi={(v) => patch({ tagline_vi: v })} />
+      <InputPair label={t("admin.spPrice")} en={data.price || ""} vi={data.price_vi || ""} onEn={(v) => patch({ price: v })} onVi={(v) => patch({ price_vi: v })} />
+      <InputPair label={t("admin.spPriceNote")} en={data.price_note || ""} vi={data.price_note_vi || ""} onEn={(v) => patch({ price_note: v })} onVi={(v) => patch({ price_note_vi: v })} />
+      <InputPair label={t("admin.spIncludesLabel")} en={data.includes_label || ""} vi={data.includes_label_vi || ""} onEn={(v) => patch({ includes_label: v })} onVi={(v) => patch({ includes_label_vi: v })} />
+      {renderFeatureList("includes", "admin.spIncludes")}
+      <InputPair label={t("admin.spGuaranteesLabel")} en={data.guarantees_label || ""} vi={data.guarantees_label_vi || ""} onEn={(v) => patch({ guarantees_label: v })} onVi={(v) => patch({ guarantees_label_vi: v })} />
+      {renderFeatureList("guarantees", "admin.spGuarantees")}
+      <InputPair label={t("admin.spCtaHint")} en={data.cta_hint || ""} vi={data.cta_hint_vi || ""} onEn={(v) => patch({ cta_hint: v })} onVi={(v) => patch({ cta_hint_vi: v })} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <InputPair label={t("admin.blockLabel")} en={data.cta_label || ""} vi={data.cta_label_vi || ""} onEn={(v) => patch({ cta_label: v })} onVi={(v) => patch({ cta_label_vi: v })} />
+        <Field label={t("admin.blockUrl")}>
+          <TextInput value={data.cta_url || ""} onChange={(e) => patch({ cta_url: e.target.value })} />
+        </Field>
+      </div>
+      <InputPairTextArea label={t("admin.pricingTableFooter")} en={data.footer || ""} vi={data.footer_vi || ""} onEn={(v) => patch({ footer: v })} onVi={(v) => patch({ footer_vi: v })} />
+    </div>
+  );
+}
 
 function PricingTableFields({
   data,

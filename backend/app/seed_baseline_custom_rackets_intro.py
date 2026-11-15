@@ -1,56 +1,93 @@
-"""Seed Baseline ``custom-rackets`` category storefront intro (pricing graphic + copy).
+"""Seed Baseline ``custom-rackets`` category storefront intro (service package block).
 
-Idempotent: runs only while ``content_blocks`` is empty unless
-``REFRESH_CUSTOM_RACKETS_INTRO=1``.
+Idempotent via ``intro_version`` on block data. Force refresh:
 
-    docker exec inspo-backend python -m app.seed_baseline_custom_rackets_intro
+    REFRESH_CUSTOM_RACKETS_INTRO=1 docker exec inspo-backend python -m app.seed_baseline_custom_rackets_intro
 """
 
 from __future__ import annotations
 
 import os
-from pathlib import Path
 
 from sqlalchemy import select
 
 from .database import SessionLocal
-from .minio_client import save_file
-from .models import Category, Media, Tenant
+from .models import Category, Tenant
 
 SLUG = "baseline"
 CATEGORY_SLUG = "custom-rackets"
-ASSET = Path(__file__).resolve().parent.parent / "assets" / "custom_racket_pricing.jpeg"
+INTRO_VERSION = 3
 
 
-def _ensure_media(db, tenant_id: int) -> Media:
-    filename = ASSET.name
-    row = db.scalar(
-        select(Media).where(Media.tenant_id == tenant_id, Media.filename == filename)
-    )
-    if row is not None:
-        return row
-    if not ASSET.is_file():
-        raise FileNotFoundError(f"Missing asset: {ASSET}")
-    return save_file(db, ASSET.read_bytes(), filename, "image/jpeg", tenant_id=tenant_id)
-
-
-INTRO_VERSION = 2
-
-
-def _blocks(media: Media) -> list[dict]:
-    """Single full poster — all pricing copy lives in the JPEG (no duplicate blocks)."""
+def _blocks() -> list[dict]:
     return [
         {
-            "block_type": "image",
+            "block_type": "service_package",
             "position": 0,
             "data": {
-                "media_id": media.id,
-                "url": media.url,
-                "layout": "banner",
-                "fit": "contain",
-                "hide_caption": True,
-                "caption": "Custom package pricing",
-                "caption_vi": "Bảng giá gói custom",
+                "intro_version": INTRO_VERSION,
+                "kicker": "BASELINE CLUB",
+                "kicker_vi": "BASELINE CLUB",
+                "est": "EST. 2026",
+                "title": "CUSTOM PACKAGE",
+                "title_vi": "CUSTOM PACKAGE",
+                "tagline": "Customize your racket look to match your style.",
+                "tagline_vi": "Tùy chỉnh ngoại hình vợt theo phong cách của bạn.",
+                "price": "FROM 2,000,000₫ – 3,000,000₫",
+                "price_vi": "TỪ 2.000.000₫ – 3.000.000₫",
+                "price_note": "Depending on design complexity",
+                "price_note_vi": "Tùy theo độ phức tạp của thiết kế",
+                "includes_label": "INCLUDES",
+                "includes_label_vi": "BAO GỒM",
+                "includes": [
+                    {
+                        "icon": "palette",
+                        "title": "COLOR DIRECTION",
+                        "title_vi": "ĐỊNH HƯỚNG MÀU SẮC",
+                    },
+                    {
+                        "icon": "edit_note",
+                        "title": "CUSTOM DESIGN",
+                        "title_vi": "THIẾT KẾ THEO YÊU CẦU",
+                    },
+                    {
+                        "icon": "layers",
+                        "title": "DESIGN PREVIEW",
+                        "title_vi": "XEM TRƯỚC THIẾT KẾ",
+                    },
+                ],
+                "guarantees_label": "SERVICE",
+                "guarantees_label_vi": "CAM KẾT",
+                "guarantees": [
+                    {
+                        "icon": "verified_user",
+                        "title": "6-MONTH PAINT WARRANTY",
+                        "title_vi": "6 THÁNG BẢO HÀNH LỚP SƠN",
+                    },
+                    {
+                        "icon": "crown",
+                        "title": "EXCLUSIVE — NEVER REUSED",
+                        "title_vi": "THIẾT KẾ ĐỘC QUYỀN KHÔNG LẶP LẠI",
+                    },
+                    {
+                        "icon": "diamond",
+                        "title": "PROFESSIONAL PROCESS",
+                        "title_vi": "QUY TRÌNH CHUYÊN NGHIỆP",
+                    },
+                ],
+                "cta_hint": "Explore our custom racket gallery",
+                "cta_hint_vi": "Khám phá các mẫu đã thực hiện",
+                "cta_label": "VIEW GALLERY",
+                "cta_label_vi": "XEM MẪU NGAY",
+                "cta_url": "/collections/custom-rackets",
+                "footer": (
+                    "Final pricing is confirmed after the concept and level of complexity are agreed.\n"
+                    "Warranty excludes scratches, impact, abrasion and damage from external causes."
+                ),
+                "footer_vi": (
+                    "Giá cuối cùng được xác nhận sau khi thống nhất ý tưởng và mức độ hoàn thiện.\n"
+                    "Bảo hành không bao gồm trầy xước, va đập hoặc hư hại từ tác động bên ngoài."
+                ),
             },
         },
     ]
@@ -73,6 +110,7 @@ def run() -> None:
         if cat is None:
             print(f"custom-rackets intro seed: category {CATEGORY_SLUG!r} not found")
             return
+
         def _intro_version(blocks: list | None) -> int | None:
             for b in blocks or []:
                 if isinstance(b, dict):
@@ -87,14 +125,11 @@ def run() -> None:
         if _intro_version(cat.content_blocks) == INTRO_VERSION and not force:
             print("custom-rackets intro seed: skipped (intro version up to date)")
             return
-        media = _ensure_media(db, tenant.id)
         cat.tagline = None
         cat.tagline_vi = None
         cat.description = None
         cat.description_vi = None
-        blocks = _blocks(media)
-        blocks[0]["data"]["intro_version"] = INTRO_VERSION
-        cat.content_blocks = blocks
+        cat.content_blocks = _blocks()
         db.commit()
         print(f"custom-rackets intro seed: updated category id={cat.id}")
     finally:

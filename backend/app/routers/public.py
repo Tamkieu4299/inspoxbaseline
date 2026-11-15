@@ -164,9 +164,38 @@ def _localize_pricing_table_data(data: dict | None):
     return out
 
 
+def _localize_service_package_data(data: dict | None):
+    if not data:
+        return data or {}
+    top = _vi_dict(
+        dict(data),
+        [
+            ("kicker", "kicker_vi"),
+            ("title", "title_vi"),
+            ("tagline", "tagline_vi"),
+            ("price", "price_vi"),
+            ("price_note", "price_note_vi"),
+            ("includes_label", "includes_label_vi"),
+            ("guarantees_label", "guarantees_label_vi"),
+            ("cta_hint", "cta_hint_vi"),
+            ("cta_label", "cta_label_vi"),
+            ("footer", "footer_vi"),
+        ],
+    )
+    for key in ("includes", "guarantees"):
+        rows = []
+        for row in top.get(key) or []:
+            r = _vi_dict(dict(row), [("title", "title_vi")])
+            rows.append(r)
+        top[key] = rows
+    return top
+
+
 def _localize_block_data(data: dict | None, block_type: str | None = None):
     if block_type == "pricing_table":
         return _localize_pricing_table_data(data)
+    if block_type == "service_package":
+        return _localize_service_package_data(data)
     mapping = BLOCK_DATA_VI.get(block_type or "", [("body", "body_vi")])
     return _vi_dict(data, mapping)
 

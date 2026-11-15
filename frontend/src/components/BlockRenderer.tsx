@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "../i18n";
+import ServicePackageSection, { type ServicePackageData } from "./ServicePackageSection";
 
 interface Block {
   block_type?: string;
@@ -121,6 +122,8 @@ export default function BlockRenderer({
           {d.label || t("block.shop")}
         </Link>
       );
+    case "service_package":
+      return <ServicePackageSection data={d as ServicePackageData} compact={catalog} />;
     case "pricing_table": {
       const cols = d.columns || {};
       const serviceHead = cols.service || t("block.pricingService");

@@ -29,6 +29,7 @@ export default {
         error: "#ba1a1a",
         "on-error": "#ffffff",
         charcoal: "#131313",
+        "baseline-accent": "#ff7eb3",
         muted: "#71717a",
         success: "#10b981",
         warning: "#f59e0b",
