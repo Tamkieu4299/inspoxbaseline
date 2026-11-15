@@ -225,6 +225,23 @@ export function BlocksField({
                 <Field label={`VI · ${t("admin.blockCaption")}`}>
                   <TextInput value={d.caption_vi || ""} onChange={(e) => updateData(index, { ...d, caption_vi: e.target.value })} />
                 </Field>
+                <Field label={t("admin.imageLayout")}>
+                  <Select
+                    value={d.layout || "default"}
+                    onChange={(e) => updateData(index, { ...d, layout: e.target.value })}
+                  >
+                    <option value="default">{t("admin.imageLayoutDefault")}</option>
+                    <option value="banner">{t("admin.imageLayoutBanner")}</option>
+                  </Select>
+                </Field>
+                <label className="flex items-center gap-2 font-body text-body-sm">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(d.hide_caption)}
+                    onChange={(e) => updateData(index, { ...d, hide_caption: e.target.checked })}
+                  />
+                  {t("admin.imageHideCaption")}
+                </label>
               </div>
             )}
             {block.block_type === "quote" && (

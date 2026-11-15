@@ -7,10 +7,17 @@ interface Block {
   data: Record<string, any>;
 }
 
-export default function BlockRenderer({ block }: { block: Block }) {
+export default function BlockRenderer({
+  block,
+  context = "page",
+}: {
+  block: Block;
+  context?: "page" | "catalog";
+}) {
   const { t } = useLanguage();
   const type = block.block_type || block.type || "text";
   const d = block.data || {};
+  const catalog = context === "catalog";
 
   switch (type) {
     case "heading":
@@ -25,13 +32,44 @@ export default function BlockRenderer({ block }: { block: Block }) {
           {d.body || ""}
         </p>
       );
-    case "image":
+    case "image": {
+      const layout = d.layout || "default";
+      const isBanner = layout === "banner" || layout === "poster";
+      const fit = d.fit || (isBanner ? "contain" : "cover");
+      const hideCaption = Boolean(d.hide_caption);
+      if (isBanner) {
+        return (
+          <figure className="w-full overflow-hidden rounded-lg border border-surface-container-high bg-[#0a0a0a]">
+            {d.url ? (
+              <img
+                src={d.url}
+                alt={d.caption || ""}
+                className={`w-full h-auto mx-auto ${fit === "contain" ? "object-contain" : "object-cover"} ${catalog ? "max-w-full" : "max-h-[min(90vh,720px)]"}`}
+                loading="lazy"
+              />
+            ) : null}
+            {!hideCaption && d.caption ? (
+              <figcaption className="font-label text-label-caps text-secondary px-3 py-2 border-t border-surface-container-high bg-surface-container-low">
+                {d.caption}
+              </figcaption>
+            ) : null}
+          </figure>
+        );
+      }
       return (
         <figure className="space-y-2">
-          {d.url && <img src={d.url} alt={d.caption || ""} className="w-full max-h-[560px] object-cover" />}
+          {d.url && (
+            <img
+              src={d.url}
+              alt={d.caption || ""}
+              className={`w-full ${catalog ? "max-h-[480px]" : "max-h-[560px]"} object-${fit === "contain" ? "contain" : "cover"}`}
+              loading="lazy"
+            />
+          )}
           {d.caption && <figcaption className="font-label text-label-caps text-secondary">{d.caption}</figcaption>}
         </figure>
       );
+    }
     case "quote":
       return (
         <blockquote className="border-l-4 border-forest-green pl-6 space-y-2">
