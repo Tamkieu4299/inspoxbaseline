@@ -368,6 +368,12 @@ def run():
         run_baseline_club()
     except (SystemExit, FileNotFoundError) as exc:
         print(f"Baseline Club seed skipped: {exc}")
+    from .seed_baseline_custom_rackets_intro import run as run_custom_rackets_intro
+
+    try:
+        run_custom_rackets_intro()
+    except FileNotFoundError as exc:
+        print(f"Custom rackets intro seed skipped: {exc}")
     from .seed_quizzes import ensure_default_quizzes
 
     ensure_default_quizzes()
