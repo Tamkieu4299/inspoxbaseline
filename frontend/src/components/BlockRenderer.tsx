@@ -38,19 +38,38 @@ export default function BlockRenderer({
       const fit = d.fit || (isBanner ? "contain" : "cover");
       const hideCaption = Boolean(d.hide_caption);
       if (isBanner) {
+        const compact = catalog || d.size === "compact";
+        const figureClass = compact
+          ? "mx-auto w-full max-w-[min(100%,20rem)] sm:max-w-xs md:max-w-sm"
+          : "mx-auto w-full max-w-2xl";
+        const imgMaxH = compact ? "max-h-[min(42vh,360px)]" : "max-h-[min(75vh,560px)]";
         return (
-          <figure className="w-full overflow-hidden rounded-lg border border-surface-container-high bg-[#0a0a0a]">
+          <figure
+            className={`${figureClass} overflow-hidden rounded-lg border border-surface-container-high bg-[#0a0a0a]`}
+          >
             {d.url ? (
               <img
                 src={d.url}
                 alt={d.caption || ""}
-                className={`w-full h-auto mx-auto ${fit === "contain" ? "object-contain" : "object-cover"} ${catalog ? "max-w-full" : "max-h-[min(90vh,720px)]"}`}
+                className={`w-full h-auto mx-auto ${fit === "contain" ? "object-contain" : "object-cover"} ${imgMaxH}`}
                 loading="lazy"
               />
             ) : null}
             {!hideCaption && d.caption ? (
               <figcaption className="font-label text-label-caps text-secondary px-3 py-2 border-t border-surface-container-high bg-surface-container-low">
                 {d.caption}
+              </figcaption>
+            ) : null}
+            {compact && d.url ? (
+              <figcaption className="px-3 py-2 border-t border-surface-container-high bg-surface-container-low">
+                <a
+                  href={d.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-label text-label-caps text-forest-green uppercase hover:underline"
+                >
+                  {t("collection.viewFullPoster")}
+                </a>
               </figcaption>
             ) : null}
           </figure>

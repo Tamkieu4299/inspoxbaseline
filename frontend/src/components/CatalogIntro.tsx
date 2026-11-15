@@ -54,7 +54,9 @@ export default function CatalogIntro({
         </p>
       ) : null}
       {sorted.length > 0 ? (
-        <div className={`flex flex-col ${bannerOnly ? "gap-0" : shop ? "gap-4" : "gap-6"}`}>
+        <div
+          className={`flex flex-col ${bannerOnly && shop ? "items-start" : ""} ${bannerOnly ? "gap-0" : shop ? "gap-4" : "gap-6"}`}
+        >
           {sorted.map((block, i) => (
             <BlockRenderer key={i} block={block} context={shop ? "catalog" : "page"} />
           ))}
