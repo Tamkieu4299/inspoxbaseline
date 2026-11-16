@@ -26,6 +26,7 @@ def _blocks() -> list[dict]:
             "position": 0,
             "data": {
                 "intro_version": INTRO_VERSION,
+                "theme": "baseline-dark",
                 "kicker": "BASELINE CLUB",
                 "kicker_vi": "BASELINE CLUB",
                 "est": "EST. 2026",

@@ -428,6 +428,14 @@ function ServicePackageFields({
   }
   return (
     <div className="flex flex-col gap-3">
+      <Field label={t("admin.spTheme")}>
+        <Select value={data.theme || "baseline-dark"} onChange={(e) => patch({ theme: e.target.value })}>
+          <option value="baseline-dark">{t("admin.spThemeBaselineDark")}</option>
+          <option value="light">{t("admin.spThemeLight")}</option>
+          <option value="forest">{t("admin.spThemeForest")}</option>
+          <option value="minimal">{t("admin.spThemeMinimal")}</option>
+        </Select>
+      </Field>
       <InputPair label={t("admin.spKicker")} en={data.kicker || ""} vi={data.kicker_vi || ""} onEn={(v) => patch({ kicker: v })} onVi={(v) => patch({ kicker_vi: v })} />
       <Field label={t("admin.spEst")}>
         <TextInput value={data.est || ""} onChange={(e) => patch({ est: e.target.value })} />
