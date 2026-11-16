@@ -428,6 +428,13 @@ function ServicePackageFields({
   }
   return (
     <div className="flex flex-col gap-3">
+      <Field label={t("admin.spLayout")}>
+        <Select value={data.layout || "auto"} onChange={(e) => patch({ layout: e.target.value })}>
+          <option value="auto">{t("admin.spLayoutAuto")}</option>
+          <option value="horizontal">{t("admin.spLayoutHorizontal")}</option>
+          <option value="vertical">{t("admin.spLayoutVertical")}</option>
+        </Select>
+      </Field>
       <Field label={t("admin.spTheme")}>
         <Select value={data.theme || "baseline-dark"} onChange={(e) => patch({ theme: e.target.value })}>
           <option value="baseline-dark">{t("admin.spThemeBaselineDark")}</option>

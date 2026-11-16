@@ -101,11 +101,6 @@ export default function Collection() {
     return null;
   }, [q, category, currentCategory, activeCollection, collectionDetail, currentCollection]);
 
-  const layoutServicePackage = useMemo(() => {
-    const blocks = catalogIntro?.blocks;
-    return Boolean(blocks?.length === 1 && blocks[0].block_type === "service_package");
-  }, [catalogIntro]);
-
   const allSizes = useMemo(() => {
     const set = new Set<string>();
     (products || []).forEach((p: Product) =>
@@ -187,6 +182,18 @@ export default function Collection() {
         </div>
       </header>
       </RevealOnScroll>
+
+      {catalogIntro ? (
+        <RevealOnScroll className="mb-6 md:mb-8">
+          <CatalogIntro
+            variant="shop"
+            tagline={catalogIntro.tagline}
+            description={catalogIntro.description}
+            blocks={catalogIntro.blocks}
+            hero={catalogIntro.hero}
+          />
+        </RevealOnScroll>
+      ) : null}
 
       <div className="grid grid-cols-12 gap-6 relative items-start">
         <aside className={`${showFilters ? "block" : "hidden"} lg:block col-span-12 lg:col-span-2`}>
@@ -322,71 +329,23 @@ export default function Collection() {
         </aside>
 
         <div className="col-span-12 lg:col-span-10 flex flex-col gap-8">
-          {layoutServicePackage && catalogIntro ? (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-              <div className="lg:col-span-5 xl:col-span-4">
-                <RevealOnScroll>
-                  <CatalogIntro
-                    variant="shop"
-                    tagline={catalogIntro.tagline}
-                    description={catalogIntro.description}
-                    blocks={catalogIntro.blocks}
-                    hero={catalogIntro.hero}
-                  />
+          <div
+            className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 items-start ${catalogIntro ? "border-t border-surface-container-high pt-8" : ""}`}
+          >
+            {isLoading ? (
+              <p className="col-span-full font-body text-body-md text-secondary py-16 text-center">{t("loading")}</p>
+            ) : !products || products.length === 0 ? (
+              <p className="col-span-full font-body text-body-md text-secondary py-16 text-center">
+                {t("collection.noMatch")}
+              </p>
+            ) : (
+              products.map((product, index) => (
+                <RevealOnScroll key={product.id} delay={(index % 8) * 45}>
+                  <ProductCard product={product} />
                 </RevealOnScroll>
-              </div>
-              <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-8 min-w-0">
-                <div
-                  className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 items-start ${catalogIntro ? "border-t lg:border-t-0 border-surface-container-high pt-8 lg:pt-0" : ""}`}
-                >
-                  {isLoading ? (
-                    <p className="col-span-full font-body text-body-md text-secondary py-16 text-center">{t("loading")}</p>
-                  ) : !products || products.length === 0 ? (
-                    <p className="col-span-full font-body text-body-md text-secondary py-16 text-center">
-                      {t("collection.noMatch")}
-                    </p>
-                  ) : (
-                    products.map((product, index) => (
-                      <RevealOnScroll key={product.id} delay={(index % 8) * 45}>
-                        <ProductCard product={product} />
-                      </RevealOnScroll>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <>
-              {catalogIntro ? (
-                <RevealOnScroll>
-                  <CatalogIntro
-                    variant="shop"
-                    tagline={catalogIntro.tagline}
-                    description={catalogIntro.description}
-                    blocks={catalogIntro.blocks}
-                    hero={catalogIntro.hero}
-                  />
-                </RevealOnScroll>
-              ) : null}
-              <div
-                className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 items-start ${catalogIntro ? "border-t border-surface-container-high pt-8" : ""}`}
-              >
-                {isLoading ? (
-                  <p className="col-span-full font-body text-body-md text-secondary py-16 text-center">{t("loading")}</p>
-                ) : !products || products.length === 0 ? (
-                  <p className="col-span-full font-body text-body-md text-secondary py-16 text-center">
-                    {t("collection.noMatch")}
-                  </p>
-                ) : (
-                  products.map((product, index) => (
-                    <RevealOnScroll key={product.id} delay={(index % 8) * 45}>
-                      <ProductCard product={product} />
-                    </RevealOnScroll>
-                  ))
-                )}
-              </div>
-            </>
-          )}
+              ))
+            )}
+          </div>
           {totalPages > 1 ? (
             <RevealOnScroll className="flex flex-col sm:flex-row items-center justify-center gap-4 border-t border-surface-container-high pt-8">
               <p className="font-label text-label-caps text-secondary order-2 sm:order-1">

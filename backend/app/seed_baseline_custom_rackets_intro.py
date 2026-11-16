@@ -16,7 +16,7 @@ from .models import Category, Tenant
 
 SLUG = "baseline"
 CATEGORY_SLUG = "custom-rackets"
-INTRO_VERSION = 3
+INTRO_VERSION = 4
 
 
 def _blocks() -> list[dict]:
@@ -27,6 +27,7 @@ def _blocks() -> list[dict]:
             "data": {
                 "intro_version": INTRO_VERSION,
                 "theme": "baseline-dark",
+                "layout": "horizontal",
                 "kicker": "BASELINE CLUB",
                 "kicker_vi": "BASELINE CLUB",
                 "est": "EST. 2026",
