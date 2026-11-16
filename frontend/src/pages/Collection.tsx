@@ -183,18 +183,6 @@ export default function Collection() {
       </header>
       </RevealOnScroll>
 
-      {catalogIntro ? (
-        <RevealOnScroll className="mb-6 md:mb-8">
-          <CatalogIntro
-            variant="shop"
-            tagline={catalogIntro.tagline}
-            description={catalogIntro.description}
-            blocks={catalogIntro.blocks}
-            hero={catalogIntro.hero}
-          />
-        </RevealOnScroll>
-      ) : null}
-
       <div className="grid grid-cols-12 gap-6 relative items-start">
         <aside className={`${showFilters ? "block" : "hidden"} lg:block col-span-12 lg:col-span-2`}>
           <RevealOnScroll className="flex flex-col gap-8">
@@ -330,8 +318,19 @@ export default function Collection() {
 
         <div className="col-span-12 lg:col-span-10 flex flex-col gap-8">
           <div
-            className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 items-start ${catalogIntro ? "border-t border-surface-container-high pt-8" : ""}`}
+            className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 items-start ${catalogIntro || products?.length ? "border-t border-surface-container-high pt-8" : ""}`}
           >
+            {catalogIntro ? (
+              <RevealOnScroll className="col-span-full w-full min-w-0">
+                <CatalogIntro
+                  variant="shop"
+                  tagline={catalogIntro.tagline}
+                  description={catalogIntro.description}
+                  blocks={catalogIntro.blocks}
+                  hero={catalogIntro.hero}
+                />
+              </RevealOnScroll>
+            ) : null}
             {isLoading ? (
               <p className="col-span-full font-body text-body-md text-secondary py-16 text-center">{t("loading")}</p>
             ) : !products || products.length === 0 ? (
