@@ -38,8 +38,14 @@ WARRANTY_INTRO = (
     "BASELINE CLUB áp dụng chính sách bảo hành theo từng nhóm sản phẩm:"
 )
 
-WARRANTY_COVERAGE = [
-    "Vợt tennis: Bảo hành 12 tháng đối với các lỗi phát sinh từ nhà sản xuất.",
+WARRANTY_COVERAGE_EN = [
+    "Tennis rackets: 3-month warranty for manufacturer defects.",
+    "Custom design rackets: 6-month warranty on paint defects from production.",
+    "Other products: 3-month warranty for manufacturer defects.",
+]
+
+WARRANTY_COVERAGE_VI = [
+    "Vợt tennis: Bảo hành 3 tháng đối với các lỗi phát sinh từ nhà sản xuất.",
     "Vợt thiết kế (Custom Racket): Bảo hành 6 tháng đối với các lỗi sơn phát sinh từ quá trình sản xuất.",
     "Các sản phẩm khác: Bảo hành 3 tháng đối với các lỗi phát sinh từ nhà sản xuất.",
 ]
@@ -167,7 +173,11 @@ def apply_baseline_policies(*, dry_run: bool = True) -> None:
         warranty_blocks = [
             _block("heading", {"text": "CHÍNH SÁCH BẢO HÀNH"}, 1),
             _block("text", {"body": WARRANTY_INTRO}, 2),
-            _block("list", {"items": WARRANTY_COVERAGE}, 3),
+            _block(
+                "list",
+                {"items": WARRANTY_COVERAGE_EN, "items_vi": WARRANTY_COVERAGE_VI},
+                3,
+            ),
             _block("heading", {"text": "CÁC TRƯỜNG HỢP KHÔNG ĐƯỢC BẢO HÀNH"}, 4),
             _block("list", {"items": WARRANTY_EXCLUSIONS}, 5),
             _block("text", {"body": WARRANTY_CLOSING}, 6),

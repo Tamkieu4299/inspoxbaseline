@@ -6,6 +6,7 @@ import { useCart } from "../cart/CartContext";
 import { useLanguage } from "../i18n";
 import { getProductVariantOptions } from "../productDisplay";
 import { useStoreCurrency } from "../useStoreCurrency";
+import ShippingOptionsNote from "../components/ShippingOptionsNote";
 
 export default function CheckoutPage() {
   const { t } = useLanguage();
@@ -151,6 +152,9 @@ export default function CheckoutPage() {
           <p className="font-headline text-headline-md text-primary uppercase border-t border-outline-variant pt-4">
             {t("cart.subtotal")}: {formatPrice(subtotal)}
           </p>
+          <div className="mt-4">
+            <ShippingOptionsNote />
+          </div>
         </div>
       </div>
     </main>

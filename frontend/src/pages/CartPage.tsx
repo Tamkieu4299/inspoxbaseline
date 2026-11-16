@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { lineKey, useCart } from "../cart/CartContext";
 import { useLanguage } from "../i18n";
 import { useStoreCurrency } from "../useStoreCurrency";
+import ShippingOptionsNote from "../components/ShippingOptionsNote";
 
 export default function CartPage() {
   const { t } = useLanguage();
@@ -71,6 +72,9 @@ export default function CartPage() {
           );
         })}
       </ul>
+      <div className="mb-8">
+        <ShippingOptionsNote />
+      </div>
       <div className="border-t border-outline-variant pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <p className="font-headline text-headline-md text-primary uppercase">
           {t("cart.subtotal")}: {formatPrice(subtotal)}
