@@ -25,6 +25,9 @@ IN_STOCK: dict[int, float] = {
     10: 5_555_000,  # Wilson Blade 98 305g
     7: 5_555_000,  # Wilson Defyer 100 285g
     55: 4_321_000,  # Head Squared
+    131: 7_399_000,  # Babolat Pure Drive 98 Gen11 (~305g)
+    134: 5_999_000,  # Babolat Pure Drive Gen11 (~300g)
+    141: 5_599_000,  # Babolat Pure Drive Lite Gen11 (~285g)
     # Yonex Ezone Alpha 100 275g — add product id once in catalog (web retail 3,456,000)
 }
 
