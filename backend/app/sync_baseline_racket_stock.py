@@ -28,6 +28,8 @@ IN_STOCK: dict[int, float] = {
     131: 7_399_000,  # Babolat Pure Drive 98 Gen11 (~305g)
     134: 5_999_000,  # Babolat Pure Drive Gen11 (~300g)
     141: 5_599_000,  # Babolat Pure Drive Lite Gen11 (~285g)
+    39: 5_290_000,  # Head Gravity MP Zverev 2026
+    40: 5_390_000,  # Head Gravity Tour Zverev 2026
     # Yonex Ezone Alpha 100 275g — add product id once in catalog (web retail 3,456,000)
 }
 
