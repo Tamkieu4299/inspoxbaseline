@@ -32,8 +32,8 @@ MANUAL_PRICES: dict[int, float] = {
     10: 5_555_000,
     7: 5_555_000,
     55: 4_321_000,
-    39: 5_290_000,
-    40: 5_390_000,
+    39: 4_900_000,  # Head Gravity MP Zverev 2026
+    40: 5_200_000,  # Head Gravity Tour Zverev 2026
     76: 4_500_000,
 }
 
