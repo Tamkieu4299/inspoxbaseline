@@ -167,6 +167,21 @@ def _skip_hongan_row(row: dict[str, Any]) -> str | None:
     return None
 
 
+def hongan_matched_product_ids(
+    products: list[Product],
+    rackets_id: int | None,
+    catalog: list[dict[str, Any]],
+) -> set[int]:
+    by_slug, by_sku = _index_hongan(catalog)
+    ids: set[int] = set()
+    for product in products:
+        if not _is_racquet(product, rackets_id):
+            continue
+        if _match_hongan(product, by_slug, by_sku):
+            ids.add(product.id)
+    return ids
+
+
 def _apply_price(
     product: Product,
     row: dict[str, Any],
@@ -194,6 +209,7 @@ def sync(
     dry_run: bool = True,
     tenant_slug: str = "baseline",
     import_missing: bool = True,
+    activate_matched: bool = False,
 ) -> None:
     db = SessionLocal()
     try:
@@ -224,7 +240,7 @@ def sync(
         ).all()
 
         covered_hongan: set[str] = set()
-        price_updated = price_matched = price_skipped = 0
+        price_updated = price_matched = price_skipped = activated = 0
 
         for product in products:
             if not _is_racquet(product, rackets_id):
@@ -243,6 +259,12 @@ def sync(
             prefix = "PRICE" if not dry_run and changed else "price"
             if dry_run or changed:
                 print(f"{prefix} {line}")
+            if activate_matched and not product.is_active:
+                activated += 1
+                if not dry_run:
+                    product.is_active = True
+                elif dry_run:
+                    print(f"ACTIVATE id={product.id} {product.slug}")
 
         imported = import_failed = import_skipped = 0
         if import_missing:
@@ -274,6 +296,10 @@ def sync(
                                 price_updated += 1
                             if dry_run or changed:
                                 print(f"price (existing slug) {line}")
+                            if activate_matched and not existing.is_active:
+                                activated += 1
+                                if not dry_run:
+                                    existing.is_active = True
                         continue
 
                     permalink = row.get("permalink")
@@ -314,7 +340,7 @@ def sync(
                         tenant.id,
                         item,
                         collection_id=collection_id,
-                        active=False,
+                        active=activate_matched,
                         dry_run=False,
                         replace_images=True,
                     )
@@ -326,6 +352,8 @@ def sync(
                     )
                     if product:
                         product.price = target
+                        if activate_matched:
+                            product.is_active = True
                     covered_hongan.add(ha_slug)
                     imported += 1
                     print(f"IMPORTED {item.slug} @ {target:,.0f}₫ (inactive)")
@@ -337,6 +365,8 @@ def sync(
             f"Prices: matched {price_matched}, updated {price_updated}, "
             f"no Hồng Ân match {price_skipped}"
         )
+        if activate_matched:
+            summary += f"; activated {activated}"
         if import_missing:
             summary += (
                 f"; import: {imported} new, {import_failed} failed/skipped enrich, "
@@ -363,8 +393,18 @@ def main() -> None:
         action="store_true",
         help="Only update prices for existing catalog matches",
     )
+    parser.add_argument(
+        "--no-activate",
+        action="store_true",
+        help="Do not set is_active on Hồng Ân–matched rackets",
+    )
     args = parser.parse_args()
-    sync(dry_run=not args.apply, tenant_slug=args.tenant, import_missing=not args.no_import)
+    sync(
+        dry_run=not args.apply,
+        tenant_slug=args.tenant,
+        import_missing=not args.no_import,
+        activate_matched=args.apply and not args.no_activate,
+    )
 
 
 if __name__ == "__main__":
