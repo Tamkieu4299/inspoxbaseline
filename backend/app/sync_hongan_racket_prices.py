@@ -1,6 +1,6 @@
 """Sync Baseline racket prices from Hồng Ân Sports (regular price × 0.8 + 300,000₫).
 
-    docker exec inspo-backend python -m app.sync_hongan_racket_prices --dry-run
+    docker exec inspo-backend python -m app.sync_hongan_racket_prices
     docker exec inspo-backend python -m app.sync_hongan_racket_prices --apply
 """
 
