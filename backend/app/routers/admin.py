@@ -182,7 +182,11 @@ def delete_media(media_id: int, db: Session = Depends(get_db), tenant: Tenant = 
 @router.get("/categories", response_model=list[CategoryOut])
 def list_categories(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
     return (
-        db.execute(select(Category).where(Category.tenant_id == tenant.id).order_by(Category.name))
+        db.execute(
+            select(Category).where(Category.tenant_id == tenant.id).order_by(
+                Category.parent_id.nullsfirst(), Category.nav_order, Category.name
+            )
+        )
         .scalars()
         .all()
     )

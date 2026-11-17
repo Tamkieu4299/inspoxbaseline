@@ -704,6 +704,8 @@ const en: Record<string, string> = {
   "admin.categories": "CATEGORIES",
   "admin.categoryName": "Name (e.g. DRESSES)",
   "admin.categorySlug": "Slug (e.g. dresses)",
+  "admin.categoryNavOrder": "Menu order",
+  "admin.categoryNavOrderHint": "Lower numbers appear first in the shop nav (mobile + desktop). Parent and child categories each use their own order.",
   "admin.productCategoriesHint": "Select all that apply. The first checked category is the primary label on cards.",
   "admin.name": "Name",
   "admin.slug": "Slug",

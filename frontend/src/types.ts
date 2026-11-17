@@ -26,6 +26,7 @@ export interface Category {
   content_blocks?: CatalogContentBlock[];
   content_blocks_vi?: CatalogContentBlock[] | null;
   parent_id?: number | null;
+  nav_order?: number;
 }
 
 export type ProductSizeInput = string | { name: string; available?: boolean; sold_out?: boolean };

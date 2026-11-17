@@ -16,6 +16,7 @@ type Draft = {
   description: string;
   description_vi: string;
   content_blocks: PageBlock[];
+  nav_order: number;
 };
 
 function toBlocks(blocks: Category["content_blocks"]): PageBlock[] {
@@ -38,6 +39,7 @@ function toDraft(c: Category): Draft {
     description: c.description || "",
     description_vi: c.description_vi || "",
     content_blocks: toBlocks(c.content_blocks),
+    nav_order: c.nav_order ?? 0,
   };
 }
 
@@ -66,7 +68,13 @@ export default function CategoriesTab() {
   const [createSlug, setCreateSlug] = useState("");
 
   const sorted = useMemo(
-    () => [...(categories || [])].sort((a, b) => a.name.localeCompare(b.name)),
+    () =>
+      [...(categories || [])].sort(
+        (a, b) =>
+          (a.parent_id ?? 0) - (b.parent_id ?? 0) ||
+          (a.nav_order ?? 0) - (b.nav_order ?? 0) ||
+          a.name.localeCompare(b.name),
+      ),
     [categories],
   );
 
@@ -91,6 +99,7 @@ export default function CategoriesTab() {
         description: d.description || null,
         description_vi: d.description_vi || null,
         content_blocks: blocksToPayload(d.content_blocks),
+        nav_order: d.nav_order,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-categories"] });
@@ -184,7 +193,15 @@ export default function CategoriesTab() {
               <Field label={t("admin.slug")}>
                 <TextInput value={draft.slug} onChange={(e) => set("slug", e.target.value)} />
               </Field>
+              <Field label={t("admin.categoryNavOrder")}>
+                <TextInput
+                  type="number"
+                  value={draft.nav_order}
+                  onChange={(e) => set("nav_order", Number(e.target.value) || 0)}
+                />
+              </Field>
             </div>
+            <p className="font-body text-body-sm text-secondary -mt-2">{t("admin.categoryNavOrderHint")}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field label={t("admin.tagline")}>
                 <TextInput value={draft.tagline} onChange={(e) => set("tagline", e.target.value)} />

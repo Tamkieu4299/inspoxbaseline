@@ -396,7 +396,7 @@ def list_categories(
                 Category.tenant_id == tenant.id,
                 ~Category.slug.like("brand-%"),
             )
-            .order_by(Category.parent_id.nullsfirst(), Category.name)
+            .order_by(Category.parent_id.nullsfirst(), Category.nav_order, Category.name)
         )
         .scalars()
         .all()

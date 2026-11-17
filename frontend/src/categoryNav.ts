@@ -8,7 +8,15 @@ export type CategoryNavItem = {
   slug: string;
   name: string;
   parent_id?: number | null;
+  nav_order?: number;
 };
+
+function compareNavCategories(a: CategoryNavItem, b: CategoryNavItem) {
+  const oa = a.nav_order ?? 0;
+  const ob = b.nav_order ?? 0;
+  if (oa !== ob) return oa - ob;
+  return a.name.localeCompare(b.name);
+}
 
 export function filterStorefrontCategories<T extends { slug: string }>(categories: T[] | undefined) {
   return (categories || []).filter((c) => !isBrandCategorySlug(c.slug));
@@ -49,7 +57,7 @@ function buildCategoryMaps(categories: CategoryNavItem[] | undefined) {
       roots.push(c);
     }
   }
-  roots.sort((a, b) => a.name.localeCompare(b.name));
+  roots.sort(compareNavCategories);
   return { byParent, roots };
 }
 
@@ -68,7 +76,7 @@ export function categoryMenuTree(categories: CategoryNavItem[] | undefined): Cat
   if (!roots.length) return [];
 
   return roots.map((root) => {
-    const kids = (byParent.get(root.id) || []).sort((a, b) => a.name.localeCompare(b.name));
+    const kids = (byParent.get(root.id) || []).sort(compareNavCategories);
     if (!kids.length) return toMenuNode(root);
     return toMenuNode(
       root,

@@ -115,6 +115,7 @@ class CategoryBase(BaseModel):
     content_blocks: list[CatalogContentBlock] = Field(default_factory=list)
     content_blocks_vi: list[CatalogContentBlock] | None = None
     parent_id: int | None = None
+    nav_order: int = 0
 
     @field_validator("content_blocks", mode="before")
     @classmethod

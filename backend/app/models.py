@@ -101,6 +101,7 @@ class Category(Base, TimestampMixin):
     parent_id: Mapped[int | None] = mapped_column(
         ForeignKey("categories.id"), nullable=True, index=True
     )
+    nav_order: Mapped[int] = mapped_column(Integer, default=0, index=True)
 
     products: Mapped[list["Product"]] = relationship(
         secondary=product_categories,
