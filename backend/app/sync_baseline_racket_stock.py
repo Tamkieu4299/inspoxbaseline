@@ -12,19 +12,20 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from .database import SessionLocal
-from .import_external_racquets import _rackets_category
 from .map_racket_string_pairs import _is_racquet
 from .models import Category, Product, Tenant
 
-# Baseline physical stock (2026-03) — catalog product id → VND price
+# Baseline in-stock rackets — product id → web retail price (VND)
 IN_STOCK: dict[int, float] = {
-    122: 6_000_000,  # Babolat Pure Aero 98 (~305g) GEN9
-    124: 5_760_000,  # Babolat Pure Aero 100 (~300g) GEN9
-    127: 5_280_000,  # Babolat Pure Aero 100 Lite (~285g) GEN9
-    18: 5_350_000,  # Wilson Blade 100L V10 (~285g)
-    9: 5_350_000,  # Wilson Blade 100 V10 (~300g)
-    10: 5_350_000,  # Wilson Blade 98 16x19 V10 (~305g)
-    7: 5_350_000,  # Wilson Defyer 100 V1 (~285g)
+    122: 6_299_000,  # Babolat Pure Aero 98 305g
+    124: 5_999_000,  # Babolat Pure Aero 100 300g
+    127: 5_555_000,  # Babolat Pure Aero 100 285g (Lite)
+    18: 5_555_000,  # Wilson Blade 100 285g (100L)
+    9: 5_555_000,  # Wilson Blade 100 300g
+    10: 5_555_000,  # Wilson Blade 98 305g
+    7: 5_555_000,  # Wilson Defyer 100 285g
+    55: 4_321_000,  # Head Squared
+    # Yonex Ezone Alpha 100 275g — add product id once in catalog (web retail 3,456,000)
 }
 
 
