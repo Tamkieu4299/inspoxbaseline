@@ -318,7 +318,7 @@ export default function Collection() {
 
         <div className="col-span-12 lg:col-span-10 flex flex-col gap-8">
           <div
-            className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 items-start ${catalogIntro || products?.length ? "border-t border-surface-container-high pt-8" : ""}`}
+            className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch ${catalogIntro || products?.length ? "border-t border-surface-container-high pt-8" : ""}`}
           >
             {catalogIntro ? (
               <RevealOnScroll className="col-span-full w-full min-w-0">
@@ -339,7 +339,7 @@ export default function Collection() {
               </p>
             ) : (
               products.map((product, index) => (
-                <RevealOnScroll key={product.id} delay={(index % 8) * 45}>
+                <RevealOnScroll key={product.id} delay={(index % 8) * 45} className="h-full">
                   <ProductCard product={product} />
                 </RevealOnScroll>
               ))
