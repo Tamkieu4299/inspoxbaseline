@@ -47,7 +47,7 @@ from .models import Category, Collection, Product, ProductImage, Tenant
 USER_AGENT = "inspo-baseline-import/1.0 (+local one-time catalog)"
 THUSPORTS_LIST = "https://thusports.vn/vot-tennis.html"
 FORHEADS_COLLECTION = "https://forheads.vn/collections/vot-tennis-1"
-HONGAN_TENNIS_LIST = "https://hongansports.com/quan-vot/vot-tennis/"
+HONGAN_TENNIS_LIST = "https://hongansports.com/danh-muc-san-pham/quan-vot/vot-tennis/"
 
 HONGAN_SKIP_URL_PARTS = ("__trashed", "/feed/", "pro-last", "syn-gut", "200m")
 
