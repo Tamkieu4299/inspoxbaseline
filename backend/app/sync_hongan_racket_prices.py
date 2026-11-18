@@ -18,6 +18,7 @@ import httpx
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from .baseline_physical_stock import PHYSICAL_STOCK_IDS
 from .database import SessionLocal
 from .import_external_racquets import (
     HONGAN_SKIP_URL_PARTS,
@@ -244,6 +245,9 @@ def sync(
 
         for product in products:
             if not _is_racquet(product, rackets_id):
+                continue
+            if product.id in PHYSICAL_STOCK_IDS:
+                price_skipped += 1
                 continue
             row = _match_hongan(product, by_slug, by_sku)
             if row is None:

@@ -1,6 +1,4 @@
-"""Activate in-stock Baseline rackets: Hồng Ân–matched SKUs + Wilson/Head manual list.
-
-Babolat prices: sync_hongan_racket_prices. Wilson/Head: MANUAL_PRICES below.
+"""Activate Baseline physical-stock rackets + Head Gravity; set fixed web retail prices.
 
     docker exec inspo-backend python -m app.sync_baseline_racket_stock
     docker exec inspo-backend python -m app.sync_baseline_racket_stock --apply
@@ -10,32 +8,25 @@ from __future__ import annotations
 
 import argparse
 
-import httpx
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from .baseline_physical_stock import PHYSICAL_STOCK_IDS, PHYSICAL_STOCK_RETAIL
 from .database import SessionLocal
 from .map_racket_string_pairs import _is_racquet
 from .models import Category, Product, Tenant
-from .sync_hongan_racket_prices import (
-    HTTP_HEADERS,
-    _fetch_hongan_tennis_catalog,
-    hongan_matched_product_ids,
-)
 
-# Wilson / Head (not on Hồng Ân tennis category)
-MANUAL_ACTIVE_IDS: frozenset[int] = frozenset({7, 9, 10, 18, 55, 39, 40, 76})
+# Head Gravity (not on physical-stock sheet)
+GRAVITY_ACTIVE_IDS: frozenset[int] = frozenset({39, 40, 76})
 
-MANUAL_PRICES: dict[int, float] = {
-    18: 5_555_000,
-    9: 5_555_000,
-    10: 5_555_000,
-    7: 5_555_000,
-    55: 4_321_000,
-    39: 4_900_000,  # Head Gravity MP Zverev 2026
-    40: 5_200_000,  # Head Gravity Tour Zverev 2026
-    76: 4_500_000,
+GRAVITY_RETAIL: dict[int, float] = {
+    39: 4_900_000,  # Gravity MP 2026
+    40: 5_200_000,  # Gravity Tour 2026
+    76: 4_500_000,  # Gravity Tour 2025
 }
+
+KEEP_ACTIVE_IDS = PHYSICAL_STOCK_IDS | GRAVITY_ACTIVE_IDS
+FIXED_RETAIL = {**PHYSICAL_STOCK_RETAIL, **GRAVITY_RETAIL}
 
 
 def sync(*, dry_run: bool = True, tenant_slug: str = "baseline") -> None:
@@ -56,31 +47,27 @@ def sync(*, dry_run: bool = True, tenant_slug: str = "baseline") -> None:
             .where(Product.tenant_id == tenant.id)
         ).all()
 
-        with httpx.Client(headers=dict(HTTP_HEADERS), follow_redirects=True) as client:
-            catalog = _fetch_hongan_tennis_catalog(client)
-        keep_ids = hongan_matched_product_ids(products, rackets_id, catalog) | MANUAL_ACTIVE_IDS
-
         activated = deactivated = priced = 0
         for product in products:
             if not _is_racquet(product, rackets_id):
                 continue
-            keep = product.id in keep_ids
+            keep = product.id in KEEP_ACTIVE_IDS
             if keep:
                 if not product.is_active:
                     activated += 1
                     if not dry_run:
                         product.is_active = True
-                if product.id in MANUAL_PRICES:
-                    target = MANUAL_PRICES[product.id]
+                if product.id in FIXED_RETAIL:
+                    target = FIXED_RETAIL[product.id]
                     if product.price != target:
                         priced += 1
                         if not dry_run:
                             product.price = target
                 if dry_run:
                     price_note = (
-                        f" -> {MANUAL_PRICES[product.id]:,.0f}₫"
-                        if product.id in MANUAL_PRICES
-                        else " (Babolat price via sync_hongan_racket_prices)"
+                        f" -> {FIXED_RETAIL[product.id]:,.0f}₫"
+                        if product.id in FIXED_RETAIL
+                        else ""
                     )
                     print(f"KEEP id={product.id} {product.slug}{price_note}")
             else:
@@ -93,15 +80,14 @@ def sync(*, dry_run: bool = True, tenant_slug: str = "baseline") -> None:
 
         if dry_run:
             print(
-                f"Dry run: keep {len(keep_ids)} ({len(keep_ids) - len(MANUAL_ACTIVE_IDS)} Hồng Ân + "
-                f"{len(MANUAL_ACTIVE_IDS)} manual), activate {activated}, "
-                f"deactivate {deactivated}, manual price updates {priced}"
+                f"Dry run: keep {len(KEEP_ACTIVE_IDS)}, activate {activated}, "
+                f"deactivate {deactivated}, retail price updates {priced}"
             )
             return
         db.commit()
         print(
-            f"Applied: {len(keep_ids)} rackets active; "
-            f"deactivated {deactivated}, manual price updates {priced}, reactivated {activated}"
+            f"Applied: {len(KEEP_ACTIVE_IDS)} rackets active; "
+            f"deactivated {deactivated}, price updates {priced}, reactivated {activated}"
         )
     finally:
         db.close()
