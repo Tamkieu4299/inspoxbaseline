@@ -107,6 +107,26 @@ export const api = {
     request<OrderPublic>(
       `/api/orders/lookup?phone=${encodeURIComponent(phone)}&order_number=${encodeURIComponent(orderNumber)}`,
     ),
+  getAuctions: (lang?: string) =>
+    request<import("./types").AuctionLotSummary[]>(`/api/auctions?${langQ(lang)}`),
+  getAuction: (productSlug: string, lang?: string) =>
+    request<import("./types").AuctionLotDetail>(
+      `/api/auctions/${encodeURIComponent(productSlug)}?${langQ(lang)}`,
+    ),
+  placeBid: (
+    productSlug: string,
+    body: {
+      amount: number;
+      bidder_name: string;
+      bidder_phone: string;
+      bidder_email?: string | null;
+    },
+  ) =>
+    request<import("./types").AuctionBidPlaced>(`/api/auctions/${encodeURIComponent(productSlug)}/bids`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...tenantHeader() },
+      body: JSON.stringify(body),
+    }),
 };
 
 const adminToken = () => sessionStorage.getItem("inspo_admin_token") || "";
@@ -440,6 +460,30 @@ export const adminApi = {
     }),
   runTamHubSync: () =>
     request<{ ok: boolean; message: string }>(`/api/admin/tamhub-sync/run`, {
+      method: "POST",
+      headers: adminHeaders(),
+    }),
+
+  getAuctionLots: () =>
+    request<import("./types").AuctionLotAdmin[]>(`/api/admin/auctions`, { headers: adminHeaders() }),
+  createAuctionLot: (body: unknown) =>
+    request<import("./types").AuctionLotAdmin>(`/api/admin/auctions`, {
+      method: "POST",
+      headers: adminHeaders(),
+      body: JSON.stringify(body),
+    }),
+  updateAuctionLot: (id: number, body: unknown) =>
+    request<import("./types").AuctionLotAdmin>(`/api/admin/auctions/${id}`, {
+      method: "PUT",
+      headers: adminHeaders(),
+      body: JSON.stringify(body),
+    }),
+  getAuctionBids: (lotId: number) =>
+    request<import("./types").AuctionBidAdmin[]>(`/api/admin/auctions/${lotId}/bids`, {
+      headers: adminHeaders(),
+    }),
+  closeAuctionLot: (lotId: number) =>
+    request<import("./types").AuctionLotAdmin>(`/api/admin/auctions/${lotId}/close`, {
       method: "POST",
       headers: adminHeaders(),
     }),

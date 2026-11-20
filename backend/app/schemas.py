@@ -540,6 +540,8 @@ class SiteSettingsBase(BaseModel):
     order_notification_email: str | None = None
     order_webhook_url: str | None = None
     storefront_url: str | None = None
+    bidding_enabled: bool = False
+    zalo_webhook_url: str | None = None
 
 
 class SiteSettingsIn(SiteSettingsBase):
@@ -567,6 +569,7 @@ class SitePublic(BaseModel):
     navbar_background_color: str | None = None
     footer_background_color: str | None = None
     footer_text_color: str | None = None
+    bidding_enabled: bool = False
 
 
 class ShopQuizBase(BaseModel):
@@ -609,6 +612,7 @@ class QuizMatchProductOut(BaseModel):
     id: int
     slug: str
     name: str
+    brand: str | None = None
     price: float
     image_url: str | None = None
     finder_profile: dict[str, Any] | None = None
@@ -693,6 +697,97 @@ class OrderAdminOut(ORMModel):
     created_at: datetime
     updated_at: datetime
     lines: list[OrderLineOut] = Field(default_factory=list)
+
+
+class AuctionBidIn(BaseModel):
+    amount: float
+    bidder_name: str
+    bidder_phone: str
+    bidder_email: str | None = None
+
+
+class AuctionBidPublicOut(BaseModel):
+    id: int
+    amount: float
+    bidder_name: str
+    created_at: datetime
+    status: str
+
+
+class AuctionBidAdminOut(BaseModel):
+    id: int
+    amount: float
+    bidder_name: str
+    bidder_phone: str
+    bidder_email: str | None = None
+    status: str
+    created_at: datetime
+    note: str | None = None
+
+
+class AuctionLotBaseIn(BaseModel):
+    product_id: int
+    starting_bid: float = 0
+    min_increment: float = 100_000
+    reserve_price: float | None = None
+    ends_at: datetime | None = None
+    status: str = "draft"
+    is_published: bool = False
+    headline: str | None = None
+    headline_vi: str | None = None
+
+
+class AuctionLotAdminOut(BaseModel):
+    id: int
+    product_id: int
+    starting_bid: float
+    min_increment: float
+    reserve_price: float | None
+    ends_at: datetime | None
+    status: str
+    is_published: bool
+    current_bid_amount: float | None
+    headline: str | None
+    headline_vi: str | None
+    created_at: datetime
+    updated_at: datetime
+    product_slug: str | None = None
+    product_name: str | None = None
+    bid_count: int = 0
+
+
+class AuctionLotSummaryOut(BaseModel):
+    id: int
+    product_slug: str
+    product_name: str
+    image_url: str | None = None
+    subtitle: str | None = None
+    starting_bid: float
+    current_bid: float | None = None
+    min_next_bid: float
+    ends_at: datetime | None = None
+    state: str
+    bid_count: int = 0
+    headline: str | None = None
+
+
+class AuctionLotDetailOut(AuctionLotSummaryOut):
+    description: str | None = None
+    tech_specs: list[Any] = Field(default_factory=list)
+    features: list[Any] = Field(default_factory=list)
+    images: list[ProductImageOut] = Field(default_factory=list)
+    reserve_met: bool = True
+    min_increment: float = 0
+    recent_bids: list[AuctionBidPublicOut] = Field(default_factory=list)
+
+
+class AuctionBidPlacedOut(BaseModel):
+    ok: bool = True
+    bid_id: int
+    amount: float
+    min_next_bid: float
+    message: str
+    message_vi: str
 
 
 from pydantic import model_validator

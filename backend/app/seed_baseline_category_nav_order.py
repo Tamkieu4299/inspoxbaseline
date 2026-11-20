@@ -17,6 +17,7 @@ BASELINE_NAV_ORDER: dict[str, int] = {
     "tops": 10,
     "rackets": 20,
     "custom-rackets": 30,
+    "used-rackets": 35,
     "accessories": 90,
     "tennis-strings": 10,
     "overgrips": 20,

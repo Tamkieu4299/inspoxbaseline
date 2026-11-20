@@ -65,6 +65,7 @@ export default function QuizRunner() {
     const pool: MatchProduct[] = (quiz.match_products || []).map((p) => ({
       slug: p.slug,
       name: p.name,
+      brand: p.brand,
       price: p.price,
       image_url: p.image_url,
       finder_profile: p.finder_profile,
@@ -84,7 +85,7 @@ export default function QuizRunner() {
   }, [quiz, selectedOptions]);
 
   const displayMatches = useMemo(
-    () => diversifyRankedMatches(ranked, 8, 1),
+    () => diversifyRankedMatches(ranked, 8, 1, 1),
     [ranked]
   );
 

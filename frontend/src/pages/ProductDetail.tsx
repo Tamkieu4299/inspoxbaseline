@@ -30,10 +30,18 @@ export default function ProductDetail() {
   const [selectedColorIndex, setSelectedColorIndex] = useState<number | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
+  const { data: site } = useQuery({ queryKey: ["site"], queryFn: () => api.getSite(lang) });
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", slug, lang],
     queryFn: () => api.getProduct(slug, lang),
   });
+  const { data: auction } = useQuery({
+    queryKey: ["auction", slug, lang],
+    queryFn: () => api.getAuction(slug, lang),
+    enabled: Boolean(site?.bidding_enabled && slug),
+    retry: false,
+  });
+  const auctionLive = auction?.state === "live";
 
   const variantOptions = useMemo(
     () => (product ? getProductVariantOptions(product) : null),
@@ -202,40 +210,57 @@ export default function ProductDetail() {
               </div>
             )}
 
-            {!canAddToCart && hasSizes ? (
+            {auctionLive ? (
+              <div className="mb-6 p-4 border border-forest-green bg-surface-container-low">
+                <p className="font-label text-label-caps text-forest-green uppercase mb-2">{t("auctions.live")}</p>
+                <p className="font-body text-body-sm text-secondary mb-3">{t("product.auctionOnly")}</p>
+                <Link
+                  to={`/auctions/${slug}`}
+                  className="inline-flex items-center gap-2 bg-primary text-on-primary font-label text-label-caps uppercase px-4 py-3"
+                >
+                  {t("auctions.viewAndBid")}
+                </Link>
+              </div>
+            ) : null}
+
+            {!auctionLive && !canAddToCart && hasSizes ? (
               <p className="font-body text-body-sm text-secondary mb-2">{t("product.selectSizeHint")}</p>
             ) : null}
-            <button
-              type="button"
-              disabled={!canAddToCart}
-              onClick={() => {
-                if (!product) return;
-                const img = enabledProductImages(product.images)[0];
-                addLine({
-                  productId: product.id,
-                  slug: product.slug,
-                  name: product.name,
-                  price: Number(product.price) || 0,
-                  color: selectedColor ? colorDisplayName(selectedColor, lang) : null,
-                  size: selectedSize,
-                  imageUrl: img?.url ?? null,
-                });
-                setAdded(true);
-                window.setTimeout(() => setAdded(false), 2500);
-              }}
-              className="w-full bg-primary text-on-primary font-label text-label-caps uppercase py-4 mb-2 hover:bg-inverse-surface transition-colors tracking-widest flex justify-center items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {t("product.addToCart")} <Icon name="arrow_forward" className="text-[20px]" />
-            </button>
-            {added ? (
-              <p className="font-body text-body-sm text-forest-green mb-4">
-                {t("product.addedToCart")}{" "}
-                <Link to="/cart" className="underline">
-                  {t("cart.viewCart")}
-                </Link>
-              </p>
-            ) : (
-              <div className="mb-6" />
+            {!auctionLive && (
+              <>
+                <button
+                  type="button"
+                  disabled={!canAddToCart}
+                  onClick={() => {
+                    if (!product) return;
+                    const img = enabledProductImages(product.images)[0];
+                    addLine({
+                      productId: product.id,
+                      slug: product.slug,
+                      name: product.name,
+                      price: Number(product.price) || 0,
+                      color: selectedColor ? colorDisplayName(selectedColor, lang) : null,
+                      size: selectedSize,
+                      imageUrl: img?.url ?? null,
+                    });
+                    setAdded(true);
+                    window.setTimeout(() => setAdded(false), 2500);
+                  }}
+                  className="w-full bg-primary text-on-primary font-label text-label-caps uppercase py-4 mb-2 hover:bg-inverse-surface transition-colors tracking-widest flex justify-center items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {t("product.addToCart")} <Icon name="arrow_forward" className="text-[20px]" />
+                </button>
+                {added ? (
+                  <p className="font-body text-body-sm text-forest-green mb-4">
+                    {t("product.addedToCart")}{" "}
+                    <Link to="/cart" className="underline">
+                      {t("cart.viewCart")}
+                    </Link>
+                  </p>
+                ) : (
+                  <div className="mb-6" />
+                )}
+              </>
             )}
 
             <ProductTechSpecList techSpecs={product.tech_specs} />

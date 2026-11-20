@@ -27,6 +27,7 @@ import type { ProductComplementOut } from "../types";
 export type MatchProduct = {
   slug: string;
   name: string;
+  brand?: string | null;
   price: number;
   image_url?: string | null;
   complement_products?: ProductComplementOut[];

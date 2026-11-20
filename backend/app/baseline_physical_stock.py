@@ -12,7 +12,12 @@ PHYSICAL_STOCK_RETAIL: dict[int, float] = {
     10: 5_555_000,  # Wilson Blade 98 305g
     7: 5_555_000,  # Wilson Defyer 100 285g
     55: 4_321_000,  # Head Squared
-    # Yonex Ezone Alpha 100 275g → 3,456,000 when catalogued
+}
+
+# Fixed retail by slug (resolved to id at sync time)
+PHYSICAL_STOCK_SLUG_RETAIL: dict[str, float] = {
+    "yonex-ezone-alpha-100-275g": 3_700_000,
+    "yonex-percept-100l-280g": 5_600_000,
 }
 
 PHYSICAL_STOCK_IDS: frozenset[int] = frozenset(PHYSICAL_STOCK_RETAIL)

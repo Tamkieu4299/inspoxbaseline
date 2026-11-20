@@ -88,6 +88,9 @@ export default function Navbar() {
           to: `/quizzes/${quiz.slug}`,
         };
       }
+      case "auctions":
+        if (!site?.bidding_enabled) return null;
+        return { key: "auctions", label: t("nav.auctions"), to: "/auctions" };
       default:
         return null;
     }

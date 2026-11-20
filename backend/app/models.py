@@ -395,6 +395,8 @@ class SiteSettings(Base, TimestampMixin):
     order_notification_email: Mapped[str | None] = mapped_column(String(320), nullable=True)
     order_webhook_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     storefront_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    bidding_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    zalo_webhook_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
 
 
 class Order(Base, TimestampMixin):
@@ -438,3 +440,44 @@ class OrderLine(Base):
     line_total: Mapped[float] = mapped_column(Float, default=0.0)
 
     order: Mapped["Order"] = relationship(back_populates="lines")
+
+
+class AuctionLot(Base, TimestampMixin):
+    __tablename__ = "auction_lots"
+    __table_args__ = (UniqueConstraint("tenant_id", "product_id", name="uq_auction_tenant_product"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"), index=True)
+    starting_bid: Mapped[float] = mapped_column(Float, default=0.0)
+    min_increment: Mapped[float] = mapped_column(Float, default=100_000.0)
+    reserve_price: Mapped[float | None] = mapped_column(Float, nullable=True)
+    ends_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="draft", index=True)
+    # draft | live | ended | sold | cancelled
+    is_published: Mapped[bool] = mapped_column(Boolean, default=False)
+    current_bid_amount: Mapped[float | None] = mapped_column(Float, nullable=True)
+    current_bid_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    headline: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    headline_vi: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
+    product: Mapped["Product"] = relationship("Product", foreign_keys=[product_id])
+    bids: Mapped[list["AuctionBid"]] = relationship(
+        back_populates="lot", cascade="all, delete-orphan"
+    )
+
+
+class AuctionBid(Base, TimestampMixin):
+    __tablename__ = "auction_bids"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    lot_id: Mapped[int] = mapped_column(ForeignKey("auction_lots.id", ondelete="CASCADE"), index=True)
+    amount: Mapped[float] = mapped_column(Float)
+    bidder_name: Mapped[str] = mapped_column(String(200))
+    bidder_phone: Mapped[str] = mapped_column(String(40), index=True)
+    bidder_email: Mapped[str | None] = mapped_column(String(320), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="leading", index=True)
+    # leading | outbid | won | lost | rejected
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    lot: Mapped["AuctionLot"] = relationship(back_populates="bids")

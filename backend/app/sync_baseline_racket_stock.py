@@ -15,7 +15,7 @@ import httpx
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from .baseline_physical_stock import PHYSICAL_STOCK_RETAIL
+from .baseline_physical_stock import PHYSICAL_STOCK_RETAIL, PHYSICAL_STOCK_SLUG_RETAIL
 from .database import SessionLocal
 from .map_racket_string_pairs import _is_racquet
 from .models import Category, Product, Tenant
@@ -56,7 +56,12 @@ def sync(*, dry_run: bool = True, tenant_slug: str = "baseline") -> None:
 
         with httpx.Client(headers=dict(HTTP_HEADERS), follow_redirects=True) as client:
             catalog = _fetch_hongan_tennis_catalog(client)
-        keep_ids = hongan_matched_product_ids(products, rackets_id, catalog) | MANUAL_ACTIVE_IDS
+        slug_keep = {
+            p.id
+            for p in products
+            if (p.slug or "") in PHYSICAL_STOCK_SLUG_RETAIL
+        }
+        keep_ids = hongan_matched_product_ids(products, rackets_id, catalog) | MANUAL_ACTIVE_IDS | slug_keep
 
         activated = deactivated = priced = 0
         for product in products:
@@ -68,8 +73,10 @@ def sync(*, dry_run: bool = True, tenant_slug: str = "baseline") -> None:
                     activated += 1
                     if not dry_run:
                         product.is_active = True
-                if product.id in FIXED_RETAIL:
-                    target = FIXED_RETAIL[product.id]
+                target = FIXED_RETAIL.get(product.id) or PHYSICAL_STOCK_SLUG_RETAIL.get(
+                    product.slug or ""
+                )
+                if target is not None:
                     if product.price != target:
                         priced += 1
                         if not dry_run:

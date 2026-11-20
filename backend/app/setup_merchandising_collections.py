@@ -69,9 +69,21 @@ COLLECTION_DEFS: tuple[dict, ...] = (
         "brand": "tecnifibre",
         "display_order": 4,
     },
+    {
+        "slug": "yonex-rackets",
+        "name": "Yonex Rackets",
+        "name_vi": "Vợt Yonex",
+        "tagline": "EZONE, VCORE, and Japanese engineering.",
+        "tagline_vi": "EZONE, VCORE và công nghệ Nhật Bản.",
+        "brand": "yonex",
+        "display_order": 5,
+    },
 )
 
-CUSTOM_PRODUCT_SLUGS = ("head-speed-mpl-pretty-fast",)
+CUSTOM_PRODUCT_SLUGS = (
+    "head-speed-mpl-pretty-fast",
+    "babolat-pure-strike-gen4-baseline-custom",
+)
 GEAR_ONLY_COLLECTION_SLUGS = ("baseline-gear",)
 UNFEATURE_COLLECTION_SLUGS = ("oncourt", "baseline-gear")
 TRENDING_LIMIT = 4
@@ -195,6 +207,7 @@ def setup_merchandising_collections(
         "head": 0,
         "babolat": 0,
         "tecnifibre": 0,
+        "yonex": 0,
         "custom": 0,
         "removed_from_gear": 0,
         "images_replaced": 0,
@@ -232,6 +245,7 @@ def setup_merchandising_collections(
             "babolat": by_slug["babolat-rackets"],
             "tecnifibre": by_slug["tecnifibre-rackets"],
             "technifibre": by_slug["tecnifibre-rackets"],
+            "yonex": by_slug["yonex-rackets"],
         }
 
         speed_mpl = db.scalar(

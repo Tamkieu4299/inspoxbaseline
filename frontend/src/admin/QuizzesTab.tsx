@@ -142,12 +142,13 @@ export default function QuizzesTab() {
     const matchProducts: MatchProduct[] = pool.map((p) => ({
       slug: p.slug,
       name: p.name,
+      brand: p.brand,
       price: p.price,
       image_url: p.images?.find((i) => i.enabled !== false)?.url || p.images?.[0]?.url,
       finder_profile: p.finder_profile,
     }));
     const ranked = rankProducts(profile, matchProducts, draft.dimension_weights, guardrails, dimensionIds);
-    return diversifyRankedMatches(ranked, 5, 1);
+    return diversifyRankedMatches(ranked, 5, 1, 1);
   }, [draft, simAnswers, pool, dimensionIds]);
 
   if (isLoading) {

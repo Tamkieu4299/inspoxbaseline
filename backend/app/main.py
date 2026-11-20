@@ -8,6 +8,8 @@ from .config import settings
 import os
 
 from .routers import admin, admin_users, auth, media, public, tenants
+from .routers.auctions import admin_router as auctions_admin_router
+from .routers.auctions import public_router as auctions_public_router
 from .routers.inspo_bridge import router as inspo_bridge_router
 from .tamhub_sync import start_background_sync
 
@@ -37,6 +39,8 @@ app.add_middleware(
 )
 
 app.include_router(public.router)
+app.include_router(auctions_public_router)
+app.include_router(auctions_admin_router)
 app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(media.router)

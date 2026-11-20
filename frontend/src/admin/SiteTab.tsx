@@ -227,6 +227,26 @@ export default function SiteTab() {
       </div>
 
       <div className="border-t border-surface-container-highest pt-6 flex flex-col gap-4">
+        <h4 className="font-headline text-headline-md text-primary uppercase">{t("admin.biddingSection")}</h4>
+        <p className="font-body text-body-sm text-secondary">{t("admin.biddingSectionHint")}</p>
+        <label className="flex items-center gap-2 font-body text-body-md">
+          <Checkbox
+            checked={Boolean(draftValue.bidding_enabled)}
+            onChange={(e) => set("bidding_enabled", e.target.checked)}
+          />
+          {t("admin.biddingEnabled")}
+        </label>
+        <Field label={t("admin.zaloWebhookUrl")}>
+          <TextInput
+            value={draftValue.zalo_webhook_url || ""}
+            onChange={(e) => set("zalo_webhook_url", e.target.value.trim() || null)}
+            placeholder="https://your-zalo-bridge/hook"
+          />
+        </Field>
+        <p className="font-body text-body-sm text-secondary">{t("admin.zaloWebhookHint")}</p>
+      </div>
+
+      <div className="border-t border-surface-container-highest pt-6 flex flex-col gap-4">
         <h4 className="font-headline text-headline-md text-primary uppercase">{t("admin.storefrontCopy")}</h4>
         <p className="font-body text-body-md text-secondary -mt-2">{t("admin.storefrontCopyHint")}</p>
         <Field label={t("admin.footerTagline")}>

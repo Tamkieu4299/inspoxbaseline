@@ -211,6 +211,7 @@ export interface QuizMatchProduct {
   id: number;
   slug: string;
   name: string;
+  brand?: string | null;
   price: number;
   image_url?: string | null;
   finder_profile?: ProductFinderProfile | null;
@@ -420,7 +421,7 @@ export interface BlogPost {
 }
 
 export interface NavItem {
-  type: "home" | "collections" | "new_arrivals" | "brand" | "categories" | "page" | "quiz";
+  type: "home" | "collections" | "new_arrivals" | "brand" | "categories" | "page" | "quiz" | "auctions";
   ref?: string | null;
   enabled: boolean;
 }
@@ -535,6 +536,79 @@ export interface SitePublic {
   navbar_background_color?: string | null;
   footer_background_color?: string | null;
   footer_text_color?: string | null;
+  bidding_enabled?: boolean;
+}
+
+export interface AuctionBidPublic {
+  id: number;
+  amount: number;
+  bidder_name: string;
+  created_at: string;
+  status: string;
+}
+
+export interface AuctionLotSummary {
+  id: number;
+  product_slug: string;
+  product_name: string;
+  image_url?: string | null;
+  subtitle?: string | null;
+  starting_bid: number;
+  current_bid?: number | null;
+  min_next_bid: number;
+  ends_at?: string | null;
+  state: string;
+  bid_count: number;
+  headline?: string | null;
+}
+
+export interface AuctionLotDetail extends AuctionLotSummary {
+  description?: string | null;
+  tech_specs: Product["tech_specs"];
+  features: Product["features"];
+  images: ProductImage[];
+  reserve_met: boolean;
+  min_increment: number;
+  recent_bids: AuctionBidPublic[];
+}
+
+export interface AuctionBidPlaced {
+  ok: boolean;
+  bid_id: number;
+  amount: number;
+  min_next_bid: number;
+  message: string;
+  message_vi: string;
+}
+
+export interface AuctionLotAdmin {
+  id: number;
+  product_id: number;
+  starting_bid: number;
+  min_increment: number;
+  reserve_price?: number | null;
+  ends_at?: string | null;
+  status: string;
+  is_published: boolean;
+  current_bid_amount?: number | null;
+  headline?: string | null;
+  headline_vi?: string | null;
+  created_at: string;
+  updated_at: string;
+  product_slug?: string | null;
+  product_name?: string | null;
+  bid_count: number;
+}
+
+export interface AuctionBidAdmin {
+  id: number;
+  amount: number;
+  bidder_name: string;
+  bidder_phone: string;
+  bidder_email?: string | null;
+  status: string;
+  created_at: string;
+  note?: string | null;
 }
 
 export interface OrderLine {
@@ -614,6 +688,8 @@ export interface SiteSettings {
   order_notification_email?: string | null;
   order_webhook_url?: string | null;
   storefront_url?: string | null;
+  bidding_enabled?: boolean;
+  zalo_webhook_url?: string | null;
 }
 
 export interface TenantAdmin {

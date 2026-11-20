@@ -47,22 +47,44 @@ export function formatQuizProductName(name: string, lang: string): string {
 export type RankedMatch = {
   slug: string;
   match: number;
-  product: { name: string; [k: string]: unknown };
+  product: { name: string; brand?: string | null; slug?: string; [k: string]: unknown };
 };
 
-/** Keep best match per model family so results are not three editions of the same frame. */
+/** Infer brand for quiz diversification when product.brand is missing. */
+export function inferQuizBrand(product: RankedMatch["product"]): string {
+  const b = (product.brand || "").trim().toLowerCase();
+  if (b) return b;
+  const slug = (product.slug || "").toLowerCase();
+  const n = (product.name || "").toLowerCase();
+  if (slug.startsWith("ha-") || /\bbabolat\b/.test(n) || /\bpure\s+(aero|drive|strike)\b/.test(n)) {
+    return "babolat";
+  }
+  if (slug.startsWith("ts-") || /\bwilson\b/.test(n)) return "wilson";
+  if (slug.startsWith("fh-") || /\bhead\b/.test(n)) return "head";
+  if (/\byonex\b/.test(n) || /\bezone\b/.test(n) || /\bvcore\b/.test(n)) return "yonex";
+  if (/\bprince\b/.test(n)) return "prince";
+  if (/\bdunlop\b/.test(n)) return "dunlop";
+  if (/\btechnifibre\b/.test(n)) return "technifibre";
+  return "other";
+}
+
+/** Best match per brand + per model family (ranked list is already score-sorted). */
 export function diversifyRankedMatches<T extends RankedMatch>(
   ranked: T[],
   limit: number,
-  maxPerFamily = 1
+  maxPerFamily = 1,
+  maxPerBrand = 1
 ): T[] {
   const out: T[] = [];
-  const seen = new Map<string, number>();
+  const familyCount = new Map<string, number>();
+  const brandCount = new Map<string, number>();
   for (const row of ranked) {
-    const key = racquetFamilyKey(row.product.name);
-    const n = seen.get(key) || 0;
-    if (n >= maxPerFamily) continue;
-    seen.set(key, n + 1);
+    const family = racquetFamilyKey(row.product.name);
+    const brand = inferQuizBrand(row.product);
+    if ((brandCount.get(brand) || 0) >= maxPerBrand) continue;
+    if ((familyCount.get(family) || 0) >= maxPerFamily) continue;
+    brandCount.set(brand, (brandCount.get(brand) || 0) + 1);
+    familyCount.set(family, (familyCount.get(family) || 0) + 1);
     out.push(row);
     if (out.length >= limit) break;
   }

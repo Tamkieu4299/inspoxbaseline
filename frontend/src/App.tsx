@@ -19,6 +19,8 @@ import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderThankYouPage from "./pages/OrderThankYouPage";
 import OrderLookupPage from "./pages/OrderLookupPage";
+import AuctionsList from "./pages/AuctionsList";
+import AuctionDetail from "./pages/AuctionDetail";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 60_000, refetchOnWindowFocus: false } },
@@ -49,6 +51,8 @@ export default function App() {
                     <Route path="/blogs" element={<BlogsPage />} />
                     <Route path="/blogs/:slug" element={<BlogPostPage />} />
                     <Route path="/quizzes/:slug" element={<QuizRunner />} />
+                    <Route path="/auctions" element={<AuctionsList />} />
+                    <Route path="/auctions/:slug" element={<AuctionDetail />} />
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
                     <Route path="/orders/thank-you" element={<OrderThankYouPage />} />

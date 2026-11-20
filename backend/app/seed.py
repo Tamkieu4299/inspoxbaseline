@@ -128,8 +128,15 @@ def _migrate_existing(db, tenant_id: int):
     _add_column_if_missing(db, "site_settings", "order_notification_email", "VARCHAR(320)")
     _add_column_if_missing(db, "site_settings", "order_webhook_url", "VARCHAR(1000)")
     _add_column_if_missing(db, "site_settings", "storefront_url", "VARCHAR(500)")
+    _add_column_if_missing(db, "site_settings", "bidding_enabled", "BOOLEAN DEFAULT 0")
+    _add_column_if_missing(db, "site_settings", "zalo_webhook_url", "VARCHAR(1000)")
     db.execute(text("UPDATE site_settings SET footer_links='[]' WHERE footer_links IS NULL"))
+    db.execute(text("UPDATE site_settings SET bidding_enabled=0 WHERE bidding_enabled IS NULL"))
     db.commit()
+    from .models import AuctionBid, AuctionLot
+
+    AuctionLot.__table__.create(bind=engine, checkfirst=True)
+    AuctionBid.__table__.create(bind=engine, checkfirst=True)
     _add_column_if_missing(db, "home_content", "brand_hero_title", "VARCHAR(300)")
     _add_column_if_missing(db, "home_content", "brand_hero_title_vi", "VARCHAR(300)")
     _add_column_if_missing(db, "home_content", "brand_hero_subtitle", "TEXT")

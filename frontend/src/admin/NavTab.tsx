@@ -21,6 +21,8 @@ function navTypeKey(type: NavItem["type"]): string {
       return "admin.navTypePage";
     case "quiz":
       return "admin.navTypeQuiz";
+    case "auctions":
+      return "admin.navTypeAuctions";
   }
 }
 
@@ -58,6 +60,7 @@ export default function NavTab() {
       const quiz = quizzes?.find((q) => q.slug === item.ref);
       return quiz ? quiz.nav_label || quiz.title : item.ref || "?";
     }
+    if (item.type === "auctions") return t("nav.auctions");
     return t(navTypeKey(item.type));
   }
 
@@ -198,6 +201,15 @@ export default function NavTab() {
               )}
             </button>
           ))}
+          {site?.bidding_enabled && (
+            <button
+              type="button"
+              onClick={() => addStatic("auctions" as NavItem["type"])}
+              className="border border-surface-container-highest px-3 py-1.5 font-label text-label-caps text-primary hover:border-forest-green hover:text-forest-green transition-colors uppercase"
+            >
+              {t("admin.navAddAuctions")}
+            </button>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Select value={pageToAdd} onChange={(e) => setPageToAdd(e.target.value)} className="flex-1">

@@ -1018,6 +1018,7 @@ def _quiz_match_products(
                 id=p.id,
                 slug=p.slug,
                 name=display_name,
+                brand=(p.brand or "").strip().lower() or None,
                 price=float(p.price or 0),
                 image_url=image_url,
                 finder_profile=profile if profile else None,
@@ -1145,6 +1146,7 @@ def get_site(
         navbar_background_color=(site.navbar_background_color or "").strip() or None,
         footer_background_color=(site.footer_background_color or "").strip() or None,
         footer_text_color=(site.footer_text_color or "").strip() or None,
+        bidding_enabled=bool(site.bidding_enabled),
     )
 
 
