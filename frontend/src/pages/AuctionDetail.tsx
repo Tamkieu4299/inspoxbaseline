@@ -187,7 +187,7 @@ export default function AuctionDetail() {
 
       <section className="mt-16">
         <h2 className="font-headline text-headline-md uppercase text-primary mb-4">{t("auctions.bidTable")}</h2>
-        <BidTable bids={lot.recent_bids} formatPrice={formatPrice} t={t} />
+        <BidTable bids={lot.recent_bids} formatPrice={formatPrice} t={t} live={live} />
       </section>
     </main>
   );
@@ -238,14 +238,33 @@ function AuctionHeader({
   );
 }
 
+function bidStatusKey(status: string): string {
+  switch (status) {
+    case "leading":
+      return "auctions.statusLeading";
+    case "outbid":
+      return "auctions.statusOutbid";
+    case "won":
+      return "auctions.statusWon";
+    case "lost":
+      return "auctions.statusLost";
+    case "rejected":
+      return "auctions.statusRejected";
+    default:
+      return status;
+  }
+}
+
 function BidTable({
   bids,
   formatPrice,
   t,
+  live,
 }: {
   bids: AuctionBidPublic[];
   formatPrice: (n: number) => string;
   t: (k: string) => string;
+  live: boolean;
 }) {
   if (!bids.length) {
     return <p className="font-body text-body-md text-secondary">{t("auctions.noBids")}</p>;
@@ -262,16 +281,55 @@ function BidTable({
           </tr>
         </thead>
         <tbody>
-          {bids.map((b) => (
-            <tr key={b.id} className="border-t border-surface-container-highest">
-              <td className="p-3">{b.bidder_name}</td>
-              <td className="p-3 font-medium">{formatPrice(b.amount)}</td>
-              <td className="p-3 text-secondary">
-                {new Date(b.created_at).toLocaleString()}
-              </td>
-              <td className="p-3 uppercase text-xs">{b.status}</td>
-            </tr>
-          ))}
+          {bids.map((b) => {
+            const leading = b.status === "leading";
+            const animateLead = leading && live;
+            const statusKey = bidStatusKey(b.status);
+            const statusLabel = statusKey.startsWith("auctions.") ? t(statusKey) : statusKey;
+            return (
+              <tr
+                key={b.id}
+                className={`border-t border-surface-container-highest ${
+                  animateLead ? "motion-safe:animate-auction-leader-row relative" : ""
+                } ${leading && !live ? "bg-red-50/70" : ""}`}
+              >
+                <td
+                  className={`p-3 relative ${animateLead ? "border-l-[3px] border-red-600 pl-[calc(0.75rem-3px)]" : ""}`}
+                >
+                  {animateLead ? (
+                    <span className="inline-flex items-center gap-2">
+                      <AuctionLiveDot className="h-2 w-2 [&_span]:h-2 [&_span]:w-2" />
+                      {b.bidder_name}
+                    </span>
+                  ) : (
+                    b.bidder_name
+                  )}
+                </td>
+                <td
+                  className={`p-3 font-semibold ${
+                    animateLead ? "motion-safe:animate-auction-leader-amount" : leading ? "text-red-900" : ""
+                  }`}
+                >
+                  {formatPrice(b.amount)}
+                </td>
+                <td className="p-3 text-secondary">{new Date(b.created_at).toLocaleString()}</td>
+                <td className="p-3">
+                  {leading ? (
+                    <span
+                      className={`inline-flex items-center gap-1.5 font-label text-label-caps uppercase text-xs ${
+                        animateLead ? "text-red-700 motion-safe:animate-auction-live-shimmer-bg auction-live-badge px-2 py-0.5" : "text-red-800"
+                      }`}
+                    >
+                      {animateLead ? <AuctionLiveDot className="h-1.5 w-1.5 [&_span]:h-1.5 [&_span]:w-1.5" /> : null}
+                      {statusLabel}
+                    </span>
+                  ) : (
+                    <span className="uppercase text-xs text-secondary">{statusLabel}</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
