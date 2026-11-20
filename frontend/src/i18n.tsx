@@ -1177,7 +1177,7 @@ const vi: Record<string, string> = {
   "auctions.colAmount": "Giá",
   "auctions.colTime": "Thời gian",
   "auctions.colStatus": "Trạng thái",
-  "auctions.statusLeading": "Đang dẫn",
+  "auctions.statusLeading": "Đang dẫn đầu",
   "auctions.statusOutbid": "Bị vượt",
   "auctions.statusWon": "Thắng",
   "auctions.statusLost": "Không dẫn",
