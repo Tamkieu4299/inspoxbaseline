@@ -35,15 +35,35 @@ export default function AuctionsTab() {
   const [selectedLotId, setSelectedLotId] = useState<number | null>(null);
   const [draft, setDraft] = useState<Record<string, unknown> | null>(null);
   const [newProductId, setNewProductId] = useState("");
+  const [productSearch, setProductSearch] = useState("");
 
-  const racketProducts = useMemo(
-    () =>
-      (products || []).filter(
-        (p: Product) =>
-          p.is_active && (p.categories?.some((c) => c.slug === "rackets") || p.category?.slug === "rackets"),
-      ),
-    [products],
+  const lotProductIds = useMemo(
+    () => new Set((lots || []).map((lot) => lot.product_id)),
+    [lots],
   );
+
+  const auctionEligible = useMemo(() => {
+    const slugs = new Set(["rackets", "used-rackets", "custom-rackets"]);
+    return (products || []).filter((p: Product) => {
+      if (!p.is_active) return false;
+      if (lotProductIds.has(p.id)) return false;
+      const inCat = (p.categories || []).some((c) => slugs.has(c.slug));
+      const primary = p.category?.slug;
+      return inCat || (primary != null && slugs.has(primary));
+    });
+  }, [products, lotProductIds]);
+
+  const filteredProducts = useMemo(() => {
+    const q = productSearch.trim().toLowerCase();
+    if (!q) return auctionEligible;
+    return auctionEligible.filter((p) => {
+      const hay = [p.name, p.name_vi, p.slug, p.brand, p.subtitle, String(p.id)]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }, [auctionEligible, productSearch]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -129,14 +149,46 @@ export default function AuctionsTab() {
 
         <div className="mt-6 pt-6 border-t border-surface-container-highest flex flex-col gap-3">
           <Field label={t("admin.auctions.pickProduct")}>
-            <Select value={newProductId} onChange={(e) => setNewProductId(e.target.value)}>
-              <option value="">—</option>
-              {racketProducts.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} ({p.slug})
-                </option>
-              ))}
-            </Select>
+            <TextInput
+              value={productSearch}
+              onChange={(e) => setProductSearch(e.target.value)}
+              placeholder={t("admin.auctions.searchProduct")}
+            />
+            <p className="font-body text-body-sm text-secondary mt-1">
+              {t("admin.auctions.searchProductHint", {
+                shown: String(filteredProducts.length),
+                total: String(auctionEligible.length),
+              })}
+            </p>
+            <ul className="mt-2 max-h-56 overflow-y-auto border border-surface-container-highest divide-y divide-surface-container-highest">
+              {filteredProducts.length === 0 ? (
+                <li className="p-3 font-body text-body-sm text-secondary">{t("admin.auctions.noProductMatch")}</li>
+              ) : (
+                filteredProducts.slice(0, 80).map((p) => {
+                  const selected = newProductId === String(p.id);
+                  return (
+                    <li key={p.id}>
+                      <button
+                        type="button"
+                        onClick={() => setNewProductId(String(p.id))}
+                        className={`w-full text-left px-3 py-2 font-body text-body-sm hover:bg-surface-container-low transition-colors ${
+                          selected ? "bg-surface-container-low border-l-2 border-forest-green" : ""
+                        }`}
+                      >
+                        <span className="block text-primary font-medium truncate">{p.name}</span>
+                        <span className="block text-secondary text-xs truncate">
+                          {p.slug}
+                          {p.brand ? ` · ${p.brand}` : ""}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })
+              )}
+            </ul>
+            {filteredProducts.length > 80 ? (
+              <p className="font-body text-body-sm text-secondary">{t("admin.auctions.searchRefine")}</p>
+            ) : null}
           </Field>
           <SecondaryButton onClick={startCreate} disabled={!newProductId}>
             {t("admin.auctions.newLot")}
