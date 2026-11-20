@@ -17,14 +17,14 @@ export default function AuctionsList() {
 
   if (!site?.bidding_enabled) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-24 text-center">
+      <main className="pt-20 md:pt-24 max-w-3xl mx-auto px-4 pb-24 text-center">
         <p className="font-body text-body-md text-secondary">{t("auctions.disabled")}</p>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-10 md:py-16">
+    <main className="flex-grow pt-20 md:pt-24 max-w-[1440px] mx-auto px-4 md:px-8 pb-10 md:pb-16">
       <header className="mb-10 md:mb-14">
         <h1 className="font-headline text-headline-lg text-primary uppercase">{t("auctions.title")}</h1>
         <p className="font-body text-body-md text-secondary mt-2 max-w-2xl">{t("auctions.subtitle")}</p>
@@ -73,6 +73,6 @@ export default function AuctionsList() {
           </RevealOnScroll>
         ))}
       </div>
-    </div>
+    </main>
   );
 }

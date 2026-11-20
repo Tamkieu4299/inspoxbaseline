@@ -53,23 +53,27 @@ export default function AuctionDetail() {
   }, [lot?.ends_at, lang]);
 
   if (isLoading) {
-    return <p className="px-4 py-24 font-body text-body-md text-secondary">{t("admin.loading")}</p>;
+    return (
+      <main className="pt-20 md:pt-24 px-4 pb-24 font-body text-body-md text-secondary">
+        {t("admin.loading")}
+      </main>
+    );
   }
   if (error || !lot) {
     return (
-      <div className="px-4 py-24 max-w-lg mx-auto text-center">
+      <main className="pt-20 md:pt-24 px-4 pb-24 max-w-lg mx-auto text-center">
         <p className="font-body text-body-md text-secondary">{t("auctions.notFound")}</p>
         <Link to="/auctions" className="text-forest-green underline mt-4 inline-block">
           {t("auctions.back")}
         </Link>
-      </div>
+      </main>
     );
   }
 
   const live = lot.state === "live";
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-10 md:py-16">
+    <main className="flex-grow pt-20 md:pt-24 max-w-[1440px] mx-auto px-4 md:px-8 pb-10 md:pb-16">
       <Link to="/auctions" className="font-label text-label-caps text-secondary hover:text-primary uppercase mb-6 inline-block">
         ← {t("auctions.back")}
       </Link>
@@ -180,7 +184,7 @@ export default function AuctionDetail() {
         <h2 className="font-headline text-headline-md uppercase text-primary mb-4">{t("auctions.bidTable")}</h2>
         <BidTable bids={lot.recent_bids} formatPrice={formatPrice} t={t} />
       </section>
-    </div>
+    </main>
   );
 }
 
