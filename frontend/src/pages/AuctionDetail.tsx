@@ -7,6 +7,7 @@ import { ProductDescription, ProductTechSpecList } from "../components/ProductSt
 import { useLanguage } from "../i18n";
 import { useStoreCurrency } from "../useStoreCurrency";
 import type { AuctionBidPublic } from "../types";
+import { AuctionLiveBadge, AuctionLiveCardGlow, AuctionLiveDot } from "../components/AuctionLiveBadge";
 
 export default function AuctionDetail() {
   const { slug = "" } = useParams();
@@ -96,15 +97,18 @@ export default function AuctionDetail() {
             t={t}
           />
 
-          <div className="border border-surface-container-highest p-5 bg-surface-container-lowest grid grid-cols-2 gap-4">
+          <AuctionLiveCardGlow active={live}>
+          <div className={`border p-5 bg-surface-container-lowest grid grid-cols-2 gap-4 ${live ? "border-red-500/35" : "border-surface-container-highest"}`}>
             <Stat label={t("auctions.starting")} value={formatPrice(lot.starting_bid)} />
             <Stat
               label={t("auctions.current")}
               value={formatPrice(lot.current_bid ?? lot.starting_bid)}
+              highlight={live}
             />
             <Stat label={t("auctions.minNext")} value={formatPrice(lot.min_next_bid)} />
             <Stat label={t("auctions.bidCount")} value={String(lot.bid_count)} />
           </div>
+          </AuctionLiveCardGlow>
 
           {!lot.reserve_met && (
             <p className="font-body text-body-sm text-secondary border-l-2 border-amber-600 pl-3">
@@ -114,7 +118,7 @@ export default function AuctionDetail() {
 
           {live ? (
             <form
-              className="border border-surface-container-highest p-5 flex flex-col gap-3"
+              className="border border-red-500/25 p-5 flex flex-col gap-3 bg-white motion-safe:animate-auction-live-border"
               onSubmit={(e) => {
                 e.preventDefault();
                 setFormMsg(null);
@@ -163,8 +167,9 @@ export default function AuctionDetail() {
               <button
                 type="submit"
                 disabled={bidMutation.isPending}
-                className="bg-primary text-white font-label text-label-caps uppercase py-3 hover:bg-forest-green transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-primary text-white font-label text-label-caps uppercase py-3 hover:bg-forest-green transition-colors w-full"
               >
+                {!bidMutation.isPending && <AuctionLiveDot className="h-2 w-2 [&_span]:h-2 [&_span]:w-2" />}
                 {bidMutation.isPending ? t("checkout.placing") : t("auctions.submit")}
               </button>
               {formMsg && <p className="font-body text-body-sm text-primary whitespace-pre-wrap">{formMsg}</p>}
@@ -188,11 +193,16 @@ export default function AuctionDetail() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
     <div>
-      <p className="font-label text-label-caps text-secondary uppercase text-xs">{label}</p>
-      <p className="font-headline text-headline-sm text-primary">{value}</p>
+      <p
+        className={`font-label text-label-caps uppercase text-xs flex items-center gap-1.5 ${highlight ? "text-red-700/90" : "text-secondary"}`}
+      >
+        {highlight ? <AuctionLiveDot className="h-2 w-2 [&_span]:h-2 [&_span]:w-2" /> : null}
+        {label}
+      </p>
+      <p className={`font-headline text-headline-sm ${highlight ? "text-red-800" : "text-primary"}`}>{value}</p>
     </div>
   );
 }
@@ -212,9 +222,11 @@ function AuctionHeader({
 }) {
   return (
     <div>
-      <span className="font-label text-label-caps text-forest-green uppercase">
-        {live ? t("auctions.live") : t("auctions.ended")}
-      </span>
+      {live ? (
+        <AuctionLiveBadge label={t("auctions.live")} className="mb-2" />
+      ) : (
+        <span className="font-label text-label-caps text-secondary uppercase">{t("auctions.ended")}</span>
+      )}
       <h1 className="font-headline text-headline-lg text-primary uppercase mt-1">{title}</h1>
       {subtitle ? <p className="font-body text-body-md text-secondary mt-2">{subtitle}</p> : null}
       {endsLabel ? (

@@ -11,12 +11,14 @@ import { categoryMenuTree } from "../categoryNav";
 import type { CategoryMenuNode } from "../categoryNav";
 import CategoryFlyoutMenu from "./CategoryFlyoutMenu";
 import type { NavItem } from "../types";
+import { AuctionLiveDot } from "./AuctionLiveBadge";
 
 interface BuiltLink {
   key: string;
   label: string;
   to: string;
   categoryTree?: CategoryMenuNode[];
+  livePulse?: boolean;
 }
 
 function isCategoryView(pathname: string, search: string): boolean {
@@ -49,6 +51,13 @@ export default function Navbar() {
     queryFn: () => api.getQuizzes(lang),
     staleTime: 60_000,
   });
+  const { data: liveAuctions } = useQuery({
+    queryKey: ["auctions", lang],
+    queryFn: () => api.getAuctions(lang),
+    enabled: Boolean(site?.bidding_enabled),
+    staleTime: 60_000,
+  });
+  const hasLiveAuctions = (liveAuctions?.length ?? 0) > 0;
 
   const pageBySlug = new Map((pages || []).map((p) => [p.slug, p]));
   const quizBySlug = new Map((quizzes || []).map((q) => [q.slug, q]));
@@ -90,7 +99,12 @@ export default function Navbar() {
       }
       case "auctions":
         if (!site?.bidding_enabled) return null;
-        return { key: "auctions", label: t("nav.auctions"), to: "/auctions" };
+        return {
+          key: "auctions",
+          label: t("nav.auctions"),
+          to: "/auctions",
+          livePulse: hasLiveAuctions,
+        };
       default:
         return null;
     }
@@ -188,7 +202,14 @@ export default function Navbar() {
                   })} inline-block`
                 }
               >
-                {link.label}
+                {link.livePulse ? (
+                  <span className="inline-flex items-center gap-2">
+                    <AuctionLiveDot />
+                    {link.label}
+                  </span>
+                ) : (
+                  link.label
+                )}
               </NavLink>
             )
           )}

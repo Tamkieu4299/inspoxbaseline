@@ -4,12 +4,14 @@ import Icon from "./Icon";
 import { useLanguage } from "../i18n";
 import type { CategoryMenuNode } from "../categoryNav";
 import MobileCategoryMenu from "./MobileCategoryMenu";
+import { AuctionLiveDot } from "./AuctionLiveBadge";
 
 export interface MobileNavLink {
   key: string;
   label: string;
   to: string;
   categoryTree?: CategoryMenuNode[];
+  livePulse?: boolean;
 }
 
 interface MobileNavProps {
@@ -118,7 +120,14 @@ export default function MobileNav({
                   }`;
                 }}
               >
-                {link.label}
+                {link.livePulse ? (
+                  <span className="inline-flex items-center gap-2">
+                    <AuctionLiveDot />
+                    {link.label}
+                  </span>
+                ) : (
+                  link.label
+                )}
               </NavLink>
             )
           )}

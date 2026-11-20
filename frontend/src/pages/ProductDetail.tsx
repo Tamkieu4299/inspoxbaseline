@@ -6,6 +6,7 @@ import Icon from "../components/Icon";
 import Lightbox from "../components/Lightbox";
 import ProductGallery, { isGalleryLayout } from "../components/ProductGallery";
 import RevealOnScroll from "../components/RevealOnScroll";
+import { AuctionLiveBadge } from "../components/AuctionLiveBadge";
 import ProductFeatureGrid from "../components/ProductFeatureGrid";
 import { ProductDescription, ProductTechSpecList } from "../components/ProductStoryAndSpecs";
 import { useLanguage } from "../i18n";
@@ -211,8 +212,10 @@ export default function ProductDetail() {
             )}
 
             {auctionLive ? (
-              <div className="mb-6 p-4 border border-forest-green bg-surface-container-low">
-                <p className="font-label text-label-caps text-forest-green uppercase mb-2">{t("auctions.live")}</p>
+              <div className="mb-6 p-4 border border-red-500/35 bg-red-50/40 motion-safe:animate-auction-live-border">
+                <div className="mb-2">
+                  <AuctionLiveBadge label={t("auctions.live")} size="sm" />
+                </div>
                 <p className="font-body text-body-sm text-secondary mb-3">{t("product.auctionOnly")}</p>
                 <Link
                   to={`/auctions/${slug}`}

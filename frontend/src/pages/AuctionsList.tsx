@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
 import RevealOnScroll from "../components/RevealOnScroll";
+import { AuctionLiveBadge, AuctionLiveCardGlow } from "../components/AuctionLiveBadge";
 import { useLanguage } from "../i18n";
 import { useStoreCurrency } from "../useStoreCurrency";
 
@@ -26,7 +27,12 @@ export default function AuctionsList() {
   return (
     <main className="flex-grow pt-20 md:pt-24 max-w-[1440px] mx-auto px-4 md:px-8 pb-10 md:pb-16">
       <header className="mb-10 md:mb-14">
-        <h1 className="font-headline text-headline-lg text-primary uppercase">{t("auctions.title")}</h1>
+        <div className="flex flex-wrap items-center gap-3 md:gap-4">
+          <h1 className="font-headline text-headline-lg text-primary uppercase">{t("auctions.title")}</h1>
+          {!isLoading && (lots || []).length > 0 ? (
+            <AuctionLiveBadge label={t("auctions.live")} size="md" />
+          ) : null}
+        </div>
         <p className="font-body text-body-md text-secondary mt-2 max-w-2xl">{t("auctions.subtitle")}</p>
       </header>
 
@@ -41,11 +47,15 @@ export default function AuctionsList() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
         {(lots || []).map((lot, i) => (
           <RevealOnScroll key={lot.id} delay={i * 0.05}>
+            <AuctionLiveCardGlow className="h-full">
             <Link
               to={`/auctions/${lot.product_slug}`}
-              className="group flex flex-col h-full border border-surface-container-highest bg-white hover:border-primary transition-colors"
+              className="group relative flex flex-col h-full border border-red-500/30 bg-white hover:border-red-500/60 transition-colors overflow-hidden"
             >
-              <div className="aspect-[4/5] bg-surface-container-low overflow-hidden">
+              <div className="aspect-[4/5] bg-surface-container-low overflow-hidden relative">
+                <div className="absolute top-3 left-3 z-10">
+                  <AuctionLiveBadge label={t("auctions.live")} size="sm" />
+                </div>
                 {lot.image_url ? (
                   <img
                     src={lot.image_url}
@@ -55,7 +65,6 @@ export default function AuctionsList() {
                 ) : null}
               </div>
               <div className="p-4 flex flex-col gap-2 flex-1">
-                <span className="font-label text-label-caps text-forest-green uppercase">{t("auctions.live")}</span>
                 <h2 className="font-headline text-headline-sm text-primary uppercase line-clamp-2">
                   {lot.headline || lot.product_name}
                 </h2>
@@ -70,6 +79,7 @@ export default function AuctionsList() {
                 </p>
               </div>
             </Link>
+            </AuctionLiveCardGlow>
           </RevealOnScroll>
         ))}
       </div>
