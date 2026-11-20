@@ -28,7 +28,7 @@ COLLECTION_DEFS: tuple[dict, ...] = (
     {
         "slug": "custom-rackets",
         "name": "Custom Rackets",
-        "name_vi": "Vợt tùy chỉnh",
+        "name_vi": "Vợt custom",
         "tagline": "Paint, specs, and builds tailored to your game.",
         "tagline_vi": "Sơn, thông số và cấu hình theo phong cách của bạn.",
         "display_order": 0,

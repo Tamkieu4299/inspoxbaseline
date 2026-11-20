@@ -43,7 +43,7 @@ USED_CATEGORY = {
 CUSTOM_CATEGORY = {
     "slug": "custom-rackets",
     "name": "CUSTOM RACKETS",
-    "name_vi": "Vợt tùy chỉnh",
+    "name_vi": "Vợt custom",
 }
 
 USED_PRODUCTS: tuple[dict, ...] = (
@@ -203,7 +203,7 @@ def seed(
             tenant.id,
             "custom-rackets",
             "Custom Rackets",
-            name_vi="Vợt tùy chỉnh",
+            name_vi="Vợt custom",
         )
 
         for spec in USED_PRODUCTS:
