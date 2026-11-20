@@ -93,8 +93,12 @@ def _sync_product_categories(
 
 
 def _apply_product(db: Session, product: Product | None, payload: ProductIn, tenant_id: int):
+    from ..pricing import round_retail_vnd
+
     category_ids = _resolve_category_ids(payload)
     data = payload.model_dump(exclude={"images", "category_ids"})
+    if data.get("price"):
+        data["price"] = round_retail_vnd(data["price"])
     data["complements"] = normalize_complement_links(data.get("complements"))
     data["sizes"] = normalize_product_sizes(data.get("sizes"))
     data["category_id"] = category_ids[0] if category_ids else None

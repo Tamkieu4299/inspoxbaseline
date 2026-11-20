@@ -5,7 +5,7 @@ import { api } from "../api";
 import ProductGallery from "../components/ProductGallery";
 import { ProductDescription, ProductTechSpecList } from "../components/ProductStoryAndSpecs";
 import { useLanguage } from "../i18n";
-import { useStoreCurrency } from "../useStoreCurrency";
+import { useStoreCurrency, type FormatPriceOptions } from "../useStoreCurrency";
 import type { AuctionBidPublic } from "../types";
 import { AuctionLiveBadge, AuctionLiveCardGlow, AuctionLiveDot } from "../components/AuctionLiveBadge";
 
@@ -99,13 +99,13 @@ export default function AuctionDetail() {
 
           <AuctionLiveCardGlow active={live}>
           <div className={`border p-5 bg-surface-container-lowest grid grid-cols-2 gap-4 ${live ? "border-red-500/35" : "border-surface-container-highest"}`}>
-            <Stat label={t("auctions.starting")} value={formatPrice(lot.starting_bid)} />
+            <Stat label={t("auctions.starting")} value={formatPrice(lot.starting_bid, { roundRetail: false })} />
             <Stat
               label={t("auctions.current")}
-              value={formatPrice(lot.current_bid ?? lot.starting_bid)}
+              value={formatPrice(lot.current_bid ?? lot.starting_bid, { roundRetail: false })}
               highlight={live}
             />
-            <Stat label={t("auctions.minNext")} value={formatPrice(lot.min_next_bid)} />
+            <Stat label={t("auctions.minNext")} value={formatPrice(lot.min_next_bid, { roundRetail: false })} />
             <Stat label={t("auctions.bidCount")} value={String(lot.bid_count)} />
           </div>
           </AuctionLiveCardGlow>
@@ -262,7 +262,7 @@ function BidTable({
   live,
 }: {
   bids: AuctionBidPublic[];
-  formatPrice: (n: number) => string;
+  formatPrice: (n: number, options?: FormatPriceOptions) => string;
   t: (k: string) => string;
   live: boolean;
 }) {
@@ -310,7 +310,7 @@ function BidTable({
                     animateLead ? "motion-safe:animate-auction-leader-amount" : leading ? "text-red-900" : ""
                   }`}
                 >
-                  {formatPrice(b.amount)}
+                  {formatPrice(b.amount, { roundRetail: false })}
                 </td>
                 <td className="p-3 text-secondary">{new Date(b.created_at).toLocaleString()}</td>
                 <td className="p-3">

@@ -1,10 +1,15 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { useLanguage } from "./i18n";
-import { formatMoney } from "./money";
+import { formatMoney, roundRetailVnd } from "./money";
+
+export type FormatPriceOptions = {
+  /** When false, show exact amount (e.g. auction bids). Default true for product retail. */
+  roundRetail?: boolean;
+};
 
 interface StoreCurrencyContextValue {
   currencyCode: string;
-  formatPrice: (amount: number) => string;
+  formatPrice: (amount: number, options?: FormatPriceOptions) => string;
 }
 
 const StoreCurrencyContext = createContext<StoreCurrencyContextValue | null>(null);
@@ -17,12 +22,14 @@ export function StoreCurrencyProvider({ children }: { children: ReactNode }) {
   const value = useMemo<StoreCurrencyContextValue>(
     () => ({
       currencyCode,
-      formatPrice: (amount: number) => {
+      formatPrice: (amount: number, options?: FormatPriceOptions) => {
         const n = Number(amount);
         if (!Number.isFinite(n) || n <= 0) {
           return t("product.contactPrice");
         }
-        return formatMoney(n, currencyCode, locale);
+        const roundRetail = options?.roundRetail !== false;
+        const value = roundRetail ? roundRetailVnd(n) : n;
+        return formatMoney(value, currencyCode, locale);
       },
     }),
     [currencyCode, locale, t],

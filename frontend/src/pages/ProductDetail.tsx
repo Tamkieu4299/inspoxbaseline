@@ -11,6 +11,7 @@ import ProductFeatureGrid from "../components/ProductFeatureGrid";
 import { ProductDescription, ProductTechSpecList } from "../components/ProductStoryAndSpecs";
 import { useLanguage } from "../i18n";
 import { useStoreCurrency } from "../useStoreCurrency";
+import { roundRetailVnd } from "../money";
 import { useCart } from "../cart/CartContext";
 import ProductComplementsSection from "../components/ProductComplementsSection";
 import {
@@ -241,7 +242,7 @@ export default function ProductDetail() {
                       productId: product.id,
                       slug: product.slug,
                       name: product.name,
-                      price: Number(product.price) || 0,
+                      price: roundRetailVnd(Number(product.price) || 0),
                       color: selectedColor ? colorDisplayName(selectedColor, lang) : null,
                       size: selectedSize,
                       imageUrl: img?.url ?? null,

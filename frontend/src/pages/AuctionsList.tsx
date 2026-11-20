@@ -71,11 +71,13 @@ export default function AuctionsList() {
                 <p className="font-body text-body-sm text-secondary">
                   {t("auctions.current")}:{" "}
                   <strong className="text-primary">
-                    {lot.current_bid != null ? formatPrice(lot.current_bid) : formatPrice(lot.starting_bid)}
+                    {lot.current_bid != null
+                      ? formatPrice(lot.current_bid, { roundRetail: false })
+                      : formatPrice(lot.starting_bid, { roundRetail: false })}
                   </strong>
                 </p>
                 <p className="font-label text-label-caps text-secondary uppercase text-xs mt-auto">
-                  {t("auctions.minNext")}: {formatPrice(lot.min_next_bid)}
+                  {t("auctions.minNext")}: {formatPrice(lot.min_next_bid, { roundRetail: false })}
                 </p>
               </div>
             </Link>

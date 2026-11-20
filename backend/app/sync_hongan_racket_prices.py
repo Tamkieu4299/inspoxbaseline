@@ -45,7 +45,10 @@ MARGIN_ADD_VND = 300_000
 
 
 def baseline_web_price_from_hongan_regular(regular_vnd: int | float) -> float:
-    return float(int(regular_vnd) * MARGIN_FACTOR + MARGIN_ADD_VND)
+    from .pricing import round_retail_vnd
+
+    raw = float(int(regular_vnd) * MARGIN_FACTOR + MARGIN_ADD_VND)
+    return round_retail_vnd(raw)
 
 
 def _hongan_regular_vnd(item: dict[str, Any]) -> int | None:

@@ -1,5 +1,13 @@
 /** Store currency (prices stored and displayed in this unit). */
 export const STORE_CURRENCIES = ["VND"] as const;
+
+/** Nearest 10,000₫ for customer-facing retail (e.g. 2_859_200 → 2_860_000). */
+export const RETAIL_VND_ROUND = 10_000;
+
+export function roundRetailVnd(amount: number): number {
+  if (!Number.isFinite(amount) || amount <= 0) return 0;
+  return Math.round(amount / RETAIL_VND_ROUND) * RETAIL_VND_ROUND;
+}
 export type StoreCurrency = (typeof STORE_CURRENCIES)[number];
 
 export function usesWholeCurrencyUnits(currencyCode: string): boolean {
