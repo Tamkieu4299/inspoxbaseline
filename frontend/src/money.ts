@@ -6,6 +6,7 @@ export const RETAIL_VND_ROUND = 10_000;
 
 export function roundRetailVnd(amount: number): number {
   if (!Number.isFinite(amount) || amount <= 0) return 0;
+  if (amount < RETAIL_VND_ROUND) return Math.round(amount);
   return Math.round(amount / RETAIL_VND_ROUND) * RETAIL_VND_ROUND;
 }
 export type StoreCurrency = (typeof STORE_CURRENCIES)[number];
