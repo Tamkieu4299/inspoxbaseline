@@ -158,7 +158,7 @@ def run():
         slug=PRODUCT_SLUG,
         name="ONCOURT T-SHIRT",
         subtitle="COURT COTTON",
-        price=75.0,
+        price=450_000.0,
         category_id=tops.id,
         collection_id=oncourt.id,
         badge="NEW",
