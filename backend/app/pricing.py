@@ -12,4 +12,6 @@ def round_retail_vnd(amount: float | int | None) -> float:
     n = float(amount)
     if n < RETAIL_VND_ROUND:
         return float(round(n))
+    if n % RETAIL_VND_ROUND == RETAIL_VND_ROUND / 2:
+        return float(round(n))
     return float(round(n / RETAIL_VND_ROUND) * RETAIL_VND_ROUND)

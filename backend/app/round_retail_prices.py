@@ -12,6 +12,7 @@ from sqlalchemy import select
 
 from .database import SessionLocal
 from .models import Product, Tenant
+from .baseline_physical_stock import PHYSICAL_STOCK_IDS, PHYSICAL_STOCK_SLUG_RETAIL
 from .pricing import round_retail_vnd
 
 
@@ -33,6 +34,8 @@ def main() -> None:
         products = list(db.scalars(q))
         changed = 0
         for p in products:
+            if p.id in PHYSICAL_STOCK_IDS or (p.slug or "") in PHYSICAL_STOCK_SLUG_RETAIL:
+                continue
             target = round_retail_vnd(p.price)
             if target != float(p.price or 0):
                 print(f"{'UPDATE' if args.apply else 'would'} id={p.id} {p.slug}: {p.price:,.0f} -> {target:,.0f}")
