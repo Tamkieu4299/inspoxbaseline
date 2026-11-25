@@ -5,8 +5,16 @@
 	reverse_proxy frontend:80
 }
 
+www.{$SHOP1_DOMAIN} {
+	redir https://{$SHOP1_DOMAIN}{uri} permanent
+}
+
 {$BASELINE_DOMAIN} {
 	reverse_proxy frontend-baseline:80
+}
+
+www.{$BASELINE_DOMAIN} {
+	redir https://{$BASELINE_DOMAIN}{uri} permanent
 }
 
 {$MEDIA_DOMAIN} {

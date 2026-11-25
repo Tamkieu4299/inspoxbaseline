@@ -111,4 +111,4 @@ Manual script (`run-inspo-sync-on-vps.sh`) is optional for one-off backfills.
 | Stock counts, COGS, revenue reports, fulfillment | **TamHub** |
 | Web checkout price / line totals | **Inspo order snapshot** → TamHub order lines (exact `unit_price`, `image_url`) |
 
-TamHub blocks price/name/image edits on SKUs `inspo:*` unless the request carries `X-Inspo-Catalog-Sync` (automatic sync only).
+TamHub blocks price/name/image edits on SKUs `inspo:*` unless the request carries `X-Inspo-Catalog-Sync` (automatic sync only). Set `INSPO_CATALOG_LOCK_MERCH=false` on **customer-service** to allow manual product edits in TamHub (storefront still reads from Inspo until you run catalog sync).

@@ -284,6 +284,12 @@ def _rewrite_media_urls(db):
             )
             changed += 1
     if changed:
+        db.execute(
+            text(
+                "UPDATE product_images SET url = (SELECT m.url FROM media m "
+                "WHERE m.id = product_images.media_id) WHERE media_id IS NOT NULL"
+            )
+        )
         db.commit()
         print(f"Migration: rewrote {changed} media URL(s) to {base}")
 
