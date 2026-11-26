@@ -580,8 +580,17 @@ def delete_blog_post(post_id: int, db: Session = Depends(get_db), tenant: Tenant
 # ---------------- Site Settings / Branding ----------------
 def _get_or_create_site(db: Session, tenant_id: int) -> SiteSettings:
     from ..currency import normalize_base_currency
+    from sqlalchemy.orm import selectinload
 
-    site = db.scalar(select(SiteSettings).where(SiteSettings.tenant_id == tenant_id))
+    site = db.scalar(
+        select(SiteSettings)
+        .options(
+            selectinload(SiteSettings.logo_media),
+            selectinload(SiteSettings.favicon_media),
+            selectinload(SiteSettings.home_popup_media),
+        )
+        .where(SiteSettings.tenant_id == tenant_id)
+    )
     if site is None:
         site = SiteSettings(tenant_id=tenant_id)
         db.add(site)

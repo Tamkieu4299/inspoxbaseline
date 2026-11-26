@@ -1103,6 +1103,7 @@ def get_site(
         .options(
             selectinload(SiteSettings.logo_media),
             selectinload(SiteSettings.favicon_media),
+            selectinload(SiteSettings.home_popup_media),
         )
         .where(SiteSettings.tenant_id == tenant.id)
     )
@@ -1147,6 +1148,11 @@ def get_site(
         footer_background_color=(site.footer_background_color or "").strip() or None,
         footer_text_color=(site.footer_text_color or "").strip() or None,
         bidding_enabled=bool(site.bidding_enabled),
+        home_popup_enabled=bool(site.home_popup_enabled),
+        home_popup_image_url=(
+            site.home_popup_media.url if site.home_popup_enabled and site.home_popup_media else None
+        ),
+        home_popup_link=(site.home_popup_link or "").strip() or None,
     )
 
 

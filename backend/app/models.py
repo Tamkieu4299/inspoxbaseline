@@ -397,6 +397,10 @@ class SiteSettings(Base, TimestampMixin):
     storefront_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     bidding_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
     zalo_webhook_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    home_popup_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    home_popup_media_id: Mapped[int | None] = mapped_column(ForeignKey("media.id"), nullable=True)
+    home_popup_media: Mapped["Media | None"] = relationship("Media", foreign_keys=[home_popup_media_id])
+    home_popup_link: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
 
 class Order(Base, TimestampMixin):

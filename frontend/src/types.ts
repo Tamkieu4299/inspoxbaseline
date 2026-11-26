@@ -537,6 +537,9 @@ export interface SitePublic {
   footer_background_color?: string | null;
   footer_text_color?: string | null;
   bidding_enabled?: boolean;
+  home_popup_enabled?: boolean;
+  home_popup_image_url?: string | null;
+  home_popup_link?: string | null;
 }
 
 export interface AuctionBidPublic {
@@ -690,6 +693,10 @@ export interface SiteSettings {
   storefront_url?: string | null;
   bidding_enabled?: boolean;
   zalo_webhook_url?: string | null;
+  home_popup_enabled?: boolean;
+  home_popup_media_id?: number | null;
+  home_popup_link?: string | null;
+  home_popup_media?: Media | null;
 }
 
 export interface TenantAdmin {

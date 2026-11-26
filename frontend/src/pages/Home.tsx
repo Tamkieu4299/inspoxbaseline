@@ -10,12 +10,17 @@ import CoverMedia from "../components/CoverMedia";
 import type { HeroSlide } from "../mediaUtils";
 import RevealOnScroll from "../components/RevealOnScroll";
 import type { Collection, HomeData } from "../types";
+import HomeWelcomePopup from "../components/HomeWelcomePopup";
 
 export default function Home() {
   const { lang, t } = useLanguage();
   const { data, isLoading } = useQuery({
     queryKey: ["home", lang],
     queryFn: () => api.getHome(lang),
+  });
+  const { data: site } = useQuery({
+    queryKey: ["site", lang],
+    queryFn: () => api.getSite(lang),
   });
 
   if (isLoading || !data) {
@@ -25,6 +30,8 @@ export default function Home() {
   const sections = normalizeHomeSections(data.sections);
 
   return (
+    <>
+      <HomeWelcomePopup site={site} />
     <main className="pt-20">
       {sections.map((section, index) => (
         <RevealOnScroll
@@ -36,6 +43,7 @@ export default function Home() {
         </RevealOnScroll>
       ))}
     </main>
+    </>
   );
 }
 

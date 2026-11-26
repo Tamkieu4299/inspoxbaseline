@@ -175,6 +175,34 @@ export default function SiteTab() {
             onChange={(m) => set("favicon_media_id", m ? m.id : null)}
           />
         </div>
+
+        <div className="border-t border-surface-container-highest pt-4 flex flex-col gap-4">
+          <h4 className="font-headline text-headline-sm uppercase text-primary">{t("admin.homePopup.title")}</h4>
+          <p className="font-body text-body-sm text-secondary">{t("admin.homePopup.hint")}</p>
+          <label className="flex items-center gap-2 font-body text-body-md">
+            <Checkbox
+              checked={Boolean(draftValue.home_popup_enabled)}
+              onChange={(e) => set("home_popup_enabled", e.target.checked)}
+            />
+            {t("admin.homePopup.enabled")}
+          </label>
+          <ImageField
+            label={t("admin.homePopup.image")}
+            value={
+              draftValue.home_popup_media_id
+                ? (mediaById.get(draftValue.home_popup_media_id) as Media) || null
+                : null
+            }
+            onChange={(m) => set("home_popup_media_id", m ? m.id : null)}
+          />
+          <Field label={t("admin.homePopup.link")}>
+            <TextInput
+              value={draftValue.home_popup_link || ""}
+              onChange={(e) => set("home_popup_link", e.target.value.trim() || null)}
+              placeholder="https://baselineclub.vn/collections/..."
+            />
+          </Field>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Field label={t("admin.navbarBackgroundColor")}>
             <TextInput

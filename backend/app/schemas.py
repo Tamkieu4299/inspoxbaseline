@@ -542,6 +542,9 @@ class SiteSettingsBase(BaseModel):
     storefront_url: str | None = None
     bidding_enabled: bool = False
     zalo_webhook_url: str | None = None
+    home_popup_enabled: bool = False
+    home_popup_media_id: int | None = None
+    home_popup_link: str | None = None
 
 
 class SiteSettingsIn(SiteSettingsBase):
@@ -552,6 +555,7 @@ class SiteSettingsOut(SiteSettingsBase, ORMModel):
     id: int
     logo_media: MediaOut | None = None
     favicon_media: MediaOut | None = None
+    home_popup_media: MediaOut | None = None
 
 
 class SitePublic(BaseModel):
@@ -570,6 +574,9 @@ class SitePublic(BaseModel):
     footer_background_color: str | None = None
     footer_text_color: str | None = None
     bidding_enabled: bool = False
+    home_popup_enabled: bool = False
+    home_popup_image_url: str | None = None
+    home_popup_link: str | None = None
 
 
 class ShopQuizBase(BaseModel):
