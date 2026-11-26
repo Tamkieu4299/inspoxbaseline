@@ -33,6 +33,7 @@ export default function Collection() {
   const color = params.get("color") || "";
   const sort = params.get("sort") || "recommended";
   const q = (params.get("q") || "").trim();
+  const priceExact = params.get("price_exact") || "";
   const page = Math.max(1, parseInt(params.get("page") || "1", 10) || 1);
   const pageSize = 24;
 
@@ -58,7 +59,7 @@ export default function Collection() {
     queryFn: () => api.getProductBrands(brandCategory ? { category: brandCategory } : undefined),
   });
   const { data: productPage, isLoading } = useQuery({
-    queryKey: ["products", activeCollection, category, brand, size, color, sort, q, page, lang],
+    queryKey: ["products", activeCollection, category, brand, size, color, sort, q, priceExact, page, lang],
     queryFn: () =>
       api.getProducts({
         collection: collectionFilter,
@@ -68,6 +69,7 @@ export default function Collection() {
         color: color || undefined,
         sort,
         q: q || undefined,
+        price_exact: priceExact || undefined,
         page: String(page),
         page_size: String(pageSize),
         lang,

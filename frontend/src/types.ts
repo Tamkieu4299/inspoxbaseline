@@ -540,6 +540,16 @@ export interface SitePublic {
   home_popup_enabled?: boolean;
   home_popup_image_url?: string | null;
   home_popup_link?: string | null;
+  home_popup_price?: number | null;
+  home_popup_products?: HomePopupProductPublic[];
+}
+
+export interface HomePopupProductPublic {
+  slug: string;
+  name: string;
+  label?: string | null;
+  image_url?: string | null;
+  price: number;
 }
 
 export interface AuctionBidPublic {
@@ -697,6 +707,8 @@ export interface SiteSettings {
   home_popup_media_id?: number | null;
   home_popup_link?: string | null;
   home_popup_media?: Media | null;
+  home_popup_items?: { slug: string; label?: string | null }[];
+  home_popup_price?: number | null;
 }
 
 export interface TenantAdmin {

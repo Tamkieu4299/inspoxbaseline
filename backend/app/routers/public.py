@@ -36,6 +36,7 @@ from ..schemas import (
     QuizNavOut,
     ShopQuizOut,
     ShopQuizPublicOut,
+    HomePopupProductPublic,
     SitePublic,
     OrderCreateIn,
     OrderCreatedOut,
@@ -583,6 +584,7 @@ def list_products(
     color: str | None = None,
     sort: str = "recommended",
     q: str | None = None,
+    price_exact: float | None = Query(None, description="Filter products at this retail price (VND)"),
     page: int = 1,
     page_size: int = 24,
     lang: str = "en",
@@ -627,6 +629,8 @@ def list_products(
         stmt = _apply_product_search(stmt, q)
     if brand:
         stmt = stmt.where(Product.brand == brand.strip().lower())
+    if price_exact is not None:
+        stmt = stmt.where(Product.price == float(price_exact))
 
     products = db.execute(stmt).scalars().all()
 
@@ -1090,6 +1094,62 @@ def get_quiz(
     return ShopQuizPublicOut.model_validate(data)
 
 
+def _resolve_home_popup_products(
+    db: Session,
+    tenant_id: int,
+    items: list,
+    lang: str,
+) -> list[HomePopupProductPublic]:
+    if not items:
+        return []
+    slugs: list[str] = []
+    labels: dict[str, str] = {}
+    for raw in items:
+        if isinstance(raw, str) and raw.strip():
+            slugs.append(raw.strip())
+        elif isinstance(raw, dict):
+            slug = str(raw.get("slug") or "").strip()
+            if not slug:
+                continue
+            slugs.append(slug)
+            label = raw.get("label")
+            if label:
+                labels[slug] = str(label).strip()
+    if not slugs:
+        return []
+    rows = db.execute(
+        select(Product)
+        .options(selectinload(Product.images))
+        .where(
+            Product.tenant_id == tenant_id,
+            Product.is_active.is_(True),
+            Product.slug.in_(slugs),
+        )
+    ).scalars().all()
+    by_slug = {p.slug: p for p in rows}
+    out: list[HomePopupProductPublic] = []
+    for slug in slugs:
+        product = by_slug.get(slug)
+        if product is None:
+            continue
+        name = product.name_vi or product.name if lang == "vi" else product.name
+        image_url = None
+        for img in sorted(product.images, key=lambda i: i.position or 0):
+            if img.enabled and img.url:
+                image_url = img.url
+                break
+        out.append(
+            HomePopupProductPublic(
+                slug=product.slug,
+                name=name,
+                label=labels.get(slug),
+                image_url=image_url,
+                price=float(product.price or 0),
+            )
+        )
+    return out
+
+
 @router.get("/site", response_model=SitePublic)
 def get_site(
     lang: str = "en",
@@ -1153,6 +1213,12 @@ def get_site(
             site.home_popup_media.url if site.home_popup_enabled and site.home_popup_media else None
         ),
         home_popup_link=(site.home_popup_link or "").strip() or None,
+        home_popup_price=float(site.home_popup_price) if site.home_popup_price else None,
+        home_popup_products=(
+            _resolve_home_popup_products(db, tenant.id, site.home_popup_items or [], lang)
+            if site.home_popup_enabled
+            else []
+        ),
     )
 
 

@@ -545,6 +545,8 @@ class SiteSettingsBase(BaseModel):
     home_popup_enabled: bool = False
     home_popup_media_id: int | None = None
     home_popup_link: str | None = None
+    home_popup_items: list[dict[str, Any]] = Field(default_factory=list)
+    home_popup_price: float | None = None
 
 
 class SiteSettingsIn(SiteSettingsBase):
@@ -556,6 +558,14 @@ class SiteSettingsOut(SiteSettingsBase, ORMModel):
     logo_media: MediaOut | None = None
     favicon_media: MediaOut | None = None
     home_popup_media: MediaOut | None = None
+
+
+class HomePopupProductPublic(BaseModel):
+    slug: str
+    name: str
+    label: str | None = None
+    image_url: str | None = None
+    price: float
 
 
 class SitePublic(BaseModel):
@@ -577,6 +587,8 @@ class SitePublic(BaseModel):
     home_popup_enabled: bool = False
     home_popup_image_url: str | None = None
     home_popup_link: str | None = None
+    home_popup_price: float | None = None
+    home_popup_products: list[HomePopupProductPublic] = Field(default_factory=list)
 
 
 class ShopQuizBase(BaseModel):

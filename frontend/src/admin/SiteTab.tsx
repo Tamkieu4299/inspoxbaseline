@@ -202,6 +202,38 @@ export default function SiteTab() {
               placeholder="https://baselineclub.vn/collections/..."
             />
           </Field>
+          <Field label={t("admin.homePopup.products")}>
+            <textarea
+              className="w-full min-h-[88px] font-mono text-sm border border-surface-container-highest rounded px-3 py-2 bg-surface-container-lowest"
+              value={(draftValue.home_popup_items || [])
+                .map((row) => (row.label ? `${row.slug}, ${row.label}` : row.slug))
+                .join("\n")}
+              onChange={(e) => {
+                const items = e.target.value
+                  .split("\n")
+                  .map((line) => line.trim())
+                  .filter(Boolean)
+                  .map((line) => {
+                    const [slug, ...rest] = line.split(",");
+                    const label = rest.join(",").trim();
+                    return { slug: slug.trim(), ...(label ? { label } : {}) };
+                  });
+                set("home_popup_items", items);
+              }}
+              placeholder="my-product-slug, WILSON BLADE SERIES"
+            />
+          </Field>
+          <Field label={t("admin.homePopup.price")}>
+            <TextInput
+              type="number"
+              value={draftValue.home_popup_price ?? ""}
+              onChange={(e) => {
+                const v = e.target.value.trim();
+                set("home_popup_price", v ? Number(v) : null);
+              }}
+              placeholder="5555000"
+            />
+          </Field>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Field label={t("admin.navbarBackgroundColor")}>

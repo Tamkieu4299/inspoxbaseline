@@ -401,6 +401,8 @@ class SiteSettings(Base, TimestampMixin):
     home_popup_media_id: Mapped[int | None] = mapped_column(ForeignKey("media.id"), nullable=True)
     home_popup_media: Mapped["Media | None"] = relationship("Media", foreign_keys=[home_popup_media_id])
     home_popup_link: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    home_popup_items: Mapped[list] = mapped_column(JSON, default=list)
+    home_popup_price: Mapped[float | None] = mapped_column(Float, nullable=True)
 
 
 class Order(Base, TimestampMixin):
