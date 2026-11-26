@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from urllib.parse import urlparse
 
-from sqlalchemy import Date, cast, delete, distinct, func, select
+from sqlalchemy import delete, distinct, func, select
 from sqlalchemy.orm import Session
 
 from .models import AnalyticsEvent, Order, Product
@@ -170,7 +170,7 @@ def build_dashboard(db: Session, tenant_id: int, days: int = 30) -> dict[str, An
     yesterday_start = start_today - timedelta(days=1)
     yesterday = _summary_stats(db, tenant_id, yesterday_start, start_today)
 
-    day_col = cast(AnalyticsEvent.occurred_at, Date).label("day")
+    day_col = func.strftime("%Y-%m-%d", AnalyticsEvent.occurred_at).label("day")
     daily_rows = db.execute(
         select(
             day_col,
