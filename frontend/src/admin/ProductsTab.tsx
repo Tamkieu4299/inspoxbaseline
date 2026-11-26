@@ -9,7 +9,8 @@ import { ProductEditorForm, type ProductStudioTab } from "./ProductEditorForm";
 import { ProductStudioPreview } from "./ProductStudioPreview";
 import {
   blankProductDraft,
-  liveStatus,
+  catalogLiveStatus,
+  STOREFRONT_BADGE_COLORS,
   productToDraft,
   skuFromSlug,
   viCompleteness,
@@ -74,36 +75,40 @@ function KpiPill({
   );
 }
 
-function StatusBadge({ product }: { product: Product }) {
-  const { t } = useLanguage();
-  const status = liveStatus(product);
-  const map = {
-    active: {
-      cls: "bg-surface-container text-on-surface",
-      dot: "bg-primary",
-      label: t("admin.catalog.statusActive"),
-    },
-    limited: {
-      cls: "bg-primary text-on-primary",
-      dot: "bg-surface-container-lowest animate-pulse",
-      label: t("admin.catalog.statusLimited"),
-    },
-    scheduled: {
-      cls: "bg-surface-container text-secondary",
-      dot: "bg-secondary",
-      label: t("admin.catalog.statusScheduled"),
-    },
-    draft: {
-      cls: "bg-surface-container-high text-secondary",
-      dot: "bg-secondary",
-      label: t("admin.catalog.statusDraft"),
-    },
-  }[status];
+function LiveDot() {
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded font-label text-label-caps uppercase ${map.cls}`}>
-      <span className={`w-2 h-2 rounded-full ${map.dot}`} />
-      {map.label}
+    <span className="relative flex h-2.5 w-2.5 shrink-0" aria-hidden>
+      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.9)]" />
     </span>
+  );
+}
+
+function ProductCatalogStatus({ product }: { product: Product }) {
+  const { t } = useLanguage();
+  const live = catalogLiveStatus(product) === "live";
+  const badge = (product.badge || "").trim();
+
+  return (
+    <div className="flex flex-col gap-1.5 items-start">
+      <span
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded font-label text-label-caps uppercase ${
+          live ? "bg-emerald-50 text-emerald-900 ring-1 ring-emerald-200" : "bg-surface-container-high text-secondary"
+        }`}
+      >
+        {live ? <LiveDot /> : <span className="w-2.5 h-2.5 rounded-full bg-secondary shrink-0" />}
+        {live ? t("admin.catalog.statusLive") : t("admin.catalog.statusHidden")}
+      </span>
+      {badge ? (
+        <span
+          className={`inline-flex items-center px-2 py-0.5 rounded font-label text-[10px] uppercase tracking-wider ${
+            STOREFRONT_BADGE_COLORS[badge] ?? "bg-surface-container text-on-surface"
+          }`}
+        >
+          {badge}
+        </span>
+      ) : null}
+    </div>
   );
 }
 
@@ -524,7 +529,7 @@ export default function ProductsTab() {
                       <span className="font-body text-body-md text-on-surface">{col?.name || "—"}</span>
                     </td>
                     <td className="py-4 px-4">
-                      <StatusBadge product={p} />
+                      <ProductCatalogStatus product={p} />
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex flex-col gap-1">

@@ -126,18 +126,19 @@ export function skuFromSlug(slug: string): string {
   return `APX-${core.slice(0, 24)}`;
 }
 
-export type LiveStatusKey =
-  | "active"
-  | "limited"
-  | "scheduled"
-  | "draft";
+/** Storefront visibility only — merchandising badges are shown separately. */
+export type CatalogLiveStatus = "live" | "hidden";
 
-export function liveStatus(product: Product): LiveStatusKey {
-  if (!product.is_active) return "draft";
-  if (product.badge === "LIMITED") return "limited";
-  if (product.badge === "NEW" || product.badge === "NEW ARRIVAL") return "scheduled";
-  return "active";
+export function catalogLiveStatus(product: Product): CatalogLiveStatus {
+  return product.is_active ? "live" : "hidden";
 }
+
+export const STOREFRONT_BADGE_COLORS: Record<string, string> = {
+  NEW: "bg-sky-100 text-sky-900",
+  "NEW ARRIVAL": "bg-sky-100 text-sky-900",
+  LIMITED: "bg-amber-100 text-amber-900",
+  BESTSELLER: "bg-primary-container text-primary",
+};
 
 export function viCompleteness(product: Product): "full" | "draft" | "partial" {
   const hasVi = Boolean(product.name_vi?.trim() && product.description_vi?.trim());
