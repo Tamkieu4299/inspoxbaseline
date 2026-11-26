@@ -18,7 +18,7 @@ import {
   inputCls,
 } from "./ui";
 import { useLanguage } from "../i18n";
-import { formatMoney } from "../money";
+import { formatMoney, roundRetailVnd } from "../money";
 import { PRODUCT_BADGES, type ProductDraft } from "./productDraft";
 import { getProductVariantOptions, variantStorefrontSummaryKey } from "../productDisplay";
 import { collectDimensionsFromQuizzes, legacyDimensionDefs } from "../quiz/dimensions";
@@ -260,8 +260,19 @@ export function ProductEditorForm({
                 />
                 <p className="text-secondary text-xs mt-1 font-body">
                   {t("admin.priceStorefrontPreview", {
-                    price: formatMoney(Number(draft.price) || 0, currency, locale),
+                    price: formatMoney(
+                      draft.retail_price_exact
+                        ? Number(draft.price) || 0
+                        : roundRetailVnd(Number(draft.price) || 0),
+                      currency,
+                      locale
+                    ),
                   })}
+                  {draft.retail_price_exact ? (
+                    <span className="text-secondary text-xs mt-0.5 block font-body">
+                      {t("admin.priceExactRetailHint")}
+                    </span>
+                  ) : null}
                 </p>
               </Field>
               <CategoryChipField

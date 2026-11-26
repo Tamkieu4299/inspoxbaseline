@@ -176,7 +176,9 @@ export default function NavbarSearch({ className = "", autoFocus, onClose }: Nav
                         {[product.brand, product.subtitle].filter(Boolean).join(" · ")}
                       </p>
                     </div>
-                    <p className="font-body text-body-sm text-primary shrink-0">{formatPrice(product.price)}</p>
+                    <p className="font-body text-body-sm text-primary shrink-0">
+                      {formatPrice(product.price, { roundRetail: !product.retail_price_exact })}
+                    </p>
                   </Link>
                 );
               })

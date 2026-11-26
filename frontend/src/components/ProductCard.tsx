@@ -57,7 +57,9 @@ export default function ProductCard({ product }: { product: Product }) {
         <p className="font-body text-body-sm text-secondary mt-1 leading-snug line-clamp-2 min-h-[2.75rem]">
           {[product.subtitle || cats, colorLabel(product, t)].filter(Boolean).join(" · ")}
         </p>
-        <p className="font-body text-body-md text-primary mt-auto pt-2">{formatPrice(product.price)}</p>
+        <p className="font-body text-body-md text-primary mt-auto pt-2">
+          {formatPrice(product.price, { roundRetail: !product.retail_price_exact })}
+        </p>
       </div>
     </Link>
   );

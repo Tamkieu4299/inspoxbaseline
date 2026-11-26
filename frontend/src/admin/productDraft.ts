@@ -11,6 +11,7 @@ export interface ProductDraft {
   description: string;
   description_vi: string;
   price: number;
+  retail_price_exact?: boolean;
   category_id: number | "";
   category_ids: number[];
   collection_id: number | "";
@@ -71,6 +72,7 @@ export function productToDraft(p: Product): ProductDraft {
     description: p.description || "",
     description_vi: p.description_vi || "",
     price: p.price,
+    retail_price_exact: p.retail_price_exact,
     category_id: p.category_id ?? "",
     category_ids:
       p.categories?.map((c) => c.id) ?? (p.category_id != null ? [p.category_id] : []),

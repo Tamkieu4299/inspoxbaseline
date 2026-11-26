@@ -67,6 +67,7 @@ export default function QuizRunner() {
       name: p.name,
       brand: p.brand,
       price: p.price,
+      retail_price_exact: p.retail_price_exact,
       image_url: p.image_url,
       finder_profile: p.finder_profile,
       complement_products: p.complement_products,
@@ -308,7 +309,9 @@ export default function QuizRunner() {
                       <p className="font-headline text-headline-md uppercase truncate">
                         {formatQuizProductName(row.product.name, lang)}
                       </p>
-                      <p className="font-body text-body-md text-secondary">{formatPrice(row.product.price)}</p>
+                      <p className="font-body text-body-md text-secondary">
+                        {formatPrice(row.product.price, { roundRetail: !row.product.retail_price_exact })}
+                      </p>
                     </div>
                     <Link
                       to={`/products/${row.slug}`}

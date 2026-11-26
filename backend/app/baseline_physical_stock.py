@@ -21,3 +21,11 @@ PHYSICAL_STOCK_SLUG_RETAIL: dict[str, float] = {
 }
 
 PHYSICAL_STOCK_IDS: frozenset[int] = frozenset(PHYSICAL_STOCK_RETAIL)
+
+
+def retail_price_is_exact(product_id: int | None, slug: str | None = None) -> bool:
+    """Baseline in-store rackets with fixed retail (not rounded to 10,000₫)."""
+    if product_id is not None and product_id in PHYSICAL_STOCK_IDS:
+        return True
+    s = (slug or "").strip()
+    return bool(s and s in PHYSICAL_STOCK_SLUG_RETAIL)

@@ -29,6 +29,7 @@ export type MatchProduct = {
   name: string;
   brand?: string | null;
   price: number;
+  retail_price_exact?: boolean;
   image_url?: string | null;
   complement_products?: ProductComplementOut[];
   finder_profile?: {

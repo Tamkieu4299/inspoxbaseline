@@ -46,11 +46,14 @@ def _card_from_product(product: Product, lang: str) -> ProductSummaryCard:
             break
     if not image_url and product.images:
         image_url = product.images[0].url
+    from .baseline_physical_stock import retail_price_is_exact
+
     return ProductSummaryCard(
         id=product.id,
         slug=product.slug,
         name=name,
         price=float(product.price or 0),
+        retail_price_exact=retail_price_is_exact(product.id, product.slug),
         brand=product.brand,
         image_url=image_url,
     )

@@ -142,7 +142,9 @@ export default function ProductDetail() {
             {product.subtitle && (
               <p className="font-body text-body-md text-secondary max-w-2xl leading-relaxed mb-2">{product.subtitle}</p>
             )}
-            <p className="font-headline text-headline-md text-primary mb-4">{formatPrice(Number(product.price) || 0)}</p>
+            <p className="font-headline text-headline-md text-primary mb-4">
+              {formatPrice(Number(product.price) || 0, { roundRetail: !product.retail_price_exact })}
+            </p>
             <ProductDescription description={product.description} title={product.name} />
 
             {hasColors && (
@@ -242,7 +244,9 @@ export default function ProductDetail() {
                       productId: product.id,
                       slug: product.slug,
                       name: product.name,
-                      price: roundRetailVnd(Number(product.price) || 0),
+                      price: product.retail_price_exact
+                        ? Number(product.price) || 0
+                        : roundRetailVnd(Number(product.price) || 0),
                       color: selectedColor ? colorDisplayName(selectedColor, lang) : null,
                       size: selectedSize,
                       imageUrl: img?.url ?? null,

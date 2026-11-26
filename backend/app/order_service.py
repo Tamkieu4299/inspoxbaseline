@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from .config import settings
 from .currency import normalize_base_currency
-from .pricing import round_retail_vnd
+from .pricing import storefront_unit_price
 from .models import Order, OrderLine, Product, SiteSettings, Tenant
 from .order_notify import post_order_webhook, send_order_email
 
@@ -203,7 +203,7 @@ def create_order(
         if not image_url and product.images:
             first = next((i for i in product.images if i.enabled and i.url), None)
             image_url = first.url if first else None
-        unit = round_retail_vnd(product.price)
+        unit = storefront_unit_price(product.price, product_id=product.id, slug=product.slug)
         line_total = unit * qty
         subtotal += line_total
         db.add(

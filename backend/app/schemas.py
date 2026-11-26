@@ -150,6 +150,7 @@ class ProductSummaryCard(BaseModel):
     slug: str
     name: str
     price: float = 0.0
+    retail_price_exact: bool = False
     brand: str | None = None
     image_url: str | None = None
 
@@ -202,6 +203,7 @@ class ProductIn(ProductBase):
 
 class ProductOut(ProductBase, ORMModel):
     id: int
+    retail_price_exact: bool = False
     created_at: datetime
     images: list[ProductImageOut] = Field(default_factory=list)
     complement_products: list[ProductComplementOut] = Field(default_factory=list)
@@ -633,6 +635,7 @@ class QuizMatchProductOut(BaseModel):
     name: str
     brand: str | None = None
     price: float
+    retail_price_exact: bool = False
     image_url: str | None = None
     finder_profile: dict[str, Any] | None = None
     complement_products: list[ProductComplementOut] = Field(default_factory=list)

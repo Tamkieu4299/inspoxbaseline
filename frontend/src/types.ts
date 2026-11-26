@@ -57,6 +57,8 @@ export interface Product {
   description?: string | null;
   description_vi?: string | null;
   price: number;
+  /** When true, price is not rounded to 10,000₫ on storefront or admin save. */
+  retail_price_exact?: boolean;
   category_id?: number | null;
   category_ids?: number[];
   collection_id?: number | null;
@@ -92,6 +94,7 @@ export interface ProductSummaryCard {
   slug: string;
   name: string;
   price: number;
+  retail_price_exact?: boolean;
   brand?: string | null;
   image_url?: string | null;
 }
@@ -213,6 +216,7 @@ export interface QuizMatchProduct {
   name: string;
   brand?: string | null;
   price: number;
+  retail_price_exact?: boolean;
   image_url?: string | null;
   finder_profile?: ProductFinderProfile | null;
   complement_products?: ProductComplementOut[];

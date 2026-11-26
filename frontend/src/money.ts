@@ -10,6 +10,7 @@ export function roundRetailVnd(amount: number): number {
   if (amount % RETAIL_VND_ROUND === RETAIL_VND_ROUND / 2) return Math.round(amount);
   return Math.round(amount / RETAIL_VND_ROUND) * RETAIL_VND_ROUND;
 }
+
 export type StoreCurrency = (typeof STORE_CURRENCIES)[number];
 
 export function usesWholeCurrencyUnits(currencyCode: string): boolean {

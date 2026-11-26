@@ -24,6 +24,7 @@ from ..models import (
     Tenant,
 )
 from ..product_complements import normalize_complement_links
+from ..product_serialization import serialize_product_out
 from ..product_sizes import normalize_product_sizes
 from ..schemas import (
     BlogPostIn,
@@ -93,12 +94,16 @@ def _sync_product_categories(
 
 
 def _apply_product(db: Session, product: Product | None, payload: ProductIn, tenant_id: int):
-    from ..pricing import round_retail_vnd
+    from ..pricing import apply_retail_price_on_save
 
     category_ids = _resolve_category_ids(payload)
     data = payload.model_dump(exclude={"images", "category_ids"})
-    if data.get("price"):
-        data["price"] = round_retail_vnd(data["price"])
+    if data.get("price") is not None:
+        slug = data.get("slug") or (product.slug if product else None)
+        pid = product.id if product else None
+        data["price"] = apply_retail_price_on_save(
+            data["price"], product_id=pid, slug=slug
+        )
     data["complements"] = normalize_complement_links(data.get("complements"))
     data["sizes"] = normalize_product_sizes(data.get("sizes"))
     data["category_id"] = category_ids[0] if category_ids else None
@@ -296,7 +301,7 @@ def delete_collection(collection_id: int, db: Session = Depends(get_db), tenant:
 @router.get("/products", response_model=list[ProductOut])
 def list_products(db: Session = Depends(get_db), tenant: Tenant = AdminDep):
     return [
-        ProductOut.model_validate(p)
+        serialize_product_out(p)
         for p in db.execute(
             select(Product)
             .options(selectinload(Product.images), selectinload(Product.categories))
@@ -321,7 +326,7 @@ def get_product(product_id: int, db: Session = Depends(get_db), tenant: Tenant =
     )
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
-    return ProductOut.model_validate(product)
+    return serialize_product_out(product)
 
 
 @router.post("/products", response_model=ProductOut)
@@ -329,7 +334,7 @@ def create_product(payload: ProductIn, db: Session = Depends(get_db), tenant: Te
     product = _apply_product(db, None, payload, tenant.id)
     db.commit()
     db.refresh(product)
-    return ProductOut.model_validate(product)
+    return serialize_product_out(product)
 
 
 @router.put("/products/{product_id}", response_model=ProductOut)
@@ -346,7 +351,7 @@ def update_product(
     _apply_product(db, product, payload, tenant.id)
     db.commit()
     db.refresh(product)
-    return ProductOut.model_validate(product)
+    return serialize_product_out(product)
 
 
 @router.delete("/products/{product_id}")

@@ -43,7 +43,9 @@ export default function ProductComplementsSection({
                   {row.role === "tennis_string" ? t("product.stringLabel") : t("product.pairLabel")}
                 </p>
                 <p className="font-body text-body-sm text-primary line-clamp-2">{row.product.name}</p>
-                <p className="font-body text-body-sm text-secondary mt-0.5">{formatPrice(row.product.price)}</p>
+                <p className="font-body text-body-sm text-secondary mt-0.5">
+                  {formatPrice(row.product.price, { roundRetail: !row.product.retail_price_exact })}
+                </p>
               </div>
             </Link>
           </li>

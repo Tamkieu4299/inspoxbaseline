@@ -42,6 +42,7 @@ from ..schemas import (
     OrderCreatedOut,
     OrderPublicOut,
 )
+from ..baseline_physical_stock import retail_price_is_exact
 from ..home_sections import latest_drops_fetch_limit, normalize_home_sections
 from ..product_complements import normalize_complement_links, resolve_complements
 from ..product_sizes import normalize_product_sizes, size_option_names
@@ -272,7 +273,9 @@ def _load_product(db: Session, product: Product, lang: str = "en") -> ProductOut
             exclude_product_id=product.id,
         )
     ]
-    return ProductOut.model_validate(data)
+    from ..product_serialization import serialize_product_out
+
+    return serialize_product_out(product, data)
 
 
 @router.get("/home", response_model=HomeOut)
@@ -1024,6 +1027,7 @@ def _quiz_match_products(
                 name=display_name,
                 brand=(p.brand or "").strip().lower() or None,
                 price=float(p.price or 0),
+                retail_price_exact=retail_price_is_exact(p.id, p.slug),
                 image_url=image_url,
                 finder_profile=profile if profile else None,
                 complement_products=resolve_complements(
