@@ -14,9 +14,28 @@ function pct(n: number) {
   return `${n.toFixed(1)}%`;
 }
 
-function KpiCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function KpiCard({
+  label,
+  value,
+  sub,
+  variant = "card",
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  variant?: "card" | "compact";
+}) {
+  if (variant === "compact") {
+    return (
+      <div className="flex flex-col gap-0.5 min-w-0 p-2 rounded bg-surface-container-lowest">
+        <p className="font-label text-[9px] uppercase tracking-wider text-secondary leading-snug">{label}</p>
+        <p className="font-headline text-xl text-primary tabular-nums">{value}</p>
+        {sub ? <p className="font-body text-xs text-muted">{sub}</p> : null}
+      </div>
+    );
+  }
   return (
-    <div className="rounded-lg border border-surface-container-highest bg-white p-4 flex flex-col gap-1 min-w-[140px] flex-1">
+    <div className="rounded-lg border border-surface-container-highest bg-white p-4 flex flex-col gap-1 min-w-0">
       <p className="font-label text-[10px] uppercase tracking-wider text-secondary">{label}</p>
       <p className="font-headline text-2xl text-primary tabular-nums">{value}</p>
       {sub ? <p className="font-body text-xs text-muted">{sub}</p> : null}
@@ -24,14 +43,31 @@ function KpiCard({ label, value, sub }: { label: string; value: string; sub?: st
   );
 }
 
-function SummaryGrid({ t, s, prefix }: { t: (k: string) => string; s: AnalyticsSummary; prefix: string }) {
+function SummaryGrid({
+  t,
+  s,
+  prefix,
+  compact = false,
+}: {
+  t: (k: string) => string;
+  s: AnalyticsSummary;
+  prefix: string;
+  compact?: boolean;
+}) {
+  const variant = compact ? "compact" : "card";
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-      <KpiCard label={t(`${prefix}.pageViews`)} value={fmt(s.page_views)} />
-      <KpiCard label={t(`${prefix}.visitors`)} value={fmt(s.unique_visitors)} />
-      <KpiCard label={t(`${prefix}.sessions`)} value={fmt(s.sessions)} />
-      <KpiCard label={t(`${prefix}.productViews`)} value={fmt(s.product_views)} />
-      <KpiCard label={t(`${prefix}.orders`)} value={fmt(s.orders)} />
+    <div
+      className={
+        compact
+          ? "grid grid-cols-2 sm:grid-cols-3 gap-2"
+          : "grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3"
+      }
+    >
+      <KpiCard variant={variant} label={t(`${prefix}.pageViews`)} value={fmt(s.page_views)} />
+      <KpiCard variant={variant} label={t(`${prefix}.visitors`)} value={fmt(s.unique_visitors)} />
+      <KpiCard variant={variant} label={t(`${prefix}.sessions`)} value={fmt(s.sessions)} />
+      <KpiCard variant={variant} label={t(`${prefix}.productViews`)} value={fmt(s.product_views)} />
+      <KpiCard variant={variant} label={t(`${prefix}.orders`)} value={fmt(s.orders)} />
     </div>
   );
 }
@@ -48,12 +84,15 @@ function DailyChart({
     return <p className="text-secondary text-sm font-body">{t("admin.analytics.noData")}</p>;
   }
   return (
-    <div className="flex items-end gap-1 h-36 w-full overflow-x-auto pb-1">
+    <div className="flex items-end gap-1 h-36 w-full overflow-x-auto pb-1 pt-2">
       {daily.map((d) => (
-        <div key={d.date} className="flex flex-col items-center gap-1 min-w-[28px] flex-1 max-w-[48px] h-full">
+        <div
+          key={d.date}
+          className="flex flex-col items-center justify-end gap-1 min-w-[28px] flex-1 max-w-[48px] h-full"
+        >
           <div
-            className="w-full bg-forest-green/85 rounded-t min-h-[4px] flex-1"
-            style={{ maxHeight: `${(d.page_views / max) * 100}%` }}
+            className="w-full bg-forest-green/85 rounded-t"
+            style={{ height: `${Math.max(4, (d.page_views / max) * 100)}%` }}
             title={`${d.date}: ${d.page_views} PV`}
           />
           <span className="font-mono text-[8px] text-secondary truncate w-full text-center">
@@ -107,18 +146,18 @@ export default function AnalyticsTab() {
         <SummaryGrid t={t} s={data.summary} prefix="admin.analytics.kpi" />
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="rounded-lg border border-surface-container-highest bg-white p-4">
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="rounded-lg border border-surface-container-highest bg-white p-4 min-w-0">
           <h4 className="font-label text-label-caps uppercase tracking-wider text-secondary mb-3">
             {t("admin.analytics.today")}
           </h4>
-          <SummaryGrid t={t} s={data.today} prefix="admin.analytics.kpi" />
+          <SummaryGrid compact t={t} s={data.today} prefix="admin.analytics.kpi" />
         </div>
-        <div className="rounded-lg border border-surface-container-highest bg-white p-4">
+        <div className="rounded-lg border border-surface-container-highest bg-white p-4 min-w-0">
           <h4 className="font-label text-label-caps uppercase tracking-wider text-secondary mb-3">
             {t("admin.analytics.yesterday")}
           </h4>
-          <SummaryGrid t={t} s={data.yesterday} prefix="admin.analytics.kpi" />
+          <SummaryGrid compact t={t} s={data.yesterday} prefix="admin.analytics.kpi" />
         </div>
       </section>
 
@@ -249,11 +288,11 @@ export default function AnalyticsTab() {
         <h4 className="font-label text-label-caps uppercase tracking-wider text-secondary mb-3">
           {t("admin.analytics.engagement")}
         </h4>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <KpiCard label={t("admin.analytics.addToCart")} value={fmt(data.summary.add_to_cart)} />
-          <KpiCard label={t("admin.analytics.checkouts")} value={fmt(data.summary.checkout_starts)} />
-          <KpiCard label={t("admin.analytics.searches")} value={fmt(data.summary.searches)} />
-          <KpiCard label={t("admin.analytics.totalEvents")} value={fmt(data.summary.total_events)} />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <KpiCard variant="compact" label={t("admin.analytics.addToCart")} value={fmt(data.summary.add_to_cart)} />
+          <KpiCard variant="compact" label={t("admin.analytics.checkouts")} value={fmt(data.summary.checkout_starts)} />
+          <KpiCard variant="compact" label={t("admin.analytics.searches")} value={fmt(data.summary.searches)} />
+          <KpiCard variant="compact" label={t("admin.analytics.totalEvents")} value={fmt(data.summary.total_events)} />
         </div>
       </section>
 
