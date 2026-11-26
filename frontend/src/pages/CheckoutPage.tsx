@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { trackCheckoutStart } from "../analytics/track";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "../api";
@@ -19,6 +20,14 @@ export default function CheckoutPage() {
   const [customerEmail, setCustomerEmail] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
   const [note, setNote] = useState("");
+  const trackedCheckout = useRef(false);
+
+  useEffect(() => {
+    if (lines.length && !trackedCheckout.current) {
+      trackedCheckout.current = true;
+      trackCheckoutStart();
+    }
+  }, [lines.length]);
 
   const placeOrder = useMutation({
     mutationFn: async () => {

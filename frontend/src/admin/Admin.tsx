@@ -18,6 +18,7 @@ import { getAdminProfile } from "../api";
 import NavTab from "./NavTab";
 import QuizzesTab from "./QuizzesTab";
 import AuctionsTab from "./AuctionsTab";
+import AnalyticsTab from "./AnalyticsTab";
 import TenantPicker from "./TenantPicker";
 import AdminShell, { AdminAuthFrame, type AdminTab } from "./AdminShell";
 import { useLanguage } from "../i18n";
@@ -47,6 +48,7 @@ export default function Admin() {
       "categories",
       "nav",
       "site",
+      "analytics",
       "auctions",
       "users",
     ];
@@ -186,6 +188,7 @@ export default function Admin() {
       {tab === "quizzes" && <QuizzesTab />}
       {tab === "site" && <SiteTab />}
       {tab === "orders" && <OrdersTab />}
+      {tab === "analytics" && <AnalyticsTab />}
       {tab === "auctions" && <AuctionsTab />}
       {tab === "users" && isSuperAdmin && <UsersTab />}
       {tab === "categories" && <CategoriesTab />}

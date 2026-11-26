@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { trackSearch } from "../analytics/track";
 import { api } from "../api";
 import Icon from "./Icon";
 import { useLanguage } from "../i18n";
@@ -43,6 +44,14 @@ export default function NavbarSearch({ className = "", autoFocus, onClose }: Nav
     const handle = window.setTimeout(() => setDebounced(input.trim()), DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
   }, [input]);
+
+  const lastSearchTrack = useRef("");
+  useEffect(() => {
+    if (debounced.length < MIN_CHARS) return;
+    if (debounced === lastSearchTrack.current) return;
+    lastSearchTrack.current = debounced;
+    trackSearch(debounced);
+  }, [debounced]);
 
   useEffect(() => {
     function onDocMouseDown(e: MouseEvent) {

@@ -14,6 +14,7 @@ import { useStoreCurrency } from "../useStoreCurrency";
 import { roundRetailVnd } from "../money";
 import { useCart } from "../cart/CartContext";
 import ProductComplementsSection from "../components/ProductComplementsSection";
+import { trackAddToCart, trackProductView } from "../analytics/track";
 import {
   canPurchaseWithVariants,
   colorDisplayName,
@@ -44,6 +45,11 @@ export default function ProductDetail() {
     retry: false,
   });
   const auctionLive = auction?.state === "live";
+
+  useEffect(() => {
+    if (!product?.slug) return;
+    trackProductView(product.slug);
+  }, [product?.slug]);
 
   const variantOptions = useMemo(
     () => (product ? getProductVariantOptions(product) : null),
@@ -240,6 +246,7 @@ export default function ProductDetail() {
                   onClick={() => {
                     if (!product) return;
                     const img = enabledProductImages(product.images)[0];
+                    trackAddToCart(product.slug);
                     addLine({
                       productId: product.id,
                       slug: product.slug,

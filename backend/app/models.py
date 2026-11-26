@@ -487,3 +487,23 @@ class AuctionBid(Base, TimestampMixin):
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     lot: Mapped["AuctionLot"] = relationship(back_populates="bids")
+
+
+class AnalyticsEvent(Base):
+    """First-party storefront telemetry (page views, product views, funnel)."""
+
+    __tablename__ = "analytics_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+    event_type: Mapped[str] = mapped_column(String(32), index=True)
+    path: Mapped[str] = mapped_column(String(500), default="")
+    product_id: Mapped[int | None] = mapped_column(
+        ForeignKey("products.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    visitor_key: Mapped[str] = mapped_column(String(64), index=True)
+    session_key: Mapped[str] = mapped_column(String(64), index=True)
+    referrer: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    referrer_host: Mapped[str | None] = mapped_column(String(200), nullable=True, index=True)
+    device_class: Mapped[str | None] = mapped_column(String(20), nullable=True)

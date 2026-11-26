@@ -7,6 +7,7 @@ import StorefrontPromo from "./StorefrontPromo";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 import PageLoader from "./PageLoader";
+import AnalyticsRouteTracker from "../analytics/AnalyticsRouteTracker";
 
 export default function StorefrontShell({ children }: { children: ReactNode }) {
   const location = useLocation();
@@ -32,6 +33,7 @@ export default function StorefrontShell({ children }: { children: ReactNode }) {
 
   return (
     <>
+      <AnalyticsRouteTracker />
       <PageLoader visible={showLoader} logoUrl={site?.logo_url} siteName={site?.site_name} />
       <div
         className={`bg-surface-container-lowest text-on-surface font-body text-body-md antialiased overflow-x-hidden selection:bg-forest-green selection:text-white min-h-screen flex flex-col ${

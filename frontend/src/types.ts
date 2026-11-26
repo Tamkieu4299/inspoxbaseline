@@ -732,3 +732,54 @@ export interface AdminUserRecord {
   tenant_ids: number[];
   created_at: string;
 }
+
+export interface AnalyticsSummary {
+  page_views: number;
+  product_views: number;
+  add_to_cart: number;
+  checkout_starts: number;
+  searches: number;
+  unique_visitors: number;
+  sessions: number;
+  orders: number;
+  total_events: number;
+}
+
+export interface AnalyticsDashboard {
+  range_days: number;
+  generated_at: string;
+  summary: AnalyticsSummary;
+  today: AnalyticsSummary;
+  yesterday: AnalyticsSummary;
+  daily: {
+    date: string;
+    page_views: number;
+    product_views: number;
+    unique_visitors: number;
+    sessions: number;
+  }[];
+  top_products: {
+    product_id: number;
+    slug: string;
+    name: string;
+    views: number;
+    unique_visitors: number;
+  }[];
+  top_paths: { path: string; views: number; unique_visitors: number }[];
+  top_referrers: { host: string; views: number }[];
+  devices: Record<string, number>;
+  conversion: {
+    view_to_product_pct: number;
+    product_to_cart_pct: number;
+    cart_to_checkout_pct: number;
+    checkout_to_order_pct: number;
+  };
+  recent_events: {
+    occurred_at: string;
+    event_type: string;
+    path: string;
+    product_id: number | null;
+    device_class: string | null;
+    referrer_host: string | null;
+  }[];
+}

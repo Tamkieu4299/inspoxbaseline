@@ -447,6 +447,12 @@ export const adminApi = {
       headers: adminHeaders(),
     }),
 
+  getAnalytics: (days = 30) =>
+    request<import("./types").AnalyticsDashboard>(
+      `/api/admin/analytics?days=${encodeURIComponent(String(days))}`,
+      { headers: adminHeaders() },
+    ),
+
   getTamHubSync: () => request<TamHubSyncStatus>(`/api/admin/tamhub-sync`, { headers: adminHeaders() }),
   updateTamHubSync: (body: {
     enabled?: boolean;
