@@ -26,6 +26,7 @@ import type {
   SiteSettings,
 } from "../types";
 import { ImageField } from "./MediaLibrary";
+import { HomePopupProductPicker } from "./HomePopupProductPicker";
 import { Checkbox, Field, PrimaryButton, SecondaryButton, Select, TextInput, ViInput } from "./ui";
 
 export default function SiteTab() {
@@ -33,6 +34,7 @@ export default function SiteTab() {
   const { t } = useLanguage();
   const { data: site, isLoading } = useQuery({ queryKey: ["admin-site"], queryFn: adminApi.getSite });
   const { data: media } = useQuery({ queryKey: ["admin-media"], queryFn: adminApi.getMedia });
+  const { data: products } = useQuery({ queryKey: ["admin-products"], queryFn: adminApi.getProducts });
   const mediaById = new Map((media || []).map((m) => [m.id, m]));
 
   const [draft, setDraft] = useState<SiteSettings | null>(null);
@@ -202,27 +204,11 @@ export default function SiteTab() {
               placeholder="https://baselineclub.vn/collections/..."
             />
           </Field>
-          <Field label={t("admin.homePopup.products")}>
-            <textarea
-              className="w-full min-h-[88px] font-mono text-sm border border-surface-container-highest rounded px-3 py-2 bg-surface-container-lowest"
-              value={(draftValue.home_popup_items || [])
-                .map((row) => (row.label ? `${row.slug}, ${row.label}` : row.slug))
-                .join("\n")}
-              onChange={(e) => {
-                const items = e.target.value
-                  .split("\n")
-                  .map((line) => line.trim())
-                  .filter(Boolean)
-                  .map((line) => {
-                    const [slug, ...rest] = line.split(",");
-                    const label = rest.join(",").trim();
-                    return { slug: slug.trim(), ...(label ? { label } : {}) };
-                  });
-                set("home_popup_items", items);
-              }}
-              placeholder="my-product-slug, WILSON BLADE SERIES"
-            />
-          </Field>
+          <HomePopupProductPicker
+            items={draftValue.home_popup_items || []}
+            onChange={(items) => set("home_popup_items", items)}
+            products={products || []}
+          />
           <Field label={t("admin.homePopup.price")}>
             <TextInput
               type="number"
