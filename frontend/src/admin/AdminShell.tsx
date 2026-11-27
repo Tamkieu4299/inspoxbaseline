@@ -370,8 +370,8 @@ export default function AdminShell({
         <main
           className={`flex-1 overflow-x-auto overflow-y-auto w-full min-w-0 ${
             tab === "products" || tab === "media" || tab === "journal" || tab === "home"
-              ? "p-0"
-              : "max-w-[1600px] mx-auto px-4 md:px-8 py-6 lg:py-8"
+              ? "p-0 pb-[env(safe-area-inset-bottom)]"
+              : "max-w-[1600px] mx-auto px-3 sm:px-6 md:px-8 py-4 sm:py-6 lg:py-8 pb-24"
           }`}
         >
           {tab !== "products" && tab !== "media" && tab !== "journal" && tab !== "home" && (

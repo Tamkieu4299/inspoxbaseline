@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
 import type { AnalyticsDashboard, AnalyticsSummary } from "../types";
-import { SecondaryButton, Select } from "./ui";
+import { AdminPage, SecondaryButton, Select } from "./ui";
 
 function fmt(n: number) {
   return new Intl.NumberFormat("vi-VN").format(n);
@@ -121,22 +121,16 @@ export default function AnalyticsTab() {
   const deviceTotal = Object.values(data.devices).reduce((a, b) => a + b, 0) || 1;
 
   return (
-    <div className="flex flex-col gap-8 max-w-6xl">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h3 className="font-headline text-headline-md text-primary uppercase">{t("admin.analytics.title")}</h3>
-          <p className="font-body text-body-sm text-secondary mt-1">{t("admin.analytics.subtitle")}</p>
-        </div>
-        <div className="flex flex-wrap gap-2 items-center">
-          <Select value={String(days)} onChange={(e) => setDays(Number(e.target.value))} className="min-w-[120px]">
-            <option value="7">{t("admin.analytics.range7")}</option>
-            <option value="30">{t("admin.analytics.range30")}</option>
-            <option value="90">{t("admin.analytics.range90")}</option>
-          </Select>
-          <SecondaryButton type="button" onClick={() => refetch()} disabled={isFetching}>
-            {t("admin.analytics.refresh")}
-          </SecondaryButton>
-        </div>
+    <AdminPage wide className="gap-8">
+      <div className="flex flex-wrap items-center justify-end gap-2 -mt-2">
+        <Select value={String(days)} onChange={(e) => setDays(Number(e.target.value))} className="min-w-[140px] flex-1 sm:flex-none">
+          <option value="7">{t("admin.analytics.range7")}</option>
+          <option value="30">{t("admin.analytics.range30")}</option>
+          <option value="90">{t("admin.analytics.range90")}</option>
+        </Select>
+        <SecondaryButton type="button" onClick={() => refetch()} disabled={isFetching}>
+          {t("admin.analytics.refresh")}
+        </SecondaryButton>
       </div>
 
       <section>
@@ -315,6 +309,6 @@ export default function AnalyticsTab() {
       <p className="font-body text-xs text-muted border-t border-surface-container-high pt-4">
         {t("admin.analytics.privacyNote")}
       </p>
-    </div>
+    </AdminPage>
   );
 }

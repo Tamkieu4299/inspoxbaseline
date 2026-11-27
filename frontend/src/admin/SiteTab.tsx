@@ -27,7 +27,18 @@ import type {
 } from "../types";
 import { ImageField } from "./MediaLibrary";
 import { HomePopupProductPicker } from "./HomePopupProductPicker";
-import { Checkbox, Field, PrimaryButton, SecondaryButton, Select, TextInput, ViInput } from "./ui";
+import {
+  AdminPage,
+  AdminPanel,
+  AdminStickySaveBar,
+  Checkbox,
+  Field,
+  PrimaryButton,
+  SecondaryButton,
+  Select,
+  TextInput,
+  ViInput,
+} from "./ui";
 
 export default function SiteTab() {
   const queryClient = useQueryClient();
@@ -129,25 +140,19 @@ export default function SiteTab() {
     setFooterLinks(next);
   }
 
-  return (
-    <div className="bg-white border border-surface-container-highest p-6 flex flex-col gap-6 max-w-3xl">
-      <div className="flex items-center justify-between">
-        <h3 className="font-headline text-headline-md text-primary uppercase">{t("admin.siteBranding")}</h3>
-        <PrimaryButton
-          onClick={() =>
-            saveMutation.mutate({
-              ...draftValue,
-              currency_code: "VND",
-              footer_contact: normalizeFooterContact(draftValue.footer_contact),
-              footer_links: normalizeFooterLinkConfigs(draftValue.footer_links),
-            })
-          }
-          disabled={!draft}
-        >
-          {t("admin.saveBranding")}
-        </PrimaryButton>
-      </div>
+  function saveSite() {
+    saveMutation.mutate({
+      ...draftValue,
+      currency_code: "VND",
+      footer_contact: normalizeFooterContact(draftValue.footer_contact),
+      footer_links: normalizeFooterLinkConfigs(draftValue.footer_links),
+    });
+  }
 
+  return (
+  <>
+    <AdminPage>
+      <AdminPanel className="p-4 sm:p-6 flex flex-col gap-6 rounded-lg">
       <p className="font-body text-body-md text-secondary">
         {t("admin.brandingHint")}
       </p>
@@ -705,6 +710,17 @@ export default function SiteTab() {
 
       {saveMutation.isError && <p className="text-error text-sm">{String(saveMutation.error)}</p>}
       {saveMutation.isSuccess && !draft && <p className="text-forest-green text-sm">{t("admin.brandingSaved")}</p>}
-    </div>
+      </AdminPanel>
+    </AdminPage>
+    <AdminStickySaveBar
+      visible={!!draft}
+      hint={t("admin.unsavedChangesHint")}
+      saveLabel={t("admin.saveBranding")}
+      discardLabel={t("admin.discardChanges")}
+      onSave={saveSite}
+      onDiscard={() => setDraft(null)}
+      saving={saveMutation.isPending}
+    />
+  </>
   );
 }

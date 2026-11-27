@@ -10,7 +10,7 @@ export function Field({ label, children, className = "" }: { label: string; chil
 }
 
 export const inputCls =
-  "bg-white border border-surface-container-highest px-3 py-2 font-body text-body-md text-on-background outline-none focus:border-forest-green";
+  "bg-white border border-surface-container-highest px-3 py-2.5 min-h-[44px] text-base sm:text-sm font-body text-on-background outline-none focus:border-forest-green rounded-sm";
 
 export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${inputCls} ${props.className || ""}`} />;
@@ -97,7 +97,7 @@ export function ViArea({
 }
 
 const btnBase =
-  "inline-flex items-center justify-center gap-2 px-4 py-2 font-label text-label-caps uppercase transition-colors focus:outline-none";
+  "inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] font-label text-label-caps uppercase transition-colors focus:outline-none rounded-sm";
 
 export function PrimaryButton({
   children,
@@ -192,9 +192,70 @@ export function AdminModule({
   className?: string;
 }) {
   return (
-    <section className={`border border-surface-container-high bg-surface-container-lowest p-4 md:p-5 ${className}`}>
+    <section
+      className={`border border-surface-container-high bg-surface-container-lowest rounded-lg p-4 md:p-5 ${className}`}
+    >
       <h4 className="font-label text-label-caps text-charcoal uppercase mb-4 tracking-wider">{title}</h4>
       {children}
     </section>
+  );
+}
+
+/** Standard width + spacing for list/settings tabs (header comes from AdminShell). */
+export function AdminPage({
+  children,
+  className = "",
+  wide = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  wide?: boolean;
+}) {
+  return (
+    <div
+      className={`flex flex-col gap-6 w-full min-w-0 pb-6 ${wide ? "max-w-6xl" : "max-w-4xl"} ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** Fixed save bar when a tab has unsaved draft (Site, Brand, etc.). */
+export function AdminStickySaveBar({
+  visible,
+  saveLabel,
+  discardLabel,
+  onSave,
+  onDiscard,
+  saving,
+  hint,
+}: {
+  visible: boolean;
+  saveLabel: string;
+  discardLabel?: string;
+  onSave: () => void;
+  onDiscard?: () => void;
+  saving?: boolean;
+  hint?: string;
+}) {
+  if (!visible) return null;
+  return (
+    <div
+      className="fixed bottom-0 left-0 right-0 z-40 md:left-64 lg:left-72 border-t border-surface-container-high bg-white/95 backdrop-blur-sm shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+      role="region"
+      aria-live="polite"
+    >
+      <p className="font-body text-sm text-secondary sm:max-w-[50%]">{hint}</p>
+      <div className="flex flex-wrap gap-2 justify-end shrink-0">
+        {onDiscard && discardLabel ? (
+          <SecondaryButton type="button" onClick={onDiscard} disabled={saving}>
+            {discardLabel}
+          </SecondaryButton>
+        ) : null}
+        <PrimaryButton type="button" onClick={onSave} disabled={saving}>
+          {saving ? "…" : saveLabel}
+        </PrimaryButton>
+      </div>
+    </div>
   );
 }

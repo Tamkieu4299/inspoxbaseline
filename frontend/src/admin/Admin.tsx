@@ -32,7 +32,7 @@ export default function Admin() {
   const [tenant, setTenant] = useState<string | null>(
     () => sessionStorage.getItem("inspo_admin_tenant") || null,
   );
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState<AdminTab>(() => {
     const fromUrl = searchParams.get("tab");
     const allowed: AdminTab[] = [
@@ -54,6 +54,18 @@ export default function Admin() {
     ];
     return allowed.includes(fromUrl as AdminTab) ? (fromUrl as AdminTab) : "home";
   });
+
+  useEffect(() => {
+    const urlTab = searchParams.get("tab");
+    if (urlTab !== tab) {
+      setSearchParams({ tab }, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- sync URL when tab changes only
+  }, [tab]);
+
+  function changeTab(next: AdminTab) {
+    setTab(next);
+  }
 
   useEffect(() => {
     const token = adminApi.getToken();
@@ -169,7 +181,7 @@ export default function Admin() {
     <AdminShell
       tenant={tenant}
       tab={tab}
-      onTabChange={setTab}
+      onTabChange={changeTab}
       isSuperAdmin={isSuperAdmin}
       onSwitchStore={() => {
         adminApi.clearTenant();

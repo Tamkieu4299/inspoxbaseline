@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../api";
 import { useLanguage } from "../i18n";
 import type { OrderAdmin } from "../types";
-import { SecondaryButton, Select } from "./ui";
+import { AdminPage, SecondaryButton, Select } from "./ui";
 
 const STATUSES = ["new", "confirmed", "shipped", "cancelled"] as const;
 
@@ -46,10 +46,9 @@ export default function OrdersTab() {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-5xl">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h3 className="font-headline text-headline-md text-primary uppercase">{t("admin.ordersTitle")}</h3>
-        <div className="flex flex-wrap gap-2 items-center">
+    <AdminPage wide>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
           <Select value={filter} onChange={(e) => setFilter(e.target.value)} className="min-w-[140px]">
             <option value="">{t("admin.ordersAllStatuses")}</option>
             {STATUSES.map((s) => (
@@ -66,15 +65,15 @@ export default function OrdersTab() {
       {!orders?.length ? (
         <p className="font-body text-body-md text-secondary">{t("admin.ordersEmpty")}</p>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ul className="border border-surface-container-highest divide-y divide-surface-container-highest max-h-[70vh] overflow-y-auto bg-white">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+          <ul className="border border-surface-container-highest divide-y divide-surface-container-highest lg:max-h-[70vh] overflow-y-auto bg-white rounded-lg">
             {orders.map((o: OrderAdmin) => (
               <li key={o.id}>
                 <button
                   type="button"
                   onClick={() => setSelectedId(o.id)}
-                  className={`w-full text-left px-4 py-3 hover:bg-surface-container-low ${
-                    selected?.id === o.id ? "bg-surface-container-low" : ""
+                  className={`w-full text-left px-4 py-4 min-h-[44px] hover:bg-surface-container-low ${
+                    selected?.id === o.id ? "bg-surface-container-low border-l-4 border-l-forest-green" : ""
                   }`}
                 >
                   <p className="font-label text-label-caps text-primary">{o.order_number}</p>
@@ -94,10 +93,14 @@ export default function OrdersTab() {
               onStatus={(status) => patchMutation.mutate({ id: selected.id, status })}
               t={t}
             />
-          ) : null}
+          ) : (
+            <p className="hidden lg:block font-body text-sm text-secondary p-4 border border-dashed border-surface-container-highest rounded-lg">
+              {t("admin.ordersPickOne")}
+            </p>
+          )}
         </div>
       )}
-    </div>
+    </AdminPage>
   );
 }
 

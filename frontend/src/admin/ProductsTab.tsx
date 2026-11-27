@@ -440,7 +440,36 @@ export default function ProductsTab() {
         {isLoading ? (
           <p className="p-8 text-secondary">{t("admin.loading")}</p>
         ) : (
-          <table className="w-full text-left font-body text-body-md border-collapse">
+          <>
+          <ul className="md:hidden divide-y divide-surface-container-high bg-white">
+            {pageItems.map((p) => {
+              const thumb = productThumb(p);
+              const col = p.collection_id ? collectionById.get(p.collection_id) : null;
+              return (
+                <li key={p.id}>
+                  <button
+                    type="button"
+                    onClick={() => openDrawer(productToDraft(p), p.id)}
+                    className="w-full flex items-center gap-3 p-4 text-left min-h-[72px] active:bg-surface-container-low"
+                  >
+                    <div className="w-14 h-16 bg-surface-container shrink-0 rounded overflow-hidden">
+                      {thumb ? <img src={thumb} alt="" className="w-full h-full object-cover" /> : null}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-body text-sm text-primary font-medium truncate">{p.name}</p>
+                      <p className="font-label text-[10px] text-secondary uppercase mt-0.5">
+                        {formatMoney(p.price, storeCurrency, "vi-VN")} ·{" "}
+                        {catalogLiveStatus(p) === "live" ? t("admin.catalog.filterStatusActive") : t("admin.catalog.filterStatusDraft")}
+                      </p>
+                      <p className="text-xs text-muted truncate">{col?.name || "—"}</p>
+                    </div>
+                    <span className="material-symbols-outlined text-secondary shrink-0">chevron_right</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          <table className="hidden md:table w-full text-left font-body text-body-md border-collapse">
             <thead>
               <tr className="bg-surface-container-low font-label text-label-caps uppercase tracking-wider text-secondary select-none">
                 <th className="py-4 px-6 w-12 text-center">
@@ -597,6 +626,7 @@ export default function ProductsTab() {
               })}
             </tbody>
           </table>
+          </>
         )}
         {!isLoading && filtered.length === 0 && (
           <p className="p-8 text-secondary text-center">{t("admin.catalog.noResults")}</p>
