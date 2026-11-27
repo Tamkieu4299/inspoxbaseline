@@ -55,6 +55,14 @@ function ModuleBadge({ n }: { n: string }) {
   );
 }
 
+type HomeEditorPanel = "layout" | HomeSectionId;
+
+const HOME_EDITOR_PANELS: HomeEditorPanel[] = ["layout", "hero", "trending", "latest_drops", "master"];
+
+function homePanelLabelKey(panel: HomeEditorPanel): string {
+  return panel === "layout" ? "admin.homeStudio.panel.layout" : sectionLabelKey(panel);
+}
+
 export default function HomeTab() {
   const queryClient = useQueryClient();
   const { t, lang } = useLanguage();
@@ -67,6 +75,7 @@ export default function HomeTab() {
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [heroPickOpen, setHeroPickOpen] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [panel, setPanel] = useState<HomeEditorPanel>("layout");
   const ingestRef = useRef<HTMLInputElement>(null);
 
   const saveMutation = useMutation({
@@ -194,21 +203,33 @@ export default function HomeTab() {
             </PrimaryButton>
           </div>
         </div>
-        <div className="flex items-center gap-8 overflow-x-auto border-b border-transparent -mb-px">
-          <span className="pb-3 text-primary font-label text-label-caps uppercase tracking-widest relative">
-            {t("admin.homeStudio.navHome")}
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-          </span>
-          <span className="pb-3 text-secondary font-label text-label-caps uppercase tracking-widest">{t("admin.homeStudio.navMedia")}</span>
-          <span className="pb-3 text-secondary font-label text-label-caps uppercase tracking-widest">{t("admin.homeStudio.navJournal")}</span>
-          <span className="pb-3 text-secondary font-label text-label-caps uppercase tracking-widest">{t("admin.homeStudio.navCollections")}</span>
-        </div>
+        <nav
+          className="flex items-center gap-4 sm:gap-6 overflow-x-auto border-b border-surface-container-high -mb-px scroll-px-2"
+          aria-label={t("admin.homeStudio.panelNav")}
+        >
+          {HOME_EDITOR_PANELS.map((id) => {
+            const active = panel === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setPanel(id)}
+                className={`pb-3 px-0.5 font-label text-label-caps uppercase tracking-widest shrink-0 relative min-h-[44px] transition-colors ${
+                  active ? "text-primary" : "text-secondary hover:text-primary"
+                }`}
+              >
+                {t(homePanelLabelKey(id))}
+                {active ? <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" aria-hidden /> : null}
+              </button>
+            );
+          })}
+        </nav>
       </div>
 
       <div className="px-6 lg:px-8 py-8 max-w-[1600px] mx-auto w-full grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_min(420px,38%)] gap-8 xl:gap-10 items-start">
         {/* Left editor */}
         <div className="flex flex-col gap-10 min-w-0 relative z-[2]">
-          {/* Page layout */}
+          {panel === "layout" && (
           <section className="bg-white p-6 lg:p-8 rounded-xl shadow-sm flex flex-col gap-6 min-w-0 border border-surface-container-high">
             <div className="flex items-center gap-3">
               <ModuleBadge n="↕" />
@@ -296,8 +317,9 @@ export default function HomeTab() {
               ))}
             </ul>
           </section>
+          )}
 
-          {/* M1 Hero */}
+          {panel === "hero" && (
           <section className="bg-white p-6 lg:p-8 rounded-xl shadow-sm flex flex-col gap-8 min-w-0">
             <div className="flex items-center justify-between pb-2 flex-wrap gap-3">
               <div className="flex items-center gap-3">
@@ -521,57 +543,78 @@ export default function HomeTab() {
               </div>
             </div>
           </section>
+          )}
 
-          {/* M2 Trending */}
-          <section className="bg-white p-6 lg:p-8 rounded-xl shadow-sm flex flex-col gap-8">
+          {panel === "trending" && (
+          <section className="bg-white p-6 lg:p-8 rounded-xl shadow-sm flex flex-col gap-8 min-w-0">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-3">
                 <ModuleBadge n="M2" />
                 <div>
-                  <h2 className="font-headline text-xl uppercase tracking-tight text-primary">{t("admin.trendingLatest")}</h2>
+                  <h2 className="font-headline text-xl uppercase tracking-tight text-primary">{t("admin.homeSection.trending")}</h2>
                   <p className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.homeStudio.m2Sub")}</p>
                 </div>
               </div>
-              <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.homeStudio.pimSync")}</span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex flex-col gap-4 p-5 rounded-lg bg-surface-container-low">
-                <span className="font-label text-label-caps uppercase text-primary font-bold text-xs">{t("admin.homeStudio.trendingHeader")}</span>
+            <p className="font-body text-sm text-secondary">
+              {t("admin.homeStudio.collectionsAdminHint")}{" "}
+              <Link to="/admin?tab=collections" className="text-primary font-medium hover:underline">
+                {t("admin.tab.collections")}
+              </Link>
+            </p>
+            <div className="flex flex-col gap-4 p-5 rounded-lg bg-surface-container-low max-w-2xl">
+              <span className="font-label text-label-caps uppercase text-primary font-bold text-xs">{t("admin.homeStudio.trendingHeader")}</span>
+              <label className="flex flex-col gap-1">
+                <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.trendingTitle")} (EN)</span>
+                <input className={studioInputClass} value={d.trending_title} onChange={(e) => set("trending_title", e.target.value)} />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.trendingTitle")} (VI)</span>
+                <input className={studioInputClass} value={d.trending_title_vi || ""} onChange={(e) => set("trending_title_vi", e.target.value)} />
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <label className="flex flex-col gap-1">
-                  <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.trendingTitle")} (EN)</span>
-                  <input className={studioInputClass} value={d.trending_title} onChange={(e) => set("trending_title", e.target.value)} />
+                  <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.viewAllLabel")} (EN)</span>
+                  <input className={studioInputClass} value={d.trending_view_all_label} onChange={(e) => set("trending_view_all_label", e.target.value)} />
                 </label>
                 <label className="flex flex-col gap-1">
-                  <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.trendingTitle")} (VI)</span>
-                  <input className={studioInputClass} value={d.trending_title_vi || ""} onChange={(e) => set("trending_title_vi", e.target.value)} />
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <label className="flex flex-col gap-1">
-                    <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.viewAllLabel")} (EN)</span>
-                    <input className={studioInputClass} value={d.trending_view_all_label} onChange={(e) => set("trending_view_all_label", e.target.value)} />
-                  </label>
-                  <label className="flex flex-col gap-1">
-                    <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.viewAllLabel")} (VI)</span>
-                    <input className={studioInputClass} value={d.trending_view_all_label_vi || ""} onChange={(e) => set("trending_view_all_label_vi", e.target.value)} />
-                  </label>
-                </div>
-                <label className="flex flex-col gap-1">
-                  <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.viewAllUrl")}</span>
-                  <input className={`${studioInputClass} font-mono text-xs`} value={d.trending_view_all_url} onChange={(e) => set("trending_view_all_url", e.target.value)} />
+                  <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.viewAllLabel")} (VI)</span>
+                  <input className={studioInputClass} value={d.trending_view_all_label_vi || ""} onChange={(e) => set("trending_view_all_label_vi", e.target.value)} />
                 </label>
               </div>
-              <div className="flex flex-col gap-4 p-5 rounded-lg bg-surface-container-low">
-                <span className="font-label text-label-caps uppercase text-primary font-bold text-xs">{t("admin.homeStudio.latestHeader")}</span>
-                <label className="flex flex-col gap-1">
-                  <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.latestDropsTitle")} (EN)</span>
-                  <input className={studioInputClass} value={d.latest_drops_title} onChange={(e) => set("latest_drops_title", e.target.value)} />
-                </label>
-                <label className="flex flex-col gap-1">
-                  <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.latestDropsTitle")} (VI)</span>
-                  <input className={studioInputClass} value={d.latest_drops_title_vi || ""} onChange={(e) => set("latest_drops_title_vi", e.target.value)} />
-                </label>
-                <p className="p-3 rounded bg-surface-container text-xs text-secondary leading-relaxed">{t("admin.trendingHint")}</p>
+              <label className="flex flex-col gap-1">
+                <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.viewAllUrl")}</span>
+                <input className={`${studioInputClass} font-mono text-xs`} value={d.trending_view_all_url} onChange={(e) => set("trending_view_all_url", e.target.value)} />
+              </label>
+              <p className="p-3 rounded bg-surface-container text-xs text-secondary leading-relaxed">{t("admin.trendingHint")}</p>
+            </div>
+          </section>
+          )}
+
+          {panel === "latest_drops" && (
+          <section className="bg-white p-6 lg:p-8 rounded-xl shadow-sm flex flex-col gap-8 min-w-0">
+            <div className="flex items-center gap-3">
+              <ModuleBadge n="M2b" />
+              <div>
+                <h2 className="font-headline text-xl uppercase tracking-tight text-primary">{t("admin.homeSection.latest_drops")}</h2>
+                <p className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.homeStudio.latestHeader")}</p>
               </div>
+            </div>
+            <div className="flex flex-col gap-4 p-5 rounded-lg bg-surface-container-low max-w-2xl">
+              <label className="flex flex-col gap-1">
+                <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.latestDropsTitle")} (EN)</span>
+                <input className={studioInputClass} value={d.latest_drops_title} onChange={(e) => set("latest_drops_title", e.target.value)} />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="font-label text-label-caps uppercase text-secondary text-xs">{t("admin.latestDropsTitle")} (VI)</span>
+                <input className={studioInputClass} value={d.latest_drops_title_vi || ""} onChange={(e) => set("latest_drops_title_vi", e.target.value)} />
+              </label>
+              <p className="font-body text-sm text-secondary">
+                {t("admin.homeStudio.productsAdminHint")}{" "}
+                <Link to="/admin?tab=products" className="text-primary font-medium hover:underline">
+                  {t("admin.tab.products")}
+                </Link>
+              </p>
             </div>
             <div className="flex flex-col gap-3">
               <span className="font-label text-label-caps uppercase text-primary font-bold tracking-widest text-xs">{t("admin.homeStudio.manifestPreview")}</span>
@@ -586,9 +629,10 @@ export default function HomeTab() {
               </div>
             </div>
           </section>
+          )}
 
-          {/* M3 Master */}
-          <section className="bg-white p-6 lg:p-8 rounded-xl shadow-sm flex flex-col gap-8">
+          {panel === "master" && (
+          <section className="bg-white p-6 lg:p-8 rounded-xl shadow-sm flex flex-col gap-8 min-w-0">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-3">
                 <ModuleBadge n="M3" />
@@ -691,6 +735,7 @@ export default function HomeTab() {
               ))}
             </div>
           </section>
+          )}
 
           {saveMutation.isError && <p className="text-error text-sm">{String(saveMutation.error)}</p>}
         </div>

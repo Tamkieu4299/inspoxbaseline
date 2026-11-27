@@ -63,6 +63,31 @@ export default function Admin() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- sync URL when tab changes only
   }, [tab]);
 
+  useEffect(() => {
+    const fromUrl = searchParams.get("tab");
+    const allowed: AdminTab[] = [
+      "orders",
+      "products",
+      "collections",
+      "media",
+      "home",
+      "brand",
+      "pages",
+      "journal",
+      "quizzes",
+      "categories",
+      "nav",
+      "site",
+      "analytics",
+      "auctions",
+      "users",
+    ];
+    if (fromUrl && allowed.includes(fromUrl as AdminTab) && fromUrl !== tab) {
+      setTab(fromUrl as AdminTab);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- follow in-app / admin?tab= links
+  }, [searchParams]);
+
   function changeTab(next: AdminTab) {
     setTab(next);
   }
