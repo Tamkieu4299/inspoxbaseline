@@ -326,7 +326,7 @@ export default function ProductsTab() {
   return (
     <div className="flex flex-col w-full min-w-0 max-w-full font-body text-body-md text-on-surface bg-surface">
       {/* Command strip */}
-      <div className="px-8 pt-8 pb-6 bg-surface-container-lowest">
+      <div className="px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-6 bg-surface-container-lowest">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6">
           <div className="flex flex-col">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -380,7 +380,7 @@ export default function ProductsTab() {
       </div>
 
       {/* Filters */}
-      <div className="px-8 py-4 bg-surface-container flex flex-col xl:flex-row gap-4 items-stretch xl:items-center justify-between">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 bg-surface-container flex flex-col xl:flex-row gap-4 items-stretch xl:items-center justify-between">
         <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2.5 rounded flex-1 max-w-xl border border-surface-container">
           <span className="material-symbols-outlined text-secondary text-[20px]">search</span>
           <input
@@ -604,7 +604,7 @@ export default function ProductsTab() {
       </div>
 
       {/* Pagination */}
-      <div className="px-8 py-5 bg-surface-container-lowest flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="px-4 sm:px-6 lg:px-8 py-5 bg-surface-container-lowest flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4 flex-wrap">
           <span className="font-body text-[13px] text-secondary">
             {t("admin.catalog.showing")}{" "}
@@ -670,14 +670,14 @@ export default function ProductsTab() {
 
       {/* Product editor modal */}
       <div
-        className={`fixed inset-0 z-[70] bg-primary/45 backdrop-blur-sm flex items-center justify-center p-4 md:p-8 transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[70] bg-primary/45 backdrop-blur-sm flex items-stretch sm:items-center justify-center p-0 sm:p-4 md:p-8 transition-opacity duration-300 ${
           drawerOpen && draft ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden={!drawerOpen}
         onClick={() => drawerOpen && closeDrawer()}
       >
         <div
-          className={`w-full max-w-[1440px] max-h-[min(94vh,980px)] bg-surface shadow-2xl rounded-xl border border-surface-container-high flex flex-col transform transition-all duration-300 ease-out overflow-hidden ${
+          className={`w-full max-w-[1440px] h-[100dvh] sm:h-auto sm:max-h-[min(94vh,980px)] bg-surface shadow-2xl rounded-none sm:rounded-xl border border-surface-container-high flex flex-col transform transition-all duration-300 ease-out overflow-hidden ${
             drawerOpen && draft ? "scale-100 opacity-100" : "scale-[0.98] opacity-0"
           }`}
           onClick={(e) => e.stopPropagation()}

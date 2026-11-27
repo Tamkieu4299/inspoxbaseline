@@ -431,6 +431,9 @@ const en: Record<string, string> = {
   "admin.keyHint": "Super admin default: superadmin — per-store: admin-shop1, admin-baseline (password from ADMIN_DEFAULT_PASSWORD).",
   "admin.keyHint2": "Usernames are globally unique. Set SUPER_ADMIN_USERNAME / ADMIN_DEFAULT_PASSWORD in .env on the server.",
   "admin.contentAdmin": "CONTENT ADMIN",
+  "admin.openMenu": "Open menu",
+  "admin.closeMenu": "Close menu",
+  "admin.mobileMenu": "Admin navigation",
   "admin.hub.suite": "HQ Admin Suite",
   "admin.hub.loginSubtitle":
     "Mission-critical back-office for merchandising, media, editorial content, and store configuration.",
@@ -1546,6 +1549,9 @@ const vi: Record<string, string> = {
   "admin.keyHint": "Super admin: superadmin — từng store: admin-shop1, admin-baseline (mật khẩu ADMIN_DEFAULT_PASSWORD).",
   "admin.keyHint2": "Username duy nhất toàn hệ thống. Cấu hình SUPER_ADMIN_USERNAME / ADMIN_DEFAULT_PASSWORD trong .env.",
   "admin.contentAdmin": "QUẢN LÝ NỘI DUNG",
+  "admin.openMenu": "Mở menu",
+  "admin.closeMenu": "Đóng menu",
+  "admin.mobileMenu": "Điều hướng quản trị",
   "admin.hub.suite": "Bộ quản trị HQ",
   "admin.hub.loginSubtitle":
     "Hệ thống vận hành cho merchandising, media, nội dung biên tập và cấu hình cửa hàng.",

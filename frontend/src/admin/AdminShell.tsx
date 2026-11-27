@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../i18n";
 
@@ -69,6 +69,56 @@ function navGroups(isSuperAdmin: boolean): NavGroup[] {
     g.labelKey === "admin.hub.system"
       ? { ...g, items: g.items.filter((i) => i.tab !== "users") }
       : g,
+  );
+}
+
+function AdminNavList({
+  groups,
+  tab,
+  onSelect,
+  t,
+}: {
+  groups: NavGroup[];
+  tab: AdminTab;
+  onSelect: (tab: AdminTab) => void;
+  t: (k: string) => string;
+}) {
+  return (
+    <>
+      {groups.map((group) => (
+        <div key={group.labelKey}>
+          <p className="px-2 mb-2 font-label text-[10px] text-muted uppercase tracking-[0.14em]">
+            {t(group.labelKey)}
+          </p>
+          <ul className="flex flex-col gap-0.5">
+            {group.items.map((item) => {
+              const active = tab === item.tab;
+              return (
+                <li key={item.tab}>
+                  <button
+                    type="button"
+                    onClick={() => onSelect(item.tab)}
+                    className={`w-full flex items-center gap-3 px-3 py-3 min-h-[44px] text-left transition-colors rounded-sm ${
+                      active
+                        ? "bg-forest-green text-white"
+                        : "text-secondary hover:bg-surface-container-low hover:text-charcoal"
+                    }`}
+                  >
+                    <span
+                      className={`material-symbols-outlined text-[22px] ${active ? "text-white" : "text-forest-green"}`}
+                      aria-hidden
+                    >
+                      {item.icon}
+                    </span>
+                    <span className="font-label text-label-caps uppercase">{t(item.labelKey)}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </>
   );
 }
 
@@ -167,6 +217,24 @@ export default function AdminShell({
 }) {
   const { t } = useLanguage();
   const groups = navGroups(isSuperAdmin);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  const activeLabel =
+    groups.flatMap((g) => g.items).find((i) => i.tab === tab)?.labelKey ?? "admin.tab.homepage";
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileNavOpen]);
+
+  function selectTab(next: AdminTab) {
+    onTabChange(next);
+    setMobileNavOpen(false);
+  }
 
   return (
     <div className="min-h-screen bg-[#f3f3f4] font-body text-body-md text-charcoal flex overflow-x-hidden">
@@ -181,84 +249,121 @@ export default function AdminShell({
           </span>
         </div>
         <nav className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-5">
-          {groups.map((group) => (
-            <div key={group.labelKey}>
-              <p className="px-2 mb-2 font-label text-[10px] text-muted uppercase tracking-[0.14em]">
-                {t(group.labelKey)}
-              </p>
-              <ul className="flex flex-col gap-0.5">
-                {group.items.map((item) => {
-                  const active = tab === item.tab;
-                  return (
-                    <li key={item.tab}>
-                      <button
-                        type="button"
-                        onClick={() => onTabChange(item.tab)}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors rounded-sm ${
-                          active
-                            ? "bg-forest-green text-white"
-                            : "text-secondary hover:bg-surface-container-low hover:text-charcoal"
-                        }`}
-                      >
-                        <span
-                          className={`material-symbols-outlined text-[20px] ${active ? "text-white" : "text-forest-green"}`}
-                          aria-hidden
-                        >
-                          {item.icon}
-                        </span>
-                        <span className="font-label text-label-caps uppercase">{t(item.labelKey)}</span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
+          <AdminNavList groups={groups} tab={tab} onSelect={onTabChange} t={t} />
         </nav>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0 w-0">
-        <header className="h-14 shrink-0 bg-white border-b border-surface-container-high px-4 md:px-6 flex items-center justify-between gap-4">
-          <div className="md:hidden flex items-center gap-2 overflow-x-auto flex-1">
-            {NAV_GROUPS.flatMap((g) => g.items).map((item) => (
+      {mobileNavOpen ? (
+        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal aria-label={t("admin.mobileMenu")}>
+          <button
+            type="button"
+            className="absolute inset-0 bg-charcoal/50"
+            onClick={() => setMobileNavOpen(false)}
+            aria-label={t("admin.closeMenu")}
+          />
+          <aside className="absolute left-0 top-0 bottom-0 w-[min(300px,88vw)] bg-white shadow-xl flex flex-col pt-[env(safe-area-inset-top)]">
+            <div className="px-4 py-4 border-b border-surface-container-high flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="font-display text-lg uppercase text-charcoal truncate">INSPO</p>
+                <span className="font-label text-[10px] uppercase bg-forest-green/10 text-forest-green px-2 py-0.5">
+                  {tenant}
+                </span>
+              </div>
               <button
-                key={item.tab}
                 type="button"
-                onClick={() => onTabChange(item.tab)}
-                className={`shrink-0 px-3 py-1.5 font-label text-[10px] uppercase tracking-wider border ${
-                  tab === item.tab
-                    ? "border-forest-green bg-forest-green text-white"
-                    : "border-surface-container-highest text-secondary"
-                }`}
+                onClick={() => setMobileNavOpen(false)}
+                className="w-11 h-11 flex items-center justify-center rounded hover:bg-surface-container-low shrink-0"
+                aria-label={t("admin.closeMenu")}
               >
-                {t(item.labelKey)}
+                <span className="material-symbols-outlined text-[24px]">close</span>
               </button>
-            ))}
+            </div>
+            <nav className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-5">
+              <AdminNavList groups={groups} tab={tab} onSelect={selectTab} t={t} />
+            </nav>
+            <div className="border-t border-surface-container-high p-4 flex flex-col gap-2 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileNavOpen(false);
+                  onSwitchStore();
+                }}
+                className="w-full min-h-[44px] font-label text-label-caps uppercase text-secondary"
+              >
+                {t("admin.switchStore")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileNavOpen(false);
+                  onLogout();
+                }}
+                className="w-full min-h-[44px] font-label text-label-caps uppercase text-secondary"
+              >
+                {t("admin.logout")}
+              </button>
+              <Link
+                to="/"
+                onClick={() => setMobileNavOpen(false)}
+                className="w-full min-h-[44px] flex items-center justify-center font-label text-label-caps text-white bg-charcoal uppercase"
+              >
+                {t("admin.viewStore")}
+              </Link>
+            </div>
+          </aside>
+        </div>
+      ) : null}
+
+      <div className="flex-1 flex flex-col min-w-0 w-0 max-w-[100vw]">
+        <header className="shrink-0 bg-white border-b border-surface-container-high z-20">
+          <div className="md:hidden px-3 pt-[env(safe-area-inset-top)]">
+            <div className="flex items-center gap-2 min-h-14">
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen(true)}
+                className="w-11 h-11 shrink-0 flex items-center justify-center rounded hover:bg-surface-container-low"
+                aria-label={t("admin.openMenu")}
+              >
+                <span className="material-symbols-outlined text-[26px] text-charcoal">menu</span>
+              </button>
+              <p className="flex-1 min-w-0 font-label text-label-caps uppercase text-charcoal truncate">
+                {t(activeLabel)}
+              </p>
+              <Link
+                to="/"
+                className="w-11 h-11 shrink-0 flex items-center justify-center rounded bg-charcoal text-white"
+                aria-label={t("admin.viewStore")}
+              >
+                <span className="material-symbols-outlined text-[22px]">storefront</span>
+              </Link>
+            </div>
           </div>
-          <p className="hidden md:block font-label text-label-caps text-muted uppercase truncate">
-            {t("admin.contentAdmin")}
-          </p>
-          <div className="flex items-center gap-3 shrink-0">
-            <button
-              type="button"
-              onClick={onSwitchStore}
-              className="font-label text-label-caps text-secondary hover:text-forest-green uppercase"
-            >
-              {t("admin.switchStore")}
-            </button>
-            <button
-              type="button"
-              onClick={onLogout}
-              className="font-label text-label-caps text-secondary hover:text-forest-green uppercase"
-            >
-              {t("admin.logout")}
-            </button>
-            <Link
-              to="/"
-              className="font-label text-label-caps text-white bg-charcoal hover:bg-forest-green px-3 py-1.5 uppercase transition-colors"
-            >
-              {t("admin.viewStore")}
-            </Link>
+          <div className="hidden md:flex h-14 px-6 items-center justify-between gap-4">
+            <p className="font-label text-label-caps text-muted uppercase truncate">
+              {t("admin.contentAdmin")}
+            </p>
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={onSwitchStore}
+                className="font-label text-label-caps text-secondary hover:text-forest-green uppercase min-h-[44px] px-1"
+              >
+                {t("admin.switchStore")}
+              </button>
+              <button
+                type="button"
+                onClick={onLogout}
+                className="font-label text-label-caps text-secondary hover:text-forest-green uppercase min-h-[44px] px-1"
+              >
+                {t("admin.logout")}
+              </button>
+              <Link
+                to="/"
+                className="font-label text-label-caps text-white bg-charcoal hover:bg-forest-green px-3 py-2 uppercase transition-colors min-h-[44px] flex items-center"
+              >
+                {t("admin.viewStore")}
+              </Link>
+            </div>
           </div>
         </header>
 
