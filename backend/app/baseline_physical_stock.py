@@ -11,7 +11,7 @@ PHYSICAL_STOCK_RETAIL: dict[int, float] = {
     9: 5_555_000,  # Wilson Blade 100 300g
     10: 5_555_000,  # Wilson Blade 98 305g
     7: 5_555_000,  # Wilson Defyer 100 285g
-    55: 4_321_000,  # Head Squared
+    55: 4_231_000,  # Head Squared
 }
 
 # Fixed retail by slug (resolved to id at sync time)
